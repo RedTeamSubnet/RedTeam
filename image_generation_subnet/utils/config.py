@@ -289,6 +289,27 @@ def add_args(cls, parser):
             default=False,
         )
 
+        parser.add_argument(
+            "--offline_reward.enable",
+            action="store_true",
+            help="",
+            default=False,
+        )
+
+        parser.add_argument(
+            "--offline_reward.validator_endpoint",
+            type=str,
+            help="",
+            default="http://127.0.0.1:13300/generate",
+        )
+
+        parser.add_argument(
+            "--offline_reward.redis_endpoint",
+            type=str,
+            help="",
+            default="http://127.0.0.1:6379",
+        )
+
     else:
         parser.add_argument(
             "--blacklist.force_validator_permit",

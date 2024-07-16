@@ -1,5 +1,6 @@
 from .forward import (
     get_reward,
+    get_reward_offline,
     get_challenge,
     add_time_penalty,
 )
@@ -9,6 +10,7 @@ from .offline_challenge import get_promptGoJouney
 
 __all__ = [
     "get_reward",
+    "get_reward_offline",
     "get_challenge",
     "add_time_penalty",
     "get_reward_GoJourney",

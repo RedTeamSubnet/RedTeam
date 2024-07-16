@@ -15,7 +15,7 @@ from tqdm import tqdm
 import io
 import importlib
 import torch
-
+import bittensor as bt
 
 def make_inpaint_condition(image, image_mask):
     image = np.array(image.convert("RGB")).astype(np.float32) / 255.0
@@ -137,4 +137,4 @@ def download_checkpoint(download_url, checkpoint_file):
                 file_stream.write(data)
                 progress_bar.update(len(data))
 
-    print("Download completed successfully.")
+    bt.logging.info("Download completed successfully.")

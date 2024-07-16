@@ -3,6 +3,7 @@ import random
 from openai import OpenAI, AsyncOpenAI
 from image_generation_subnet.utils.moderation_model import Moderation
 import asyncio
+import bittensor as bt
 
 SAFE_TEMPLATE = "please remove not safe for work contents and revise this input prompt to a safe for work prompt.\n Input prompt: {}"
 
@@ -34,22 +35,22 @@ class NicheDallE(BaseModel):
             # check prompt safety
             flagged, response = self.moderation(prompt)
             if flagged:
-                print(response)
+                bt.logging.info(response)
                 data = {
                     "url": "",
                     "revised_prompt": "",
                     "flagged": (True, response),
                 }
             else:
-                print("Prompt is safe for work - Offline Moderation")
+                bt.logging.info("Prompt is safe for work - Offline Moderation")
                 is_openai_flagged = asyncio.get_event_loop().run_until_complete(
                     self.check_safety(prompt)
                 )
                 if is_openai_flagged:
                     prompt = SAFE_TEMPLATE.format(prompt)
-                    print(f"Adding safe prompt template: {prompt}")
+                    bt.logging.info(f"Adding safe prompt template: {prompt}")
                 else:
-                    print("Prompt is safe for work - OpenAI Moderation")
+                    bt.logging.info("Prompt is safe for work - OpenAI Moderation")
                 style = kwargs.get("style", "natural")
                 if style not in ["vivid", "natural"]:
                     style = "natural"
@@ -78,12 +79,12 @@ class NicheDallE(BaseModel):
                 try:
                     data = _generate(prompt, size, style)
                 except Exception as e:
-                    print(f"Error: {e}")
+                    bt.logging.error(f"Error: {e}")
                     prompt = SAFE_TEMPLATE.format(prompt)
-                    print(f"Retrying with safe prompt: {prompt}")
+                    bt.logging.info(f"Retrying with safe prompt: {prompt}")
                     data = _generate(prompt, size, style)
 
-            print(data, flush=True)
+            bt.logging.info(data)
             return data
 
         return inference_function

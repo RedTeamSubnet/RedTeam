@@ -7,6 +7,7 @@ from PIL import Image
 from transformers import CLIPProcessor, CLIPModel
 import torch
 from image_generation_subnet.utils.moderation_model import Moderation
+import bittensor as bt
 
 URL_REGEX = (
     r"https://(?:oaidalleapiprodscus|dalleprodsec)\.blob\.core\.windows\.net/private/org-[\w-]+/"
@@ -132,8 +133,8 @@ def get_reward_dalle(
 
     flagged, response = moderation_model(prompt)
     if flagged:
-        print(prompt)
-        print(response)
+        bt.logging.debug(prompt)
+        bt.logging.debug(response)
         return uids, [1] * len(synapses)
 
     def check_size(size):
@@ -144,15 +145,15 @@ def get_reward_dalle(
 
     for synapse in synapses:
         try:
-            print(synapse.response_dict)
-            print(synapse.prompt)
+            bt.logging.debug(synapse.response_dict)
+            bt.logging.debug(synapse.prompt)
             response = synapse.response_dict
             url = response.get("url", "")
             prompt = base_synapse.prompt
             image: Image.Image = load_image(url)
             size_str = f"{image.width}x{image.height}"
             sim = calculate_image_similarity(image, prompt)
-            print(f"CLIP Similarity: {sim}")
+            bt.logging.info(f"CLIP Similarity DallE: {sim}")
             if sim > similarity_threshold:
                 max_reward = 1
             elif 0.15 < sim < similarity_threshold:

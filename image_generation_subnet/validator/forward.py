@@ -6,7 +6,7 @@ from math import pow
 from functools import wraps
 from tqdm import tqdm
 import httpx
-
+import json
 
 def retry(**kwargs):
     module = kwargs.get("module", "unknown")
@@ -60,12 +60,47 @@ def get_challenge(
                 challenge = response.json()
         except Exception as e:
             bt.logging.warning(f"Error in get_challenge: {e}")
-            challenge = None
+            challenge = backup_func()
         if challenge:
             synapses[i] = synapse.copy(update=challenge)
         else:
             synapses[i] = None
     return synapses
+
+def get_reward_offline(
+    base_synapse: ImageGenerating,
+    synapses: List[ImageGenerating],
+    uids: List[int],
+    timeout: float,
+    message_broker
+):
+    """Push synapse responses into a Redis stream to calculate rewards offline for miners ."""
+    valid_uids = [uid for uid, response in zip(uids, synapses) if response.is_success]
+    invalid_uids = [
+        uid for uid, synapse in zip(uids, synapses) if not synapse.is_success
+    ]
+    valid_synapses = [synapse for synapse in synapses if synapse.is_success]
+   
+    miner_data = []
+    for synapse in valid_synapses:
+        dt = synapse.deserialize()
+        dt["process_time"] = synapse.dendrite.process_time
+        miner_data.append(dt)
+    
+    all_miner_data = [synapse.deserialize() for synapse in synapses]
+    data = {
+        "timeout": timeout,
+        "valid_uids": valid_uids,
+        "invalid_uids": invalid_uids,
+        "miner_data": miner_data,
+        "base_data": base_synapse.deserialize_input(),
+        "uids": uids,
+        "all_miner_data": all_miner_data
+    }
+    try:
+        message_broker.publish_to_stream(stream_name = "synapse_data", message = {"data": json.dumps(data)})
+    except Exception as ex:
+        bt.logging.error(f"Push synapse result to message broker fail: {str(ex)} ")
 
 
 def get_reward(

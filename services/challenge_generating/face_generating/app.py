@@ -16,7 +16,7 @@ from services.challenge_generating.face_generating.generate_face import FaceGene
 
 def get_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--port", type=int, default=10001)
+    parser.add_argument("--port", type=int, default=11278)
     parser.add_argument("--netuid", type=str, default=23)
     parser.add_argument("--min_stake", type=int, default=100)
     parser.add_argument(
@@ -53,7 +53,7 @@ class ChallengeImage:
     def __init__(self, model_handle: DeploymentHandle, args):
         self.args = args
         self.model_handle = model_handle
-        self.app = FastAPI()
+        self.app = FastAPI(title="Challenge Image")
         self.app.add_api_route("/", self.__call__, methods=["POST"])
         self.app.middleware("http")(partial(filter_allowed_ips, self))
         self.app.state.limiter = limiter

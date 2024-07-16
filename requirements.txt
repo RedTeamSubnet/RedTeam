@@ -26,3 +26,7 @@ jinja2
 insightface
 onnxruntime-gpu
 openai
+sentencepiece
+redis==5.0.6
+ctranslate2==4.3.1
+ninja=1.10.2

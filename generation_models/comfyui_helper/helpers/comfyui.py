@@ -12,6 +12,7 @@ import websocket
 import random
 from generation_models.comfyui_helper.weights_downloader import WeightsDownloader
 from urllib.error import URLError
+import bittensor as bt
 
 # custom_nodes helpers
 from generation_models.comfyui_helper.helpers.ComfyUI_BRIA_AI_RMBG import ComfyUI_BRIA_AI_RMBG
@@ -38,14 +39,14 @@ class ComfyUI:
         start_time = time.time()
         while not self.is_server_running():
             if time.time() - start_time > 60:  # If more than a minute has passed
-                raise TimeoutError("Server did not start within 60 seconds")
+                bt.logging.warning("Server did not start within 60 seconds")
             time.sleep(1)  # Wait for 1 second before checking again
 
-        print("Server running")
+        bt.logging.info("Server running")
 
     def run_server(self, output_directory, input_directory):
         command = f". comfyui/bin/activate && cd generation_models/comfyui_helper/ComfyUI/ && python main.py --port {self.port} --output-directory {output_directory} --input-directory {input_directory} --cuda-device {CUDA_VISIBLE_DEVICES}"
-        print(command)
+        bt.logging.info(command)
         server_process = subprocess.Popen(command, shell=True)
         server_process.wait()
 
@@ -58,12 +59,46 @@ class ComfyUI:
         except URLError:
             return False
 
+    def kill_process_on_port(self):
+        """ Terminates any process that is using the specified port. This function is 
+        useful for freeing up resources, particularly when a server ComfyUI server
+        is running on a given port and needs to be shut down.
+        """
+        import signal
+        import re
+        
+        port = self.port
+        try:
+            command = f"ss -ltnp 'sport = :{port}'"
+            ss_output = subprocess.check_output(command, shell=True).decode()
+
+            if ss_output:
+                pid = None
+                for line in ss_output.splitlines():
+                    if f":{port}" in line:
+                        match = re.search(r'pid=(\d+)', line)
+                        if match:
+                            pid = match.group(1)
+
+                if pid:
+                    bt.logging.info(f"Found process {pid} running on port {port}")
+                    os.kill(int(pid), signal.SIGKILL)
+                    bt.logging.info(f"Process {pid} killed")
+                else:
+                    bt.logging.info(f"No process found running on port {port}")
+            else:
+                bt.logging.info(f"No process found running on port {port}")
+        except subprocess.CalledProcessError:
+            bt.logging.info(f"No process found running on port {port}")
+        except Exception as e:
+            bt.logging.error(f"An error occurred: {e}")
+
     def download_pre_start_models(self):
         # Some models need to be downloaded and loaded before starting ComfyUI
         self.weights_downloader.download_torch_checkpoints()
 
     def handle_weights(self, workflow):
-        print("Checking weights")
+        bt.logging.info("Checking weights")
         weights_to_download = []
         weights_filetypes = [
             ".ckpt",
@@ -92,9 +127,9 @@ class ComfyUI:
 
         for weight in weights_to_download:
             self.weights_downloader.download_weights(weight)
-            print(f"✅ {weight}")
+            bt.logging.info(f"✅ {weight}")
 
-        print("====================================")
+        bt.logging.info("====================================")
 
     def is_image_or_video_value(self, value):
         return isinstance(value, str) and any(
@@ -103,7 +138,7 @@ class ComfyUI:
         )
 
     def handle_inputs(self, workflow):
-        print("Checking inputs")
+        bt.logging.info("Checking inputs")
         seen_inputs = set()
         for node in workflow.values():
             if "inputs" in node:
@@ -115,20 +150,20 @@ class ComfyUI:
                                 self.input_directory, os.path.basename(input_value)
                             )
                             if not os.path.exists(filename):
-                                print(f"Downloading {input_value} to {filename}")
+                                bt.logging.info(f"Downloading {input_value} to {filename}")
                                 urllib.request.urlretrieve(input_value, filename)
                             node["inputs"][input_key] = filename
-                            print(f"✅ {filename}")
+                            bt.logging.info(f"✅ {filename}")
                         elif self.is_image_or_video_value(input_value):
                             filename = os.path.join(
                                 self.input_directory, os.path.basename(input_value)
                             )
                             if not os.path.exists(filename):
-                                print(f"❌ {filename} not provided")
+                                bt.logging.info(f"❌ {filename} not provided")
                             else:
-                                print(f"✅ {filename}")
+                                bt.logging.info(f"✅ {filename}")
 
-        print("====================================")
+        bt.logging.info("====================================")
 
     def connect(self):
         self.client_id = str(uuid.uuid4())
@@ -144,7 +179,7 @@ class ComfyUI:
         )
         with urllib.request.urlopen(req) as response:
             if response.status != 200:
-                print(f"Failed: {endpoint}, status code: {response.status}")
+                bt.logging.error(f"Failed: {endpoint}, status code: {response.status}")
 
     # https://github.com/comfyanonymous/ComfyUI/blob/master/server.py
     def clear_queue(self):
@@ -163,7 +198,7 @@ class ComfyUI:
             output = json.loads(urllib.request.urlopen(req).read())
             return output["prompt_id"]
         except urllib.error.HTTPError as e:
-            print(f"ComfyUI error: {e.code} {e.reason}")
+            bt.logging.error(f"ComfyUI error: {e.code} {e.reason}")
             http_error = True
 
         if http_error:
@@ -182,7 +217,7 @@ class ComfyUI:
                         node = workflow.get(data["node"], {})
                         meta = node.get("_meta", {})
                         class_type = node.get("class_type", "Unknown")
-                        print(
+                        bt.logging.info(
                             f"Executing node {data['node']}, title: {meta.get('title', 'Unknown')}, class type: {class_type}"
                         )
             else:
@@ -215,7 +250,7 @@ class ComfyUI:
     def randomise_input_seed(self, input_key, inputs):
         if input_key in inputs and isinstance(inputs[input_key], (int, float)):
             new_seed = random.randint(0, 2**32 - 1)
-            print(f"Randomising {input_key} to {new_seed}")
+            bt.logging.info(f"Randomising {input_key} to {new_seed}")
             inputs[input_key] = new_seed
 
     def randomise_seeds(self, workflow):
@@ -226,14 +261,14 @@ class ComfyUI:
                 self.randomise_input_seed(seed_key, inputs)
 
     def run_workflow(self, workflow):
-        print("Running workflow")
+        bt.logging.info("Running workflow")
         # self.reset_execution_cache()
 
         prompt_id = self.queue_prompt(workflow)
         self.wait_for_prompt_completion(workflow, prompt_id)
         output_json = self.get_history(prompt_id)
-        print("outputs: ", output_json)
-        print("====================================")
+        bt.logging.info(f"outputs: {output_json}")
+        bt.logging.info("====================================")
 
     def get_history(self, prompt_id):
         with urllib.request.urlopen(

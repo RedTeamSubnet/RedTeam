@@ -173,3 +173,6 @@ vllm/*
 *.bin
 *.1
 *.onnx
+main_env
+__pycache__
+data

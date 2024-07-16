@@ -13,15 +13,22 @@ class CosineSimilarityReward(nn.Module):
         self,
         model_name="vit_base_patch16_clip_384.laion2b_ft_in12k_in1k",
         threshold=0.6,
+        device = None
     ):
         super(CosineSimilarityReward, self).__init__()
+        if not device:
+            self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        else:
+            self.device = device
+            
         self.threshold = threshold
         self.model, self.transforms = self.get_model(model_name)
-
+        
+            
     def get_model(self, model_name):
         model = timm.create_model(model_name, pretrained=True, num_classes=0)
         model.eval()
-        model = model.cuda()
+        model.to(self.device)
         data_config = timm.data.resolve_model_data_config(model)
         transforms = timm.data.create_transform(**data_config, is_training=False)
         return model, transforms
@@ -30,8 +37,8 @@ class CosineSimilarityReward(nn.Module):
     def forward(
         self, validator_image: Image.Image, miner_image: Image.Image, binary=True
     ) -> float:
-        validator_vec = self.model(self.transforms(validator_image).unsqueeze(0).cuda())
-        image_vec = self.model(self.transforms(miner_image).unsqueeze(0).cuda())
+        validator_vec = self.model(self.transforms(validator_image).unsqueeze(0).to(self.device))
+        image_vec = self.model(self.transforms(miner_image).unsqueeze(0).to(self.device))
         cosine_similarity = F.cosine_similarity(validator_vec, image_vec)
         if binary:
             if cosine_similarity.item() > self.threshold:

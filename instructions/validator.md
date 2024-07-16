@@ -1,4 +1,4 @@
-# Setup for miner
+# Setup for validator
 
 Make sure that you have a registered hotkey to Subnet 23 and stake > 10000 TAO. If you haven't done so, please refer to https://docs.bittensor.com/subnets/register-validate-mine
 
@@ -25,6 +25,8 @@ pm2 start python --name "validator_nicheimage" \
 --share_response # Optional, sharing miner's response and get paid, require a good bandwidth
 --subtensor.network <network> \
 ```
+If you want to run validation APIs locally, check out [Setup validator endpoint](validator_endpoint.md)
+
 3. (Optional) **Enable Auto Update Validator**
 ```
 pm2 start auto_update.sh --name "auto-update"

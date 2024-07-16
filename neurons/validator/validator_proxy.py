@@ -88,12 +88,11 @@ class ValidatorProxy:
             )
 
     def organic_reward(
-        self, synapse, response, uid, should_reward, reward_url, timeout
+        self, synapse, response, uid, reward_url, timeout
     ):
-        if (
-            random.random() < self.validator.config.proxy.checking_probability
-            or should_reward
-        ):
+        if self.validator.offline_reward:
+            image_generation_subnet.validator.get_reward_offline(synapse, [response], [uid], timeout, self.validator.redis_client)
+        else:
             if callable(reward_url):
                 uids, rewards = reward_url(synapse, [response], [uid])
             else:
@@ -104,7 +103,7 @@ class ValidatorProxy:
                     reward_url, synapse, [response], [uid], timeout, self.validator.miner_manager
                 )
             bt.logging.info(
-                f"Proxy: Updating scores of miners {uids} with rewards {rewards}, should_reward: {should_reward}"
+                f"Proxy: Updating scores of miners {uids} with rewards {rewards}"
             )
                 # Scale Reward based on Miner Volume
             for i, uid in enumerate(uids):
@@ -112,6 +111,9 @@ class ValidatorProxy:
                     rewards[i] = rewards[i] * (
                         0.6 + 0.4 * self.validator.miner_manager.all_uids_info[uid]["reward_scale"]
                     )
+            bt.logging.info(
+                f"Organic reward: {rewards}"
+            )
             self.validator.miner_manager.update_scores(uids, rewards)
 
     async def forward(self, data: dict = {}):
@@ -139,6 +141,11 @@ class ValidatorProxy:
         for uid, should_reward in self.validator.query_queue.get_query_for_proxy(
             model_name
         ):
+            should_reward = should_reward or random.random() < self.validator.config.proxy.checking_probability
+            if should_reward and self.validator.offline_reward and \
+                self.validator.nicheimage_catalogue[model_name]["reward_type"] in self.validator.supporting_offline_reward_types:
+                self.validator.enqueue_synapse_for_validation(synapse)
+
             bt.logging.info(
                 f"Forwarding request to miner {uid} with recent scores: {self.validator.miner_manager.all_uids_info[uid]['scores']}"
             )
@@ -151,11 +158,12 @@ class ValidatorProxy:
             bt.logging.info(
                 f"Received response from miner {uid}, status: {response.is_success}"
             )
-            reward_thread = threading.Thread(
-                target=self.organic_reward,
-                args=(synapse, response, uid, should_reward, reward_url, timeout),
-            )
-            reward_thread.start()
+            if should_reward:
+                reward_thread = threading.Thread(
+                    target=self.organic_reward,
+                    args=(synapse, response, uid, reward_url, timeout),
+                )
+                reward_thread.start()
 
             if response.is_success:
                 output = response

@@ -2,10 +2,8 @@ from fastapi import FastAPI
 from pydantic import BaseModel, Extra
 import argparse
 from typing import Optional
-from transformers import set_seed
-import httpx
-import random
-
+import uvicorn
+from services.challenge_generating.prompt_generating.model import ChallengePromptGenerator
 
 class Prompt(BaseModel, extra=Extra.allow):
     prompt: str
@@ -15,7 +13,7 @@ class Prompt(BaseModel, extra=Extra.allow):
 
 def get_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--port", type=int, default=10001)
+    parser.add_argument("--port", type=int, default=11277)
     parser.add_argument("--netuid", type=str, default=23)
     parser.add_argument("--min_stake", type=int, default=100)
     parser.add_argument(
@@ -30,7 +28,8 @@ def get_args():
 
 class ChallengeImage:
     def __init__(self):
-        self.app = FastAPI()
+        self.challenge_prompt = ChallengePromptGenerator()
+        self.app = FastAPI(title="Challenge Prompt")
         self.app.add_api_route("/", self.__call__, methods=["POST"])
 
     async def __call__(
@@ -38,23 +37,14 @@ class ChallengeImage:
         data: Prompt,
     ):
         data = dict(data)
-        seed = random.randint(0, 1e9)
-        set_seed(seed)
         prompt = data["prompt"]
         if not prompt:
             prompt = "an image of "
-        async with httpx.AsyncClient() as httpx_client:
-            response = await httpx_client.post(
-                "http://localhost:8000/v1/completions",
-                json={
-                    "prompt": [prompt],
-                    "model": "LykosAI/GPT-Prompt-Expansion-Fooocus-v2",
-                    "max_tokens": 77,
-                },
-            )
-        prompt_completion = response.json()["choices"][0]["text"].strip()
-        prompt = prompt + prompt_completion
-        return {"prompt": prompt}
+        complete_prompt = self.challenge_prompt.infer_prompt([prompt], max_generation_length=77, sampling_topk=100)[0].strip()
+        return {"prompt": complete_prompt}
 
-
-app = ChallengeImage()
+if __name__ == '__main__':
+    args = get_args()
+    print("Args: ",args)
+    app = ChallengeImage()
+    uvicorn.run(app.app, host="0.0.0.0", port=args.port)

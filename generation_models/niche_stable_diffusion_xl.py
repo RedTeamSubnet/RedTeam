@@ -10,6 +10,7 @@ from .utils import (
 import os
 import torch
 import sys
+import bittensor as bt
 
 class NicheStableDiffusionXL(BaseModel):
     def load_model(self, checkpoint_file, download_url, supporting_pipelines, **kwargs):
@@ -105,7 +106,7 @@ class NicheStableDiffusionXL(BaseModel):
             controlnet_conditioning_scale = kwargs.get("controlnet_conditioning_scale", 0.8)
             ip_adapter_scale = kwargs.get("ip_adapter_scale", 0.8)
             if len(face_info) == 0:
-                print("No face detected in the image")
+                bt.logging.info("No face detected in the image")
                 conditional_image = Image.open("assets/images/image.png")
                 face_info = app.get(cv2.cvtColor(np.array(conditional_image), cv2.COLOR_RGB2BGR))
                 ip_adapter_scale = 0.0
