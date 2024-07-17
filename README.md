@@ -7,7 +7,8 @@
 ### Description
 NicheImage is a decentralized network that utilizes the Bittensor protocol to enable distributed image generation. This document serves as a guide for setting up and participating in the network, targeting both validators and miners. It includes essential information on project setup, operation, and contribution.
 
-- 📚 [Documentation](https://docs.nichetensor.com) (API, Roadmap, Technical Descriptions)
+- 📚 [API Documentation](https://docs.nichetensor.com) (API, Roadmap, Technical Descriptions)
+- 🏞️ [Miner and Validator Documentation](https://chestnut-radar-416.notion.site/SN23-SocialTensor-Docs-75202763e797465b88f4d395cb1a14ef)
 - 🤖 [Taobot](https://interact.tao.bot/niche-image)
 - 📊 [Subnet statistics & Playground](https://nicheimage.streamlit.app/)
 
