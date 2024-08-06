@@ -176,3 +176,6 @@ vllm/*
 main_env
 __pycache__
 data
+bin/
+main/
+checkpoints/

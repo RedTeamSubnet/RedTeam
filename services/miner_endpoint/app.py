@@ -88,7 +88,10 @@ class MinerEndpoint:
 
     async def generate(self, prompt: Prompt):
         prompt_data = prompt.dict()
-        output = await self.model_handle.generate.remote(prompt_data=prompt_data)
+        image_format = prompt_data["pipeline_params"].pop("image_format", "JPG")
+        output = await self.model_handle.generate.remote(
+            prompt_data=prompt_data, image_format=image_format
+        )
         if isinstance(output, dict):
             return {"response_dict": output}
         if isinstance(output, str):

@@ -12,7 +12,7 @@ class ModelDeployment:
     def __init__(self, model_config):
         self.pipe = instantiate_from_config(model_config)
 
-    async def generate(self, prompt_data: Dict[str, Any], image_format="JPEG"):
+    async def generate(self, prompt_data: Dict[str, Any], image_format="PNG"):
         prompt_data = dict(prompt_data)
         generator = torch.manual_seed(prompt_data["seed"])
         output = self.pipe(

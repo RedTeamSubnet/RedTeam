@@ -189,7 +189,7 @@ class RewardApp():
             if len(info["valid_uids"]) > 0:
                 validator_response = info.get("validator_response")
                 miner_responses = [x["image"] for x in  info["miner_data"]]
-                valid_rewards = self.rewarder.get_reward(validator_response, miner_responses)
+                valid_rewards = self.rewarder.get_reward(validator_response, miner_responses, info["base_data"].get("pipeline_type"))
                 valid_rewards = [float(reward) for reward in valid_rewards]
                 bt.logging.debug(valid_rewards)
                 process_times = [x["process_time"] for x in info["miner_data"]]

@@ -29,9 +29,10 @@ URL_REGEX = (
 )
 
 # Dall E
-model = CLIPModel.from_pretrained("openai/clip-vit-large-patch14")
-processor = CLIPProcessor.from_pretrained("openai/clip-vit-large-patch14")
-
+# model = CLIPModel.from_pretrained("openai/clip-vit-large-patch14")
+# processor = CLIPProcessor.from_pretrained("openai/clip-vit-large-patch14")
+MODEL = None
+PROCESSOR = None
 # Moderation
 
 moderation_model = None
@@ -124,6 +125,13 @@ def get_reward_dalle(
     **kwargs,
 ) -> float:
     """Calculate the image score based on similarity and size."""
+    global MODEL
+    global PROCESSOR
+
+    if MODEL is None:
+        MODEL = CLIPModel.from_pretrained("openai/clip-vit-large-patch14")
+    if PROCESSOR is None:
+        PROCESSOR = CLIPProcessor.from_pretrained("openai/clip-vit-large-patch14")
     global moderation_model
     if moderation_model is None:
         moderation_model = Moderation()

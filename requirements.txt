@@ -1,7 +1,9 @@
 bittensor==6.9.3
-diffusers==0.28.0
-transformers==4.40.0
-accelerate==0.27.2
+diffusers @ git+https://github.com/huggingface/diffusers.git@a57a7af45cbef004c38e2a294a6457f7f3574e5d#egg=diffusers
+optimum-quanto @ git+https://github.com/toilaluan/optimum-quanto.git
+controlnet_aux @ git+https://github.com/toilaluan/controlnet_aux.git
+transformers==4.42.4
+accelerate==0.32.0
 cryptography==42.0.0
 ImageHash==4.3.1
 loguru==0.7.0
@@ -16,17 +18,16 @@ omegaconf==2.3.0
 gitpython==3.1.40
 httpx==0.26.0
 ray[serve]==2.23.0
-git+https://github.com/toilaluan/controlnet_aux.git
 timm==1.0.3
 numpy==1.26.4
-pandas
-typesense
-clean-text[gpl]
-jinja2
-insightface
-onnxruntime-gpu
-openai
-sentencepiece
+jinja2==3.1.2
+insightface==0.7.3
+onnxruntime-gpu==1.18.1
+openai==1.38.0
+sentencepiece==0.2.0
 redis==5.0.6
 ctranslate2==4.3.1
 ninja==1.10.2
+k-diffusion==0.1.1.post1
+pytorch-lightning==2.1.2
+open-clip-torch==2.17.1

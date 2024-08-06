@@ -130,9 +130,9 @@ def get_reward(
         valid_rewards = [float(reward) for reward in valid_rewards]
         process_times = [synapse.dendrite.process_time for synapse in valid_synapses]
         if timeout > 12:
-            valid_rewards = add_time_penalty(valid_rewards, process_times, 0.4, 64)
+            valid_rewards = add_time_penalty(valid_rewards, process_times, 0.4, timeout)
         else:
-            valid_rewards = add_time_penalty(valid_rewards, process_times, 0.4, 12)
+            valid_rewards = add_time_penalty(valid_rewards, process_times, 0.4, timeout)
         valid_rewards = [round(num, 3) for num in valid_rewards]
     else:
         bt.logging.info("0 valid responses in a batch")
@@ -148,7 +148,7 @@ def add_time_penalty(rewards, process_times, max_penalty=0.4, factor: float = 12
     Add time penalty to rewards, based on process time
     """
     penalties = [
-        max_penalty * pow(process_time, 3) / pow(factor, 3)
+        max_penalty * pow(process_time, 1.5) / pow(factor, 1.5)
         for process_time in process_times
     ]
     penalties = [min(penalty, max_penalty) for penalty in penalties]

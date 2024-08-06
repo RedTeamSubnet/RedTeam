@@ -160,6 +160,17 @@ def initialize_challenge_urls(config):
             "main": [config.challenge.prompt, config.challenge.image],
             "backup": [get_backup_prompt, get_backup_image],
         },
+        "upscale": {
+            "main": [config.challenge.image],
+            "backup": [get_backup_image]
+        },
+        "ip_adapter": {
+            "main": [
+                config.challenge.prompt,
+                config.challenge.image,
+            ],
+            "backup": [get_backup_prompt, get_backup_image],
+        },
     }
     return challenge_urls
 
@@ -296,7 +307,50 @@ def initialize_nicheimage_catalogue(config):
             "inference_params": {},
             "synapse_type": ig_subnet.protocol.ImageGenerating,
             "model_incentive_weight": 0.04,
-        }
+        },
+        "SUPIR": {
+            "supporting_pipelines": MODEL_CONFIGS["SUPIR"]["params"][
+                "supporting_pipelines"
+            ],
+            "reward_url": config.reward_url.SUPIR,
+            "reward_type": "image",
+            "timeout": 180,
+            "inference_params": {},
+            "synapse_type": ig_subnet.protocol.ImageGenerating,
+            "model_incentive_weight": 0.00,
+        },
+        "FluxSchnell": {
+            "supporting_pipelines": MODEL_CONFIGS["FluxSchnell"]["params"][
+                "supporting_pipelines"
+            ],
+            "model_incentive_weight": 0.0,
+            "reward_url": config.reward_url.FluxSchnell,
+            "reward_type": "image",
+            "inference_params": {
+                "num_inference_steps": 4,
+                "width": 1024,
+                "height": 1024,
+                "guidance_scale": 0.0,
+            },
+            "timeout": 24,
+            "synapse_type": ig_subnet.protocol.ImageGenerating,
+        },
+        "Kolors": {
+            "supporting_pipelines": MODEL_CONFIGS["Kolors"]["params"][
+                "supporting_pipelines"
+            ],
+            "model_incentive_weight": 0.0,
+            "reward_url": config.reward_url.Kolors,
+            "reward_type": "image",
+            "inference_params": {
+                "num_inference_steps": 30,
+                "width": 1024,
+                "height": 1024,
+                "guidance_scale": 5.0,
+            },
+            "timeout": 32,
+            "synapse_type": ig_subnet.protocol.ImageGenerating,
+        },
     }
     return nicheimage_catalogue
 
@@ -445,12 +499,9 @@ class Validator(BaseValidatorNeuron):
         should_rewards: list[int],
     ):
         dendrite = bt.dendrite(self.wallet)
-        if model_name == "RealitiesEdgeXL" and datetime.utcnow() < datetime(2024, 6, 12, 0, 0, 0):
-            pipeline_type = "txt2img"
-        else:
-            pipeline_type = random.choice(
-                self.nicheimage_catalogue[model_name]["supporting_pipelines"]
-            )
+        pipeline_type = random.choice(
+            self.nicheimage_catalogue[model_name]["supporting_pipelines"]
+        )
         reward_url = self.nicheimage_catalogue[model_name]["reward_url"]
         uids_should_rewards = list(zip(uids, should_rewards))
         synapses, batched_uids_should_rewards = self.prepare_challenge(
@@ -583,14 +634,38 @@ class Validator(BaseValidatorNeuron):
             model_specific_weights = self.miner_manager.get_model_specific_weights(
                 model_name
             )
-            
             # Smoothing update incentive
             temp_incentive_weight = {}
-            if datetime.utcnow() < datetime(2024, 6, 6, 0, 0, 0):
+            if datetime(2024, 8, 8, 14, 0, 0) < datetime.utcnow() < datetime(2024, 8, 10, 14, 0, 0): # Activate on 8/8
+                # ORIGINAL: Dalle - 0.04, DreamShaperXL - 0.06, FaceToMany - 0.03
                 temp_incentive_weight = {
-                    "DallE": 0.01,
-                    "AnimeV3": 0.30,
+                    "DallE": 0.035, 
+                    "DreamShaperXL": 0.055,
+                    "FaceToMany": 0.025,
+                    "SUPIR": 0.005,
+                    "Kolors": 0.005,
+                    "FluxSchnell": 0.005,
                 }
+            elif datetime(2024, 8, 10, 14, 0, 0) < datetime.utcnow() < datetime(2024, 8, 14, 14, 0, 0): # Activate on 10/8
+                temp_incentive_weight = {
+                    "DallE": 0.03, 
+                    "DreamShaperXL": 0.05,
+                    "FaceToMany": 0.02,
+                    "SUPIR": 0.01,
+                    "Kolors": 0.01,
+                    "FluxSchnell": 0.01,
+                }
+            elif datetime(2024, 8, 14, 14, 0, 0) < datetime.utcnow(): # Activate on 14/8
+                temp_incentive_weight = {
+                    "DallE": 0.02, 
+                    "DreamShaperXL": 0.04,
+                    "FaceToMany": 0.01,
+                    "SUPIR": 0.02,
+                    "Kolors": 0.02,
+                    "FluxSchnell": 0.02,
+                }
+
+            bt.logging.success(f"Using temp incentive distribution: {temp_incentive_weight}")
 
             if model_name in temp_incentive_weight:
                 bt.logging.info(f"Using temp_incentive_weight: {temp_incentive_weight} for {model_name}")
@@ -602,6 +677,10 @@ class Validator(BaseValidatorNeuron):
                     model_specific_weights
                     * self.nicheimage_catalogue[model_name]["model_incentive_weight"]
                 )
+            model_specific_weights = (
+                model_specific_weights
+                * self.nicheimage_catalogue[model_name]["model_incentive_weight"]
+            )
             bt.logging.info(
                 f"model_specific_weights for {model_name}\n{model_specific_weights}"
             )

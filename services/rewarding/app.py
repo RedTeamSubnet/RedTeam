@@ -108,7 +108,7 @@ class RewardApp:
         miner_data = reward_request.miner_data
         validator_image = await self.model_handle.generate.remote(prompt_data=base_data)
         miner_images = [d.image for d in miner_data]
-        rewards = self.rewarder.get_reward(validator_image, miner_images)
+        rewards = self.rewarder.get_reward(validator_image, miner_images, base_data.pipeline_type)
         rewards = [float(reward) for reward in rewards]
         print(rewards, flush=True)
         return {

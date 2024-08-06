@@ -6,6 +6,9 @@ import torch
 from typing import List
 from generation_models.utils import base64_to_pil_image
 import imagehash
+import numpy as np
+from skimage.metrics import peak_signal_noise_ratio as psnr
+from skimage.metrics import structural_similarity as ssim
 
 
 class CosineSimilarityReward(nn.Module):
@@ -52,7 +55,7 @@ class CosineSimilarityReward(nn.Module):
         return float(cosine_similarity.item())
 
     def get_reward(
-        self, validator_image: Image.Image, batched_miner_images: List[str]
+        self, validator_image: Image.Image, batched_miner_images: List[str], pipeline_type: str
     ) -> List[float]:
         rewards = []
         if not isinstance(validator_image, Image.Image):
@@ -73,7 +76,11 @@ class CosineSimilarityReward(nn.Module):
                 if nsfw_check:
                     reward = -5 if nsfw_check == 2 else 0
                 else:
-                    reward = self.matching_image(miner_image, validator_image)
+                    if pipeline_type == "upscale":
+                        reward = self.calculate_reward_upscale(miner_image, validator_image)
+                    else:
+                        reward = self.matching_image(miner_image, validator_image)
+                        
             rewards.append(reward)
         return rewards
 
@@ -102,3 +109,22 @@ class CosineSimilarityReward(nn.Module):
         if validator_hash == black_hash and miner_hash != black_hash:
             return 2
         return 0
+
+    def calculate_reward_upscale(self, validator_image: Image.Image, miner_image: Image.Image, psnr_threshold=30, ssim_threshold=0.9):
+        validator_array = np.array(validator_image.convert('L'))
+        miner_array = np.array(miner_image.convert('L'))
+        psnr_value = psnr(validator_array, miner_array)
+        ssim_value, _ = ssim(validator_array, miner_array, full=True)
+
+        if psnr_value >= psnr_threshold and ssim_value >= ssim_threshold:
+            reward = 1.0 
+        elif psnr_value < psnr_threshold and ssim_value < ssim_threshold:
+            reward = 0.0 
+        else:
+            # Partial reward based on quality
+            psnr_penalty = min(psnr_value / psnr_threshold, 1.0)
+            ssim_penalty = min(ssim_value / ssim_threshold, 1.0)
+            penalty_factor = 0.6
+            reward = penalty_factor * (psnr_penalty + ssim_penalty) / 2
+        print("calculate_reward_upscale: ", psnr_value, ssim_value, reward)
+        return reward
