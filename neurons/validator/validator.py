@@ -677,10 +677,6 @@ class Validator(BaseValidatorNeuron):
                     model_specific_weights
                     * self.nicheimage_catalogue[model_name]["model_incentive_weight"]
                 )
-            model_specific_weights = (
-                model_specific_weights
-                * self.nicheimage_catalogue[model_name]["model_incentive_weight"]
-            )
             bt.logging.info(
                 f"model_specific_weights for {model_name}\n{model_specific_weights}"
             )
