@@ -189,7 +189,7 @@ def initialize_nicheimage_catalogue(config):
             "synapse_type": ig_subnet.protocol.ImageGenerating,
         },
         "DreamShaperXL": {
-            "model_incentive_weight": 0.06,
+            "model_incentive_weight": 0.00,
             "supporting_pipelines": MODEL_CONFIGS["DreamShaperXL"]["params"][
                 "supporting_pipelines"
             ],
@@ -208,7 +208,7 @@ def initialize_nicheimage_catalogue(config):
             "supporting_pipelines": MODEL_CONFIGS["JuggernautXL"]["params"][
                 "supporting_pipelines"
             ],
-            "model_incentive_weight": 0.18,
+            "model_incentive_weight": 0.15,
             "reward_url": config.reward_url.JuggernautXL,
             "reward_type": "image",
             "inference_params": {
@@ -224,7 +224,7 @@ def initialize_nicheimage_catalogue(config):
             "supporting_pipelines": MODEL_CONFIGS["RealitiesEdgeXL"]["params"][
                 "supporting_pipelines"
             ],
-            "model_incentive_weight": 0.29,
+            "model_incentive_weight": 0.20,
             "reward_url": config.reward_url.RealitiesEdgeXL,
             "reward_type": "image",
             "inference_params": {
@@ -240,7 +240,7 @@ def initialize_nicheimage_catalogue(config):
             "supporting_pipelines": MODEL_CONFIGS["AnimeV3"]["params"][
                 "supporting_pipelines"
             ],
-            "model_incentive_weight": 0.27,
+            "model_incentive_weight": 0.20,
             "reward_url": config.reward_url.AnimeV3,
             "reward_type": "image",
             "inference_params": {
@@ -279,7 +279,7 @@ def initialize_nicheimage_catalogue(config):
             "supporting_pipelines": MODEL_CONFIGS["FaceToMany"]["params"][
                 "supporting_pipelines"
             ],
-            "model_incentive_weight": 0.03,
+            "model_incentive_weight": 0.00,
             "timeout": 64,
             "synapse_type": ig_subnet.protocol.ImageGenerating,
             "reward_url": config.reward_url.FaceToMany,
@@ -290,7 +290,7 @@ def initialize_nicheimage_catalogue(config):
             "supporting_pipelines": MODEL_CONFIGS["Llama3_70b"]["params"][
                 "supporting_pipelines"
             ],
-            "model_incentive_weight": 0.04,
+            "model_incentive_weight": 0.05,
             "timeout": 128,
             "synapse_type": ig_subnet.protocol.TextGenerating,
             "reward_url": config.reward_url.Llama3_70b,
@@ -306,7 +306,7 @@ def initialize_nicheimage_catalogue(config):
             "timeout": 36,
             "inference_params": {},
             "synapse_type": ig_subnet.protocol.ImageGenerating,
-            "model_incentive_weight": 0.04,
+            "model_incentive_weight": 0.00,
         },
         "SUPIR": {
             "supporting_pipelines": MODEL_CONFIGS["SUPIR"]["params"][
@@ -317,13 +317,13 @@ def initialize_nicheimage_catalogue(config):
             "timeout": 180,
             "inference_params": {},
             "synapse_type": ig_subnet.protocol.ImageGenerating,
-            "model_incentive_weight": 0.00,
+            "model_incentive_weight": 0.08,
         },
         "FluxSchnell": {
             "supporting_pipelines": MODEL_CONFIGS["FluxSchnell"]["params"][
                 "supporting_pipelines"
             ],
-            "model_incentive_weight": 0.0,
+            "model_incentive_weight": 0.12,
             "reward_url": config.reward_url.FluxSchnell,
             "reward_type": "image",
             "inference_params": {
@@ -339,7 +339,7 @@ def initialize_nicheimage_catalogue(config):
             "supporting_pipelines": MODEL_CONFIGS["Kolors"]["params"][
                 "supporting_pipelines"
             ],
-            "model_incentive_weight": 0.0,
+            "model_incentive_weight": 0.10,
             "reward_url": config.reward_url.Kolors,
             "reward_type": "image",
             "inference_params": {
@@ -352,6 +352,13 @@ def initialize_nicheimage_catalogue(config):
             "synapse_type": ig_subnet.protocol.ImageGenerating,
         },
     }
+
+    sum_incentive = 0
+    for k, v in nicheimage_catalogue.items():
+        sum_incentive += v["model_incentive_weight"]
+    bt.logging.info(f"Sum incentive in code: {sum_incentive}")
+    assert abs(sum_incentive - 1) < 1e-4
+
     return nicheimage_catalogue
 
 
@@ -636,33 +643,29 @@ class Validator(BaseValidatorNeuron):
             )
             # Smoothing update incentive
             temp_incentive_weight = {}
-            if datetime(2024, 8, 8, 14, 0, 0) < datetime.utcnow() < datetime(2024, 8, 10, 14, 0, 0): # Activate on 8/8
-                # ORIGINAL: Dalle - 0.04, DreamShaperXL - 0.06, FaceToMany - 0.03
+            if  datetime.utcnow() < datetime(2024, 8, 15, 14, 0, 0): # Activate from 14/8 -> 15/8
                 temp_incentive_weight = {
-                    "DallE": 0.035, 
-                    "DreamShaperXL": 0.055,
-                    "FaceToMany": 0.025,
-                    "SUPIR": 0.005,
-                    "Kolors": 0.005,
-                    "FluxSchnell": 0.005,
-                }
-            elif datetime(2024, 8, 10, 14, 0, 0) < datetime.utcnow() < datetime(2024, 8, 14, 14, 0, 0): # Activate on 10/8
-                temp_incentive_weight = {
-                    "DallE": 0.03, 
-                    "DreamShaperXL": 0.05,
-                    "FaceToMany": 0.02,
-                    "SUPIR": 0.01,
-                    "Kolors": 0.01,
-                    "FluxSchnell": 0.01,
-                }
-            elif datetime(2024, 8, 14, 14, 0, 0) < datetime.utcnow(): # Activate on 14/8
-                temp_incentive_weight = {
-                    "DallE": 0.02, 
+                    "DallE": 0.02,
                     "DreamShaperXL": 0.04,
                     "FaceToMany": 0.01,
+                    "AnimeV3": 0.27,
+                    "RealitiesEdgeXL": 0.29,
+                    "JuggernautXL": 0.18,
                     "SUPIR": 0.02,
                     "Kolors": 0.02,
                     "FluxSchnell": 0.02,
+                }
+            elif datetime.utcnow() < datetime(2024, 8, 22, 14, 0, 0): # Activate on 15/8 -> 22/8
+                temp_incentive_weight = {
+                    "DallE": 0.00, 
+                    "DreamShaperXL": 0.00,
+                    "FaceToMany": 0.00,
+                    "AnimeV3": 0.24,
+                    "RealitiesEdgeXL": 0.24,
+                    "JuggernautXL": 0.17,
+                    "SUPIR": 0.05,
+                    "Kolors": 0.07,
+                    "FluxSchnell": 0.09,
                 }
 
             bt.logging.success(f"Using temp incentive distribution: {temp_incentive_weight}")
