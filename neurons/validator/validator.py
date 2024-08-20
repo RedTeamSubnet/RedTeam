@@ -549,6 +549,8 @@ class Validator(BaseValidatorNeuron):
             )
             store_thread.start()
 
+            process_times = [synapse.dendrite.process_time if synapse.is_success else -1 for synapse in responses]
+            self.miner_manager.update_metadata(uids, process_times)
             if reward_uids:
                 if self.offline_reward and self.nicheimage_catalogue[model_name]["reward_type"] in self.supporting_offline_reward_types:
                     ig_subnet.validator.get_reward_offline(base_synapse, reward_responses, reward_uids, self.nicheimage_catalogue[model_name].get("timeout", 12), self.redis_client)

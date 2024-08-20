@@ -164,7 +164,8 @@ class ValidatorProxy:
                     args=(synapse, response, uid, reward_url, timeout),
                 )
                 reward_thread.start()
-
+            process_times = [response.dendrite.process_time if response.is_success else -1]
+            self.validator.miner_manager.update_metadata([uid], process_times)
             if response.is_success:
                 output = response
                 break

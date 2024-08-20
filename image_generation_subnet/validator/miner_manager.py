@@ -11,7 +11,7 @@ class MinerManager:
         self.validator = validator
         self.all_uids = [int(uid.item()) for uid in self.validator.metagraph.uids]
         self.all_uids_info = {
-            uid: {"scores": [], "model_name": ""} for uid in self.all_uids
+            uid: {"scores": [], "model_name": "", "process_time": []} for uid in self.all_uids
         }
     
     def get_miner_info(self):
@@ -68,6 +68,7 @@ class MinerManager:
                 {
                     "scores": [],
                     "model_name": "",
+                    "process_time": []
                 },
             )
             model_name = info.get("model_name", "")
@@ -91,6 +92,7 @@ class MinerManager:
                 continue
             miner_state["model_name"] = model_name
             miner_state["scores"] = []
+            miner_state["process_time"] = []
 
         bt.logging.success("Updated miner identity")
         model_distribution = {}
@@ -119,6 +121,13 @@ class MinerManager:
             self.all_uids_info[uid]["scores"].append(reward)
             self.all_uids_info[uid]["scores"] = self.all_uids_info[uid]["scores"][-10:]
 
+    def update_metadata(self, uids, process_times):
+        for uid, ptime in zip(uids, process_times):
+            if "process_time" not in self.all_uids_info[uid]:
+                self.all_uids_info[uid]["process_time"] = []
+            self.all_uids_info[uid]["process_time"].append(ptime)
+            self.all_uids_info[uid]["process_time"] = self.all_uids_info[uid]["process_time"][-500:]
+
     def get_model_specific_weights(self, model_name, normalize=True):
         model_specific_weights = torch.zeros(len(self.all_uids))
         for uid in self.get_miner_uids(model_name):
@@ -145,5 +154,11 @@ class MinerManager:
                     "version": ig_subnet.__version__,
                 },
             )
+            self.reset_metadata()
         except Exception as e:
             bt.logging.error(f"Failed to store miner info: {e}")
+
+    def reset_metadata(self):
+        for uid in self.all_uids_info:
+            self.all_uids_info[uid]["process_time"] = []
+ 
