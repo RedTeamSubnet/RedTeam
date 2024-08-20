@@ -15,7 +15,7 @@ class CosineSimilarityReward(nn.Module):
     def __init__(
         self,
         model_name="vit_base_patch16_clip_384.laion2b_ft_in12k_in1k",
-        threshold=0.6,
+        threshold=0.8,
         device = None
     ):
         super(CosineSimilarityReward, self).__init__()
@@ -47,9 +47,11 @@ class CosineSimilarityReward(nn.Module):
             if cosine_similarity.item() > self.threshold:
                 reward = 1.0
             elif cosine_similarity.item() > 0.4:
-                reward = cosine_similarity.item()
+                reward = (cosine_similarity.item()+0.2)**3
             else:
                 reward = 0.0
+
+            print(f"Sim: {cosine_similarity.item()} -> reward: {reward}")
             return reward
         
         return float(cosine_similarity.item())

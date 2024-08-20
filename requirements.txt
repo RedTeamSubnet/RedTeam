@@ -1,4 +1,4 @@
-bittensor==6.9.3
+bittensor==6.9.4
 diffusers @ git+https://github.com/huggingface/diffusers.git@a57a7af45cbef004c38e2a294a6457f7f3574e5d#egg=diffusers
 optimum-quanto @ git+https://github.com/toilaluan/optimum-quanto.git
 controlnet_aux @ git+https://github.com/toilaluan/controlnet_aux.git
