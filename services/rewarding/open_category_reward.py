@@ -418,7 +418,7 @@ class OpenCategoryReward:
         self.prompt_adherence_metric = DSGPromptProcessor(
             model_name=prompt_adherence_model_name
         )
-        self.weights = {"iqa": 0.3, "prompt_adherence": 0.7}
+        self.weights = {"iqa": 0.5, "prompt_adherence": 0.5}
         self.cached_adherence_queries = {}
         self.hf_api = HfApi()
 
