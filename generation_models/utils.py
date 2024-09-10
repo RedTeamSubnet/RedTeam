@@ -16,7 +16,8 @@ import io
 import importlib
 import torch
 import bittensor as bt
-import cv2
+import random
+from generation_models.constant import ASPECT_RATIO_TO_SIZE
 
 
 def make_inpaint_condition(image, image_mask):
@@ -141,7 +142,10 @@ def download_checkpoint(download_url, checkpoint_file):
 
     bt.logging.info("Download completed successfully.")
 
+
 def upscale_image(input_image, upscale, max_size_input=None):
+    import cv2
+
     H, W, C = input_image.shape
     H = float(H)
     W = float(W)
@@ -152,9 +156,14 @@ def upscale_image(input_image, upscale, max_size_input=None):
     W = int(np.round(W / 64.0)) * 64
     H *= upscale
     W *= upscale
-    img = cv2.resize(input_image, (W, H), interpolation=cv2.INTER_LANCZOS4 if upscale > 1 else cv2.INTER_AREA)
+    img = cv2.resize(
+        input_image,
+        (W, H),
+        interpolation=cv2.INTER_LANCZOS4 if upscale > 1 else cv2.INTER_AREA,
+    )
     img = img.round().clip(0, 255).astype(np.uint8)
     return img
+
 
 def resize_image(input_image, resolution, short=False, interpolation=None):
     W, H = input_image.size
@@ -175,3 +184,17 @@ def resize_image(input_image, resolution, short=False, interpolation=None):
     img = input_image.resize((W, H), resample=interpolation)
 
     return img
+
+
+def random_image_size():
+    aspect_ratio = random.choice(list(ASPECT_RATIO_TO_SIZE.keys()))
+    width, height = ASPECT_RATIO_TO_SIZE[aspect_ratio]
+    return width, height
+
+
+def convert_image_to_png_format(image):
+    png_image_io = io.BytesIO()
+    image.save(png_image_io, format="PNG")
+    png_image_io.seek(0)
+    png_image = Image.open(png_image_io)
+    return png_image

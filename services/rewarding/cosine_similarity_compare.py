@@ -15,19 +15,18 @@ class CosineSimilarityReward(nn.Module):
     def __init__(
         self,
         model_name="vit_base_patch16_clip_384.laion2b_ft_in12k_in1k",
-        threshold=0.8,
-        device = None
+        threshold=0.9,
+        device=None,
     ):
         super(CosineSimilarityReward, self).__init__()
         if not device:
             self.device = "cuda" if torch.cuda.is_available() else "cpu"
         else:
             self.device = device
-            
+
         self.threshold = threshold
         self.model, self.transforms = self.get_model(model_name)
-        
-            
+
     def get_model(self, model_name):
         model = timm.create_model(model_name, pretrained=True, num_classes=0)
         model.eval()
@@ -40,24 +39,31 @@ class CosineSimilarityReward(nn.Module):
     def forward(
         self, validator_image: Image.Image, miner_image: Image.Image, binary=True
     ) -> float:
-        validator_vec = self.model(self.transforms(validator_image).unsqueeze(0).to(self.device))
-        image_vec = self.model(self.transforms(miner_image).unsqueeze(0).to(self.device))
+        validator_vec = self.model(
+            self.transforms(validator_image).unsqueeze(0).to(self.device)
+        )
+        image_vec = self.model(
+            self.transforms(miner_image).unsqueeze(0).to(self.device)
+        )
         cosine_similarity = F.cosine_similarity(validator_vec, image_vec)
         if binary:
             if cosine_similarity.item() > self.threshold:
                 reward = 1.0
             elif cosine_similarity.item() > 0.4:
-                reward = (cosine_similarity.item()+0.2)**3
+                reward = (cosine_similarity.item() + (1 - self.threshold)) ** 3
             else:
                 reward = 0.0
 
             print(f"Sim: {cosine_similarity.item()} -> reward: {reward}")
             return reward
-        
+
         return float(cosine_similarity.item())
 
     def get_reward(
-        self, validator_image: Image.Image, batched_miner_images: List[str], pipeline_type: str
+        self,
+        validator_image: Image.Image,
+        batched_miner_images: List[str],
+        pipeline_type: str,
     ) -> List[float]:
         rewards = []
         if not isinstance(validator_image, Image.Image):
@@ -79,10 +85,12 @@ class CosineSimilarityReward(nn.Module):
                     reward = -5 if nsfw_check == 2 else 0
                 else:
                     if pipeline_type == "upscale":
-                        reward = self.calculate_reward_upscale(miner_image, validator_image)
+                        reward = self.calculate_reward_upscale(
+                            miner_image, validator_image
+                        )
                     else:
                         reward = self.matching_image(miner_image, validator_image)
-                        
+
             rewards.append(reward)
         return rewards
 
@@ -112,16 +120,22 @@ class CosineSimilarityReward(nn.Module):
             return 2
         return 0
 
-    def calculate_reward_upscale(self, validator_image: Image.Image, miner_image: Image.Image, psnr_threshold=30, ssim_threshold=0.9):
-        validator_array = np.array(validator_image.convert('L'))
-        miner_array = np.array(miner_image.convert('L'))
+    def calculate_reward_upscale(
+        self,
+        validator_image: Image.Image,
+        miner_image: Image.Image,
+        psnr_threshold=30,
+        ssim_threshold=0.9,
+    ):
+        validator_array = np.array(validator_image.convert("L"))
+        miner_array = np.array(miner_image.convert("L"))
         psnr_value = psnr(validator_array, miner_array)
         ssim_value, _ = ssim(validator_array, miner_array, full=True)
 
         if psnr_value >= psnr_threshold and ssim_value >= ssim_threshold:
-            reward = 1.0 
+            reward = 1.0
         elif psnr_value < psnr_threshold and ssim_value < ssim_threshold:
-            reward = 0.0 
+            reward = 0.0
         else:
             # Partial reward based on quality
             psnr_penalty = min(psnr_value / psnr_threshold, 1.0)

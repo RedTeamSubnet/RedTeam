@@ -3,7 +3,11 @@ from typing import Tuple, TypeVar
 import bittensor as bt
 from image_generation_subnet.base.miner import BaseMinerNeuron
 import image_generation_subnet
-from image_generation_subnet.protocol import ImageGenerating, TextGenerating, Information
+from image_generation_subnet.protocol import (
+    ImageGenerating,
+    TextGenerating,
+    Information,
+)
 import traceback
 
 T = TypeVar("T", bound=bt.Synapse)
@@ -50,9 +54,9 @@ class Miner(BaseMinerNeuron):
         bt.logging.info(
             f"Request counter for {validator_uid}: {self.validator_logs[validator_uid]['request_counter']}/{self.validator_logs[validator_uid]['max_request']}"
         )
-        self.validator_logs[validator_uid]["request_counter"] = self.validator_logs[
-            validator_uid
-        ].get("request_counter", 0) - 1
+        self.validator_logs[validator_uid]["request_counter"] = (
+            self.validator_logs[validator_uid].get("request_counter", 0) - 1
+        )
         bt.logging.info(
             f"Request counter for {validator_uid}: {self.validator_logs[validator_uid]['request_counter']}/{self.validator_logs[validator_uid]['max_request']}"
         )
@@ -166,6 +170,7 @@ if __name__ == "__main__":
                     miner.config.miner.total_volume,
                     miner.config.miner.size_preference_factor,
                     miner.config.miner.min_stake,
+                    log=False,
                 )
             except Exception as e:
                 print(e)

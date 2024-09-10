@@ -10,32 +10,34 @@ NicheImage is a decentralized network that utilizes the Bittensor protocol to en
 - 📚 [API Documentation](https://docs.nichetensor.com) (API, Roadmap, Technical Descriptions)
 - 🏞️ [Miner and Validator Documentation](https://chestnut-radar-416.notion.site/SN23-SocialTensor-Docs-75202763e797465b88f4d395cb1a14ef)
 - 🤖 [Taobot](https://interact.tao.bot/social-tensor)
-- 📊 [Subnet statistics & Playground](https://nicheimage.streamlit.app/)
+- 📊 [Subnet Statistics & Playground Showcase](https://studio.nichetensor.com/)
 
 ### Incentive Distribution
 
 | Category        | Incentive Distribution | Description                                                                                                        |
 |-----------------|------------------------|--------------------------------------------------------------------------------------------------------------------|
-| 🧭 GoJourney       | 4%                     | API based - MidJourney Image Generation                                                                                        |
-| 🌀 AnimeV3         | 27%                    | SDXL Architecture                                                                                  |
-| ⚔️ JuggernautXL | 17%                    | SDXL Architecture                                                            |
-| 🏞️ RealitiesEdgeXL  | 29%                    | SDXL Turbo Architecture                                                      |
-| 🌙 DreamShaperXL (deprecated soon)    | 4%                     | SDXL Architecture                           |
-| 💎 Gemma7b         | 3%                     | Transformer LLM                                                     |
-| 🦙 Llama3_70b      | 4%                     | Transformer LLM|
-| 👥 FaceToMany (deprecated soon)      | 1%                     | ComfyUI workflow, [FaceToMany](https://replicate.com/fofr/face-to-many) |
-| 🏷️ StickerMaker    | 3%                     | ComfyUI workflow, [StickerMaker](https://replicate.com/fofr/sticker-maker) |
-| DallE (deprecated soon)    | 2%                     | [OpenAI's Dall-E 3](https://openai.com/index/dall-e-3/) |
-| 🌟 SUPIR    | 2%                     | Super-res upscaler |
-| 🌟 Kolors | 2% | SDXL with bigger Text Encoder |
-| 🌟🌟 FluxSchnell | 2% | 12B image model |
+| 🧭 GoJourney       | 4%                     | Fixed Image Category                                                                                        |
+| 🌀 AnimeV3         | 19%                    | Fixed Image Category                                                                                  |
+| ⚔️ JuggernautXL | 15%                    | Fixed Image Category                                                            |
+| 🏞️ RealitiesEdgeXL  | 19%                    | Fixed Image Category                                                      |
+| 💎 Gemma7b         | 3%                     | Fixed Text Category                                                     |
+| 🦙 Llama3_70b      | 5%                     | Fixed Text Category|
+| 🏷️ StickerMaker    | 3%                     | Fixed Image Category |
+| 🌟 SUPIR    | 8%                     | Fixed Image Category |
+| 🌟 Kolors | 10% | Fixed Image Category |
+| 🌟🌟 FluxSchnell | 12% | Fixed Image Category |
+| **OpenGeneral** | 1% | [Open category](/docs/open_category_reward_mechanism.md) |
+| **OpenDigitalArt** | 1% | [Open category](/docs/open_category_reward_mechanism.md) |
 
 ### Key Features
 - 🚀 **Decentralized Image Generation Network**: Incentivizing miners to scale up their computational resources, allowing for up to thousands of generations per minute with sufficient GPU resources.
 - 📈 **Volume Commitment**: Miners commit to a model type and generation volume.
+- 📊 **Fixed And Open Category**: Miners run fixed model list or their own choice for tailored domain.
 - 💰 **Incentivized Volume Rewarding Mechanism**: 
-  - `new_reward = (matching_result - time_penalty) * (0.6 + 0.4 * volume_scale)`
-  - `matching_result` is 0 or 1 based on the similarity matching result with the reproduction of the validator.
+  - `new_reward = (category_score - time_penalty) * (0.6 + 0.4 * volume_scale)`
+  - `category_score` is the score unique to each model category. It can be:
+    - `matching_result` is 0 or 1 based on the similarity matching result with the reproduction of the validator.
+    - `t2i_score` is the score from combination of image quality assessment score and prompt adherence score.
   - `time_penalty = 0.4 * (processing_time / timeout)**3`
   - `volume_scale = max(min(total_volume**0.5 / 1000**0.5, 1), 0)`
 - 🌟 **Continuous Improvement**: Introducing new models and features based on usage demand.
