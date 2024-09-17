@@ -5,7 +5,7 @@ from . import validator
 from . import miner
 from . import utils
 
-__version__ = "0.1.5"
+__version__ = "0.1.6"
 version_split = __version__.split(".")
 __spec_version__ = (
     (1000 * int(version_split[0]))

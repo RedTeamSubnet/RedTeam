@@ -686,9 +686,14 @@ class Validator(BaseValidatorNeuron):
                 model_name
             )
             if self.nicheimage_catalogue[model_name]["reward_type"] == "open_category":
-                model_specific_weights = self.rank_tensor(model_specific_weights)
+                ranked_model_specific_weights = self.rank_tensor(model_specific_weights)
                 bt.logging.debug(
                     f"Unique ranked weights for {model_name}\n{model_specific_weights.unique()}"
+                )
+                model_specific_weights = model_specific_weights * 0.5 + ranked_model_specific_weights * 0.5
+                model_specific_weights = 0.8 + model_specific_weights * 0.2
+                bt.logging.debug(
+                    f"Normalized {model_name} weights\n{model_specific_weights}"
                 )
             # Smoothing update incentive
             temp_incentive_weight = {}
