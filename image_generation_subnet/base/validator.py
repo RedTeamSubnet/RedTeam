@@ -239,12 +239,7 @@ class BaseValidatorNeuron(BaseNeuron):
         )
         bt.logging.trace("processed_weights", processed_weights)
         bt.logging.trace("processed_weight_uids", processed_weight_uids)
-        if datetime.utcnow() < datetime(2024, 9, 19, 14):
-            version_key = 15
-        else:
-            version_key = self.spec_version
 
-        bt.logging.info("Setting weights with version", version_key)
         # Set the weights on chain via our subtensor connection.
         self.subtensor.set_weights(
             wallet=self.wallet,
@@ -252,7 +247,7 @@ class BaseValidatorNeuron(BaseNeuron):
             uids=processed_weight_uids,
             weights=processed_weights,
             wait_for_finalization=False,
-            version_key=version_key,
+            version_key=self.spec_version,
         )
 
         bt.logging.info(f"Set weights: {processed_weights}")
