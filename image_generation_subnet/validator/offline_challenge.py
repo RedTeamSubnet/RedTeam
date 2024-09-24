@@ -1,9 +1,14 @@
 from image_generation_subnet.protocol import ImageGenerating
 import random
 import requests
+import os
+import numpy as np
 import bittensor as bt
 from PIL import Image
-from generation_models.utils import pil_image_to_base64
+from generation_models.utils import (
+    pil_image_to_base64, 
+    pil_image_to_base64url
+)
 
 
 def get_promptGoJouney(synapses: list[ImageGenerating]) -> list[ImageGenerating]:
@@ -58,7 +63,31 @@ def get_backup_image():
     blank_image = Image.new("RGB", (512, 512), "white")
     return {"conditional_image": pil_image_to_base64(blank_image)}
 
+def interpolate_images():
+    image_dir = "assets/images"
+    image_files = [os.path.join(image_dir,x) for x in os.listdir(image_dir)]
+    
+    img_file_1, img_file_2 = random.sample(image_files, 2)
+    img_1, img_2 = Image.open(img_file_1), Image.open(img_file_2)
+    img_1 = img_1.convert("RGBA")
+    img_2 = img_2.convert("RGBA")
+    img_1 = img_1.resize(img_2.size)
+    
+    sigma = np.random.rand()
+    
+    challenge_image = Image.blend(img_1, img_2, alpha=sigma)
 
+    return challenge_image
+
+def get_backup_challenge_vqa():
+    questions = ["Describe in detail what is happening in this image, including objects, actions, and context. Make sure to provide a comprehensive description that captures all visible elements.", "Describe this image in a short sentence"]
+    question = random.choice(questions)
+
+    init_image = interpolate_images()
+    return {
+        "prompt": question,
+        "image_url": pil_image_to_base64url(init_image)
+    }
 def check_batch_prompt(synapses: list[ImageGenerating]) -> list[ImageGenerating]:
     for synapse in synapses:
         if not synapse:

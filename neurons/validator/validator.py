@@ -16,6 +16,7 @@ from image_generation_subnet.validator.offline_challenge import (
     get_backup_image,
     get_backup_prompt,
     get_backup_llm_prompt,
+    get_backup_challenge_vqa,
 )
 from datetime import datetime
 from services.offline_rewarding.redis_client import RedisClient
@@ -171,6 +172,10 @@ def initialize_challenge_urls(config):
             "main": [config.challenge.open_category_prompt],
             "backup": [get_backup_prompt],
         },
+        "visual_question_answering": {
+            "main": [config.challenge.visual_question_answering],
+            "backup": [get_backup_challenge_vqa],
+        },
     }
     return challenge_urls
 
@@ -224,7 +229,7 @@ def initialize_nicheimage_catalogue(config):
             "supporting_pipelines": MODEL_CONFIGS["AnimeV3"]["params"][
                 "supporting_pipelines"
             ],
-            "model_incentive_weight": 0.19,
+            "model_incentive_weight": 0.18,
             "reward_url": config.reward_url.AnimeV3,
             "reward_type": "image",
             "inference_params": {
@@ -330,6 +335,20 @@ def initialize_nicheimage_catalogue(config):
             "inference_params": {},
             "timeout": 32,
             "synapse_type": ig_subnet.protocol.ImageGenerating,
+        },
+        "Pixtral_12b": {
+            "supporting_pipelines": ["visual_question_answering"],
+            "model_incentive_weight": 0.01,
+            "reward_url": config.reward_url.Pixtral_12b,
+            "reward_type": "text",
+            "inference_params": {
+                "temperature": 0.7,
+                "top_p": 1,
+                "max_tokens": 8192,
+                "logprobs": 100,
+            },
+            "timeout": 64,
+            "synapse_type": ig_subnet.protocol.MultiModalGenerating,
         },
     }
 
@@ -605,6 +624,9 @@ class Validator(BaseValidatorNeuron):
             store_thread.join()
 
     def prepare_challenge(self, uids_should_rewards, model_name, pipeline_type):
+        """
+        Batch the batch (max = 16) into smaller batch size (max = 4) and prepare synapses for each batch.
+        """
         synapse_type = self.nicheimage_catalogue[model_name]["synapse_type"]
         model_miner_count = len(
             [
@@ -671,6 +693,9 @@ class Validator(BaseValidatorNeuron):
                 bt.logging.error(f"Error in storing response: {e}")
 
     def init_reward_open_category_synapses(self):
+        """
+        Initialize synapses to be rewarded for open category models.
+        """
         return {
             k: None
             for k in self.nicheimage_catalogue.keys()
@@ -678,7 +703,10 @@ class Validator(BaseValidatorNeuron):
         }
 
     def update_scores_on_chain(self):
-        """Performs exponential moving average on the scores based on the rewards received from the miners."""
+        """
+        Update weights based on incentive pool and model specific weights.
+        - Apply rank weight for open category model.
+        """
 
         weights = torch.zeros(len(self.miner_manager.all_uids))
         for model_name in self.nicheimage_catalogue.keys():
@@ -686,17 +714,30 @@ class Validator(BaseValidatorNeuron):
                 model_name
             )
             if self.nicheimage_catalogue[model_name]["reward_type"] == "open_category":
+                mask = model_specific_weights > 1e-4
                 ranked_model_specific_weights = self.rank_tensor(model_specific_weights)
                 bt.logging.debug(
                     f"Unique ranked weights for {model_name}\n{model_specific_weights.unique()}"
                 )
-                model_specific_weights = model_specific_weights * 0.5 + ranked_model_specific_weights * 0.5
-                model_specific_weights = 0.8 + model_specific_weights * 0.2
+                model_specific_weights = (
+                    model_specific_weights * 0.5 + ranked_model_specific_weights * 0.5
+                )
+                model_specific_weights = 0.8 + 0.2 * model_specific_weights
+                model_specific_weights = model_specific_weights * mask
+                model_specific_weights = torch.nn.functional.normalize(
+                    model_specific_weights, p=1, dim=0
+                )
                 bt.logging.debug(
                     f"Normalized {model_name} weights\n{model_specific_weights}"
                 )
             # Smoothing update incentive
             temp_incentive_weight = {}
+            if datetime.utcnow() < datetime(2024, 9, 26, 14, 0, 0):
+                temp_incentive_weight = {
+                    "AnimeV3": 0.19,
+                    "Pixtral_12b": 0.00,
+                }
+
             if model_name in temp_incentive_weight:
                 bt.logging.info(
                     f"Using temp_incentive_weight: {temp_incentive_weight} for {model_name}"
@@ -751,6 +792,9 @@ class Validator(BaseValidatorNeuron):
 
     @staticmethod
     def rank_tensor(tensor):
+        # Return Zeros if tensor is zeros
+        if torch.sum(tensor) == 0:
+            return tensor
         # Step 1: Sort the tensor and get the original indices
         sorted_tensor, indices = torch.sort(tensor, descending=True)
 

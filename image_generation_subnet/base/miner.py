@@ -55,6 +55,9 @@ class BaseMinerNeuron(BaseNeuron):
             forward_fn=self.forward_text,
             blacklist_fn=self.blacklist_text,
         ).attach(
+            forward_fn=self.forward_multimodal,
+            blacklist_fn=self.blacklist_multimodal,
+        ).attach(
             forward_fn=self.forward_info,
             blacklist_fn=self.blacklist_info,
         )

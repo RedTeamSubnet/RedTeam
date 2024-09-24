@@ -17,6 +17,7 @@ Make sure that you have a registered hotkey to Subnet 23. If you haven't done so
 | Kolors | 10% | 32 |
 | **OpenGeneral** | 1% | 32 |
 | **OpenDigitalArt** | 1% | 32 |
+| **Pixtral_12b** | 1% | 64 |
 
 ## Guide Fixed Category
 1. Git clone and install requirements
@@ -60,6 +61,13 @@ pm2 start python --name "miner_endpoint" -- -m services.miner_endpoint.app \
 source main_env/bin/activate
 HF_TOKEN=<your-huggingface-token> \
 pm2 start python --name "miner_endpoint" -- -m services.miner_endpoint.text_app --model_name <selected-model-name> --num_replicas X --num_gpus Y \
+--port 10006 # default port
+```
+
+**For Multimodal Generation Category**
+```bash
+source main_env/bin/activate
+pm2 start python --name "miner_endpoint" -- -m services.miner_endpoint.multimodal_app --model_name <selected-model-name> \
 --port 10006 # default port
 ```
 

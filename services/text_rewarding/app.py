@@ -10,8 +10,11 @@ import yaml
 from functools import partial
 import random
 from services.owner_api_core import define_allowed_ips, filter_allowed_ips, limiter
+from openai import OpenAI
 import httpx
 import traceback
+import copy
+import inspect
 
 MODEL_CONFIG = yaml.load(
     open("generation_models/configs/model_config.yaml"), yaml.FullLoader
@@ -32,7 +35,7 @@ def get_args():
     parser.add_argument(
         "--model_name",
         type=str,
-        default="RealisticVision",
+        default="Pixtral_12b",
     )
     parser.add_argument(
         "--threshold",
@@ -44,6 +47,17 @@ def get_args():
         type=str,
         default="http://localhost:8000",
     )
+    parser.add_argument(
+        "--vllm_api_key",
+        type=str,
+        default="apikey",
+        help="api key of the VLLM service",
+    )
+    parser.add_argument(
+        "--model_type",
+        type=str,
+        default="multimodal",
+    )
 
     args = parser.parse_args()
     return args
@@ -54,7 +68,7 @@ class RewardRequest(BaseModel):
     base_data: dict
 
 
-class RewardApp:
+class VllmRewardApp:
     def __init__(self, args):
         self.args = args
         self.app = FastAPI()
@@ -78,16 +92,12 @@ class RewardApp:
             self.allowed_ips_thread.start()
 
     def call_vllm(self, base_data):
-        with httpx.Client() as client:
-            response = client.post(
-                f"{self.args.vllm_url}/v1/completions",
-                json=base_data,
-                timeout=base_data.get("timeout", 32),
-            )
-            return response.json()
+        raise NotImplementedError("This method should be implemented by subclasses")
+    
+    def get_prompt_to_check(self, _base_data, base_prompt, miner_data, offset):
+        raise NotImplementedError("This method should be implemented by subclasses")
 
     def prepare_testcase(self, base_data, miner_data):
-        print(base_data, flush=True)
         text_offset = miner_data["prompt_output"]["choices"][0]["logprobs"][
             "text_offset"
         ]
@@ -95,17 +105,14 @@ class RewardApp:
         offset_idxs = [0] + [random.randint(1, n_tokens - 1) for _ in range(2)] + [-2]
         base_prompt = base_data["prompt"][0]
         same_keys = []
-        n_logprobs = base_data["logprobs"]
+        n_logprobs = base_data["top_logprobs"] if "top_logprobs" in base_data else base_data["logprobs"]
         for offset_idx in offset_idxs:
             offset = text_offset[offset_idx]
             miner_top_logprobs = miner_data["prompt_output"]["choices"][0]["logprobs"][
                 "top_logprobs"
             ][offset_idx]
-            prompt_to_check = (
-                base_prompt + miner_data["prompt_output"]["choices"][0]["text"][:offset]
-            )
             _base_data = base_data.copy()
-            _base_data["prompt"] = [prompt_to_check]
+            _base_data = self.get_prompt_to_check(_base_data, base_prompt, miner_data, offset)
             _base_data["max_tokens"] = 1
             valid_response = self.call_vllm(_base_data)
             valid_top_logprobs = valid_response["choices"][0]["logprobs"][
@@ -138,10 +145,69 @@ class RewardApp:
                 rewards.append(False)
         return {"rewards": rewards}
 
+class TextRewardApp(VllmRewardApp):
+    def __init__(self, args):
+        super().__init__(args)
+        
+    def call_vllm(self, base_data):
+        with httpx.Client() as client:
+            response = client.post(
+                f"{self.args.vllm_url}/v1/completions",
+                json=base_data,
+                timeout=base_data.get("timeout", 32),
+            )
+            return response.json()
+
+    def get_prompt_to_check(self, _base_data, base_prompt, miner_data, offset):
+        prompt_to_check = (
+            base_prompt + miner_data["prompt_output"]["choices"][0]["text"][:offset]
+        )
+        _base_data["prompt"] = [prompt_to_check]
+        return _base_data
+
+class MultiModalRewardApp(VllmRewardApp):
+    def __init__(self, args):
+        from services.utils import convert_chat_completion_response_to_completion_response
+        self.convert_chat_completion_response_to_completion_response = convert_chat_completion_response_to_completion_response
+        super().__init__(args)
+        self.args.vllm_url += "/v1"
+        self.client = OpenAI(
+            base_url=self.args.vllm_url,
+            api_key=self.args.vllm_api_key,
+        )
+        self.model_path = args.model_name
+
+    def call_vllm(self, base_data):
+        request = copy.deepcopy(base_data)
+        if request["prompt_to_check"]:
+            request["messages"].append({
+                "role": "assistant",
+                "content": request["prompt_to_check"],
+                "prefix": True
+            })
+            request["extra_body"] = {
+                "add_generation_prompt": False
+            }
+        valid_args = inspect.signature(self.client.chat.completions.create).parameters
+        filtered_kwargs = {k: v for k, v in request.items() if k in valid_args}
+
+        completion =self.client.chat.completions.create(**filtered_kwargs)
+        return self.convert_chat_completion_response_to_completion_response(completion)
+
+    def get_prompt_to_check(self, _base_data, base_prompt, miner_data, offset):
+        prompt_to_check = miner_data["prompt_output"]["choices"][0]["text"][:offset]
+        _base_data["prompt_to_check"] = prompt_to_check
+        return _base_data
+
+
+
 
 if __name__ == "__main__":
     args = get_args()
-    app = RewardApp(args)
+    if args.model_type == "multimodal":
+        app = MultiModalRewardApp(args)
+    else:
+        app = TextRewardApp(args)
     uvicorn.run(
         app.app,
         host="0.0.0.0",

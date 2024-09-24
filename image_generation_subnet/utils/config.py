@@ -287,6 +287,13 @@ def add_args(cls, parser):
             default="http://nicheimage.nichetensor.com/reward/OpenCategory",
         )
 
+        parser.add_argument(
+            "--reward_url.Pixtral_12b",
+            type=str,
+            help="",
+            default="http://nicheimage.nichetensor.com/reward/Pixtral_12b",
+        )
+
         # TODO: add more reward endpoints for categories
 
         parser.add_argument(
@@ -315,6 +322,13 @@ def add_args(cls, parser):
             type=str,
             help="The endpoint to send generate requests to.",
             default="http://nicheimage.nichetensor.com/challenge/open_category_prompt",
+        )
+
+        parser.add_argument(
+            "--challenge.visual_question_answering",
+            type=str,
+            help="The endpoint to send generate requests to.",
+            default="http://nicheimage.nichetensor.com/challenge/vqa",
         )
 
         parser.add_argument(

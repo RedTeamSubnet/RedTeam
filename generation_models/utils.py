@@ -99,6 +99,13 @@ def pil_image_to_base64(image: Image.Image, format="PNG") -> str:
     base64_image = base64.b64encode(image_stream.getvalue()).decode("utf-8")
     return base64_image
 
+def pil_image_to_base64url(image):
+    buffered = io.BytesIO()
+    image.save(buffered, format="PNG")
+    img_str = base64.b64encode(buffered.getvalue()).decode('utf-8')
+    base64_url = f"data:image/png;base64,{img_str}"
+    return base64_url
+
 
 def resize_divisible(image, max_size=1024, divisible=16):
     W, H = image.size
