@@ -113,6 +113,8 @@ class ImageGenerating(bt.Synapse):
                 "output": self.response_dict
             }
         else:
+            if self.model_name != "FluxSchnell":
+                return
             storage_url = storage_url + "/upload-base64-item"
             data = {
                 "image": self.image,
@@ -188,26 +190,7 @@ class TextGenerating(bt.Synapse):
         }
 
     def store_response(self, storage_url: str, uid, validator_uid):
-        storage_url = storage_url + "/upload-llm-item"
-        minimized_prompt_output: dict = copy.deepcopy(self.prompt_output)
-        minimized_prompt_output['choices'][0].pop("logprobs")
-        data = {
-            "prompt_input": self.prompt_input,
-            "prompt_output": minimized_prompt_output,
-            "metadata": {
-                "miner_uid": uid,
-                "validator_uid": validator_uid,
-                "model": MODEL_CONFIG[self.model_name].get("repo_id", self.model_name),
-                "model_name": self.model_name,
-                "pipeline_params": self.pipeline_params,
-            }
-        }
-        try:
-            response = requests.post(storage_url, json=data)
-            response.raise_for_status()
-        except Exception as e:
-            print(f"Error in storing response: {e}")
-            traceback.print_exc()
+        pass
 
 class MultiModalGenerating(bt.Synapse):
     prompt: str = pydantic.Field(

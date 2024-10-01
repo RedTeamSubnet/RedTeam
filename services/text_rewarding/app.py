@@ -40,7 +40,7 @@ def get_args():
     parser.add_argument(
         "--threshold",
         type=float,
-        default=0.5,
+        default=0.85,
     )
     parser.add_argument(
         "--vllm_url",
