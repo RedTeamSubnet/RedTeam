@@ -1,7 +1,0 @@
-[submodule "generation_models/comfyui_helper/ComfyUI"]
-	path = generation_models/comfyui_helper/ComfyUI
-	url = https://github.com/toilaluan/ComfyUI
-	branch = master
-[submodule "generation_models/custom_pipelines/InstantID"]
-	path = generation_models/custom_pipelines/InstantID
-	url = https://github.com/InstantID/InstantID.git
