@@ -1,0 +1,3 @@
+text_detection:
+  name: "Text Detection"
+  description: "Detect if text is ai generated"
