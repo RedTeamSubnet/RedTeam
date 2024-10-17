@@ -1,4 +1,0 @@
-datasets
-httpx
-fastapi
-uvicorn
