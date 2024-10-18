@@ -1,5 +1,4 @@
 import bittensor as bt
-from argparse import ArgumentParser
 import json
 import yaml
 from .. import constants
@@ -33,7 +32,6 @@ class Miner:
         stake = self.metagraph.S[uid]
         if stake < constants.MIN_VALIDATOR_STAKE:
             return True, "Not enough stake"
-
         return False, "Passed"
 
     def _load_synapse_commit(self) -> Commit:

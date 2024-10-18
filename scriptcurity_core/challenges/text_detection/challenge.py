@@ -1,4 +1,5 @@
 from .data_types import MinerInput, MinerOutput
+from .model import AIContentDetector
 
 
 class Challenge:
@@ -6,6 +7,8 @@ class Challenge:
     A class that sets up the challenge and scores the miner's performance.
     It provides the task to be completed and evaluates the output.
     """
+
+    model = AIContentDetector()
 
     def prepare_task(self) -> MinerInput:
         """
@@ -20,6 +23,5 @@ class Challenge:
         If the generated text contains the word 'AI', it returns a score of 1.0.
         Otherwise, it returns 0.0.
         """
-        if "AI" in miner_output.text:
-            return 1.0
-        return 0.0
+        real_prob = self.model.find_real_prob(miner_output.text)
+        return 1.0 if real_prob > 0.5 else 0.0

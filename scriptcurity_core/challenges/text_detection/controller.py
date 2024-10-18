@@ -10,7 +10,9 @@ class Controller:
     of Docker containers for the challenge and miners, as well as submitting and scoring tasks.
     """
 
-    def __init__(self, challenge_name: str, miner_docker_images: List[str]):
+    def __init__(
+        self, challenge_name: str, miner_docker_images: List[str], uids: List[int]
+    ):
         """
         Initializes the Controller with the name of the challenge and the list of miner Docker images.
         Also sets up the Docker client for interacting with Docker containers.
@@ -22,6 +24,7 @@ class Controller:
         self.docker_client = docker.from_env()
         self.challenge_name = challenge_name
         self.miner_docker_images = miner_docker_images
+        self.uids = uids
 
     def start_challenge(self):
         """
@@ -43,7 +46,7 @@ class Controller:
         ]
         logs = {}
         miner_scores = {}
-        for miner_docker_image in self.miner_docker_images:
+        for miner_docker_image, uid in zip(self.miner_docker_images, self.uids):
             self.docker_client.containers.run(
                 miner_docker_image,
                 detach=True,
@@ -53,10 +56,13 @@ class Controller:
             for miner_input in challenges:
                 miner_output = self._submit_challenge_to_miner(miner_input)
                 score = self._score_challenge(miner_input, miner_output)
-                miner_scores.setdefault(miner_docker_image, []).append(score)
-                logs.setdefault(miner_docker_image, []).append(
-                    miner_input, miner_output, score
+                miner_scores.setdefault(uid, []).append(score)
+                logs.setdefault(uid, []).append(
+                    miner_input, miner_output, score, miner_docker_image
                 )
+        miner_scores = {
+            uid: sum(scores) / len(scores) for uid, scores in miner_scores.items()
+        }
         return miner_scores, logs
 
     def _build_challenge_image(self):
