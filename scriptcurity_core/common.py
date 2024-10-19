@@ -9,20 +9,20 @@ def get_config(parser=ArgumentParser()):
     bt.axon.add_args(parser)
     bt.logging.add_args(parser)
     parser.add_argument("--netuid", type=int)
-
+    parser.add_argument("--neuron.fullpath", type=str, default="")
     config = bt.config(parser)
     bt.logging.check_config(config)
     full_path = os.path.expanduser(
-        "{}/{}/{}/netuid-{}/{}".format(
+        "{}/{}/{}/netuid-{}".format(
             config.logging.logging_dir,
             config.wallet.name,
             config.wallet.hotkey,
             config.netuid,
-            config.neuron.name,
         )
     )
+    print(config)
     print("full path:", full_path)
-    config.neuron.full_path = os.path.expanduser(full_path)
-    if not os.path.exists(config.neuron.full_path):
+    config.neuron.fullpath = os.path.expanduser(full_path)
+    if not os.path.exists(config.neuron.fullpath):
         os.makedirs(config.neuron.full_path, exist_ok=True)
     return config

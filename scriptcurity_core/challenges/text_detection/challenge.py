@@ -1,5 +1,5 @@
-from .data_types import MinerInput, MinerOutput
-from .model import AIContentDetector
+from data_types import MinerInput, MinerOutput
+from model import AIContentDetector
 
 
 class Challenge:

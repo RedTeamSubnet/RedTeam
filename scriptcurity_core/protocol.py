@@ -1,10 +1,9 @@
-from bittensor import Synapse
 from cryptography.fernet import Fernet
 import time
 from .constants import REVEAL_INTERVAL
+import bittensor as bt
 
-
-class Commit(Synapse):
+class Commit(bt.Synapse):
     """
     Commit class that inherits from Synapse.
     - encrypted_commit_dockers (dict): A dictionary that stores the encrypted commit messages.
@@ -22,7 +21,10 @@ class Commit(Synapse):
         """
         Encrypts the commit message using the provided key.
         """
+        bt.logging.info(f"Adding encrypted commit: {commit}")
         task_name, docker_hub_id = commit.split("---")
+        if self.commit_dockers.get(task_name) == docker_hub_id:
+            return
         self.commit_dockers[task_name] = docker_hub_id
         key = Fernet.generate_key()
         f = Fernet(key)
@@ -34,3 +36,4 @@ class Commit(Synapse):
         for task_name, (created_time, key) in self.secret_keys.items():
             if time.time() - created_time > REVEAL_INTERVAL:
                 self.public_keys[task_name] = key
+                bt.logging.success(f"Revealed commit: {self.commit_dockers[task_name]}, {task_name}")

@@ -3,6 +3,7 @@ import bittensor as bt
 import time
 from cryptography.fernet import Fernet
 import numpy as np
+import time
 
 
 class Validator(BaseValidator):
@@ -14,6 +15,7 @@ class Validator(BaseValidator):
 
     def forward(self):
         self.update_miner_submit()
+        bt.logging.success(f"Miner submit: {self.miner_submit}")
         revealed_commits = self.get_revealed_commits()
         bt.logging.info(f"Revealed commits: {revealed_commits}")
         for challenge, (commits, uids) in revealed_commits.items():
@@ -25,7 +27,8 @@ class Validator(BaseValidator):
             self.update_scores(miner_scores)
 
     def update_miner_submit(self):
-        uids = list(range(len(self.metagraph.axons)))
+        # uids = list(range(len(self.metagraph.axons)))
+        uids = [0]
         axons = [self.metagraph.axons[i] for i in uids]
         dendrite = bt.dendrite(wallet=self.wallet)
         synapse = Commit()
@@ -34,6 +37,7 @@ class Validator(BaseValidator):
         )
         for uid, response in zip(uids, responses):
             this_miner_submit = self.miner_submit.setdefault(uid, {})
+            print(response)
             encrypted_commit_dockers = response.encrypted_commit_dockers
             keys = response.public_keys
             for challenge_name, encrypted_commit in encrypted_commit_dockers.items():
@@ -58,11 +62,13 @@ class Validator(BaseValidator):
         revealed_commits = {}
         for uid, commits in self.miner_submit.items():
             for challenge_name, commit in commits.items():
+                bt.logging.info(f"- {uid} - {challenge_name} - {commit}")
                 if commit["commit"]:
                     this_challenge_revealed_commits = revealed_commits.setdefault(
                         challenge_name, ([], [])
                     )
-                    this_challenge_revealed_commits[0].append(commit["commit"])
+                    docker_hub_id = commit["commit"].split("---")[1]
+                    this_challenge_revealed_commits[0].append(docker_hub_id)
                     this_challenge_revealed_commits[1].append(uid)
         return revealed_commits
 
@@ -91,5 +97,7 @@ class Validator(BaseValidator):
 
 
 if __name__ == "__main__":
-    validator = Validator()
-    validator.synthetic_loop_in_background_thread()
+    with Validator() as validator:
+        while True:
+            bt.logging.info("Forwarding...")
+            time.sleep(constants.EPOCH_LENGTH // 4)

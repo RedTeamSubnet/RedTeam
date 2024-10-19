@@ -18,10 +18,15 @@ class Validator(ABC):
         self.current_block = 0
         self.uid = self.metagraph.hotkeys.index(self.wallet.hotkey.ss58_address)
         self.node = SubstrateInterface(url=self.config.subtensor.chain_endpoint)
+        self.is_running = False
 
     def setup_logging(self):
-        bt.logging.enable_debug()
-        bt.logging.enable_trace()
+        bt.logging.enable_default()
+        bt.logging.enable_info()
+        if self.config.logging.debug:
+            bt.logging.enable_debug()
+        if self.config.logging.trace:
+            bt.logging.enable_trace()
         bt.logging(config=self.config, logging_dir=self.config.full_path)
         bt.logging.info(
             f"Running validator for subnet: {self.config.netuid} on network: {self.config.subtensor.network} with config:"
@@ -73,6 +78,30 @@ class Validator(ABC):
             self.thread.start()
             self.is_running = True
             bt.logging.debug("Started")
+
+    def __enter__(self):
+        self.synthetic_loop_in_background_thread()
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        """
+        Stops the validator's background operations upon exiting the context.
+        This method facilitates the use of the validator in a 'with' statement.
+
+        Args:
+            exc_type: The type of the exception that caused the context to be exited.
+                      None if the context was exited without an exception.
+            exc_value: The instance of the exception that caused the context to be exited.
+                       None if the context was exited without an exception.
+            traceback: A traceback object encoding the stack trace.
+                       None if the context was exited without an exception.
+        """
+        if self.is_running:
+            bt.logging.debug("Stopping validator in background thread.")
+            self.should_exit = True
+            self.thread.join(5)
+            self.is_running = False
+            bt.logging.debug("Stopped")
 
     @abstractmethod
     def forward(self):
