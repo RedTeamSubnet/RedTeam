@@ -17,6 +17,10 @@ SCORING_HOUR = 14
 DATETIME_TO_SCORING: Callable[[datetime.datetime], bool] = (
     lambda x: x.hour == SCORING_HOUR
 )
+POINT_DECAY = 1 / 14
+DO_POINT_DECAY: Callable[[float, int], float] = lambda point, day_passed: point * (
+    1 - min(POINT_DECAY * day_passed, 1)
+)
 CHALLENGE_DOCKER_PORT = 10001
 MINER_DOCKER_PORT = 10002
 

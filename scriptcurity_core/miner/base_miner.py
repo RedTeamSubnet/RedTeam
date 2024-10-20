@@ -9,14 +9,14 @@ import os
 import threading
 import time
 import traceback
+from abc import ABC, abstractmethod
 
 
-class Miner:
+class BaseMiner(ABC):
     def __init__(self):
         self.config = get_config()
         self.setup_logging()
         self.setup_bittensor_objects()
-        self.synapse_commit = self._load_synapse_commit()
         self.axon.attach(self.forward, self.blacklist)
         self.is_running = False
 
@@ -118,37 +118,10 @@ class Miner:
         """
         self.stop_run_thread()
 
+    @abstractmethod
     def forward(self, synapse: Commit) -> Commit:
-        active_commits = self._load_active_commit()
-        served_commits = list(self.synapse_commit.commit_dockers.keys())
-        for commit in active_commits:
-            if commit not in served_commits:
-                self.synapse_commit.add_encrypted_commit(commit)
-        bt.logging.info(f"Synapse commit: {self.synapse_commit}")
-        self.synapse_commit.reveal_if_ready()
-        return self.synapse_commit
+        ...
 
+    @abstractmethod
     def blacklist(self, synapse: Commit) -> Tuple[bool, str]:
-        hotkey = synapse.dendrite.hotkey
-        uid = self.metagraph.hotkeys.index(hotkey)
-        stake = self.metagraph.S[uid]
-        if stake < constants.MIN_VALIDATOR_STAKE:
-            return True, "Not enough stake"
-        return False, "Passed"
-
-    def _load_synapse_commit(self) -> Commit:
-        commit_file = self.config.neuron.fullpath + "/commit.json"
-        if not os.path.exists(commit_file):
-            return Commit()
-        commit = json.load(open(commit_file))
-        commit = Commit(**commit)
-        return commit
-
-    def _save_synapse_commit(self):
-        commit_file = self.config.neuron.fullpath + "/commit.json"
-        json.dump(self.synapse_commit, open(commit_file, "w"))
-
-    def _load_active_commit(self) -> list:
-        commit_file = "neurons/miner/active_commit.yaml"
-        commit = yaml.load(open(commit_file), yaml.FullLoader)
-        return commit
+        ...

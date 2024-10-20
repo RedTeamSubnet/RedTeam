@@ -8,7 +8,7 @@ from substrateinterface import SubstrateInterface
 from abc import abstractmethod, ABC
 
 
-class Validator(ABC):
+class BaseValidator(ABC):
     def __init__(self):
         self.config = get_config()
         print(self.config)

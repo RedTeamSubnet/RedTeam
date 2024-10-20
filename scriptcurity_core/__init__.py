@@ -1,7 +1,14 @@
-from .miner import Miner
+from .miner import BaseMiner
 from .protocol import Commit
-from .validator import Validator as BaseValidator
+from .validator import MinerManager, ScoringLog, BaseValidator
 from . import challenges
 from . import constants
 
-__all__ = ["Miner", "Commit", "BaseValidator", "challenges", constants]
+__all__ = [
+    "Commit",
+    "BaseValidator",
+    "BaseMiner",
+    "challenges",
+    "MinerManager",
+    constants,
+]
