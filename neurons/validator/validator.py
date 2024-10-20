@@ -1,7 +1,7 @@
 from scriptcurity_core import (
     Commit,
     BaseValidator,
-    challenges,
+    challenge_pool,
     constants,
     MinerManager,
     ScoringLog,
@@ -19,7 +19,7 @@ class Validator(BaseValidator):
         Initializes the Validator by setting up MinerManager instances for all active challenges.
         """
         super().__init__()
-        self.active_challenges = challenges.ACTIVE_CHALLENGES
+        self.active_challenges = challenge_pool.ACTIVE_CHALLENGES
         self.miner_managers = {
             challenge: MinerManager(challenge_name=challenge)
             for challenge in self.active_challenges.keys()
