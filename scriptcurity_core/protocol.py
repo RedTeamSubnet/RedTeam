@@ -3,6 +3,7 @@ import time
 from .constants import REVEAL_INTERVAL
 import bittensor as bt
 
+
 class Commit(bt.Synapse):
     """
     Commit class that inherits from Synapse.
@@ -36,4 +37,6 @@ class Commit(bt.Synapse):
         for task_name, (created_time, key) in self.secret_keys.items():
             if time.time() - created_time > REVEAL_INTERVAL:
                 self.public_keys[task_name] = key
-                bt.logging.success(f"Revealed commit: {self.commit_dockers[task_name]}, {task_name}")
+                bt.logging.success(
+                    f"Revealed commit: {self.commit_dockers[task_name]}, {task_name}"
+                )

@@ -5,6 +5,7 @@ import bittensor as bt
 from .. import constants
 import time
 
+
 class Controller:
     """
     A class to manage the lifecycle of a challenge, including the initialization
@@ -56,37 +57,42 @@ class Controller:
         while not self._check_alive(port=constants.CHALLENGE_DOCKER_PORT):
             bt.logging.info("Waiting for challenge container to start.")
             time.sleep(1)
-            
+
         challenges = [
             self._get_challenge_from_container()
             for _ in range(constants.N_CHALLENGES_PER_EPOCH)
         ]
-        logs = {}
-        miner_scores = {}
+        logs = []
         for miner_docker_image, uid in zip(self.miner_docker_images, self.uids):
             self._clear_miner_container_by_image(miner_docker_image)
             miner_container = self.docker_client.containers.run(
                 miner_docker_image,
                 detach=True,
                 environment={"CHALLENGE_NAME": self.challenge_name},
-                ports={f"{constants.MINER_DOCKER_PORT}/tcp": constants.MINER_DOCKER_PORT},
+                ports={
+                    f"{constants.MINER_DOCKER_PORT}/tcp": constants.MINER_DOCKER_PORT
+                },
             )
             while not self._check_alive(port=constants.MINER_DOCKER_PORT):
-                bt.logging.info(f"Waiting for miner container to start. {miner_container.status}")
+                bt.logging.info(
+                    f"Waiting for miner container to start. {miner_container.status}"
+                )
                 time.sleep(1)
             for miner_input in challenges:
                 miner_output = self._submit_challenge_to_miner(miner_input)
                 score = self._score_challenge(miner_input, miner_output)
-                miner_scores.setdefault(uid, []).append(score)
-                logs.setdefault(uid, []).append(
-                    (miner_input, miner_output, score, miner_docker_image)
+                logs.append(
+                    {
+                        "miner_input": miner_input,
+                        "miner_output": miner_output,
+                        "score": score,
+                        "miner_docker_image": miner_docker_image,
+                        "uid": uid,
+                    }
                 )
-        bt.logging.success(miner_scores)
-        miner_scores = {
-            uid: sum(scores) / len(scores) for uid, scores in miner_scores.items()
-        }
         self._remove_challenge_container()
-        return miner_scores, logs
+        return logs
+
     def _clear_miner_container_by_image(self, miner_docker_image):
         """
         Stops and removes all running Docker containers for the miner Docker image.
@@ -96,13 +102,14 @@ class Controller:
             miner_docker_image: The Docker image for the miner to be removed.
         """
         containers = self.docker_client.containers.list(all=True)
-        
+
         for container in containers:
             tags = container.image.tags
             tags = [t.split(":")[0] for t in tags]
             if miner_docker_image in tags:
                 res = container.remove(force=True)
                 bt.logging.info(res)
+
     def _build_challenge_image(self):
         """
         Builds the Docker image for the challenge using the provided challenge name.
@@ -130,7 +137,9 @@ class Controller:
         container = self.docker_client.containers.run(
             self.challenge_name,
             detach=True,
-            ports={f"{constants.CHALLENGE_DOCKER_PORT}/tcp": constants.CHALLENGE_DOCKER_PORT},
+            ports={
+                f"{constants.CHALLENGE_DOCKER_PORT}/tcp": constants.CHALLENGE_DOCKER_PORT
+            },
             name=self.challenge_name,
         )
         bt.logging.info(container)
@@ -186,7 +195,9 @@ class Controller:
         Returns:
             A dictionary representing the challenge input.
         """
-        response = requests.get(f"http://localhost:{constants.CHALLENGE_DOCKER_PORT}/task")
+        response = requests.get(
+            f"http://localhost:{constants.CHALLENGE_DOCKER_PORT}/task"
+        )
         return response.json()
 
     def _score_challenge(self, miner_input, miner_output) -> float:

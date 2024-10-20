@@ -10,6 +10,7 @@ import threading
 import time
 import traceback
 
+
 class Miner:
     def __init__(self):
         self.config = get_config()
@@ -40,7 +41,9 @@ class Miner:
         bt.logging.info(f"Dendrite: {self.dendrite}")
         self.metagraph = self.subtensor.metagraph(self.config.netuid)
         bt.logging.info(f"Metagraph: {self.metagraph}")
-        self.axon = bt.axon(wallet=self.wallet, config=self.config, port=self.config.axon.port)
+        self.axon = bt.axon(
+            wallet=self.wallet, config=self.config, port=self.config.axon.port
+        )
         bt.logging.info(f"Axon: {self.axon}")
 
         if self.wallet.hotkey.ss58_address not in self.metagraph.hotkeys:
@@ -53,6 +56,7 @@ class Miner:
                 self.wallet.hotkey.ss58_address
             )
             bt.logging.info(f"Running validator on uid: {self.my_subnet_uid}")
+
     def run(self):
         # Check that miner is registered on the network.
         self.metagraph.sync(subtensor=self.subtensor)

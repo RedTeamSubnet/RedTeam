@@ -12,6 +12,7 @@ def solve(data: MinerInput):
         text="".join(random.choices("abcdefghijklmnopqrstuvwxyz", k=LENGTH))
     )
 
+
 @app.get("/health")
 def health():
     return {"status": "ok"}

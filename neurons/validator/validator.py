@@ -12,9 +12,10 @@ class Validator(BaseValidator):
         self.active_challenges = challenges.ACTIVE_CHALLENGES
         self.miner_submit = {}
         self.scores = {}
+        self.points = {}
 
     def forward(self):
-        self.update_miner_submit()
+        self.update_miner_commit()
         bt.logging.success(f"Miner submit: {self.miner_submit}")
         revealed_commits = self.get_revealed_commits()
         bt.logging.info(f"Revealed commits: {revealed_commits}")
@@ -22,11 +23,10 @@ class Validator(BaseValidator):
             controller = self.active_challenges[challenge](
                 challenge_name=challenge, miner_docker_images=commits, uids=uids
             )
-            miner_scores, logs = controller.start_challenge()
+            logs = controller.start_challenge()
+            self.miner_manager.update(logs)
 
-            self.update_scores(miner_scores)
-
-    def update_miner_submit(self):
+    def update_miner_commit(self):
         # uids = list(range(len(self.metagraph.axons)))
         uids = [0]
         axons = [self.metagraph.axons[i] for i in uids]
@@ -72,7 +72,7 @@ class Validator(BaseValidator):
                     this_challenge_revealed_commits[1].append(uid)
         return revealed_commits
 
-    def update_scores(self, scores):
+    def update_scores(self, challenge: str, scores: dict):
         for miner, score in scores.items():
             self.scores.setdefault(miner, []).append(score)
             self.scores[miner] = self.scores[miner][: constants.N_LAST_SCORES]
