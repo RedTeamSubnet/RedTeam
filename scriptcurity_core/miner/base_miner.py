@@ -1,15 +1,9 @@
 import bittensor as bt
-import json
-import yaml
-from .. import constants
-from ..protocol import Commit
 from typing import Tuple
-from ..common import get_config
-import os
 import threading
-import time
-import traceback
 from abc import ABC, abstractmethod
+from ..protocol import Commit
+from ..common import get_config
 
 
 class BaseMiner(ABC):
@@ -119,9 +113,7 @@ class BaseMiner(ABC):
         self.stop_run_thread()
 
     @abstractmethod
-    def forward(self, synapse: Commit) -> Commit:
-        ...
+    def forward(self, synapse: Commit) -> Commit: ...
 
     @abstractmethod
-    def blacklist(self, synapse: Commit) -> Tuple[bool, str]:
-        ...
+    def blacklist(self, synapse: Commit) -> Tuple[bool, str]: ...

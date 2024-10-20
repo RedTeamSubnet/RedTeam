@@ -109,18 +109,6 @@ class Validator(BaseValidator):
                     this_challenge_revealed_commits[1].append(uid)
         return revealed_commits
 
-    def update_scores(self, challenge: str, scores: dict) -> None:
-        """
-        Updates the scores for each miner in a challenge.
-
-        Args:
-            challenge: The challenge name.
-            scores: A dictionary of miner scores (key: miner, value: score).
-        """
-        for miner, score in scores.items():
-            self.scores.setdefault(miner, []).append(score)
-            self.scores[miner] = self.scores[miner][: constants.N_LAST_SCORES]
-
     def set_weights(self) -> None:
         """
         Sets the weights of the miners on-chain based on their accumulated scores.
@@ -139,7 +127,7 @@ class Validator(BaseValidator):
             netuid=self.config.netuid,
             uids=uids,
             weights=weights,
-            version_key=constants.__spec_version__,
+            version_key=constants.SPEC_VERSION,
         )
 
         if result:

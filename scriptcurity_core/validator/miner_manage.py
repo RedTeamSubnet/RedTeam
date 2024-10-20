@@ -119,7 +119,7 @@ class MinerManager:
         for date_str, record in self.challenge_records.items():
             record_date = datetime.datetime.strptime(date_str, "%Y-%m-%d")
             days_passed = (today - record_date).days
-            point = constants.DO_POINT_DECAY(record.point, days_passed)
+            point = constants.decay_points(record.point, days_passed)
             if record.uid is not None:
                 scores[record.uid] += point
 

@@ -1,6 +1,6 @@
 from cryptography.fernet import Fernet
 import time
-from .constants import REVEAL_INTERVAL
+from .constants import constants
 import bittensor as bt
 
 
@@ -35,7 +35,7 @@ class Commit(bt.Synapse):
 
     def reveal_if_ready(self):
         for task_name, (created_time, key) in self.secret_keys.items():
-            if time.time() - created_time > REVEAL_INTERVAL:
+            if time.time() - created_time > constants.REVEAL_INTERVAL:
                 self.public_keys[task_name] = key
                 bt.logging.success(
                     f"Revealed commit: {self.commit_dockers[task_name]}, {task_name}"
