@@ -64,6 +64,7 @@ class Controller:
         ]
         logs = []
         for miner_docker_image, uid in zip(self.miner_docker_images, self.uids):
+            bt.logging.info(f"[Controller] Running miner {uid}: {miner_docker_image}")
             self._clear_miner_container_by_image(miner_docker_image)
             miner_container = self.docker_client.containers.run(
                 miner_docker_image,

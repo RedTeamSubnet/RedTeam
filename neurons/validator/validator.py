@@ -26,6 +26,7 @@ class Validator(BaseValidator):
             for challenge in self.active_challenges.keys()
         }
         self.miner_submit = {}
+        self.scoring_dates: list[str] = []
 
     def forward(self):
         """
@@ -38,15 +39,33 @@ class Validator(BaseValidator):
         bt.logging.success(f"[FORWARD] Miner submit: {self.miner_submit}")
 
         revealed_commits = self.get_revealed_commits()
-        bt.logging.info(f"[FORWARD] Revealed commits: {revealed_commits}")
 
-        for challenge, (commits, uids) in revealed_commits.items():
-            controller = self.active_challenges[challenge](
-                challenge_name=challenge, miner_docker_images=commits, uids=uids
+        today = datetime.datetime.now()
+        current_hour = today.hour
+        today_key = today.strftime("%Y-%m-%d")
+        validate_scoring_hour = current_hour >= constants.SCORING_HOUR
+        validate_scoring_date = today_key not in self.scoring_dates
+        if validate_scoring_hour and validate_scoring_date and revealed_commits:
+            bt.logging.info(f"[FORWARD] Running scoring for {today_key}")
+            for challenge, (commits, uids) in revealed_commits.items():
+                bt.logging.info(f"[FORWARD] Running challenge: {challenge}")
+                controller = self.active_challenges[challenge](
+                    challenge_name=challenge, miner_docker_images=commits, uids=uids
+                )
+                logs = controller.start_challenge()
+                logs = [ScoringLog(**log) for log in logs]
+                self.miner_managers[challenge].update_scores(logs)
+            bt.logging.info(f"[FORWARD] Scoring completed for {today_key}")
+            self.scoring_dates.append(today_key)
+        else:
+            bt.logging.warning(f"[FORWARD] Skipping scoring for {today_key}")
+            bt.logging.info(
+                f"[FORWARD] Current hour: {current_hour}, Scoring hour: {constants.SCORING_HOUR}"
             )
-            logs = controller.start_challenge()
-            logs = [ScoringLog(**log) for log in logs]
-            self.miner_managers[challenge].update_scores(logs)
+            bt.logging.info(f"[FORWARD] Scoring dates: {self.scoring_dates}")
+            bt.logging.info(
+                f"[FORWARD] Revealed commits: {str(revealed_commits)[:100]}..."
+            )
 
     def update_miner_commit(self):
         """

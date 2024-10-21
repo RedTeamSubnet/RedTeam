@@ -105,20 +105,6 @@ class Constants(BaseModel):
             values["MIN_VALIDATOR_STAKE"] = -1
         return values
 
-    def is_scoring_time(self, current_time: Optional[datetime] = None) -> bool:
-        """
-        Determines if the current time is the scoring time.
-
-        Args:
-            current_time (Optional[datetime]): The current datetime. Uses now() if None.
-
-        Returns:
-            bool: True if it's the scoring hour, False otherwise.
-        """
-        if current_time is None:
-            current_time = datetime.now()
-        return current_time.hour == self.SCORING_HOUR
-
     def decay_points(self, point: float, days_passed: int) -> float:
         """
         Applies decay to the given points based on the number of days passed.
