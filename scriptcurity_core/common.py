@@ -26,3 +26,27 @@ def get_config(parser=ArgumentParser()):
     if not os.path.exists(config.neuron.fullpath):
         os.makedirs(config.neuron.full_path, exist_ok=True)
     return config
+
+
+def generate_constants_docs(constants_class):
+    """
+    Generates Markdown documentation for the provided constants class.
+
+    Args:
+        constants_class: A Pydantic model class containing configuration constants.
+
+    Returns:
+        str: A Markdown formatted string representing the documentation.
+    """
+    docs = "# Configuration Constants\n\n"
+    docs += f"**Class Name**: `{constants_class.__name__}`\n\n"
+    docs += "## Description\n\n"
+    docs += "Configuration constants for the application.\n\n"
+
+    for field_name, field_info in constants_class.model_fields.items():
+        docs += f"`{field_name}`\n"
+        docs += f"  - Type: `{field_info.annotation.__name__}`\n"
+        docs += f"  - Default: `{field_info.default}`\n"
+        docs += f"  - Description: {field_info.description}\n\n"
+
+    return docs

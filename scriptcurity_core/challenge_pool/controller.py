@@ -2,7 +2,7 @@ from typing import List
 import docker
 import requests
 import bittensor as bt
-from .. import constants
+from ..constants import constants
 import time
 
 
@@ -53,9 +53,9 @@ class Controller:
         self._build_challenge_image()
         self._remove_challenge_container()
         container = self._run_challenge_container()
-        bt.logging.info(f"Challenge container started: {container.status}")
+        bt.logging.info(f"[Controller] Challenge container started: {container.status}")
         while not self._check_alive(port=constants.CHALLENGE_DOCKER_PORT):
-            bt.logging.info("Waiting for challenge container to start.")
+            bt.logging.info("[Controller] Waiting for challenge container to start.")
             time.sleep(1)
 
         challenges = [
@@ -75,7 +75,7 @@ class Controller:
             )
             while not self._check_alive(port=constants.MINER_DOCKER_PORT):
                 bt.logging.info(
-                    f"Waiting for miner container to start. {miner_container.status}"
+                    f"[Controller] Waiting for miner container to start. {miner_container.status}"
                 )
                 time.sleep(1)
             for miner_input in challenges:
@@ -116,7 +116,7 @@ class Controller:
         This step is necessary to create the environment in which the challenge will run.
         """
         res = self.docker_client.images.build(
-            path=f"scriptcurity_core/challenges/{self.challenge_name}",
+            path=f"scriptcurity_core/challenge_pool/{self.challenge_name}",
             tag=self.challenge_name,
             rm=True,
         )
@@ -216,7 +216,7 @@ class Controller:
             "miner_input": miner_input,
             "miner_output": miner_output,
         }
-        bt.logging.info(f"Scoring payload: {payload}")
+        bt.logging.debug(f"[Controller] Scoring payload: {str(payload)[:100]}...")
         response = requests.post(
             f"http://localhost:{constants.CHALLENGE_DOCKER_PORT}/score",
             json=payload,

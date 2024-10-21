@@ -1,5 +1,5 @@
 import bittensor as bt
-from .. import constants
+from ..constants import constants
 from ..common import get_config
 import traceback
 import threading

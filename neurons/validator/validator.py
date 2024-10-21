@@ -11,6 +11,7 @@ import time
 from cryptography.fernet import Fernet
 import numpy as np
 import time
+import datetime
 
 
 class Validator(BaseValidator):
@@ -24,6 +25,7 @@ class Validator(BaseValidator):
             challenge: MinerManager(challenge_name=challenge)
             for challenge in self.active_challenges.keys()
         }
+        self.miner_submit = {}
 
     def forward(self):
         """
@@ -80,7 +82,7 @@ class Validator(BaseValidator):
                 commit_timestamp = this_miner_submit[challenge_name]["commit_timestamp"]
                 encrypted_commit = this_miner_submit[challenge_name]["encrypted_commit"]
                 key = this_miner_submit[challenge_name]["key"]
-                if time.time() - commit_timestamp > constants.REVEAL_INTERVAL and key:
+                if constants.is_commit_on_time(commit_timestamp):
                     try:
                         f = Fernet(key)
                         commit = f.decrypt(encrypted_commit).decode()
@@ -114,12 +116,15 @@ class Validator(BaseValidator):
         Sets the weights of the miners on-chain based on their accumulated scores.
         Accumulates scores from all challenges.
         """
-        uids = list(range(len(self.metagraph.axons)))
+        n_uids = len(self.metagraph.axons)
+        uids = list(range(n_uids))
         weights = np.zeros(len(uids))
 
         # Accumulate scores from all challenges
-        for uid, score_list in self.scores.items():
-            weights[uid] = sum(score_list) / len(score_list) if score_list else 0
+        for challenge, miner_manager in self.miner_managers.items():
+            scores = miner_manager.get_onchain_scores(n_uids)
+            bt.logging.debug(f"[SET WEIGHTS] {challenge} scores: {scores}")
+            weights += scores
 
         # Set weights on-chain
         result, log = self.subtensor.set_weights(
@@ -134,3 +139,10 @@ class Validator(BaseValidator):
             bt.logging.success(f"[SET WEIGHTS]: {log}")
         else:
             bt.logging.error(f"[SET WEIGHTS]: {log}")
+
+
+if __name__ == "__main__":
+    with Validator() as validator:
+        while True:
+            bt.logging.info("Validator is running...")
+            time.sleep(constants.EPOCH_LENGTH // 4)

@@ -4,7 +4,9 @@ import datetime
 import numpy as np
 import pandas as pd
 from typing import List, Dict, Optional
-from .. import constants  # Ensure this import works within your project structure
+from ..constants import (
+    constants,
+)
 
 
 class MinerCommit(BaseModel):
@@ -92,14 +94,14 @@ class MinerManager:
         best_score = scores.iloc[0]
 
         if best_score > prev_day_record.score:
-            score_diff = best_score - prev_day_record.score
+            point = max(best_score - prev_day_record.score, 0) * 100
             today_record = ChallengeRecord(
                 score=best_score,
                 date=today,
                 docker_hub_id=self.uids_to_commits.get(
                     best_uid, MinerCommit(encrypted_commit="", timestamp=0)
                 ).docker_hub_id,
-                point=score_diff,
+                point=point,
                 uid=best_uid,
             )
             self.challenge_records[today] = today_record
@@ -109,11 +111,11 @@ class MinerManager:
                 score=prev_day_record.score, date=today
             )
 
-    def get_onchain_scores(self) -> np.ndarray:
+    def get_onchain_scores(self, n_uids: int) -> np.ndarray:
         """
         Returns a numpy array of scores, applying decay for older records.
         """
-        scores = np.zeros(256)  # Should this be configurable?
+        scores = np.zeros(n_uids)  # Should this be configurable?
         today = datetime.datetime.now()
 
         for date_str, record in self.challenge_records.items():

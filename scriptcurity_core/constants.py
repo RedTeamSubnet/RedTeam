@@ -1,7 +1,8 @@
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional
 from pydantic import BaseModel, Field, field_validator, model_validator
+from .common import generate_constants_docs
 
 
 class Constants(BaseModel):
@@ -62,7 +63,7 @@ class Constants(BaseModel):
     class Config:
         validate_assignment = True
 
-    @field_validator("SPEC_VERSION", pre=True, always=True)
+    @field_validator("SPEC_VERSION", mode="before")
     def calculate_spec_version(cls, v, values):
         """
         Calculates the specification version as an integer based on the version string.
@@ -83,7 +84,7 @@ class Constants(BaseModel):
                 f"Invalid version format '{version_str}'. Expected 'major.minor.patch'."
             ) from e
 
-    @model_validator(pre=True)
+    @model_validator(mode="before")
     def adjust_for_testnet(cls, values):
         """
         Adjusts certain constants based on whether TESTNET mode is enabled.
@@ -94,8 +95,11 @@ class Constants(BaseModel):
         Returns:
             dict: The adjusted values dictionary.
         """
-        testnet = values.get("TESTNET", False)
-        if testnet:
+        testnet = os.environ.get("TESTNET", "")
+        is_testnet = testnet.lower() in ("1", "true", "yes")
+        print(f"Testnet mode: {is_testnet}, {testnet}")
+        if is_testnet:
+            print("Adjusting constants for testnet mode.")
             values["REVEAL_INTERVAL"] = 30
             values["EPOCH_LENGTH"] = 30
             values["MIN_VALIDATOR_STAKE"] = -1
@@ -129,5 +133,33 @@ class Constants(BaseModel):
         decay_factor = 1 - min(self.POINT_DECAY_RATE * days_passed, 1)
         return point * decay_factor
 
+    def is_commit_on_time(self, commit_timestamp: float) -> bool:
+        """
+        Validator do scoring every day at SCORING_HOUR.
+        So the commit time should be submitted before the previous day's SCORING_HOUR.
+        """
+        today_closed_time = datetime.now().replace(
+            hour=self.SCORING_HOUR, minute=0, second=0, microsecond=0
+        )
+        previous_day_closed_time = today_closed_time - timedelta(days=1)
+        return commit_timestamp < previous_day_closed_time.timestamp()
+
 
 constants = Constants()
+
+
+if __name__ == "__main__":
+    from termcolor import colored
+
+    def print_with_colors(content: str):
+        """
+        Prints the content with basic colors using termcolor.
+
+        Args:
+            content (str): The content to print.
+        """
+        print(colored(content, "cyan"))
+
+    markdown_content = generate_constants_docs(Constants)
+
+    print_with_colors(markdown_content)

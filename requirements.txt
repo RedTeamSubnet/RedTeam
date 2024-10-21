@@ -1,3 +1,4 @@
 bittensor
 cryptography
 docker
+pandas
