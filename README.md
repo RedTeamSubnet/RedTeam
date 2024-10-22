@@ -11,7 +11,10 @@ The subnet operates with a flexible, modular structure where new programming cha
 Points are awarded based on the quality of each solution, compared to the previous best. The system calculates emissions based on the number of points a miner has, with points decaying linearly over a 14-day period. This incentivizes continuous improvement and active participation in solving challenges.
 
 ## Example Challenge
-For instance, a programming challenge may involve mimicking human mouse movements to bypass detection algorithms. Miners develop Python scripts to trick the algorithm into believing the mouse movement is human-like. The highest-scoring miner earns points and emissions based on the quality of the solution compared to others.
+For instance, a programming challenge may involve mimicking human language to bypass ai generated content detection algorithms. Miners develop Python scripts to trick the algorithm into thinking the generated content is human-written. The validators evaluate the submissions based on the accuracy of the generated content and award points accordingly. The best solution is selected as the benchmark for future submissions.
 
 ## Validator Setup
-Coming soon...
+[Read the full documentation](docs/validator.md)
+
+## Miner Setup
+[Read the full documentation](docs/miner.md)
