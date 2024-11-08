@@ -24,7 +24,7 @@ def get_config(parser=ArgumentParser()):
     print("full path:", full_path)
     config.neuron.fullpath = os.path.expanduser(full_path)
     if not os.path.exists(config.neuron.fullpath):
-        os.makedirs(config.neuron.full_path, exist_ok=True)
+        os.makedirs(config.neuron.fullpath, exist_ok=True)
     return config
 
 

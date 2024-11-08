@@ -21,7 +21,7 @@ class BaseMiner(ABC):
             bt.logging.enable_trace()
         bt.logging(config=self.config, logging_dir=self.config.full_path)
         bt.logging.info(
-            f"Running validator for subnet: {self.config.netuid} on network: {self.config.subtensor.network} with config:"
+            f"Running miner for subnet: {self.config.netuid} on network: {self.config.subtensor.network} with config:"
         )
         bt.logging.info(self.config)
 
@@ -42,14 +42,14 @@ class BaseMiner(ABC):
 
         if self.wallet.hotkey.ss58_address not in self.metagraph.hotkeys:
             bt.logging.error(
-                f"\nYour validator: {self.wallet} is not registered to chain connection: {self.subtensor} \nRun 'btcli register' and try again."
+                f"\nYour miner: {self.wallet} is not registered to chain connection: {self.subtensor} \nRun 'btcli register' and try again."
             )
             exit()
         else:
             self.my_subnet_uid = self.metagraph.hotkeys.index(
                 self.wallet.hotkey.ss58_address
             )
-            bt.logging.info(f"Running validator on uid: {self.my_subnet_uid}")
+            bt.logging.info(f"Running miner on uid: {self.my_subnet_uid}")
 
     def run(self):
         # Check that miner is registered on the network.
