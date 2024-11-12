@@ -22,7 +22,7 @@ class Validator(BaseValidator):
         super().__init__()
         self.active_challenges = challenge_pool.ACTIVE_CHALLENGES
         self.miner_managers = {
-            challenge: MinerManager(challenge_name=challenge)
+            challenge: MinerManager(challenge_name=challenge, challenge_incentive_weight=self.active_challenges[challenge]["challenge_incentive_weight"])
             for challenge in self.active_challenges.keys()
         }
         self.miner_submit = {}
@@ -49,7 +49,7 @@ class Validator(BaseValidator):
             bt.logging.info(f"[FORWARD] Running scoring for {today_key}")
             for challenge, (commits, uids) in revealed_commits.items():
                 bt.logging.info(f"[FORWARD] Running challenge: {challenge}")
-                controller = self.active_challenges[challenge](
+                controller = self.active_challenges[challenge]["controller"](
                     challenge_name=challenge, miner_docker_images=commits, uids=uids
                 )
                 logs = controller.start_challenge()
@@ -72,6 +72,7 @@ class Validator(BaseValidator):
         Queries the axons for miner commit updates and decrypts them if the reveal interval has passed.
         """
         uids = [0]  # Change this to query multiple uids as needed
+        # uids = self.metagraph.uids
         axons = [self.metagraph.axons[i] for i in uids]
         dendrite = bt.dendrite(wallet=self.wallet)
         synapse = Commit()
@@ -143,7 +144,7 @@ class Validator(BaseValidator):
         for challenge, miner_manager in self.miner_managers.items():
             scores = miner_manager.get_onchain_scores(n_uids)
             bt.logging.debug(f"[SET WEIGHTS] {challenge} scores: {scores}")
-            weights += scores
+            weights += scores * miner_manager.challenge_incentive_weight
 
         # Set weights on-chain
         result, log = self.subtensor.set_weights(

@@ -56,14 +56,15 @@ class ScoringLog(BaseModel):
 
 
 class MinerManager:
-    def __init__(self, challenge_name: str):
+    def __init__(self, challenge_name: str, challenge_incentive_weight: float):
         """
         Initializes the MinerManager to track scores and challenges.
         """
         self.challenge_name = challenge_name
         self.uids_to_commits: Dict[int, MinerCommit] = {}
         self.challenge_records: Dict[str, ChallengeRecord] = {}
-
+        self.challenge_incentive_weight = challenge_incentive_weight
+        
     def update_scores(self, logs: List[ScoringLog]) -> None:
         """
         Updates the scores for miners based on new logs.
