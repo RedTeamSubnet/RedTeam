@@ -1,4 +1,4 @@
-bittensor
+bittensor==8.3.1
 cryptography
 docker
 pandas

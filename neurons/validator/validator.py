@@ -1,4 +1,4 @@
-from scriptcurity_core import (
+from redteam_core import (
     Commit,
     BaseValidator,
     challenge_pool,
@@ -55,7 +55,8 @@ class Validator(BaseValidator):
                 logs = controller.start_challenge()
                 logs = [ScoringLog(**log) for log in logs]
                 self.miner_managers[challenge].update_scores(logs)
-            bt.logging.info(f"[FORWARD] Scoring completed for {today_key}")
+                bt.logging.info(f"[FORWARD] Scoring for challenge: {challenge} has been completed for {today_key}")
+            bt.logging.info(f"[FORWARD] All tasks: Scoring completed for {today_key}")
             self.scoring_dates.append(today_key)
         else:
             bt.logging.warning(f"[FORWARD] Skipping scoring for {today_key}")
