@@ -3,7 +3,7 @@ from cryptography.fernet import Fernet
 import datetime
 import numpy as np
 import pandas as pd
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Union
 from ..constants import (
     constants,
 )
@@ -51,7 +51,7 @@ class ScoringLog(BaseModel):
     uid: int
     score: float
     miner_input: dict
-    miner_output: dict
+    miner_output: Union[dict, None]
     miner_docker_image: str
 
 

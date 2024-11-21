@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict
 import docker
 import requests
 import bittensor as bt
@@ -13,7 +13,7 @@ class Controller:
     """
 
     def __init__(
-        self, challenge_name: str, miner_docker_images: List[str], uids: List[int]
+        self, challenge_name: str, miner_docker_images: List[str], uids: List[int], challenge_info: Dict
     ):
         """
         Initializes the Controller with the name of the challenge and the list of miner Docker images.
@@ -27,6 +27,9 @@ class Controller:
         self.challenge_name = challenge_name
         self.miner_docker_images = miner_docker_images
         self.uids = uids
+        self.challenge_info = challenge_info
+        self.resource_limits = challenge_info["resource_limits"]
+        
 
     def _clear_all_container(self):
         """
@@ -66,22 +69,27 @@ class Controller:
         for miner_docker_image, uid in zip(self.miner_docker_images, self.uids):
             bt.logging.info(f"[Controller] Running miner {uid}: {miner_docker_image}")
             self._clear_miner_container_by_image(miner_docker_image)
+
+            docker_run_start_time = time.time()
             miner_container = self.docker_client.containers.run(
                 miner_docker_image,
                 detach=True,
+                cpu_count=self.resource_limits.get("num_cpus", 2),
+                mem_limit=self.resource_limits.get("mem_limit", "1g"),
                 environment={"CHALLENGE_NAME": self.challenge_name},
                 ports={
                     f"{constants.MINER_DOCKER_PORT}/tcp": constants.MINER_DOCKER_PORT
                 },
             )
-            while not self._check_alive(port=constants.MINER_DOCKER_PORT):
+            
+            while not self._check_alive(port=constants.MINER_DOCKER_PORT) and time.time() - docker_run_start_time < self.challenge_info.get("docker_run_timeout", 600):
                 bt.logging.info(
                     f"[Controller] Waiting for miner container to start. {miner_container.status}"
                 )
                 time.sleep(1)
-            for miner_input in challenges:
+            for miner_input in challenges: 
                 miner_output = self._submit_challenge_to_miner(miner_input)
-                score = self._score_challenge(miner_input, miner_output)
+                score = self._score_challenge(miner_input, miner_output) if miner_output is not None else 0
                 logs.append(
                     {
                         "miner_input": miner_input,
@@ -168,13 +176,19 @@ class Controller:
         Returns:
             A dictionary representing the miner's output.
         """
-        response = requests.post(
-            f"http://localhost:{constants.MINER_DOCKER_PORT}/solve",
-            json={
-                "miner_input": challenge,
-            },
-        )
-        return response.json()
+
+        try:
+            response = requests.post(
+                f"http://localhost:{constants.MINER_DOCKER_PORT}/solve",
+                timeout=self.challenge_info.get("challenge_solve_timeout", 60),
+                json={
+                    "miner_input": challenge,
+                }
+            )
+            return response.json()
+        except Exception as ex:
+            bt.logging.error(f"Submit challenge to miner failed: {str(ex)}")
+            return None
 
     def _check_alive(self, port=10001) -> bool:
         """

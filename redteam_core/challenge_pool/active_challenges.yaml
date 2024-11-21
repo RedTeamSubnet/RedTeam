@@ -3,3 +3,10 @@ text_detection:
   description: "Detect if text is ai generated"
   challenge_incentive_weight: 1.0
   target: redteam_core.challenge_pool.text_detection.Controller
+  challenge_solve_timeout: 5
+  docker_run_timeout: 300
+  resource_limits:
+    num_cpus: 4
+    mem_limit: "2g"
+
+    
