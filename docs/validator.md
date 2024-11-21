@@ -1,7 +1,7 @@
 # Validator Setup
 
 ## Minimum System Requirements
-Below is the minimum system requirements for running a validator node on the Innerworks Subnet:
+Below is the minimum system requirements for running a validator node on the RedTeam Subnet:
 - Bare Metal Server
 - GPU with 24-GB VRAM
 - Ubuntu 20.04 LTS
@@ -11,8 +11,8 @@ Below is the minimum system requirements for running a validator node on the Inn
 - 8-Core CPU
 
 ## Setup Instructions
-To set up a validator node on the Innerworks Subnet, follow these steps:
-1. Install the latest version of the Innerworks Subnet repository.
+To set up a validator node on the RedTeam Subnet, follow these steps:
+1. Install the latest version of the RedTeam Subnet repository.
 ```bash
 git clone https://github.com/RedTeamSubnet/RedTeam && cd RedTeam
 pip install -e .
