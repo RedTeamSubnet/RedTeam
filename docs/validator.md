@@ -14,7 +14,7 @@ Below is the minimum system requirements for running a validator node on the Inn
 To set up a validator node on the Innerworks Subnet, follow these steps:
 1. Install the latest version of the Innerworks Subnet repository.
 ```bash
-git clone https://github.com/SocialTensor/ScriptcuritySubnet && cd ScriptcuritySubnet
+git clone https://github.com/RedTeamSubnet/RedTeam && cd RedTeam
 pip install -e .
 ```
 

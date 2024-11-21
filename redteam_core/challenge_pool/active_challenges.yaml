@@ -2,4 +2,4 @@ text_detection:
   name: "Text Detection"
   description: "Detect if text is ai generated"
   challenge_incentive_weight: 1.0
-  target: scriptcurity_core.challenge_pool.text_detection.Controller
+  target: redteam_core.challenge_pool.text_detection.Controller

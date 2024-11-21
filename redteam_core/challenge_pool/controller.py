@@ -117,7 +117,7 @@ class Controller:
         This step is necessary to create the environment in which the challenge will run.
         """
         res = self.docker_client.images.build(
-            path=f"scriptcurity_core/challenge_pool/{self.challenge_name}",
+            path=f"redteam_core/challenge_pool/{self.challenge_name}",
             tag=self.challenge_name,
             rm=True,
         )

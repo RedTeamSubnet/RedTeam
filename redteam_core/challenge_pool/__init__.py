@@ -2,7 +2,7 @@ import yaml
 import importlib
 
 CHALLENGE_CONFIGS = yaml.load(
-    open("scriptcurity_core/challenge_pool/active_challenges.yaml"), yaml.FullLoader
+    open("redteam_core/challenge_pool/active_challenges.yaml"), yaml.FullLoader
 )
 
 print(CHALLENGE_CONFIGS)
