@@ -67,7 +67,7 @@ CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "10001"]
 
 
 ### 3. Build and Test Your Docker Image
-After creating the `Dockerfile` and `requirements.txt`, you can build, tag your Docker image and push it to Docker Hub. Refer to the documentation for [tagging and pushing Docker images](docker.md).
+After creating the `Dockerfile` and `requirements.txt`, you can build, tag your Docker image and push it to Docker Hub. Refer to the documentation for [Docker](docker.md).
 
 
 You can view the tutorial for text detection submission [here](template/text_detection.md).
