@@ -1,4 +1,4 @@
-from scriptcurity_core import BaseMiner, Commit, constants
+from redteam_core import BaseMiner, Commit, constants
 from typing import Tuple
 import bittensor as bt
 import time

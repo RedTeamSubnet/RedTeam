@@ -1,4 +1,4 @@
 from .validator import BaseValidator
-from .miner_manage import MinerManager, ScoringLog
+from .miner_manager import MinerManager, ScoringLog
 
 __all__ = ["BaseValidator", "MinerManager"]
