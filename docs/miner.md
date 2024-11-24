@@ -15,7 +15,7 @@ git clone https://github.com/RedTeamSubnet/RedTeam && cd RedTeam
 pip install -e .
 ```
 
-2. Explore challenges at `redteam_core/challenge_pool/`, build your solution, dockerize it, and push it to Docker Hub. You can view the detailed guide [here](docker.md). We have some limitations on your solution:
+2. Explore challenges at `redteam_core/challenge_pool/`, build your solution, dockerize it, and push it to Docker Hub. You can view the detailed guide [here](challenge_submission_guide.md). We have some limitations on your solution:
 - The solution must be a Python script.
 - Allowed to use GPU with 24GB VRAM
 - The solution won't be able to access the internet.
