@@ -4,7 +4,7 @@ import requests
 import bittensor as bt
 from ..constants import constants
 import time
-
+import subprocess
 
 class Controller:
     """
@@ -29,7 +29,7 @@ class Controller:
         self.uids = uids
         self.challenge_info = challenge_info
         self.resource_limits = challenge_info["resource_limits"]
-        
+        self.local_network = "redteam_local"
 
     def _clear_all_container(self):
         """
@@ -55,6 +55,10 @@ class Controller:
         self._clear_all_container()
         self._build_challenge_image()
         self._remove_challenge_container()
+        self._create_network(self.local_network)
+
+        
+
         container = self._run_challenge_container()
         bt.logging.info(f"[Controller] Challenge container started: {container.status}")
         while not self._check_alive(port=constants.CHALLENGE_DOCKER_PORT):
@@ -80,8 +84,8 @@ class Controller:
                 ports={
                     f"{constants.MINER_DOCKER_PORT}/tcp": constants.MINER_DOCKER_PORT
                 },
+                network=self.local_network            
             )
-            
             while not self._check_alive(port=constants.MINER_DOCKER_PORT) and time.time() - docker_run_start_time < self.challenge_info.get("docker_run_timeout", 600):
                 bt.logging.info(
                     f"[Controller] Waiting for miner container to start. {miner_container.status}"
@@ -237,3 +241,39 @@ class Controller:
             json=payload,
         )
         return response.json()
+
+    def _create_network(self, network_name):
+        try:
+            networks = self.docker_client.networks.list(names=[network_name])
+            if not networks:
+                network = self.docker_client.networks.create(
+                    name=self.local_network,
+                    driver="bridge",
+                )
+                bt.logging.info(f"Network '{network_name}' created successfully.")
+            else:
+                bt.logging.info(f"Network '{network_name}' already exists.")
+                network = self.docker_client.networks.get(network_name)
+
+
+            network_info = self.docker_client.api.inspect_network(network.id)
+            subnet = network_info['IPAM']['Config'][0]['Subnet']
+            iptables_commands = [
+                # Block forwarded traffic to the internet
+                ["iptables", "-I", "FORWARD", "-s", subnet, "!", "-d", subnet, "-j", "DROP"],
+                # Prevent NAT to the internet
+                ["iptables", "-t", "nat", "-I", "POSTROUTING", "-s", subnet, "-j", "RETURN"]
+            ]
+            
+            for cmd in iptables_commands:
+                try:
+                    # Try with sudo
+                    subprocess.run(["sudo"] + cmd, check=True)
+                except subprocess.CalledProcessError:
+                    # If running with sudo fails, try without sudo
+                    subprocess.run(cmd, check=True)
+
+        except docker.errors.APIError as e:
+            bt.logging.error(f"Failed to create network: {e}")
+            
+ 
