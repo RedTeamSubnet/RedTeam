@@ -140,3 +140,4 @@ class ResponseQualityHandler():
             return predictions[0]
         else:
             return predictions
+    

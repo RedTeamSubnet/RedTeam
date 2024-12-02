@@ -3,7 +3,7 @@
 
 Example code for the Response Quality Adversarial Submission can be found in the `redteam_core/miner/commits/response_quality_adversarial` directory. Follow the steps below to build, tag, push, and update the active commit:
 
-### 1. Navigate to the Text Detection Commit Directory
+### 1. Navigate to the Response Quality Adversarial Commit Directory
 ```bash
 cd redteam_core/miner/commits/response_quality_adversarial
 ```

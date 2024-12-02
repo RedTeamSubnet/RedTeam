@@ -52,8 +52,6 @@ class Challenge:
         """
         words = word_tokenize(original_prompt)
         stop_word_index = [i for i, word in enumerate(words) if word.lower() in self.stop_words]
-        print("stop_word_index: ", stop_word_index)
-        print([i for i in range(0,len(words)) if i not in stop_word_index])
         mask_index = random.choice([i for i in range(0,len(words)) if i not in stop_word_index])
         modified_prompt = " ".join(
             word if i != mask_index else "BLANK" for i, word in enumerate(words)
