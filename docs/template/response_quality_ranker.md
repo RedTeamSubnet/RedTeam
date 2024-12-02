@@ -1,7 +1,11 @@
 
 ## Response Quality Ranker Submission Guide
 
-Example code for the Response Quality Ranker Submission can be found in the `redteam_core/miner/commits/response_quality_ranker` directory. Follow the steps below to build, tag, push, and update the active commit:
+Example code for the Response Quality Ranker Submission can be found in the `redteam_core/miner/commits/response_quality_ranker` directory. 
+
+Download model [snorkelai/instruction-response-quality](https://huggingface.co/snorkelai/instruction-response-quality) place it in the `redteam_core/miner/commits/response_quality_ranker` directory and rename to `models`.  **Remember to include all model files, as miner is prevented from connecting to the internet.**
+
+Follow the steps below to build, tag, push, and update the active commit:
 
 ### 1. Navigate to the Response Quality Ranker Commit Directory
 ```bash

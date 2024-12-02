@@ -15,10 +15,10 @@ To set up the environment for the **Response Quality Ranker** challenge, you wil
    HF_TOKEN=<your-huggingface-token> python -m vllm.entrypoints.openai.api_server --model unsloth/Meta-Llama-3.1-8B-Instruct --max-model-len 4096 --port <your-vllm-port>
    ```
 
-3. Set the necessary environment variables:
-   ```bash
-   export VLLM_URL="http://127.0.0.1:8000/v1"  # your vllm URL
-   export API_KEY="your-api-key"                # your API key
-   export VLLM_MODEL="unsloth/Meta-Llama-3.1-8B-Instruct"
+3. Set the necessary environment variables in Dockerfile:
+   ```
+   ENV VLLM_URL="http://127.0.0.1:8000/v1"  
+   ENV API_KEY="your-api-key"
+   ENV VLLM_MODEL="unsloth/Meta-Llama-3.1-8B-Instruct"
    ```
 

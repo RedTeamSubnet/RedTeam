@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 
 class MinerInput(BaseModel):
     """
@@ -8,7 +8,7 @@ class MinerInput(BaseModel):
     necessary for the miner to generate a response.
     """
     description: str  = "Generate a meaningful response to modified prompt that aligns with  original intent of  question."
-    original_prompt: str # original prompt, which is hidden from the miner for evaluation purposes
+    original_prompt: Optional[str] = None # original prompt, which is hidden from the miner for evaluation purposes
     modified_prompt: str  
     
 

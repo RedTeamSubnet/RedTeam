@@ -1,7 +1,10 @@
-
 ## Response Quality Adversarial Submission Guide
 
-Example code for the Response Quality Adversarial Submission can be found in the `redteam_core/miner/commits/response_quality_adversarial` directory. Follow the steps below to build, tag, push, and update the active commit:
+Example code for the Response Quality Adversarial Submission can be found in the `redteam_core/miner/commits/response_quality_adversarial` directory.
+
+Download model [unsloth/Llama-3.2-3B-Instruct](https://huggingface.co/unsloth/Llama-3.2-3B-Instruct) and place it in the `redteam_core/miner/commits/response_quality_adversarial` directory. **Remember to include all model files, as miner is prevented from connecting to the internet.**
+
+Follow the steps below to build, tag, push, and update the active commit:
 
 ### 1. Navigate to the Response Quality Adversarial Commit Directory
 ```bash

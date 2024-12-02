@@ -18,8 +18,14 @@ response_quality_adversarial:
   docker_run_timeout: 600
   resource_limits:
     num_cpus: 4
-    mem_limit: "10g"
-  exclude_miner_input_key:
+    mem_limit: "20g"
+    cuda_device_ids: ["0"]   # Use CUDA devices
+  enviroment:
+    TF_FORCE_GPU_ALLOW_GROWTH": "true"  # Allow memory to grow as needed
+    CUDA_DEVICE_ORDER": "PCI_BUS_ID"    # Ensure consistent device ordering
+    NVIDIA_VISIBLE_DEVICES": "all"      # Set to "all" or restrict devices
+    NVIDIA_MEMORY_LIMIT_MB": "20480"    # Limit GPU memory usage to 4GB (optional)
+  exclude_miner_input_key: # Hidden from miner; only visible to validator for evaluation purposes
     - original_prompt
 
 
@@ -33,7 +39,7 @@ response_quality_ranker:
   resource_limits:
     num_cpus: 4
     mem_limit: "10g"
-  exclude_miner_input_key:
+  exclude_miner_input_key: # Hidden from miner; only visible to validator for evaluation purposes
     - groundtruth_ranking
 
     

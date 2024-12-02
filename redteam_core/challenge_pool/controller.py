@@ -1,5 +1,6 @@
 from typing import List, Dict
 import docker
+import docker.types
 import requests
 import bittensor as bt
 from ..constants import constants
@@ -71,20 +72,25 @@ class Controller:
         ]
         logs = []
         for miner_docker_image, uid in zip(self.miner_docker_images, self.uids):
+            # miner_docker_image = "vietbeu/text-detection-miner-internet:0.0.1"
             bt.logging.info(f"[Controller] Running miner {uid}: {miner_docker_image}")
             self._clear_miner_container_by_image(miner_docker_image)
 
             docker_run_start_time = time.time()
+            kwargs = {}
+            if self.resource_limits.get("cuda_device_ids") is not None:
+                kwargs["device_requests"] = [docker.types.DeviceRequest(device_ids=self.resource_limits["cuda_device_ids"], capabilities=[['gpu']])]
             miner_container = self.docker_client.containers.run(
                 miner_docker_image,
                 detach=True,
                 cpu_count=self.resource_limits.get("num_cpus", 2),
                 mem_limit=self.resource_limits.get("mem_limit", "1g"),
-                environment={"CHALLENGE_NAME": self.challenge_name},
+                environment={"CHALLENGE_NAME": self.challenge_name, **self.challenge_info.get("enviroment", {})},
                 ports={
                     f"{constants.MINER_DOCKER_PORT}/tcp": constants.MINER_DOCKER_PORT
                 },
-                network=self.local_network            
+                network=self.local_network,
+                **kwargs           
             )
             while not self._check_alive(port=constants.MINER_DOCKER_PORT) and time.time() - docker_run_start_time < self.challenge_info.get("docker_run_timeout", 600):
                 bt.logging.info(
@@ -103,6 +109,7 @@ class Controller:
                         "uid": uid,
                     }
                 )
+                break
         self._remove_challenge_container()
         return logs
 
@@ -183,14 +190,12 @@ class Controller:
 
         exclude_miner_input_key = self.challenge_info.get("exclude_miner_input_key", [])
         for key in exclude_miner_input_key:
-            challenge.pop(key, None)
+            challenge[key] = None
         try:
             response = requests.post(
                 f"http://localhost:{constants.MINER_DOCKER_PORT}/solve",
                 timeout=self.challenge_info.get("challenge_solve_timeout", 60),
-                json={
-                    "miner_input": challenge,
-                }
+                json=challenge,
             )
             return response.json()
         except Exception as ex:

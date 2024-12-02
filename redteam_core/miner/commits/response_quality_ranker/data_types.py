@@ -1,5 +1,5 @@
-from pydantic import BaseModel, field_validator
-from typing import List
+from pydantic import BaseModel
+from typing import List, Optional
 
 
 class MinerInput(BaseModel):
@@ -10,7 +10,7 @@ class MinerInput(BaseModel):
     """
     prompt: str
     responses: List[str]
-    groundtruth_ranking: List[int]  # Ranking of responses based on ground truth, higher is better, hidden from miner for evaluation purposes
+    groundtruth_ranking: Optional[List[int]] = None # Ranking of responses based on ground truth, higher is better, hidden from miner for evaluation purposes
 
     
 class MinerOutput(BaseModel):
