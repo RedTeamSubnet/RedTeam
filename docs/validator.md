@@ -39,7 +39,11 @@ To verify the installation, run:
 sudo docker run hello-world
 ```
 
-3. Start the validator node:
+3. Custom Setup for Specific Challenges
+For setup instructions related to specific challenges, please refer to the [Validator Custom Setup](validator_custom.md).
+
+4. Start the validator node:
+
 ```bash
 pm2 start python --name "validator_snxxx" \
 -- -m neurons.validator.validator \

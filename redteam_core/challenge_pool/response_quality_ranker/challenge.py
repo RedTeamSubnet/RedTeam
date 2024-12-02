@@ -20,6 +20,7 @@ Guidelines for responses:
 - Best responses (rank 1): Should be comprehensive, accurate, well-structured, and provide detailed explanations or examples
 - Medium responses (rank 2): Should be correct but may lack detail, examples, or complete coverage
 - Lower responses (rank 3+): May be oversimplified, incomplete, or partially incorrect
+Ensure that the degree of detail (length) of the responses is roughly similar.
 Always generate at least 3 responses and ensure the ranking array matches the response array length."""
 
 class Challenge:
@@ -28,7 +29,7 @@ class Challenge:
     It provides the task to be completed and evaluates the output.
     """
     def __init__(self):
-        VLLM_URL = os.environ.get("VLLM_URL", "http://104.255.9.187:11226/v1") 
+        VLLM_URL = os.environ.get("VLLM_URL", "http://127.0.0.1:8000/v1") 
         VLLM_API_KEY = os.environ.get("API_KEY", "api-key")
         self.model_name = os.environ.get("VLLM_MODEL", "unsloth/Meta-Llama-3.1-8B-Instruct")
         self.client = openai.OpenAI(
@@ -39,13 +40,21 @@ class Challenge:
         with open("questions.txt") as f:
             self.questions = f.readlines()
 
-    def prepare_task(self) -> MinerInput:
+    def prepare_task(self, num_retries = 5) -> MinerInput:
         """
         Prepares the task by returning an instance of MinerInput,
         which contains the task description.
         """
-        task = self._create_question_with_ranked_responses()
+        task = None
+        while task is None and num_retries > 0:
+            task = self._create_question_with_ranked_responses()
+            num_retries -= 1
         prompt, responses, ranking = task["question"], task["response"], task["ranking"]
+
+        combined = list(zip(responses, ranking))
+        random.shuffle(combined)
+        responses, ranking = zip(*combined)
+
         return MinerInput(prompt=prompt, responses=responses, groundtruth_ranking=ranking)
 
     def score_task(self, miner_input: MinerInput, miner_output: MinerOutput) -> float:
