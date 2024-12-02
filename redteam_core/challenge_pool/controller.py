@@ -181,6 +181,9 @@ class Controller:
             A dictionary representing the miner's output.
         """
 
+        exclude_miner_input_key = self.challenge_info.get("exclude_miner_input_key", [])
+        for key in exclude_miner_input_key:
+            challenge.pop(key, None)
         try:
             response = requests.post(
                 f"http://localhost:{constants.MINER_DOCKER_PORT}/solve",
