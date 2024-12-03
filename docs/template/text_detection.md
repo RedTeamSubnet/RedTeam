@@ -33,10 +33,16 @@ Push the tagged image to your Docker Hub repository:
 docker push myhub/text_detection_submission:0.0.1
 ```
 
-### 6. Update active_commit.yaml
+### 6. Retrieve the SHA256 Digest
+After pushing the image, retrieve the digest by running:
+```bash
+docker inspect --format='{{index .RepoDigests 0}}' myhub/text_detection_submission:0.0.1
+```
+
+### 7. Update active_commit.yaml
 Finally, go to the `neurons/miner/active_commit.yaml` file and update it with the new image tag:
 
 ```yaml
-- text_detection---myhub/text_detection_submission:0.0.1
+- text_detection---myhub/text_detection_submission@<sha256:digest>
 ```
 

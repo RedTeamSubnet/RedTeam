@@ -1,10 +1,13 @@
 from typing import List, Dict
 import docker
+import docker.types
 import requests
 import bittensor as bt
 from ..constants import constants
 import time
 import subprocess
+import copy
+import re
 
 class Controller:
     """
@@ -71,20 +74,27 @@ class Controller:
         ]
         logs = []
         for miner_docker_image, uid in zip(self.miner_docker_images, self.uids):
+            is_image_valid = self._validate_image_with_digest(miner_docker_image)
+            if not is_image_valid:
+                continue
             bt.logging.info(f"[Controller] Running miner {uid}: {miner_docker_image}")
             self._clear_miner_container_by_image(miner_docker_image)
 
             docker_run_start_time = time.time()
+            kwargs = {}
+            if self.resource_limits.get("cuda_device_ids") is not None:
+                kwargs["device_requests"] = [docker.types.DeviceRequest(device_ids=self.resource_limits["cuda_device_ids"], capabilities=[['gpu']])]
             miner_container = self.docker_client.containers.run(
                 miner_docker_image,
                 detach=True,
                 cpu_count=self.resource_limits.get("num_cpus", 2),
                 mem_limit=self.resource_limits.get("mem_limit", "1g"),
-                environment={"CHALLENGE_NAME": self.challenge_name},
+                environment={"CHALLENGE_NAME": self.challenge_name, **self.challenge_info.get("enviroment", {})},
                 ports={
                     f"{constants.MINER_DOCKER_PORT}/tcp": constants.MINER_DOCKER_PORT
                 },
-                network=self.local_network            
+                network=self.local_network,
+                **kwargs           
             )
             while not self._check_alive(port=constants.MINER_DOCKER_PORT) and time.time() - docker_run_start_time < self.challenge_info.get("docker_run_timeout", 600):
                 bt.logging.info(
@@ -181,13 +191,15 @@ class Controller:
             A dictionary representing the miner's output.
         """
 
+        miner_input = copy.deepcopy(challenge)
+        exclude_miner_input_key = self.challenge_info.get("exclude_miner_input_key", [])
+        for key in exclude_miner_input_key:
+            miner_input[key] = None
         try:
             response = requests.post(
                 f"http://localhost:{constants.MINER_DOCKER_PORT}/solve",
                 timeout=self.challenge_info.get("challenge_solve_timeout", 60),
-                json={
-                    "miner_input": challenge,
-                }
+                json=miner_input,
             )
             return response.json()
         except Exception as ex:
@@ -231,17 +243,20 @@ class Controller:
         Returns:
             A float representing the score for the miner's solution.
         """
-        payload = {
-            "miner_input": miner_input,
-            "miner_output": miner_output,
-        }
-        bt.logging.debug(f"[Controller] Scoring payload: {str(payload)[:100]}...")
-        response = requests.post(
-            f"http://localhost:{constants.CHALLENGE_DOCKER_PORT}/score",
-            json=payload,
-        )
-        return response.json()
-
+        try:
+            payload = {
+                "miner_input": miner_input,
+                "miner_output": miner_output,
+            }
+            bt.logging.debug(f"[Controller] Scoring payload: {str(payload)[:100]}...")
+            response = requests.post(
+                f"http://localhost:{constants.CHALLENGE_DOCKER_PORT}/score",
+                json=payload,
+            )
+            return response.json()
+        except Exception as ex:
+            bt.logging.error(f"Score challenge failed: {str(ex)}")
+            return 0
     def _create_network(self, network_name):
         try:
             networks = self.docker_client.networks.list(names=[network_name])
@@ -276,4 +291,12 @@ class Controller:
         except docker.errors.APIError as e:
             bt.logging.error(f"Failed to create network: {e}")
             
+    
+    def _validate_image_with_digest(self, image):
+        """Validate that the provided Docker image includes a SHA256 digest."""
+        digest_pattern = r".+@sha256:[a-fA-F0-9]{64}$"  # Regex for SHA256 digest format
+        if not re.match(digest_pattern, image):
+            bt.logging.error(f"Invalid image format: {image}. Must include a SHA256 digest. Skip evaluation!")
+            return False
+        return True
  

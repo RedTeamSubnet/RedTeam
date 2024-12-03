@@ -48,6 +48,8 @@ class Validator(BaseValidator):
         if validate_scoring_hour and validate_scoring_date and revealed_commits:
             bt.logging.info(f"[FORWARD] Running scoring for {today_key}")
             for challenge, (commits, uids) in revealed_commits.items():
+                if challenge not in self.active_challenges: 
+                    continue
                 bt.logging.info(f"[FORWARD] Running challenge: {challenge}")
                 controller = self.active_challenges[challenge]["controller"](
                     challenge_name=challenge, miner_docker_images=commits, uids=uids, challenge_info=self.active_challenges[challenge]
