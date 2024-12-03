@@ -127,7 +127,7 @@ class Challenge:
         - dict: Evaluation results including Spearman's rank correlation and exact match status.
         """
         # Extract the model's ranking indices based on 'response_quality'
-        model_scores = [p["response_quality"] for p in predictions]
+        model_scores = predictions
         model_ranking = np.argsort(model_scores)[::-1] + 1  # Sort in descending order, starting from rank 1
 
         # Compare the model's ranking with the ground truth ranking

@@ -6,6 +6,7 @@ import bittensor as bt
 from ..constants import constants
 import time
 import subprocess
+import copy
 
 class Controller:
     """
@@ -72,7 +73,6 @@ class Controller:
         ]
         logs = []
         for miner_docker_image, uid in zip(self.miner_docker_images, self.uids):
-            # miner_docker_image = "vietbeu/text-detection-miner-internet:0.0.1"
             bt.logging.info(f"[Controller] Running miner {uid}: {miner_docker_image}")
             self._clear_miner_container_by_image(miner_docker_image)
 
@@ -109,7 +109,6 @@ class Controller:
                         "uid": uid,
                     }
                 )
-                break
         self._remove_challenge_container()
         return logs
 
@@ -188,14 +187,15 @@ class Controller:
             A dictionary representing the miner's output.
         """
 
+        miner_input = copy.deepcopy(challenge)
         exclude_miner_input_key = self.challenge_info.get("exclude_miner_input_key", [])
         for key in exclude_miner_input_key:
-            challenge[key] = None
+            miner_input[key] = None
         try:
             response = requests.post(
                 f"http://localhost:{constants.MINER_DOCKER_PORT}/solve",
                 timeout=self.challenge_info.get("challenge_solve_timeout", 60),
-                json=challenge,
+                json=miner_input,
             )
             return response.json()
         except Exception as ex:
@@ -239,17 +239,20 @@ class Controller:
         Returns:
             A float representing the score for the miner's solution.
         """
-        payload = {
-            "miner_input": miner_input,
-            "miner_output": miner_output,
-        }
-        bt.logging.debug(f"[Controller] Scoring payload: {str(payload)[:100]}...")
-        response = requests.post(
-            f"http://localhost:{constants.CHALLENGE_DOCKER_PORT}/score",
-            json=payload,
-        )
-        return response.json()
-
+        try:
+            payload = {
+                "miner_input": miner_input,
+                "miner_output": miner_output,
+            }
+            bt.logging.debug(f"[Controller] Scoring payload: {str(payload)[:100]}...")
+            response = requests.post(
+                f"http://localhost:{constants.CHALLENGE_DOCKER_PORT}/score",
+                json=payload,
+            )
+            return response.json()
+        except Exception as ex:
+            bt.logging.error(f"Score challenge failed: {str(ex)}")
+            return 0
     def _create_network(self, network_name):
         try:
             networks = self.docker_client.networks.list(names=[network_name])
