@@ -22,7 +22,7 @@ class Miner(BaseMiner):
         bt.logging.info(f"Synapse commit: {self.synapse_commit}")
         self.synapse_commit.reveal_if_ready()
         self._save_synapse_commit()
-        synapse_response = self._hide_commit_key(self.synapse_commit)
+        synapse_response = self.synapse_commit._hide_secret_info()
         return synapse_response 
 
     def blacklist(self, synapse: Commit) -> Tuple[bool, str]:
@@ -51,10 +51,6 @@ class Miner(BaseMiner):
         commit = yaml.load(open(commit_file), yaml.FullLoader)
         return commit
 
-    def _hide_commit_key(self, synapse_commit: Commit):
-        synapse_response = copy.copy(synapse_commit)
-        synapse_response.secret_keys = {}
-        return synapse_response
     
 if __name__ == "__main__":
     with Miner() as miner:

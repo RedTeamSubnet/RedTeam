@@ -7,6 +7,7 @@ from ..constants import constants
 import time
 import subprocess
 import copy
+import re
 
 class Controller:
     """
@@ -73,6 +74,9 @@ class Controller:
         ]
         logs = []
         for miner_docker_image, uid in zip(self.miner_docker_images, self.uids):
+            is_image_valid = self._validate_image_with_digest(miner_docker_image)
+            if not is_image_valid:
+                continue
             bt.logging.info(f"[Controller] Running miner {uid}: {miner_docker_image}")
             self._clear_miner_container_by_image(miner_docker_image)
 
@@ -287,4 +291,12 @@ class Controller:
         except docker.errors.APIError as e:
             bt.logging.error(f"Failed to create network: {e}")
             
+    
+    def _validate_image_with_digest(self, image):
+        """Validate that the provided Docker image includes a SHA256 digest."""
+        digest_pattern = r".+@sha256:[a-fA-F0-9]{64}$"  # Regex for SHA256 digest format
+        if not re.match(digest_pattern, image):
+            bt.logging.error(f"Invalid image format: {image}. Must include a SHA256 digest. Skip evaluation!")
+            return False
+        return True
  

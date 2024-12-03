@@ -38,10 +38,16 @@ Push the tagged image to your Docker Hub repository:
 docker push myhub/response_quality_ranker:0.0.1
 ```
 
-### 6. Update active_commit.yaml
+### 6. Retrieve the SHA256 Digest
+After pushing the image, retrieve the digest by running:
+```bash
+docker inspect --format='{{index .RepoDigests 0}}' myhub/response_quality_ranker:0.0.1
+```
+
+### 7. Update active_commit.yaml
 Finally, go to the `neurons/miner/active_commit.yaml` file and update it with the new image tag:
 
 ```yaml
-- response_quality_ranker---myhub/response_quality_ranker:0.0.1
+- response_quality_ranker---myhub/response_quality_ranker@<sha256:digest>
 ```
 

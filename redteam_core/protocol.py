@@ -2,7 +2,7 @@ from cryptography.fernet import Fernet
 import time
 from .constants import constants
 import bittensor as bt
-
+import copy
 
 class Commit(bt.Synapse):
     """
@@ -40,3 +40,9 @@ class Commit(bt.Synapse):
                 bt.logging.success(
                     f"Revealed commit: {self.commit_dockers[task_name]}, {task_name}"
                 )
+
+    def _hide_secret_info(self):
+        synapse_response = copy.copy(self)
+        synapse_response.secret_keys = {}
+        synapse_response.commit_dockers = {}
+        return synapse_response
