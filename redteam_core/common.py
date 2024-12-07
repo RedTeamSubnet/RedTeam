@@ -10,6 +10,8 @@ def get_config(parser=ArgumentParser()):
     bt.logging.add_args(parser)
     parser.add_argument("--netuid", type=int)
     parser.add_argument("--neuron.fullpath", type=str, default="")
+    parser.add_argument("--validator.cache_dir", type=str, default="./.cache/")
+    parser.add_argument("--validator.hf_repo_id", type=str, default="example_username/redteam_storage")
     config = bt.config(parser)
     bt.logging.check_config(config)
     full_path = os.path.expanduser(

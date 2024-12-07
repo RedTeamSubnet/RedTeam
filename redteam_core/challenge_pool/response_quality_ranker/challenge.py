@@ -128,7 +128,7 @@ class Challenge:
         """
         # Extract the model's ranking indices based on 'response_quality'
         model_scores = predictions
-        model_ranking = np.argsort(model_scores)[::-1] + 1  # Sort in descending order, starting from rank 1
+        model_ranking = (-np.array(model_scores)).argsort().argsort() + 1  # Sort in descending order, starting from rank 1
 
         # Compare the model's ranking with the ground truth ranking
         spearman_corr, _ = spearmanr(ground_truth, model_ranking)

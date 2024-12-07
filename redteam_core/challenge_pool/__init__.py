@@ -15,4 +15,9 @@ def get_obj_from_str(string, reload=False, invalidate_cache=True):
         importlib.reload(module_imp)
     return getattr(importlib.import_module(module, package=None), cls)
 
-ACTIVE_CHALLENGES = {challenge_name: {"controller": get_obj_from_str(CHALLENGE_CONFIGS[challenge_name]["target"]), **CHALLENGE_CONFIGS[challenge_name]}  for challenge_name in CHALLENGE_CONFIGS}
+ACTIVE_CHALLENGES = {
+    challenge_name: {
+        "controller": get_obj_from_str(CHALLENGE_CONFIGS[challenge_name]["target"]), 
+        **CHALLENGE_CONFIGS[challenge_name]
+    }  for challenge_name in CHALLENGE_CONFIGS
+}
