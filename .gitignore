@@ -1,2 +1,3 @@
 __pycache__/
 redteam_core.egg-info/
+./.cache/

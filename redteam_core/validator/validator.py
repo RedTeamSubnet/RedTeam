@@ -11,7 +11,6 @@ from abc import abstractmethod, ABC
 class BaseValidator(ABC):
     def __init__(self):
         self.config = get_config()
-        print(self.config)
         self.setup_logging()
         self.setup_bittensor_objects()
         self.last_update = 0
