@@ -1,0 +1,60 @@
+# -*- coding: utf-8 -*-
+
+# Valid characters:
+ALPHANUM_REGEX = r"^[0-9a-zA-Z]+$"
+ALPHANUM_SPACE_REGEX = r"^[0-9a-zA-Z ]+$"
+ALPHANUM_HYPHEN_REGEX = r"^[0-9a-zA-Z_\-]+$"
+ALPHANUM_HOST_REGEX = r"^[0-9a-zA-Z_\-.]+$"
+ALPHANUM_EXTEND_REGEX = r"^[0-9a-zA-Z_\-. ]+$"
+ALPHANUM_PATH_REGEX = r"^[0-9a-zA-Z_\-. \\\/]+$"
+
+ALPHANUM_KR_MN_REGEX = r"^[0-9a-zA-Z가-힣А-яҮүӨөЁё]+$"
+ALPHANUM_KR_MN_SPACE_REGEX = r"^[0-9a-zA-Z가-힣А-яҮүӨөЁё ]+$"
+ALPHANUM_KR_MN_HYPHEN_REGEX = r"^[0-9a-zA-Z가-힣А-яҮүӨөЁё_\-]+$"
+ALPHANUM_KR_MN_HOST_REGEX = r"^[0-9a-zA-Z가-힣А-яҮүӨөЁё_\-.]+$"
+ALPHANUM_KR_MN_EXTEND_REGEX = r"^[0-9a-zA-Z가-힣А-яҮүӨөЁё_\-. ]+$"
+ALPHANUM_KR_MN_PATH_REGEX = r"^[0-9a-zA-Z가-힣А-яҮүӨөЁё_\-. \\\/]+$"
+
+REQUEST_ID_REGEX = (
+    r"\b[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\b|"
+    r"\b[0-9a-fA-F]{32}\b"
+)
+
+HTTP_METHOD_REGEX = r"^(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS|CONNECT|TRACE|\*)$"
+ASYMMETRIC_ALGORITHM_REGEX = r"^(RS256|RS384|RS512)$"
+JWT_ALGORITHM_REGEX = r"^(HS256|HS384|HS512|ES256|ES256K|ES384|ES512|RS256|RS384|RS512|PS256|PS384|PS512|EdDSA)$"
+
+
+# Invalid characters:
+SPECIAL_CHARS_REGEX = r"[&'\"<>]"
+SPECIAL_CHARS_BASE_REGEX = r"[&'\"<>\\\/]"
+SPECIAL_CHARS_LOW_REGEX = r"[&'\"<>\\\/`{}|]"
+SPECIAL_CHARS_MEDIUM_REGEX = r"[&'\"<>\\\/`{}|()\[\]]"
+SPECIAL_CHARS_HIGH_REGEX = r"[&'\"<>\\\/`{}|()\[\]!@#$%^*;:?]"
+SPECIAL_CHARS_STRICT_REGEX = r"[&'\"<>\\\/`{}|()\[\]~!@#$%^*_=\-+;:,.?\t\n ]"
+
+
+__all__ = [
+    "ALPHANUM_REGEX",
+    "ALPHANUM_SPACE_REGEX",
+    "ALPHANUM_HYPHEN_REGEX",
+    "ALPHANUM_HOST_REGEX",
+    "ALPHANUM_EXTEND_REGEX",
+    "ALPHANUM_PATH_REGEX",
+    "ALPHANUM_KR_MN_REGEX",
+    "ALPHANUM_KR_MN_SPACE_REGEX",
+    "ALPHANUM_KR_MN_HYPHEN_REGEX",
+    "ALPHANUM_KR_MN_HOST_REGEX",
+    "ALPHANUM_KR_MN_EXTEND_REGEX",
+    "ALPHANUM_KR_MN_PATH_REGEX",
+    "REQUEST_ID_REGEX",
+    "HTTP_METHOD_REGEX",
+    "ASYMMETRIC_ALGORITHM_REGEX",
+    "JWT_ALGORITHM_REGEX",
+    "SPECIAL_CHARS_REGEX",
+    "SPECIAL_CHARS_BASE_REGEX",
+    "SPECIAL_CHARS_LOW_REGEX",
+    "SPECIAL_CHARS_MEDIUM_REGEX",
+    "SPECIAL_CHARS_HIGH_REGEX",
+    "SPECIAL_CHARS_STRICT_REGEX",
+]
