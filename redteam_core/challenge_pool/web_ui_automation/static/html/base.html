@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <form id="checkboxForm">
+        <input type="checkbox" id="cb1"> Task 1<br>
+        <input type="checkbox" id="cb2"> Task 2<br>
+        <input type="checkbox" id="cb3"> Task 3<br>
+        <button type="submit">Submit</button>
+    </form>
+    <script>
+        document.getElementById('checkboxForm').onsubmit = (e) => {
+            e.preventDefault();
+            const metrics = {
+                checkbox_states: Array.from(
+                    document.querySelectorAll('input[type="checkbox"]')
+                ).map(cb => cb.checked),
+                ui_metrics: localStorage.getItem('ui_metrics')
+            };
+            
+            fetch('/score', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(metrics)
+            });
+        };
+    </script>
+</body>
+</html>

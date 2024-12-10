@@ -42,4 +42,19 @@ response_quality_ranker:
   exclude_miner_input_key: # Hidden from miner; only visible to validator for evaluation purposes
     - groundtruth_ranking
 
-    
+user_interface_automation:
+  name: "User Interface Automation"
+  description: "Detect automated UI interactions by analyzing behavioral patterns"
+  challenge_incentive_weight: 0.3
+  target: redteam_core.challenge_pool.user_interface_automation.Controller
+  challenge_solve_timeout: 15
+  docker_run_timeout: 300
+  resource_limits:
+    num_cpus: 2
+    mem_limit: "4g"
+  environment:
+    NODE_ENV: "production"
+    MAX_INTERACTIONS: "1000"
+    METRICS_BATCH_SIZE: "100"
+  exclude_miner_input_key:
+    - is_validators

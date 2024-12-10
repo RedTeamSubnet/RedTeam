@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <form id="checkboxForm">
+        <input type="checkbox" id="cb1"> Task 1<br>
+        <input type="checkbox" id="cb2"> Task 2<br>
+        <input type="checkbox" id="cb3"> Task 3<br>
+        <button type="submit">Submit</button>
+    </form>
+    <script src="/static/js/metrics.js"></script>
+    <script>
+        const metrics = new UIMetricsCollector();
+        metrics.track();
+        document.getElementById('checkboxForm').onsubmit = (e) => {
+            metrics.save();
+        };
+    </script>
+</body>
+</html>
