@@ -15,19 +15,17 @@ class Challenge:
         with open(os.path.join(self.base_path, filename), 'r') as f:
             return f.read()
 
-    def prepare_task(self, is_validator=False) -> MinerInput:
-        filename = 'validator.html' if is_validator else 'base.html'
-        html_content = self._load_html(filename)
-        return MinerInput(html_content=html_content, is_validator=is_validator)
+    def prepare_task(self) -> MinerInput:
+        html_path = "./templates/index.html"
+        html_content = self._load_html(html_path)
+        return MinerInput(html_content=html_content)
 
-    def score_task(self, miner_input: MinerInput, miner_output: MinerOutput) -> float:
-        base_score = 1.0 if all(miner_output.checkbox_states) else 0.0
-        
-        if miner_input.is_validator and miner_output.ui_metrics:
-            return self._calculate_validator_score(base_score, miner_output.ui_metrics)
-        return base_score
+    def score_task(self, miner_output: MinerOutput) -> float:
+        checkbox_states = miner_output.ui_metrics.get('checkbox_states', [])
+        base_score = 1.0 if all(checkbox_states) else 0.0
+        return self._calculate_score(base_score, miner_output.ui_metrics)
 
-    def _calculate_validator_score(self, base_score: float, metrics: Dict) -> float:
+    def _calculate_score(self, base_score: float, metrics: Dict) -> float:
         score = base_score
         movements = metrics.get('movements', [])
         clicks = metrics.get('clicks', [])

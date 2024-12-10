@@ -57,4 +57,3 @@ user_interface_automation:
     MAX_INTERACTIONS: "1000"
     METRICS_BATCH_SIZE: "100"
   exclude_miner_input_key:
-    - is_validators
