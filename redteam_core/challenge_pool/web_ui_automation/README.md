@@ -15,7 +15,7 @@ This challenge tests miners' ability to interact with a web interface while dete
 2. Run the server:
 
     ```bash
-    uvicorn app:app --reload
+    python -u -m src.api
     ```
 
 ### Challenge Description
