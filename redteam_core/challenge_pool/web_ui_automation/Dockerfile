@@ -13,7 +13,7 @@ ARG DEBIAN_FRONTEND
 ARG WUC_API_SLUG
 
 # ARG USE_GPU=false
-ARG PYTHON_VERSION=3.9.20
+ARG PYTHON_VERSION=3.10
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
@@ -31,10 +31,10 @@ RUN --mount=type=cache,target=/opt/conda/pkgs,sharing=private \
 		build-essential \
 		wget && \
 	if [ "${_BUILD_TARGET_ARCH}" == "x86_64" ]; then \
-		export _MINICONDA_FILENAME=Miniconda3-py39_24.9.2-0-Linux-x86_64.sh; \
+		export _MINICONDA_FILENAME=Miniconda3-py310_24.9.2-0-Linux-x86_64.sh; \
 		export _MINICONDA_URL=https://repo.anaconda.com/miniconda/${_MINICONDA_FILENAME}; \
 	elif [ "${_BUILD_TARGET_ARCH}" == "aarch64" ]; then \
-		export _MINICONDA_FILENAME=Miniconda3-py39_24.9.2-0-Linux-aarch64.sh; \
+		export _MINICONDA_FILENAME=Miniconda3-py310_24.9.2-0-Linux-aarch64.sh; \
 		export _MINICONDA_URL=https://repo.anaconda.com/miniconda/${_MINICONDA_FILENAME}; \
 		# export _MINICONDA_FILENAME=Miniforge3-24.9.2-0-Linux-aarch64.sh; \
 		# export _MINICONDA_URL=https://github.com/conda-forge/miniforge/releases/download/24.9.2-0/${_MINICONDA_FILENAME}; \
@@ -82,8 +82,8 @@ ARG WUC_API_PORT=10001
 ARG HASH_PASSWORD="\$5\$7rxSgAlU1ynFUQJF\$Kdi1D2IrsBWDTwn1GKpItnLWAMgGsyaBJw2qXcUCAC/"
 ARG UID=1000
 ARG GID=11000
-ARG USER=ft-user
-ARG GROUP=ft-group
+ARG USER=wuc-user
+ARG GROUP=wuc-group
 
 ENV WUC_HOME_DIR="${WUC_HOME_DIR}" \
 	WUC_API_DIR="${WUC_API_DIR}" \
@@ -98,8 +98,6 @@ ENV WUC_HOME_DIR="${WUC_HOME_DIR}" \
 	PYTHONIOENCODING=utf-8 \
 	PYTHONUNBUFFERED=1 \
 	PATH="/opt/conda/bin:${PATH}"
-
-# ENV WUC_API_MODELS_DIR="${WUC_API_MODELS_DIR}"
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
@@ -118,7 +116,6 @@ RUN rm -rfv /var/lib/apt/lists/* /var/cache/apt/archives/* /tmp/* /root/.cache/*
 	apt-get clean -y && \
 	sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
 	sed -i -e 's/# en_AU.UTF-8 UTF-8/en_AU.UTF-8 UTF-8/' /etc/locale.gen && \
-	sed -i -e 's/# ko_KR.UTF-8 UTF-8/ko_KR.UTF-8 UTF-8/' /etc/locale.gen && \
 	dpkg-reconfigure --frontend=noninteractive locales && \
 	update-locale LANG=en_US.UTF-8 && \
 	echo "LANGUAGE=en_US.UTF-8" >> /etc/default/locale && \
@@ -165,4 +162,4 @@ USER ${UID}:${GID}
 # 	CMD curl -f http://localhost:${WUC_API_PORT}/health || exit 1
 
 ENTRYPOINT ["docker-entrypoint.sh"]
-# CMD ["-b", "fastapi run --port=${WUC_API_PORT:-10001}"]
+# CMD ["-b", "uvicorn main:app --host=0.0.0.0 --port=${WUC_API_PORT:-10001} --no-access-log --no-server-header --proxy-headers --forwarded-allow-ips='*'"]

@@ -7,3 +7,5 @@ logs/
 
 .env
 *.bak
+
+volumes/**

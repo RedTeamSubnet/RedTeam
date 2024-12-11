@@ -21,6 +21,9 @@ fi
 
 
 ## --- Variables --- ##
+# Load from envrionment variables:
+PROJECT_SLUG="${PROJECT_SLUG:-web-ui-automation}"
+
 # Flags:
 _IS_ALL=false
 ## --- Variables --- ##
@@ -71,8 +74,15 @@ main()
 
 	find . -type d -name ".git" -prune -o -type d -name "logs" -exec rm -rfv {} + || exit 2
 
+	rm -rfv "./tmp" || exit 2
+
 	if [ "${_IS_ALL}" == true ]; then
+		if [ "${_is_docker_running}" == true ]; then
+			docker compose down -v --remove-orphans || exit 2
+		fi
+
 		rm -rfv "./data" || exit 2
+		rm -rfv "./volumes/storage/${PROJECT_SLUG}/data" || exit 2
 	fi
 
 	echoOk "Done."

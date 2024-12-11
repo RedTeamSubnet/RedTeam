@@ -7,7 +7,7 @@ echo "INFO: Running 'web-ui-automation' docker-entrypoint.sh..."
 _doStart()
 {
 	exec python -u ./main.py || exit 2
-	# exec fastapi run --port=${WUC_API_PORT:-10001} || exit 2
+	# exec uvicorn main:app --host=0.0.0.0 --port=${WUC_API_PORT:-10001} --no-access-log --no-server-header --proxy-headers --forwarded-allow-ips='*' || exit 2
 	exit 0
 }
 

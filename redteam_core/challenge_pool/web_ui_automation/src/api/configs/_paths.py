@@ -34,6 +34,15 @@ class PathsConfig(BaseConfig):
 
         return val
 
+    @field_validator("tmp_dir")
+    @classmethod
+    def _check_tmp_dir(cls, val: str) -> str:
+        _tmp_dir_env = f"{ENV_PREFIX_API}TMP_DIR"
+        if _tmp_dir_env in os.environ:
+            val = os.getenv(_tmp_dir_env)
+
+        return val
+
     model_config = SettingsConfigDict(env_prefix=f"{ENV_PREFIX_API}PATHS_")
 
 

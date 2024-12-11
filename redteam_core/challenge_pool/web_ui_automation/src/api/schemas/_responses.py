@@ -167,10 +167,22 @@ class BaseResPM(BasePM):
     )
 
 
+class HealthResPM(BasePM):
+    status: str = Field(
+        default="healthy",
+        min_length=2,
+        max_length=32,
+        title="Status",
+        description="Health status of the service.",
+        examples=["healthy"],
+    )
+
+
 __all__ = [
     "LinksResPM",
     "PageLinksResPM",
     "MetaResPM",
     "ErrorResPM",
     "BaseResPM",
+    "HealthResPM",
 ]
