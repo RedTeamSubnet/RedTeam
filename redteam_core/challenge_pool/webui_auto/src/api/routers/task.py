@@ -24,10 +24,8 @@ _templates = Jinja2Templates(directory="./templates/html")
 @router.get("/web", summary="Web UI", description="Get Web UI")
 async def get_web_ui(request: Request):
 
-    print(os.getcwd())
-
     return _templates.TemplateResponse(
-        request=request, name="index.html", context={"id": id}
+        request=request, name="index.html", context={"app_id": "readn", "public_key": "public_key"}
     )
 
 
