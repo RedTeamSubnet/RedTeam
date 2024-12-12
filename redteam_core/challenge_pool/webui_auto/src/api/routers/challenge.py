@@ -25,8 +25,8 @@ _templates = Jinja2Templates(directory="./templates")
     response_model=MinerInput,
 )
 async def get_task():
-    _task = MinerInput(web_url=config.web.url)
-    return _task
+    _miner_input = MinerInput(web_url=config.web.url)
+    return _miner_input
 
 
 @router.get(
