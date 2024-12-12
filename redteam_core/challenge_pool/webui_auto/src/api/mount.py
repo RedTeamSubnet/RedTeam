@@ -13,7 +13,9 @@ def add_mounts(app: FastAPI) -> None:
         app (FastAPI): FastAPI app instance.
     """
 
-    app.mount("/static", StaticFiles(directory="./templates/static"), name="static")
+    app.mount(
+        path="/static", app=StaticFiles(directory="./templates/static"), name="static"
+    )
 
 
 __all__ = ["add_mounts"]

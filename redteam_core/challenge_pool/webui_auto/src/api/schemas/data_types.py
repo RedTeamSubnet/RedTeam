@@ -8,7 +8,7 @@ from api.config import config
 from api.schemas import BasePM
 
 
-class TaskPM(BasePM):
+class MinerInput(BasePM):
     web_url: HttpUrl = Field(
         default=config.web.url,
         title="Web URL",
@@ -17,16 +17,11 @@ class TaskPM(BasePM):
     )
 
 
-class MinerInput(BaseModel):
-    html_content: str
-
-
 class MinerOutput(BaseModel):
     ui_metrics: Dict[Any, Any]
 
 
 __all__ = [
-    "TaskPM",
     "MinerInput",
     "MinerOutput",
 ]
