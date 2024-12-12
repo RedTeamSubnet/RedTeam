@@ -64,4 +64,14 @@ async def get_web(request: Request):
     return _html_response
 
 
+# @router.post(
+#     "/score",
+#     summary="Evaluate the challenge",
+#     description="This endpoint evaluates the challenge.",
+# )
+# async def post_score():
+#     # TODO: Implement challenge evaluation logic
+#     return {"message": "Challenge evaluation successful."}
+
+
 __all__ = ["router"]
