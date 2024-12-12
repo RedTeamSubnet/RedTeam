@@ -2,11 +2,11 @@
 
 import sys
 
-from pydantic import Field, constr, field_validator, ValidationInfo
+from pydantic import Field, constr, field_validator, ValidationInfo, HttpUrl
 from pydantic_settings import SettingsConfigDict
 
-from api.constants import ENV_PREFIX_API
-from ._base import BaseConfig
+from api.constants import ENV_PREFIX, ENV_PREFIX_API
+from ._base import BaseConfig, FrozenBaseConfig
 from ._dev import DevConfig
 from ._security import SecurityConfig
 from ._docs import DocsConfig, FrozenDocsConfig
@@ -148,4 +148,10 @@ class FrozenApiConfig(ApiConfig):
     model_config = SettingsConfigDict(frozen=True)
 
 
-__all__ = ["ApiConfig", "FrozenApiConfig"]
+class WebConfig(FrozenBaseConfig):
+    url: HttpUrl = Field(...)
+
+    model_config = SettingsConfigDict(env_prefix=f"{ENV_PREFIX}WEB_")
+
+
+__all__ = ["ApiConfig", "FrozenApiConfig", "WebConfig"]

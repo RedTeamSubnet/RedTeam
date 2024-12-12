@@ -10,7 +10,7 @@ class BasePM(BaseModel):
     pass
 
 
-class ExtraBasePM(BaseModel):
+class ExtraBasePM(BasePM):
     model_config = ConfigDict(extra="allow")
 
 

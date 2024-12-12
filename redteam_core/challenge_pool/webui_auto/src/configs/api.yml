@@ -16,3 +16,6 @@ api:
     reload_includes: [".env", "*.json", "*.yml", "*.yaml", "*.md"]
     reload_excludes:
       [".*", "~*", ".py[cod]", ".sw.*", "__pycache__", "*.log", "logs"]
+
+web:
+  url: "http://localhost:10001/web"

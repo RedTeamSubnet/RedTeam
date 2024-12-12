@@ -2,7 +2,19 @@
 
 from typing import Dict, Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, HttpUrl, Field
+
+from api.config import config
+from api.schemas import BasePM
+
+
+class TaskPM(BasePM):
+    web_url: HttpUrl = Field(
+        default=config.web.url,
+        title="Web URL",
+        description="Webpage URL for the challenge.",
+        examples=[config.web.url],
+    )
 
 
 class MinerInput(BaseModel):
@@ -14,7 +26,7 @@ class MinerOutput(BaseModel):
 
 
 __all__ = [
-    "HealthPM",
+    "TaskPM",
     "MinerInput",
     "MinerOutput",
 ]

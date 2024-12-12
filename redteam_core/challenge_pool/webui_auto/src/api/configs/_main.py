@@ -12,7 +12,7 @@ from api.__version__ import __version__
 from api.constants import EnvEnum, ENV_PREFIX, ENV_PREFIX_API
 from ._base import FrozenBaseConfig
 from ._dev import DevConfig, FrozenDevConfig
-from ._api import ApiConfig, FrozenApiConfig
+from ._api import ApiConfig, FrozenApiConfig, WebConfig
 
 
 # Main config schema:
@@ -23,6 +23,7 @@ class MainConfig(FrozenBaseConfig):
         default=__version__, min_length=3, max_length=32
     )
     api: ApiConfig = Field(...)
+    web: WebConfig = Field(...)
     logger: LoggerConfigPM = Field(default_factory=LoggerConfigPM)
 
     @field_validator("env")
