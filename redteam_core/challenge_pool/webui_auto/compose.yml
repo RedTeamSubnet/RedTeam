@@ -1,5 +1,5 @@
 services:
-  api:
+  challenge-api:
     image: humblebeeai/webui-auto-challenger:latest
     build:
       context: .

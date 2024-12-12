@@ -18,4 +18,4 @@ api:
       [".*", "~*", ".py[cod]", ".sw.*", "__pycache__", "*.log", "logs"]
 
 web:
-  url: "http://localhost:10001/web"
+  url: "http://challenge-api:10001/web"
