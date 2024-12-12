@@ -4,6 +4,7 @@
 import uvicorn
 from pydantic import validate_call
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 
 ## Internal modules
 from .config import config
@@ -19,6 +20,10 @@ app = FastAPI(
     lifespan=lifespan,
     **config.api.docs.model_dump(exclude={"enabled"}),
 )
+
+
+app.mount("/static", StaticFiles(directory="./templates/html/static"), name="static")
+
 
 add_middlewares(app=app)
 add_routers(app=app)
