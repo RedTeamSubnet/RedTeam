@@ -17,7 +17,7 @@ from redteam_core import (
     StorageManager,
     ScoringLog,
 )
-
+from redteam_core.validator.miner_manager import ChallengeRecord
 
 class Validator(BaseValidator):
     def __init__(self):
@@ -50,6 +50,16 @@ class Validator(BaseValidator):
         self.scoring_dates: list[str] = []
 
     def forward(self):
+        
+        if self.config.validator.use_centralized_scoring:
+            self.forward_centralized_scoring()
+        else:
+            self.forward_local_scoring()
+
+    def forward_centralized_scoring(self): 
+        self._init_challenge_records_from_subnet(validator_ss58_address=None, is_today_scored=True)
+
+    def forward_local_scoring(self):
         """
         Executes the forward pass of the Validator:
         1. Updates miner commit information.
@@ -58,9 +68,10 @@ class Validator(BaseValidator):
         4. Store the commits.
         """
         self.update_miner_commit(self.active_challenges)
-        bt.logging.success(f"[FORWARD] Miner submit: {self.miner_submit}")
+        bt.logging.success(f"[FORWARD LOCAL SCORING] Miner submit: {self.miner_submit}")
 
         revealed_commits = self.get_revealed_commits()
+        self._init_challenge_records_from_subnet(validator_ss58_address=self.metagraph.hotkeys[self.uid], is_today_scored=True)
 
         today = datetime.datetime.now()
         current_hour = today.hour
@@ -68,12 +79,12 @@ class Validator(BaseValidator):
         validate_scoring_hour = current_hour >= constants.SCORING_HOUR
         validate_scoring_date = today_key not in self.scoring_dates
         if validate_scoring_hour and validate_scoring_date and revealed_commits:
-            bt.logging.info(f"[FORWARD] Running scoring for {today_key}")
+            bt.logging.info(f"[FORWARD LOCAL SCORING] Running scoring for {today_key}")
             all_challenge_logs = {}
             for challenge, (commits, uids) in revealed_commits.items():
                 if challenge not in self.active_challenges: 
                     continue
-                bt.logging.info(f"[FORWARD] Running challenge: {challenge}")
+                bt.logging.info(f"[FORWARD LOCAL SCORING] Running challenge: {challenge}")
                 controller = self.active_challenges[challenge]["controller"](
                     challenge_name=challenge, miner_docker_images=commits, uids=uids, challenge_info=self.active_challenges[challenge]
                 )
@@ -81,18 +92,19 @@ class Validator(BaseValidator):
                 logs = [ScoringLog(**log) for log in logs]
                 all_challenge_logs[challenge] = logs
                 self.miner_managers[challenge].update_scores(logs)
-                bt.logging.info(f"[FORWARD] Scoring for challenge: {challenge} has been completed for {today_key}")
-            bt.logging.info(f"[FORWARD] All tasks: Scoring completed for {today_key}")
+                self.store_challenge_records()
+                bt.logging.info(f"[FORWARD LOCAL SCORING] Scoring for challenge: {challenge} has been completed for {today_key}")
+            bt.logging.info(f"[FORWARD LOCAL SCORING] All tasks: Scoring completed for {today_key}")
             self.scoring_dates.append(today_key)
             self._update_miner_scoring_logs(all_challenge_logs=all_challenge_logs) # Update logs to miner_submit for storing
         else:
-            bt.logging.warning(f"[FORWARD] Skipping scoring for {today_key}")
+            bt.logging.warning(f"[FORWARD LOCAL SCORING] Skipping scoring for {today_key}")
             bt.logging.info(
-                f"[FORWARD] Current hour: {current_hour}, Scoring hour: {constants.SCORING_HOUR}"
+                f"[FORWARD LOCAL SCORING] Current hour: {current_hour}, Scoring hour: {constants.SCORING_HOUR}"
             )
-            bt.logging.info(f"[FORWARD] Scoring dates: {self.scoring_dates}")
+            bt.logging.info(f"[FORWARD LOCAL SCORING] Scoring dates: {self.scoring_dates}")
             bt.logging.info(
-                f"[FORWARD] Revealed commits: {str(revealed_commits)[:100]}..."
+                f"[FORWARD LOCAL SCORING] Revealed commits: {str(revealed_commits)[:100]}..."
             )
 
         self.store_miner_output()
@@ -274,14 +286,18 @@ class Validator(BaseValidator):
         else:
             bt.logging.error(f"[SET WEIGHTS]: {log}")
 
-    def _init_miner_submit_from_subnet(self):
+    def _init_miner_submit_from_subnet(self, is_today_scored: bool = False):
         """
         Initializes miner_submit data from subnet by fetching the data from the API endpoint
         and populating the miner_submit dictionary with the response.
         """
         try:
             endpoint = constants.STORAGE_URL + "/fetch-miner-submit"
-            data = {"validator_ss58_address": self.metagraph.hotkeys[self.uid]}
+            data = {
+                "validator_ss58_address": self.metagraph.hotkeys[self.uid], 
+                "is_today_scored": is_today_scored,
+                "challenge_names": list(self.active_challenges.keys())
+            }
             self._sign_with_private_key(data)
 
             response = requests.post(endpoint, json=data)
@@ -301,7 +317,7 @@ class Validator(BaseValidator):
                             "encrypted_commit": commit_data["encrypted_commit"],
                             "key": commit_data["key"],
                             "commit": commit_data["commit"],
-                            "log": {}
+                            "log": commit_data.get("log")
                         }
 
                 bt.logging.success("[INIT] Miner submit data successfully initialized from storage.")
@@ -309,6 +325,29 @@ class Validator(BaseValidator):
                 bt.logging.error(f"[INIT] Failed to fetch miner submit data: {response.status_code} - {response.text}")
         except Exception as e:
             bt.logging.error(f"[INIT] Error initializing miner submit data from storage: {e}")
+
+    def _init_challenge_records_from_subnet(self, validator_ss58_address=None, is_today_scored: bool = True):
+        try:
+            endpoint = constants.STORAGE_URL + "/fetch-challenge-records"
+            data = {
+                "validator_ss58_address": validator_ss58_address, 
+                "is_today_scored": is_today_scored,
+                "challenge_names": list(self.active_challenges.keys())
+            }
+            self._sign_with_private_key(data)
+            response = requests.post(endpoint, json=data)
+
+            if response.status_code == 200:
+                data = response.json()
+                
+                for challenge_name, challenge_record in data.items():
+                    if challenge_name in self.miner_managers:
+                        self.miner_managers[challenge_name].challenge_records = {date: ChallengeRecord(**record) for date, record in challenge_record.items()}
+                bt.logging.success("[INIT] Challenge records data successfully initialized from storage.")
+            else:
+                bt.logging.error(f"[INIT] Failed to fetch challenge records data: {response.status_code} - {response.text}")
+        except Exception as e:
+            bt.logging.error(f"[INIT] Error initializing challenge records data from storage: {e}")
 
     def _sign_with_private_key(self, data: dict):
         """
@@ -336,6 +375,20 @@ class Validator(BaseValidator):
         # Add nonce and signature to the data
         data["nonce"] = nonce
         data["signature"] = signature
+
+    def store_challenge_records(self):
+        challenge_records = {}
+        for challenge_name, miner_manager in self.miner_managers.items():
+            challenge_records[challenge_name] =  {
+                date: record.__dict__ for date, record in miner_manager.challenge_records.items()
+            }
+        data = {
+            "validator_ss58_address": self.metagraph.hotkeys[self.uid],
+            "validator_uid": self.uid,
+            "challenge_records": challenge_records
+        }
+        self._sign_with_private_key(data)
+        self.storage_manager.update_challenge_records(data)
 
     def commit_repo_id_to_chain(self, hf_repo_id: str, max_retries: int = 5) -> None:
         """

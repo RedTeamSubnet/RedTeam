@@ -58,7 +58,8 @@ pm2 start python --name "validator_snxxx" \
 --wallet.hotkey "wallet_hotkey" \
 --subtensor.network finney \
 --validator.cache_dir "./.cache/" \ # Your local cache dir for miners commits.
---validator.hf_repo_id "my_username/my_repo" # Your HF repo ID for storing miners commits
+--validator.hf_repo_id "my_username/my_repo" \ # Your HF repo ID for storing miners commits
+--validator.use_centralized_scoring \ # Optional: Opt-in to get scores of challenges from a centralized server.
 ```
 Optional flags:
 - `--logging.trace` - Enable trace logging

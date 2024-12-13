@@ -38,7 +38,8 @@ class StorageManager:
         self.cache_dir = cache_dir
         self.cache_ttl = int(timedelta(days=14).total_seconds()) # TTL set equal to a decaying period
         self.local_caches: dict[Cache] = {}
-        self.centralized_storage_url = constants.STORAGE_URL.rstrip('/') + "/upload"
+        self.centralized_submission_storage_url = constants.STORAGE_URL + "/upload-submission"
+        self.centralized_challenge_records_storage_url = constants.STORAGE_URL + "/upload-challenge-records"
 
         # Queue and background thread for async updates
         self.storage_queue = Queue()
@@ -336,9 +337,9 @@ class StorageManager:
         # Step 2: Upsert in Centralized Storage
         try:
             response = requests.post(
-                self.centralized_storage_url,
+                self.centralized_submission_storage_url,
                 json=data,
-                timeout=10,
+                timeout=20,
             )
             response.raise_for_status()
         except requests.RequestException as e:
@@ -422,6 +423,20 @@ class StorageManager:
             }
             
         return cache_data
+
+    def update_challenge_records(self, data: dict):
+        """
+        Updates the challenge records in the centralized storage.
+        """
+        try:
+            response = requests.post(
+                self.centralized_challenge_records_storage_url,
+                json=data,
+                timeout=20,
+            )
+            response.raise_for_status()
+        except requests.RequestException as e:
+            bt.logging.error(f"Centralized storage update challenge records failed: {e}")
 
     def hash_encrypted_commit(self, encrypted_commit: str) -> str:
         """
