@@ -1,0 +1,24 @@
+services:
+  challenge-api:
+    image: humblebeeai/webui-auto-challenger:latest
+    build:
+      context: .
+    restart: unless-stopped
+    environment:
+      TERM: ${TERM:-xterm}
+      TZ: ${TZ:-Asia/Seoul}
+      WUC_API_PORT: ${WUC_API_PORT:-8000}
+    env_file:
+      - path: .env
+        required: false
+    volumes:
+      - "api-logs:${WUC_API_LOGS_DIR:-/var/log/webui-auto-challenger}"
+      - "api-data:${WUC_API_DATA_DIR:-/var/lib/webui-auto-challenger}"
+    ports:
+      - "${WUC_API_PORT:-8000}:${WUC_API_PORT:-8000}"
+    tty: true
+
+
+volumes:
+  api-logs:
+  api-data:
