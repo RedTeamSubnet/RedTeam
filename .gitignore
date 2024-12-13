@@ -2,10 +2,14 @@ __pycache__/
 redteam_core.egg-info/
 ./.cache/
 
+.vscode/
 data/
 logs/
 
 .env
 *.bak
+compose.override.yml
+compose.override.yaml
+
 
 volumes/**

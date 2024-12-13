@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+from typing import Any, Dict
 
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
@@ -8,10 +9,15 @@ from fastapi.templating import Jinja2Templates
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.types import PublicKeyTypes
 
+try:
+    from api.modules.rt_wc_score import MetricsProcessor  # type: ignore
+except ImportError:
+    from rt_wc_score import MetricsProcessor  # type: ignore
+
 from api import utils
 from api.config import config
 from api.helpers.crypto import asymmetric_keys as asymmetric_keys_helper
-from api.schemas.data_types import MinerInput
+from api.schemas.data_types import MinerInput, MinerOutput
 
 
 router = APIRouter(tags=["Challenge"])
@@ -64,14 +70,20 @@ async def get_web(request: Request):
     return _html_response
 
 
-# @router.post(
-#     "/score",
-#     summary="Evaluate the challenge",
-#     description="This endpoint evaluates the challenge.",
-# )
-# async def post_score():
-#     # TODO: Implement challenge evaluation logic
-#     return {"message": "Challenge evaluation successful."}
+@router.post(
+    "/score",
+    summary="Evaluate the challenge",
+    description="This endpoint evaluates the challenge.",
+)
+async def post_score(miner_input: MinerInput, miner_output: MinerOutput):
+    _processor = MetricsProcessor()
+    _result_dict: Dict[str, Any] = _processor(raw_data=miner_output.model_dump())
+
+    _score = 0.0
+    if _result_dict["success"] is True:
+        _score = 1.0
+
+    return _score
 
 
 __all__ = ["router"]

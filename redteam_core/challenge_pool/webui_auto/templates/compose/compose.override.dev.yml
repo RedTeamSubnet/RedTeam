@@ -1,5 +1,5 @@
 services:
-  api:
+  challenge-api:
     volumes:
       - "./volumes/storage/webui-auto-challenger/logs:${WUC_API_LOGS_DIR:-/var/log/webui-auto-challenger}"
       - "./volumes/storage/webui-auto-challenger/data:${WUC_API_DATA_DIR:-/var/lib/webui-auto-challenger}"

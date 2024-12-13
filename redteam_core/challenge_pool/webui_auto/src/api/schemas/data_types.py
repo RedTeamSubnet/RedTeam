@@ -18,7 +18,8 @@ class MinerInput(BasePM):
 
 
 class MinerOutput(BaseModel):
-    ui_metrics: Dict[Any, Any]
+    data: Dict[Any, Any]
+    key: str
 
 
 __all__ = [
