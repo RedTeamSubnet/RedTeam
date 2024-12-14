@@ -8,10 +8,13 @@ from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from cryptography.hazmat.primitives import serialization
-from cryptography.hazmat.primitives.asymmetric.types import PublicKeyTypes,PrivateKeyTypes
+from cryptography.hazmat.primitives.asymmetric.types import (
+    PublicKeyTypes,
+    PrivateKeyTypes,
+)
 
 try:
-    from api.modules.rt_wc_score import MetricsProcessor  # type: ignore
+    from modules.rt_wc_score import MetricsProcessor  # type: ignore
 except ImportError:
     from rt_wc_score import MetricsProcessor  # type: ignore
 
