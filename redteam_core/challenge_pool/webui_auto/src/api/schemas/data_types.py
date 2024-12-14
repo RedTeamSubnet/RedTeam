@@ -13,13 +13,12 @@ class MinerInput(BasePM):
         default=config.web.url,
         title="Web URL",
         description="Webpage URL for the challenge.",
-        examples=[config.web.url],
+        examples=["http://localhost:8000"],
     )
 
 
 class MinerOutput(BaseModel):
-    data: Dict[Any, Any]
-    key: str
+    data: str
 
 
 __all__ = [

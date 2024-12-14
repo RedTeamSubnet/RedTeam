@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 
 import os
+import json
 from typing import Any, Dict
 
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from cryptography.hazmat.primitives import serialization
-from cryptography.hazmat.primitives.asymmetric.types import PublicKeyTypes
+from cryptography.hazmat.primitives.asymmetric.types import PublicKeyTypes,PrivateKeyTypes
 
 try:
     from api.modules.rt_wc_score import MetricsProcessor  # type: ignore
@@ -16,6 +17,7 @@ except ImportError:
 
 from api import utils
 from api.config import config
+from api.decryption import DecryptPayload
 from api.helpers.crypto import asymmetric_keys as asymmetric_keys_helper
 from api.schemas.data_types import MinerInput, MinerOutput
 
@@ -76,8 +78,22 @@ async def get_web(request: Request):
     description="This endpoint evaluates the challenge.",
 )
 async def post_score(miner_input: MinerInput, miner_output: MinerOutput):
+    # _private_key_path = os.path.join(
+    #     config.api.paths.asymmetric_keys_dir,
+    #     config.api.security.asymmetric_keys.private_key_fname,
+    # )
+
+    # _private_key: PrivateKeyTypes = await asymmetric_keys_helper.async_get_private_key(
+    #     private_key_path=_private_key_path
+    # )
+
+    # _decryptor = DecryptPayload(private_key=_private_key)
+    # _decrypted_data = _decryptor.decrypt(encrypted_payload=miner_output.data)
+
+    data = json.loads(miner_output.data)
+
     _processor = MetricsProcessor()
-    _result_dict: Dict[str, Any] = _processor(raw_data=miner_output.model_dump())
+    _result_dict: Dict[str, Any] = _processor(raw_data=data)
 
     _score = 0.0
     if _result_dict["success"] is True:

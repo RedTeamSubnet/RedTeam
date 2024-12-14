@@ -1,0 +1,97 @@
+/*! ../config.json */
+
+/*! ./EventCollector */
+
+/*! ./IwMetrics */
+
+/*! ./collectors/KeyboardEventsCollector */
+
+/*! ./collectors/MouseEventsCollector */
+
+/*! ./sign-in-button/SignInButton */
+
+/*! ./ui-metrics/UIEventCollector */
+
+/*! ./utils/logger */
+
+/*! loglevel */
+
+/*!**********************!*\
+        !*** ./src/index.ts ***!
+        \**********************/
+
+/*!*************************!*\
+        !*** ./src/config.json ***!
+        \*************************/
+
+/*!**************************!*\
+        !*** ./src/IwMetrics.ts ***!
+        \**************************/
+
+/*!*****************************!*\
+        !*** ./src/utils/logger.ts ***!
+        \*****************************/
+
+/*!********************************************!*\
+        !*** ./src/ui-metrics/UIEventCollector.ts ***!
+        \********************************************/
+
+/*!***********************************************!*\
+        !*** ./node_modules/loglevel/lib/loglevel.js ***!
+        \***********************************************/
+
+/*!*****************************************************!*\
+        !*** ./src/ui-metrics/collectors/EventCollector.ts ***!
+        \*****************************************************/
+
+/*!*******************************************************!*\
+        !*** ./src/ui-metrics/sign-in-button/SignInButton.ts ***!
+        \*******************************************************/
+
+/*!***********************************************************!*\
+        !*** ./src/ui-metrics/collectors/MouseEventsCollector.ts ***!
+        \***********************************************************/
+
+/*!**************************************************************!*\
+        !*** ./src/ui-metrics/collectors/KeyboardEventsCollector.ts ***!
+        \**************************************************************/
+
+/**
+ * @license React
+ * react-dom.production.min.js
+ *
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+/**
+ * @license React
+ * react-jsx-runtime.production.min.js
+ *
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+/**
+ * @license React
+ * react.production.min.js
+ *
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+/**
+ * @license React
+ * scheduler.production.min.js
+ *
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
