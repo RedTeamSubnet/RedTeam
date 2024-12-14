@@ -1,3 +1,6 @@
 [submodule "redteam_core/challenge_pool/webui_auto/src/api/modules/rt_wc_score"]
 	path = redteam_core/challenge_pool/webui_auto/src/api/modules/rt_wc_score
-	url = git@github.com:RedTeamSubnet/module.rt-wc-score.git
+	url = ../module.rt-wc-score.git
+[submodule "redteam_core/challenge_pool/webui_auto/volumes/src/web.rtc-wc-login-page"]
+	path = redteam_core/challenge_pool/webui_auto/volumes/src/web.rtc-wc-login-page
+	url = ../web.rt-wc-login-page.git
