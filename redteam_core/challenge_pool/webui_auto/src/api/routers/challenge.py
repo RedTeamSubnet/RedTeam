@@ -75,8 +75,8 @@ async def get_web(request: Request):
     summary="Decrypts the encrypted data",
     description="This endpoint decrypts the encrypted data.",
 )
-async def post_decrypt(minor_output: MinerOutput):
-    logger.info(f"Received data: {minor_output.model_dump()}")
+async def post_decrypt(miner_output: MinerOutput):
+    logger.info(f"Received data: {miner_output.model_dump()}")
 
     ## 1. Get the private key
     _private_key_path = os.path.join(
@@ -89,15 +89,15 @@ async def post_decrypt(minor_output: MinerOutput):
 
     ## 2. Decrypt the symmetric key
     _key_bytes: bytes = asymmetric_helper.decrypt_with_private_key(
-        ciphertext=minor_output.key,
+        ciphertext=miner_output.key,
         private_key=_private_key,
         base64_decode=True,
     )
 
     ## 3. Decrypt the ciphertext
-    _iv_bytes: bytes = base64.b64decode(minor_output.iv)
+    _iv_bytes: bytes = base64.b64decode(miner_output.iv)
     _plaintext: str = symmetric_helper.decrypt_aes_cbc(
-        ciphertext=minor_output.ciphertext,
+        ciphertext=miner_output.ciphertext,
         key=_key_bytes,
         iv=_iv_bytes,
         base64_decode=True,
