@@ -34,8 +34,8 @@ class CorsConfig(FrozenBaseConfig):
     model_config = SettingsConfigDict(env_prefix=f"{_ENV_PREFIX_SECURITY}CORS_")
 
 
-class AsymmetricKeysConfig(FrozenBaseConfig):
-    auto_generate: bool = Field(...)
+class AsymmetricConfig(FrozenBaseConfig):
+    generate: bool = Field(...)
     algorithm: constr(strip_whitespace=True) = Field(..., pattern=ASYMMETRIC_ALGORITHM_REGEX)  # type: ignore
     key_size: int = Field(..., ge=2048, le=8192)
     private_key_fname: constr(strip_whitespace=True) = Field(  # type: ignore
@@ -45,9 +45,7 @@ class AsymmetricKeysConfig(FrozenBaseConfig):
         ..., min_length=2, max_length=256
     )
 
-    model_config = SettingsConfigDict(
-        env_prefix=f"{_ENV_PREFIX_SECURITY}ASYMMETRIC_KEYS_"
-    )
+    model_config = SettingsConfigDict(env_prefix=f"{_ENV_PREFIX_SECURITY}ASYMMETRIC_")
 
 
 class SecurityConfig(FrozenBaseConfig):
@@ -58,9 +56,9 @@ class SecurityConfig(FrozenBaseConfig):
         constr(strip_whitespace=True, min_length=1, max_length=256)  # type: ignore
     ] = Field(...)
     cors: CorsConfig = Field(...)
-    asymmetric_keys: AsymmetricKeysConfig = Field(...)
+    asymmetric: AsymmetricConfig = Field(...)
 
     model_config = SettingsConfigDict(env_prefix=_ENV_PREFIX_SECURITY)
 
 
-__all__ = ["SecurityConfig", "CorsConfig", "AsymmetricKeysConfig", "JWTConfig"]
+__all__ = ["SecurityConfig", "CorsConfig", "AsymmetricConfig"]

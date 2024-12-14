@@ -2,16 +2,13 @@
 
 import os
 import json
+import base64
 from typing import Any, Dict
 
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
-from cryptography.hazmat.primitives import serialization
-from cryptography.hazmat.primitives.asymmetric.types import (
-    PublicKeyTypes,
-    PrivateKeyTypes,
-)
+from cryptography.hazmat.primitives.asymmetric.types import PrivateKeyTypes
 
 try:
     from modules.rt_wc_score import MetricsProcessor  # type: ignore
@@ -20,9 +17,10 @@ except ImportError:
 
 from api import utils
 from api.config import config
-from api.decryption import DecryptPayload
-from api.helpers.crypto import asymmetric_keys as asymmetric_keys_helper
+from api.helpers.crypto import asymmetric as asymmetric_helper
+from api.helpers.crypto import symmetric as symmetric_helper
 from api.schemas.data_types import MinerInput, MinerOutput
+from api.logger import logger
 
 
 router = APIRouter(tags=["Challenge"])
@@ -48,18 +46,15 @@ async def get_task():
 )
 async def get_web(request: Request):
 
+    ## Get the public key
     _public_key_path = os.path.join(
         config.api.paths.asymmetric_keys_dir,
         config.api.security.asymmetric_keys.public_key_fname,
     )
-    _public_key: PublicKeyTypes = await asymmetric_keys_helper.async_get_public_key(
-        public_key_path=_public_key_path
+    _public_key: str = await asymmetric_helper.async_get_public_key(
+        public_key_path=_public_key_path, as_str=True
     )
 
-    _public_key_str = _public_key.public_bytes(
-        encoding=serialization.Encoding.PEM,
-        format=serialization.PublicFormat.SubjectPublicKeyInfo,
-    ).decode("utf-8")
     _id = utils.gen_unique_id()
     _nonce = utils.gen_random_string(length=32)
 
@@ -68,11 +63,49 @@ async def get_web(request: Request):
         name="index.html",
         context={
             "app_id": _id,
-            "public_key": _public_key_str,
+            "public_key": _public_key,
             "nonce": _nonce,
         },
     )
     return _html_response
+
+
+@router.post(
+    "/decrypt",
+    summary="Decrypts the encrypted data",
+    description="This endpoint decrypts the encrypted data.",
+)
+async def post_decrypt(minor_output: MinerOutput):
+    logger.info(f"Received data: {minor_output.model_dump()}")
+
+    ## 1. Get the private key
+    _private_key_path = os.path.join(
+        config.api.paths.asymmetric_keys_dir,
+        config.api.security.asymmetric.private_key_fname,
+    )
+    _private_key: PrivateKeyTypes = await asymmetric_helper.async_get_private_key(
+        private_key_path=_private_key_path
+    )
+
+    ## 2. Decrypt the symmetric key
+    _key_bytes: bytes = asymmetric_helper.decrypt_with_private_key(
+        ciphertext=minor_output.key,
+        private_key=_private_key,
+        base64_decode=True,
+    )
+
+    ## 3. Decrypt the ciphertext
+    _iv_bytes: bytes = base64.b64decode(minor_output.iv)
+    _plaintext: str = symmetric_helper.decrypt_aes_cbc(
+        ciphertext=minor_output.ciphertext,
+        key=_key_bytes,
+        iv=_iv_bytes,
+        base64_decode=True,
+        as_str=True,
+    )
+
+    logger.info(f"Plaintext: {_plaintext}")
+    return {"plaintext": _plaintext}
 
 
 @router.post(
@@ -86,14 +119,14 @@ async def post_score(miner_input: MinerInput, miner_output: MinerOutput):
     #     config.api.security.asymmetric_keys.private_key_fname,
     # )
 
-    # _private_key: PrivateKeyTypes = await asymmetric_keys_helper.async_get_private_key(
+    # _private_key: PrivateKeyTypes = await asymmetric_helper.async_get_private_key(
     #     private_key_path=_private_key_path
     # )
 
     # _decryptor = DecryptPayload(private_key=_private_key)
     # _decrypted_data = _decryptor.decrypt(encrypted_payload=miner_output.data)
 
-    data = json.loads(miner_output.data)
+    data = json.loads(miner_output.ciphertext)
 
     _processor = MetricsProcessor()
     _result_dict: Dict[str, Any] = _processor(raw_data=data)

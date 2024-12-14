@@ -6,7 +6,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from .config import config
-from .helpers.crypto import asymmetric_keys as asymmetric_keys_helper
+from .helpers.crypto import asymmetric as asymmetric_helper
 from .logger import logger
 
 
@@ -20,12 +20,12 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """
 
     logger.info("Preparing to startup...")
-    if config.api.security.asymmetric_keys.auto_generate:
-        await asymmetric_keys_helper.async_create_keys(
+    if config.api.security.asymmetric.generate:
+        await asymmetric_helper.async_create_keys(
             asymmetric_keys_dir=config.api.paths.asymmetric_keys_dir,
-            key_size=config.api.security.asymmetric_keys.key_size,
-            private_key_fname=config.api.security.asymmetric_keys.private_key_fname,
-            public_key_fname=config.api.security.asymmetric_keys.public_key_fname,
+            key_size=config.api.security.asymmetric.key_size,
+            private_key_fname=config.api.security.asymmetric.private_key_fname,
+            public_key_fname=config.api.security.asymmetric.public_key_fname,
         )
     # Add startup code here...
     logger.success("Finished preparation to startup.")

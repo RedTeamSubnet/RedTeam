@@ -11,8 +11,8 @@ api:
       allow_credentials: false
       expose_headers: []
       max_age: 600 # Seconds (10 minutes)
-    asymmetric_keys:
-      auto_generate: true
+    asymmetric:
+      generate: true
       algorithm: "RS256"
       key_size: 2048
       private_key_fname: "private_key.pem"

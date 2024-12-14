@@ -96,17 +96,20 @@ async def async_create_keys(
 
 
 @validate_call
-async def async_get_private_key(private_key_path: str) -> PrivateKeyTypes:
+async def async_get_private_key(
+    private_key_path: str, as_str: bool = False
+) -> Union[PrivateKeyTypes, str]:
     """Async read asymmetric private key from file.
 
     Args:
-        private_key_path (str, required): Asymmetric private key path.
+        private_key_path (str , required): Asymmetric private key path.
+        as_str           (bool, optional): Return private key as string. Defaults to False.
 
     Raises:
         FileNotFoundError: If Asymmetric private key file not found.
 
     Returns:
-        PrivateKeyTypes: Asymmetric private key.
+        Union[PrivateKeyTypes, str]: Asymmetric private key.
     """
 
     if not await aiofiles.os.path.isfile(private_key_path):
@@ -119,21 +122,31 @@ async def async_get_private_key(private_key_path: str) -> PrivateKeyTypes:
             _private_key_bytes, password=None, backend=default_backend()
         )
 
+    if as_str:
+        _private_key = _private_key.private_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PrivateFormat.PKCS8,
+            encryption_algorithm=serialization.NoEncryption(),
+        ).decode()
+
     return _private_key
 
 
 @validate_call
-async def async_get_public_key(public_key_path: str) -> PublicKeyTypes:
+async def async_get_public_key(
+    public_key_path: str, as_str: bool = False
+) -> Union[PublicKeyTypes, str]:
     """Async read asymmetric public key from file.
 
     Args:
-        public_key_path (str, required): Asymmetric public key path.
+        public_key_path (str , required): Asymmetric public key path.
+        as_str          (bool, optional): Return public key as string. Defaults to False.
 
     Raises:
         FileNotFoundError: If asymmetric public key file not found.
 
     Returns:
-        PublicKeyTypes: Asymmetric public key.
+        Union[PublicKeyTypes, str]: Asymmetric public key.
     """
 
     if not await aiofiles.os.path.isfile(public_key_path):
@@ -146,25 +159,36 @@ async def async_get_public_key(public_key_path: str) -> PublicKeyTypes:
             _public_key_bytes, backend=default_backend()
         )
 
+    if as_str:
+        _public_key = _public_key.public_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PublicFormat.SubjectPublicKeyInfo,
+        ).decode()
+
     return _public_key
 
 
 @validate_call
 async def async_get_keys(
-    private_key_path: str, public_key_path: str
-) -> Tuple[PrivateKeyTypes, PublicKeyTypes]:
+    private_key_path: str, public_key_path: str, as_str: bool = False
+) -> Tuple[Union[PrivateKeyTypes, str], Union[PublicKeyTypes, str]]:
     """Async read asymmetric keys from file.
 
     Args:
-        private_key_path (str, required): Asymmetric private key path.
-        public_key_path  (str, required): Asymmetric public key path.
+        private_key_path (str , required): Asymmetric private key path.
+        public_key_path  (str , required): Asymmetric public key path.
+        as_str           (bool, optional): Return keys as strings. Defaults to False.
 
     Returns:
-        Tuple[PrivateKeyTypes, PublicKeyTypes]: Private and public keys.
+        Tuple[Union[PrivateKeyTypes, str], Union[PublicKeyTypes, str]]: Private and public keys.
     """
 
-    _private_key = await async_get_private_key(private_key_path=private_key_path)
-    _public_key = await async_get_public_key(public_key_path=public_key_path)
+    _private_key = await async_get_private_key(
+        private_key_path=private_key_path, as_str=as_str
+    )
+    _public_key = await async_get_public_key(
+        public_key_path=public_key_path, as_str=as_str
+    )
 
     return _private_key, _public_key
 
@@ -243,17 +267,20 @@ def create_keys(
 
 
 @validate_call
-def get_private_key(private_key_path: str) -> PrivateKeyTypes:
+def get_private_key(
+    private_key_path: str, as_str: bool = False
+) -> Union[PrivateKeyTypes, str]:
     """Read asymmetric private key from file.
 
     Args:
-        private_key_path (str, required): Asymmetric private key path.
+        private_key_path (str , required): Asymmetric private key path.
+        as_str           (bool, optional): Return private key as string. Defaults to False.
 
     Raises:
         FileNotFoundError: If asymmetric private key file not found.
 
     Returns:
-        PrivateKeyTypes: Asymmetric private key.
+        Union[PrivateKeyTypes, str]: Asymmetric private key as PrivateKeyTypes or str.
     """
 
     if not os.path.isfile(private_key_path):
@@ -266,21 +293,31 @@ def get_private_key(private_key_path: str) -> PrivateKeyTypes:
             _private_key_bytes, password=None, backend=default_backend()
         )
 
+    if as_str:
+        _private_key = _private_key.private_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PrivateFormat.PKCS8,
+            encryption_algorithm=serialization.NoEncryption(),
+        ).decode()
+
     return _private_key
 
 
 @validate_call
-def get_public_key(public_key_path: str) -> PublicKeyTypes:
+def get_public_key(
+    public_key_path: str, as_str: bool = False
+) -> Union[PublicKeyTypes, str]:
     """Read asymmetric public key from file.
 
     Args:
-        public_key_path (str, required): Asymmetric public key path.
+        public_key_path (str , required): Asymmetric public key path.
+        as_str          (bool, optional): Return public key as string. Defaults to False.
 
     Raises:
         FileNotFoundError: If asymmetric public key file not found.
 
     Returns:
-        PublicKeyTypes: Asymmetric public key.
+        Union[PublicKeyTypes, str]: Asymmetric public key as PublicKeyTypes or str.
     """
 
     if not os.path.isfile(public_key_path):
@@ -293,55 +330,82 @@ def get_public_key(public_key_path: str) -> PublicKeyTypes:
             _public_key_bytes, backend=default_backend()
         )
 
+    if as_str:
+        _public_key = _public_key.public_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PublicFormat.SubjectPublicKeyInfo,
+        ).decode()
+
     return _public_key
 
 
 @validate_call
 def get_keys(
-    private_key_path: str, public_key_path: str
-) -> Tuple[PrivateKeyTypes, PublicKeyTypes]:
+    private_key_path: str, public_key_path: str, as_str: bool = False
+) -> Tuple[Union[PrivateKeyTypes, str], Union[PublicKeyTypes, str]]:
     """Read asymmetric keys from file.
 
     Args:
-        private_key_path (str, required): Asymmetric private key path.
-        public_key_path  (str, required): Asymmetric public key path.
+        private_key_path (str , required): Asymmetric private key path.
+        public_key_path  (str , required): Asymmetric public key path.
+        as_str           (bool, optional): Return keys as strings. Defaults to False.
 
     Returns:
-        Tuple[PrivateKeyTypes, PublicKeyTypes]: Private and public keys.
+        Tuple[Union[PrivateKeyTypes, str], Union[PublicKeyTypes, str]]: Private and public keys.
     """
 
-    _private_key = get_private_key(private_key_path=private_key_path)
-    _public_key = get_public_key(public_key_path=public_key_path)
+    _private_key = get_private_key(private_key_path=private_key_path, as_str=as_str)
+    _public_key = get_public_key(public_key_path=public_key_path, as_str=as_str)
 
     return _private_key, _public_key
 
 
 @validate_call(config={"arbitrary_types_allowed": True})
 def encrypt_with_public_key(
-    plaintext: str, public_key: PublicKeyTypes, base64_encode: bool = False
+    plaintext: Union[str, bytes],
+    public_key: PublicKeyTypes,
+    base64_encode: bool = False,
+    as_str: bool = False,
 ) -> Union[str, bytes]:
     """Encrypt plaintext with public key.
 
     Args:
-        plaintext     (str           , required): Plaintext to encrypt.
-        public_key    (PublicKeyTypes, required): Public key.
-        base64_encode (bool          , optional): Encode ciphertext with base64. Defaults to False.
+        plaintext      (Union[str, bytes], required): Plaintext to encrypt.
+        public_key     (PublicKeyTypes   , required): Public key.
+        base64_encode  (bool             , optional): Encode ciphertext with base64. Defaults to False.
+        as_str         (bool             , optional): Return ciphertext as string or bytes. Defaults to False.
+
+    Raises:
+        Exception: If failed to encrypt plaintext with asymmetric public key.
 
     Returns:
-        Union[str, bytes]: Encrypted ciphertext.
+        Union[str, bytes]: Encrypted ciphertext as string or bytes.
     """
 
-    _ciphertext: bytes = public_key.encrypt(
-        plaintext=plaintext.encode("utf-8"),
-        padding=padding.OAEP(
-            mgf=padding.MGF1(algorithm=hashes.SHA256()),
-            algorithm=hashes.SHA256(),
-            label=None,
-        ),
-    )
+    if isinstance(plaintext, str):
+        plaintext = plaintext.encode()
+
+    _ciphertext: Union[str, bytes]
+    try:
+        logger.debug("Encrypting plaintext with asymmetric public key...")
+        _ciphertext: bytes = public_key.encrypt(
+            plaintext=plaintext,
+            padding=padding.OAEP(
+                mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                algorithm=hashes.SHA256(),
+                label=None,
+            ),
+        )
+        logger.debug("Successfully encrypted plaintext with asymmetric public key.")
+    except Exception:
+        logger.debug("Failed to encrypt plaintext with asymmetric public key!")
+        raise
 
     if base64_encode:
-        return base64.b64encode(_ciphertext).decode()
+        _ciphertext = base64.b64encode(_ciphertext)
+
+    if as_str:
+        _ciphertext = _ciphertext.decode()
 
     return _ciphertext
 
@@ -351,31 +415,49 @@ def decrypt_with_private_key(
     ciphertext: Union[str, bytes],
     private_key: PrivateKeyTypes,
     base64_decode: bool = False,
-) -> str:
+    as_str: bool = False,
+) -> Union[str, bytes]:
     """Decrypt ciphertext with private key.
 
     Args:
         ciphertext    (Union[str, bytes], required): Ciphertext to decrypt.
         private_key   (PrivateKeyTypes  , required): Private key.
         base64_decode (bool             , optional): Decode ciphertext with base64. Defaults to False.
+        as_str        (bool             , optional): Return plaintext as string or bytes. Defaults to False.
+
+    Raises:
+        Exception: If failed to decrypt ciphertext with asymmetric private key for any reason.
 
     Returns:
-        str: Decrypted plaintext.
+        Union[str, bytes]: Decrypted plaintext as string or bytes.
     """
 
-    if base64_decode and isinstance(ciphertext, str):
-        ciphertext = base64.b64decode(ciphertext.encode())
+    if isinstance(ciphertext, str):
+        ciphertext = ciphertext.encode()
 
-    _plaintext: bytes = private_key.decrypt(
-        ciphertext=ciphertext,
-        padding=padding.OAEP(
-            mgf=padding.MGF1(algorithm=hashes.SHA256()),
-            algorithm=hashes.SHA256(),
-            label=None,
-        ),
-    )
+    if base64_decode:
+        ciphertext = base64.b64decode(ciphertext)
 
-    return _plaintext.decode()
+    _plaintext: Union[str, bytes]
+    try:
+        logger.debug("Decrypting ciphertext with asymmetric private key...")
+        _plaintext: bytes = private_key.decrypt(
+            ciphertext=ciphertext,
+            padding=padding.OAEP(
+                mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                algorithm=hashes.SHA256(),
+                label=None,
+            ),
+        )
+        logger.debug("Successfully decrypted ciphertext with asymmetric private key.")
+    except Exception:
+        logger.debug("Failed to decrypt ciphertext with asymmetric private key!")
+        raise
+
+    if as_str:
+        _plaintext = _plaintext.decode()
+
+    return _plaintext
 
 
 __all__ = [

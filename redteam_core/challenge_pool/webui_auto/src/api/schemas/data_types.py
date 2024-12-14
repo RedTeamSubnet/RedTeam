@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from typing import Dict, Any
-
 from pydantic import BaseModel, HttpUrl, Field
+from fastapi import Body
 
 from api.config import config
 from api.schemas import BasePM
@@ -18,7 +17,27 @@ class MinerInput(BasePM):
 
 
 class MinerOutput(BaseModel):
-    data: str
+    ciphertext: str = Body(
+        ...,
+        min_length=2,
+        title="Ciphertext",
+        description="The ciphertext.",
+        examples=["rp7RivGGTyZLXVlQi29bhWMciRkBt8yQ"],
+    )
+    key: str = Body(
+        ...,
+        min_length=2,
+        title="Key",
+        description="The random key.",
+        examples=["QiywqDkyhLiF6vx2I1ag8j4qTqozyO3t"],
+    )
+    iv: str = Body(
+        ...,
+        min_length=2,
+        title="IV",
+        description="The initialization vector.",
+        examples=["wvpQOM3ZOukq3LUPJX3fjNnzyjtkhsWZ"],
+    )
 
 
 __all__ = [
