@@ -49,7 +49,7 @@ async def get_web(request: Request):
     ## Get the public key
     _public_key_path = os.path.join(
         config.api.paths.asymmetric_keys_dir,
-        config.api.security.asymmetric_keys.public_key_fname,
+        config.api.security.asymmetric.public_key_fname,
     )
     _public_key: str = await asymmetric_helper.async_get_public_key(
         public_key_path=_public_key_path, as_str=True
@@ -104,8 +104,7 @@ async def post_decrypt(miner_output: MinerOutput):
         as_str=True,
     )
 
-    logger.info(f"Plaintext: {_plaintext}")
-    return {"plaintext": _plaintext}
+    return _plaintext
 
 
 @router.post(
@@ -126,10 +125,14 @@ async def post_score(miner_input: MinerInput, miner_output: MinerOutput):
     # _decryptor = DecryptPayload(private_key=_private_key)
     # _decrypted_data = _decryptor.decrypt(encrypted_payload=miner_output.data)
 
-    data = json.loads(miner_output.ciphertext)
+    decrypt_miner_output = await post_decrypt(miner_output=miner_output)
+
+    print(decrypt_miner_output)
+
+    _data: Dict[str, Any] = json.loads(decrypt_miner_output)
 
     _processor = MetricsProcessor()
-    _result_dict: Dict[str, Any] = _processor(raw_data=data)
+    _result_dict: Dict[str, Any] = _processor(raw_data=_data)
 
     _score = 0.0
     if _result_dict["success"] is True:
