@@ -104,6 +104,11 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN rm -rfv /var/lib/apt/lists/* /var/cache/apt/archives/* /tmp/* /root/.cache/* && \
 	apt-get clean -y && \
 	apt-get update --fix-missing -o Acquire::CompressionTypes::Order::=gz && \
+	apt-get install -y ca-certificates && \
+    apt-get install -y wget && \
+	wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
+    apt-get install -y ./google-chrome-stable_current_amd64.deb && \
+    rm google-chrome-stable_current_amd64.deb && \
 	apt-get install -y --no-install-recommends \
 		sudo \
 		locales \
