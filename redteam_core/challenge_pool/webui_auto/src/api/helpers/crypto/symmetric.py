@@ -5,6 +5,7 @@ from typing import Union
 
 from cryptography.hazmat.primitives import ciphers
 from cryptography.hazmat.primitives.ciphers import algorithms, modes
+from cryptography.hazmat.primitives import padding
 from pydantic import validate_call
 from beans_logging import logger
 
@@ -44,7 +45,12 @@ def decrypt_aes_cbc(
         logger.debug("Decrypting ciphertext using AES-CBC key and iv...")
         _cipher = ciphers.Cipher(algorithms.AES(key), modes.CBC(iv))
         _decryptor = _cipher.decryptor()
-        _plaintext = _decryptor.update(ciphertext) + _decryptor.finalize()
+        _padded_plaintext = _decryptor.update(ciphertext) + _decryptor.finalize()
+
+        # Remove padding
+        unpadder = padding.PKCS7(algorithms.AES.block_size).unpadder()
+        _plaintext = unpadder.update(_padded_plaintext) + unpadder.finalize()
+
         logger.debug("Successfully decrypted ciphertext using AES-CBC key and iv.")
     except Exception:
         logger.debug("Failed to decrypt ciphertext using AES-CBC key and iv!")

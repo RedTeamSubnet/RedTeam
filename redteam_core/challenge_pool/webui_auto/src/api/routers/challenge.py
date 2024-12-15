@@ -113,23 +113,13 @@ async def post_decrypt(miner_output: MinerOutput):
     description="This endpoint evaluates the challenge.",
 )
 async def post_score(miner_input: MinerInput, miner_output: MinerOutput):
-    # _private_key_path = os.path.join(
-    #     config.api.paths.asymmetric_keys_dir,
-    #     config.api.security.asymmetric_keys.private_key_fname,
-    # )
-
-    # _private_key: PrivateKeyTypes = await asymmetric_helper.async_get_private_key(
-    #     private_key_path=_private_key_path
-    # )
-
-    # _decryptor = DecryptPayload(private_key=_private_key)
-    # _decrypted_data = _decryptor.decrypt(encrypted_payload=miner_output.data)
-
     decrypt_miner_output = await post_decrypt(miner_output=miner_output)
 
-    print(decrypt_miner_output)
-
-    _data: Dict[str, Any] = json.loads(decrypt_miner_output)
+    try:
+        _data = json.loads(decrypt_miner_output.strip())
+    except json.JSONDecodeError as e:
+        logger.error(f"JSON decode error: {str(e)}")
+        raise
 
     _processor = MetricsProcessor()
     _result_dict: Dict[str, Any] = _processor(raw_data=_data)
