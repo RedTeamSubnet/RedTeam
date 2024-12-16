@@ -1,13 +1,17 @@
 services:
   api:
-    image: humblebeeai/webui-auto-miner:latest
+    image: webui-auto-miner:latest
     build:
       context: .
+      target: app
+      platforms:
+        - linux/amd64
     restart: unless-stopped
     environment:
       TERM: ${TERM:-xterm}
       TZ: ${TZ:-Asia/Seoul}
       WUM_API_PORT: ${WUM_API_PORT:-8000}
+      DOCKER_HOST_INTERNAL: host.docker.internal # comment out for production
     env_file:
       - path: .env
         required: false
