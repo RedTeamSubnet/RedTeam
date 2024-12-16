@@ -34,6 +34,14 @@ class CorsConfig(FrozenBaseConfig):
     model_config = SettingsConfigDict(env_prefix=f"{_ENV_PREFIX_SECURITY}CORS_")
 
 
+class SslConfig(FrozenBaseConfig):
+    enabled: bool = Field(...)
+    cert_fname: constr(strip_whitespace=True) = Field(..., min_length=2, max_length=256)  # type: ignore
+    key_fname: constr(strip_whitespace=True) = Field(..., min_length=2, max_length=256)  # type: ignore
+
+    model_config = SettingsConfigDict(env_prefix=f"{_ENV_PREFIX_SECURITY}SSL_")
+
+
 class AsymmetricConfig(FrozenBaseConfig):
     generate: bool = Field(...)
     algorithm: constr(strip_whitespace=True) = Field(..., pattern=ASYMMETRIC_ALGORITHM_REGEX)  # type: ignore
@@ -56,9 +64,10 @@ class SecurityConfig(FrozenBaseConfig):
         constr(strip_whitespace=True, min_length=1, max_length=256)  # type: ignore
     ] = Field(...)
     cors: CorsConfig = Field(...)
+    ssl: SslConfig = Field(...)
     asymmetric: AsymmetricConfig = Field(...)
 
     model_config = SettingsConfigDict(env_prefix=_ENV_PREFIX_SECURITY)
 
 
-__all__ = ["SecurityConfig", "CorsConfig", "AsymmetricConfig"]
+__all__ = ["SecurityConfig", "CorsConfig", "SslConfig", "AsymmetricConfig"]

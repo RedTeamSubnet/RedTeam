@@ -4,4 +4,5 @@ api:
     uploads_dir: "{tmp_dir}/uploads"
     data_dir: "../data"
     security_dir: "{data_dir}/security"
+    ssl_dir: "{data_dir}/security/ssl"
     asymmetric_keys_dir: "{data_dir}/security/asymmetric_keys"

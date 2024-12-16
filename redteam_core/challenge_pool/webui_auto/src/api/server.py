@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 
+## Standard library
+import os
+from typing import Union
+
 ## Third-party libraries
 import uvicorn
 from pydantic import validate_call
@@ -12,6 +16,7 @@ from .middleware import add_middlewares
 from .router import add_routers
 from .mount import add_mounts
 from .exception import add_exception_handlers
+from .helpers.crypto import ssl as ssl_helper
 
 
 app = FastAPI(
@@ -36,6 +41,23 @@ def run_server(app: str = "main:app") -> None:
         app (str, optional): Application instance. Defaults to "main:app".
     """
 
+    _ssl_certfile: Union[str, None] = None
+    _ssl_keyfile: Union[str, None] = None
+
+    if config.api.security.ssl.enabled:
+        ssl_helper.generate_ssl_certs(
+            ssl_dir=config.api.paths.ssl_dir,
+            cert_fname=config.api.security.ssl.cert_fname,
+            key_fname=config.api.security.ssl.key_fname,
+        )
+
+        _ssl_certfile = os.path.join(
+            config.api.paths.ssl_dir, config.api.security.ssl.cert_fname
+        )
+        _ssl_keyfile = os.path.join(
+            config.api.paths.ssl_dir, config.api.security.ssl.key_fname
+        )
+
     uvicorn.run(
         app=app,
         host=config.api.bind_host,
@@ -44,6 +66,8 @@ def run_server(app: str = "main:app") -> None:
         server_header=False,
         proxy_headers=config.api.behind_proxy,
         forwarded_allow_ips=config.api.security.forwarded_allow_ips,
+        ssl_certfile=_ssl_certfile,
+        ssl_keyfile=_ssl_keyfile,
         **config.api.dev.model_dump(),
     )
 

@@ -11,6 +11,10 @@ api:
       allow_credentials: false
       expose_headers: []
       max_age: 600 # Seconds (10 minutes)
+    ssl:
+      enabled: true
+      cert_fname: "cert.pem"
+      key_fname: "key.pem"
     asymmetric:
       generate: true
       algorithm: "RS256"

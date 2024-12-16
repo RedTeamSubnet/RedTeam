@@ -21,6 +21,7 @@ class PathsConfig(BaseConfig):
     security_dir: constr(strip_whitespace=True) = Field(  # type: ignore
         ..., min_length=2, max_length=1024
     )
+    ssl_dir: constr(strip_whitespace=True) = Field(..., min_length=2, max_length=1024)  # type: ignore
     asymmetric_keys_dir: constr(strip_whitespace=True) = Field(  # type: ignore
         ..., min_length=2, max_length=1024
     )
