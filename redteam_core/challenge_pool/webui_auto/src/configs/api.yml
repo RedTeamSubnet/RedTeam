@@ -3,7 +3,7 @@ debug: false
 
 api:
   name: "Web UI Automation Challenger"
-  slug: "webui-auto-challenger"
+  slug: "rest.rt-wu-challenger"
   bind_host: "0.0.0.0"
   port: 10001
   version: "1"

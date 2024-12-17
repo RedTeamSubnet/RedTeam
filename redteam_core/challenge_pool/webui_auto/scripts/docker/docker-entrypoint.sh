@@ -2,7 +2,7 @@
 set -euo pipefail
 
 
-echo "INFO: Running 'webui-auto-challenger' docker-entrypoint.sh..."
+echo "INFO: Running 'rest.rt-wu-challenger' docker-entrypoint.sh..."
 
 _doStart()
 {

@@ -3,7 +3,7 @@
 ARG BASE_IMAGE=ubuntu:22.04
 
 ARG DEBIAN_FRONTEND=noninteractive
-ARG WUC_API_SLUG="webui-auto-challenger"
+ARG WUC_API_SLUG="rest.rt-wu-challenger"
 
 
 ## Here is the builder image:

@@ -25,8 +25,8 @@ fi
 ## --- Variables --- ##
 # Load from envrionment variables:
 # BASE_IMAGE
-IMG_REGISTRY=${IMG_REGISTRY:-humblebeeai}
-IMG_REPO=${PROJECT_SLUG:-webui-auto-challenger}
+IMG_REGISTRY=${IMG_REGISTRY:-}
+IMG_REPO=${PROJECT_SLUG:-rest.rt-wu-challenger}
 IMG_VERSION=${IMG_VERSION:-$(./scripts/get-version.sh)}
 IMG_SUBTAG=${IMG_SUBTAG:-}
 IMG_PLATFORM=${IMG_PLATFORM:-$(uname -m)}
