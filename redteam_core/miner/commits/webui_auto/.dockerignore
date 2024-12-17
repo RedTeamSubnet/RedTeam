@@ -489,6 +489,7 @@ zsdoc/data
 **/*.pyo
 **/*.pyd
 **/*.env
+**/*.venv
 **/*.lock
 **/*.bak
 **/*.log
