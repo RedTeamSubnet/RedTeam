@@ -28,7 +28,6 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     yield
 
     logging.info("Praparing to shutdown...")
-
     get_webui_automate().cleanup()
     logging.info("Finished preparation to shutdown.")
 
@@ -41,7 +40,7 @@ def solve(
     miner_input: MinerInput = Body(..., embed=True),
     automator: WebUIAutomate = Depends(get_webui_automate),
 ) -> MinerOutput:
-    # automator = WebUIAutomate(username="username", password="password")
+
     result = automator(miner_input)
 
     return MinerOutput(

@@ -7,6 +7,7 @@ import time
 import logging
 from typing import Optional
 
+from pydantic import HttpUrl
 from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.common.by import By
@@ -15,6 +16,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 from data_types import MinerInput, MinerOutput
+
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +28,7 @@ class WebUIAutomate:
         self,
         username: str = "username",
         password: str = "password",
-        web_url: str = None,
+        web_url: Optional[HttpUrl] = None,
     ):
         """
         Initialize WebUI automation.

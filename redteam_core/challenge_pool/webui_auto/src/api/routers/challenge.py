@@ -70,11 +70,11 @@ async def get_web(request: Request):
     return _html_response
 
 
-@router.post(
-    "/decrypt",
-    summary="Decrypts the encrypted data",
-    description="This endpoint decrypts the encrypted data.",
-)
+# @router.post(
+#     "/decrypt",
+#     summary="Decrypts the encrypted data",
+#     description="This endpoint decrypts the encrypted data.",
+# )
 async def post_decrypt(miner_output: MinerOutput):
     logger.info(f"Received data: {miner_output.model_dump()}")
 
