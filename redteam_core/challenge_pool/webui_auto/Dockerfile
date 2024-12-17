@@ -29,6 +29,7 @@ RUN --mount=type=cache,target=/opt/conda/pkgs,sharing=private \
 	apt-get install -y --no-install-recommends \
 		ca-certificates \
 		build-essential \
+		git \
 		wget && \
 	if [ "${_BUILD_TARGET_ARCH}" == "x86_64" ]; then \
 		export _MINICONDA_FILENAME=Miniconda3-py310_24.9.2-0-Linux-x86_64.sh; \

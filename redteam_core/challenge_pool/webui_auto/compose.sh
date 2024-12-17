@@ -22,7 +22,7 @@ fi
 
 
 ## --- Variables --- ##
-_DEFAULT_SERVICE="api"
+_DEFAULT_SERVICE="challenge-api"
 ## --- Variables --- ##
 
 

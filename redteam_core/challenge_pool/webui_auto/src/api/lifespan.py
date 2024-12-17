@@ -39,13 +39,20 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
             private_key_fname=config.api.security.asymmetric.private_key_fname,
             public_key_fname=config.api.security.asymmetric.public_key_fname,
         )
+
     # Add startup code here...
     logger.success("Finished preparation to startup.")
+
     logger.opt(colors=True).info(f"Version: <c>{config.version}</c>")
     logger.opt(colors=True).info(f"API version: <c>{config.api.version}</c>")
     logger.opt(colors=True).info(f"API prefix: <c>{config.api.prefix}</c>")
+
+    _protocol = "http"
+    if config.api.security.ssl.enabled:
+        _protocol = "https"
+
     logger.opt(colors=True).info(
-        f"Listening on: <c>http://{config.api.bind_host}:{config.api.port}</c>"
+        f"Listening on: <c>{_protocol}://{config.api.bind_host}:{config.api.port}</c>"
     )
 
     yield

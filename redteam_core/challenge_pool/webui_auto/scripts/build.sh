@@ -39,7 +39,8 @@ _IS_PUSH_IMAGES=false
 _IS_CLEAN_IMAGES=false
 
 # Calculated variables:
-_IMG_NAME=${IMG_REGISTRY}/${IMG_REPO}
+# _IMG_NAME=${IMG_REGISTRY}/${IMG_REPO}
+_IMG_NAME=${IMG_REPO}
 _IMG_FULLNAME=${_IMG_NAME}:${IMG_VERSION}${IMG_SUBTAG}
 _IMG_LATEST_FULLNAME=${_IMG_NAME}:latest${IMG_SUBTAG}
 ## --- Variables --- ##
@@ -163,17 +164,18 @@ main()
 	## --- Menu arguments --- ##
 
 
-	if [ -z "${IMG_REGISTRY:-}" ]; then
-		echoError "Required 'IMG_REGISTRY' environment variable or '--registry=' argument for image registry!"
-		exit 1
-	fi
+	# if [ -z "${IMG_REGISTRY:-}" ]; then
+	# 	echoError "Required 'IMG_REGISTRY' environment variable or '--registry=' argument for image registry!"
+	# 	exit 1
+	# fi
 
 	## --- Init arguments --- ##
 	if [ -n "${BASE_IMAGE:-}" ]; then
 		IMG_ARGS="${IMG_ARGS} --build-arg BASE_IMAGE=${BASE_IMAGE}"
 	fi
 
-	_IMG_NAME=${IMG_REGISTRY}/${IMG_REPO}
+	# _IMG_NAME=${IMG_REGISTRY}/${IMG_REPO}
+	_IMG_NAME=${IMG_REPO}
 	_IMG_FULLNAME=${_IMG_NAME}:${IMG_VERSION}${IMG_SUBTAG}
 	_IMG_LATEST_FULLNAME=${_IMG_NAME}:latest${IMG_SUBTAG}
 
