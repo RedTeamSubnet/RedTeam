@@ -10,3 +10,4 @@ beans-logging-fastapi~=1.1.1
 onion-config[pydantic-settings]~=5.1.0
 aiohttp~=3.10.2
 fastapi[all]~=0.110.1
+git+https://github.com/RedTeamSubnet/module.rt-wc-score.git@v1.0.1#egg=rt_wc_score
