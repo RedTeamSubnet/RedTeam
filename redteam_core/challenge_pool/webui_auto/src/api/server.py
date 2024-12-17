@@ -11,13 +11,14 @@ from fastapi import FastAPI
 
 ## Internal modules
 from .config import config
-from .lifespan import lifespan
+from .lifespan import lifespan, pre_check
 from .middleware import add_middlewares
 from .router import add_routers
 from .mount import add_mounts
 from .exception import add_exception_handlers
-from .helpers.crypto import ssl as ssl_helper
 
+
+pre_check()
 
 app = FastAPI(
     title=config.api.name,
@@ -45,12 +46,6 @@ def run_server(app: str = "main:app") -> None:
     _ssl_keyfile: Union[str, None] = None
 
     if config.api.security.ssl.enabled:
-        ssl_helper.generate_ssl_certs(
-            ssl_dir=config.api.paths.ssl_dir,
-            cert_fname=config.api.security.ssl.cert_fname,
-            key_fname=config.api.security.ssl.key_fname,
-        )
-
         _ssl_certfile = os.path.join(
             config.api.paths.ssl_dir, config.api.security.ssl.cert_fname
         )

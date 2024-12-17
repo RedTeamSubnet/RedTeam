@@ -7,7 +7,19 @@ from fastapi import FastAPI
 
 from .config import config
 from .helpers.crypto import asymmetric as asymmetric_helper
+from .helpers.crypto import ssl as ssl_helper
 from .logger import logger
+
+
+def pre_check() -> None:
+    """Pre-check function before creating and starting FastAPI application."""
+
+    if config.api.security.ssl.enabled:
+        ssl_helper.generate_ssl_certs(
+            ssl_dir=config.api.paths.ssl_dir,
+            cert_fname=config.api.security.ssl.cert_fname,
+            key_fname=config.api.security.ssl.key_fname,
+        )
 
 
 @asynccontextmanager
@@ -43,4 +55,4 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     logger.success("Finished preparation to shutdown.")
 
 
-__all__ = ["lifespan"]
+__all__ = ["pre_check", "lifespan"]
