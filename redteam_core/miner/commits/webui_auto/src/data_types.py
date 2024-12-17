@@ -6,10 +6,10 @@ from fastapi import Body
 
 class MinerInput(BaseModel):
     web_url: HttpUrl = Field(
-        default="http://localhost:10001/web",
+        default="https://challenger-api:10001/web",
         title="Web URL",
         description="Webpage URL for the challenge.",
-        examples=["http://localhost:8000"],
+        examples=["https://challenger-api:10001/web"],
     )
 
 

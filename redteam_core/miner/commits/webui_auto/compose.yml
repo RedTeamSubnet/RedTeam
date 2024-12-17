@@ -1,28 +1,27 @@
 services:
-  api:
+  miner-api:
     image: webui-auto-miner:latest
     build:
       context: .
-      target: app
       platforms:
         - linux/amd64
     restart: unless-stopped
     environment:
       TERM: ${TERM:-xterm}
       TZ: ${TZ:-Asia/Seoul}
-      WUM_API_PORT: ${WUM_API_PORT:-8000}
-      DOCKER_HOST_INTERNAL: host.docker.internal # comment out for production
+      # WUM_API_PORT: ${WUM_API_PORT:-8000}
+      # DOCKER_HOST_INTERNAL: host.docker.internal # comment out for production
     env_file:
       - path: .env
         required: false
-    volumes:
-      - "api-logs:${WUM_API_LOGS_DIR:-/var/log/webui-auto-miner}"
-      - "api-data:${WUM_API_DATA_DIR:-/var/lib/webui-auto-miner}"
+    # volumes:
+    #   - "api-logs:${WUM_API_LOGS_DIR:-/var/log/webui-auto-miner}"
+    #   - "api-data:${WUM_API_DATA_DIR:-/var/lib/webui-auto-miner}"
     ports:
-      - "${WUM_API_PORT:-8000}:${WUM_API_PORT:-8000}"
+      - "${WUM_API_PORT:-10002}:${WUM_API_PORT:-10002}"
     tty: true
 
 
-volumes:
-  api-logs:
-  api-data:
+# volumes:
+#   api-logs:
+#   api-data:

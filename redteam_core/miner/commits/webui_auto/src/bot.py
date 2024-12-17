@@ -2,12 +2,11 @@
 """
 Web UI Automation Script with standardized input/output models.
 """
-
 import json
+import time
 import logging
 from typing import Optional
 
-from pydantic import HttpUrl
 from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.common.by import By
@@ -17,6 +16,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 from data_types import MinerInput, MinerOutput
 
+logger = logging.getLogger(__name__)
+
 
 class WebUIAutomate:
     """Class to handle web UI automation tasks."""
@@ -25,7 +26,7 @@ class WebUIAutomate:
         self,
         username: str = "username",
         password: str = "password",
-        # score_url: str = "http://localhost:10001/score",
+        web_url: str = None,
     ):
         """
         Initialize WebUI automation.
@@ -37,69 +38,77 @@ class WebUIAutomate:
         """
         self.username = username
         self.password = password
-        # self.score_url = score_url
+        self.web_url = None
         self.driver: Optional[WebDriver] = None
-        self.logger = logging.getLogger(__name__)
-        self._setup_logger()
-
-    def _setup_logger(self) -> None:
-        """Configure logging."""
-        if not self.logger.handlers:
-            handler = logging.StreamHandler()
-            formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-            handler.setFormatter(formatter)
-            self.logger.addHandler(handler)
-            self.logger.setLevel(logging.INFO)
 
     def setup_driver(self) -> None:
         """Initialize Chrome WebDriver."""
         try:
             options = webdriver.ChromeOptions()
+
             options.add_argument("--headless")
             options.add_argument("--no-sandbox")
-            options.add_argument("--disable-dev-shm-usage")
+            options.add_argument("--disable-gpu")
+            # options.add_argument("--disable-dev-shm-usage")
+            options.add_argument("--ignore-certificate-errors")
+            options.add_argument(
+                f"--unsafely-treat-insecure-origin-as-secure={self.web_url}"
+            )
+
             self.driver = webdriver.Chrome(options=options)
+
         except WebDriverException as e:
-            self.logger.error(f"WebDriver setup failed: {e}")
+            logger.error(f"WebDriver setup failed: {e}")
             raise
 
-    def automate_login(self, url: HttpUrl) -> bool:
+    def automate_login(self) -> bool:
         """Automate the login process."""
         try:
-            self.driver.get(str(url))
-            wait = WebDriverWait(self.driver, 10)
+            self.driver.get(str(self.web_url))
+            wait = WebDriverWait(self.driver, 15)
 
-            # Fill in login form
-            username_field = wait.until(
+            # Ensure the page has fully loaded
+            wait.until(
                 EC.presence_of_element_located(
                     (By.CSS_SELECTOR, 'input[placeholder="Username"]')
                 )
             )
-            password_field = wait.until(
-                EC.presence_of_element_located(
-                    (By.CSS_SELECTOR, 'input[placeholder="Password"]')
-                )
+            # Scroll to make elements interactable
+            username_field = self.driver.find_element(
+                By.CSS_SELECTOR, 'input[placeholder="Username"]'
             )
-
+            self.driver.execute_script(
+                "arguments[0].scrollIntoView(true);", username_field
+            )
+            username_field.clear()
             username_field.send_keys(self.username)
+
+            password_field = self.driver.find_element(
+                By.CSS_SELECTOR, 'input[placeholder="Password"]'
+            )
+            self.driver.execute_script(
+                "arguments[0].scrollIntoView(true);", password_field
+            )
+            password_field.clear()
             password_field.send_keys(self.password)
 
-            # Checkboxes
+            # Interact with checkboxes
             checkboxes = self.driver.find_elements(
                 By.CSS_SELECTOR, 'input[type="checkbox"]'
             )
             for checkbox in checkboxes:
-                if not checkbox.is_selected():
-                    checkbox.click()
+                self.driver.execute_script("arguments[0].click();", checkbox)
 
-            # Submit
-            login_button = self.driver.find_element(By.ID, "login-button")
+            # Submit login
+            login_button = wait.until(
+                EC.element_to_be_clickable((By.ID, "login-button"))
+            )
             login_button.click()
 
             return True
 
         except Exception as e:
-            self.logger.error(f"Login failed: {e}")
+            logger(f"Login failed: {e}")
             return False
 
     def get_local_storage_data(self) -> Optional[MinerOutput]:
@@ -124,18 +133,8 @@ class WebUIAutomate:
                 iv=parsed_data.get("iv"),
             )
         except Exception as e:
-            self.logger.error(f"Failed to get local storage: {e}")
+            logger.error(f"Failed to get local storage: {e}")
             return None
-
-    # def send_data_to_endpoint(self, data: MinerOutput) -> bool:
-    #     """Send MinerOutput data to endpoint."""
-    #     try:
-    #         response = requests.post(self.score_url, json=data.model_dump(), timeout=10)
-    #         response.raise_for_status()
-    #         return True
-    #     except Exception as e:
-    #         self.logger.error(f"Failed to send data: {e}")
-    #         return False
 
     def cleanup(self) -> None:
         """Cleanup resources."""
@@ -151,32 +150,24 @@ class WebUIAutomate:
 
         Returns:
             MinerOutput if successful, None otherwise
-
-        Example:
-            automator = WebUIAutomate(username="user", password="pass")
-            miner_input = MinerInput(web_url="http://localhost:10001/web")
-            result = automator(miner_input)
-            if result:
-                print(f"Ciphertext: {result.ciphertext}")
         """
+        self.web_url = input_data.web_url
+
         try:
             self.setup_driver()
 
-            if not self.automate_login(input_data.web_url):
+            if not self.automate_login():
                 return None
 
+            time.sleep(3)
             data = self.get_local_storage_data()
             if not data:
                 return None
 
-            # if self.send_data_to_endpoint(data):
-            #     return data
-            # return None
-
             return data
 
         except Exception as e:
-            self.logger.error(f"Automation failed: {e}")
+            logger.error(f"Automation failed: {e}")
             return None
         finally:
             self.cleanup()
