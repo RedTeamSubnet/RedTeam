@@ -1,5 +1,5 @@
 services:
-  challenge-api:
+  webui_auto:
     volumes:
       - "./volumes/storage/rest.rt-wu-challenger/logs:${WUC_API_LOGS_DIR:-/var/log/rest.rt-wu-challenger}"
       - "./volumes/storage/rest.rt-wu-challenger/data:${WUC_API_DATA_DIR:-/var/lib/rest.rt-wu-challenger}"

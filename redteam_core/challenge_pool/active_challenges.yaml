@@ -53,6 +53,4 @@ webui_auto:
     mem_limit: "4g"
   environment:
     ENV: "PRODUCTION"
-    NODE_ENV: "production"
-    MAX_INTERACTIONS: "1000"
-    METRICS_BATCH_SIZE: "100"
+    WUC_WEB_URL: "https://webui_auto:10001/web"

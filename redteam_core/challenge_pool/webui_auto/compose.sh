@@ -22,7 +22,7 @@ fi
 
 
 ## --- Variables --- ##
-_DEFAULT_SERVICE="challenge-api"
+_DEFAULT_SERVICE="webui_auto"
 ## --- Variables --- ##
 
 
