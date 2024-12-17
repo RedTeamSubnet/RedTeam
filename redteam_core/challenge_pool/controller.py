@@ -1,6 +1,7 @@
 from typing import List, Dict
 import docker
 import docker.types
+import socket, ipaddress
 import requests
 import bittensor as bt
 from ..constants import constants
@@ -164,6 +165,7 @@ class Controller:
                 f"{constants.CHALLENGE_DOCKER_PORT}/tcp": constants.CHALLENGE_DOCKER_PORT
             },
             name=self.challenge_name,
+            network="bridge"
         )
         bt.logging.info(container)
         return container
@@ -258,6 +260,42 @@ class Controller:
             bt.logging.error(f"Score challenge failed: {str(ex)}")
             return 0
     def _create_network(self, network_name):
+
+        def is_valid_ip(ip_str):
+            try:
+                """
+                Check if the provided IP or subnet is valid.
+                """
+                ipaddress.ip_network(ip_str, strict=False)
+                return True
+            except ValueError:
+                return False
+
+        def resolve_domain(domain):
+            try:
+                """
+                Resolve the domain name to a list of IP addresses.
+                """
+                ips = socket.gethostbyname_ex(domain)[2]
+                bt.logging.info(f"Resolved {domain} to IPs: {ips}")
+                return ips
+            except socket.gaierror as e:
+                bt.logging.error(f"Could not resolve domain {domain}: {e}")
+                return []
+        
+        def execute_iptables(cmd):
+            try:
+                # Try with sudo
+                subprocess.run(["sudo"] + cmd, check=True)
+                bt.logging.info(f"Successfully executed: {' '.join(cmd)}")
+            except subprocess.CalledProcessError:
+                try:
+                    # If running with sudo fails, try without sudo
+                    subprocess.run(cmd, check=True)
+                    bt.logging.info(f"Successfully executed: {' '.join(cmd)}")
+                except subprocess.CalledProcessError as e:
+                    bt.logging.error(f"Failed to execute: {' '.join(cmd)}")
+
         try:
             networks = self.docker_client.networks.list(names=[network_name])
             if not networks:
@@ -273,25 +311,77 @@ class Controller:
 
             network_info = self.docker_client.api.inspect_network(network.id)
             subnet = network_info['IPAM']['Config'][0]['Subnet']
-            iptables_commands = [
-                # Block forwarded traffic to the internet
-                ["iptables", "-I", "FORWARD", "-s", subnet, "!", "-d", subnet, "-j", "DROP"],
-                # Prevent NAT to the internet
-                ["iptables", "-t", "nat", "-I", "POSTROUTING", "-s", subnet, "-j", "RETURN"]
-            ]
-            
-            for cmd in iptables_commands:
+            interface_name = f"br-{network.id[:12]}"  # Docker bridge interface name
+
+            # Check existing rules and remove them if they exist
+            def get_existing_rules(chain):
                 try:
-                    # Try with sudo
-                    subprocess.run(["sudo"] + cmd, check=True)
+                    output = subprocess.check_output(["sudo", "iptables", "-S", chain]).decode()
+                    return [line.strip() for line in output.split('\n') if interface_name in line]
                 except subprocess.CalledProcessError:
-                    # If running with sudo fails, try without sudo
-                    subprocess.run(cmd, check=True)
+                    return []
+
+            # Remove existing rules that match our interface
+            for chain in ["FORWARD", "POSTROUTING"]:
+                # table = "filter" if chain == "FORWARD" else "nat"
+                rules = get_existing_rules(chain)
+                
+                for rule in rules:
+                    try:
+                        # Convert iptables-save format to delete command
+                        # Remove the first "-A" and add "-D" instead
+                        parts = rule.split()
+                        if parts[0] == "-A":
+                            parts[0] = "-D"
+                            cmd = ["iptables"] + parts
+                            execute_iptables(cmd)
+                            bt.logging.info(f"Removed existing rule: {' '.join(cmd)}")
+                    except subprocess.CalledProcessError as e:
+                        bt.logging.warning(f"Failed to remove rule: {e}")
+
+            iptables_commands = []
+
+            # Add ACCEPT rules for allowed IPs
+            allowed_destinations = self.challenge_info.get("allowed_destinations", [])
+            if allowed_destinations:
+                resolved_ips = []
+                for dest in allowed_destinations:
+                    if is_valid_ip(dest):
+                        resolved_ips.append(dest)
+                    else:
+                        domain_ips = resolve_domain(dest)
+                        resolved_ips.extend(domain_ips)
+                resolved_ips = list(set(resolved_ips))
+                bt.logging.info(f"All resolved IPs: {resolved_ips}")
+
+                # Allow established connections
+                iptables_commands.append(
+                    ["iptables", "-A", "FORWARD", "-i", interface_name, "-m", "state", "--state", "ESTABLISHED,RELATED", "-j", "ACCEPT"]
+                )
+                
+                # Allow access to specified destinations
+                for ip in resolved_ips:
+                    iptables_commands.append(
+                        ["iptables", "-A", "FORWARD", "-i", interface_name, "-d", ip, "-j", "ACCEPT"]
+                    )
+                
+                # Block all other outgoing internet traffic from this network
+                iptables_commands.append(
+                    ["iptables", "-A", "FORWARD", "-i", interface_name, "!", "-d", subnet, "-j", "DROP"]
+                )
+                
+                # Allow NAT only for allowed destinations
+                for ip in resolved_ips:
+                    iptables_commands.append(
+                        ["iptables", "-t", "nat", "-A", "POSTROUTING", "-s", subnet, "-d", ip, "-j", "MASQUERADE"]
+                    )
+
+            for cmd in iptables_commands:
+                execute_iptables(cmd)
 
         except docker.errors.APIError as e:
             bt.logging.error(f"Failed to create network: {e}")
-            
-    
+             
     def _validate_image_with_digest(self, image):
         """Validate that the provided Docker image includes a SHA256 digest."""
         digest_pattern = r".+@sha256:[a-fA-F0-9]{64}$"  # Regex for SHA256 digest format

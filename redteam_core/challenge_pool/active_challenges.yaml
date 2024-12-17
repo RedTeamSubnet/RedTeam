@@ -8,6 +8,11 @@ text_detection:
   resource_limits:
     num_cpus: 4  # Number of CPUs allocated for challenge
     mem_limit: "2g"  # Memory limit for task (2 GB)
+  allowed_destinations:
+    - 8.8.8.8         # IP address
+    - huggingface.co  # Domain name
+    - 192.168.1.0/24  # Subnet
+
 
 response_quality_adversarial:
   name: "Response Quality Adversarial"
