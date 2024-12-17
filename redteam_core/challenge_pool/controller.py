@@ -319,7 +319,11 @@ class Controller:
                     output = subprocess.check_output(["sudo", "iptables", "-S", chain]).decode()
                     return [line.strip() for line in output.split('\n') if interface_name in line]
                 except subprocess.CalledProcessError:
-                    return []
+                    try:
+                        output = subprocess.check_output(["iptables", "-S", chain]).decode()
+                        return [line.strip() for line in output.split('\n') if interface_name in line]
+                    except subprocess.CalledProcessError:
+                        return []
 
             # Remove existing rules that match our interface
             for chain in ["FORWARD", "POSTROUTING"]:
