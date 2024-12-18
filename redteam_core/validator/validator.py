@@ -1,6 +1,5 @@
 import bittensor as bt
 from ..constants import constants
-from ..common import get_config
 import traceback
 import threading
 import time
@@ -9,8 +8,8 @@ from abc import abstractmethod, ABC
 
 
 class BaseValidator(ABC):
-    def __init__(self):
-        self.config = get_config()
+    def __init__(self, config):
+        self.config = config
         self.setup_logging()
         self.setup_bittensor_objects()
         self.last_update = 0

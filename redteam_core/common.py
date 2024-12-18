@@ -1,9 +1,10 @@
-import bittensor as bt
-from argparse import ArgumentParser
 import os
+import bittensor as bt
+
+from argparse import ArgumentParser
 
 
-def get_config(parser=ArgumentParser()):
+def get_config(parser=ArgumentParser()) -> bt.Config:
     bt.wallet.add_args(parser)
     bt.subtensor.add_args(parser)
     bt.axon.add_args(parser)

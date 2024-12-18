@@ -1,12 +1,11 @@
-from pydantic import BaseModel
-from cryptography.fernet import Fernet
 import datetime
 import numpy as np
 import pandas as pd
+
 from typing import List, Dict, Optional, Union
-from ..constants import (
-    constants,
-)
+from pydantic import BaseModel
+from cryptography.fernet import Fernet
+from ..constants import constants
 
 
 class MinerCommit(BaseModel):
