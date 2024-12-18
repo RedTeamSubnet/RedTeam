@@ -124,10 +124,9 @@ async def post_score(miner_input: MinerInput, miner_output: MinerOutput):
     _processor = MetricsProcessor()
     _result_dict: Dict[str, Any] = _processor(raw_data=_data)
 
-    _score = "0.0"
-
+    _score = 0.0
     if _result_dict["success"] is True:
-        _score = "1.0"
+        _score = 1.0
 
     return _score
 

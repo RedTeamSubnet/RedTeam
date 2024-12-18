@@ -68,7 +68,7 @@ class Controller:
         container = self._run_challenge_container()
         bt.logging.info(f"[Controller] Challenge container started: {container.status}")
         while not self._check_alive(
-            port=constants.CHALLENGE_DOCKER_PORT, is_miner=False
+            port=constants.CHALLENGE_DOCKER_PORT, is_miner=False  ## ADDED NEW HERE
         ):
             bt.logging.info("[Controller] Waiting for challenge container to start.")
             time.sleep(1)
@@ -84,7 +84,6 @@ class Controller:
                 continue
             bt.logging.info(f"[Controller] Running miner {uid}: {miner_docker_image}")
             self._clear_miner_container_by_image(miner_docker_image)
-
             docker_run_start_time = time.time()
             kwargs = {}
             if self.resource_limits.get("cuda_device_ids") is not None:
@@ -99,7 +98,7 @@ class Controller:
                 detach=True,
                 cpu_count=self.resource_limits.get("num_cpus", 2),
                 mem_limit=self.resource_limits.get("mem_limit", "1g"),
-                platform="linux/amd64",
+                platform="linux/amd64",  ## ADDED NEW HERE
                 environment={
                     "CHALLENGE_NAME": self.challenge_name,
                     **self.challenge_info.get("enviroment", {}),
@@ -108,10 +107,10 @@ class Controller:
                     f"{constants.MINER_DOCKER_PORT}/tcp": constants.MINER_DOCKER_PORT
                 },
                 network=self.local_network,
-                **kwargs,
+                **kwargs,  ## ADDED NEW HERE
             )
             while not self._check_alive(
-                port=constants.MINER_DOCKER_PORT, is_miner=True
+                port=constants.MINER_DOCKER_PORT, is_miner=True  ## ADDED NEW HERE
             ) and time.time() - docker_run_start_time < self.challenge_info.get(
                 "docker_run_timeout", 600
             ):
@@ -126,20 +125,6 @@ class Controller:
                     if miner_output is not None
                     else 0
                 )
-                # bt log error miner_output, miner_input,miner_docker_image,uid with type
-                bt.logging.error("sssssssssssssssssssss")
-                bt.logging.error(f"[Controller] Score: {score}, {type(score)}")
-                bt.logging.error(
-                    f"[Controller] Miner output: {miner_output}, {type(miner_output)}"
-                )
-                bt.logging.error(
-                    f"[Controller] Miner input: {miner_input}, {type(miner_input)}"
-                )
-                bt.logging.error(
-                    f"[Controller] Miner docker image: {miner_docker_image}, {type(miner_docker_image)}"
-                )
-                bt.logging.error(f"[Controller] UID: {uid}, {type(uid)}")
-
                 logs.append(
                     {
                         "miner_input": miner_input,
@@ -193,12 +178,15 @@ class Controller:
         Runs the Docker container for the challenge using the built image.
         The container runs in detached mode and listens on the port defined by constants.
         """
+
+        ## ADDED NEW HERE
         kwargs = {}
         if "same_network" in self.challenge_info:
             kwargs["network"] = self.local_network
 
         if "hostname" in self.challenge_info:
             kwargs["hostname"] = self.challenge_info["hostname"]
+        ## ADDED NEW HERE
 
         container = self.docker_client.containers.run(
             self.challenge_name,
@@ -207,7 +195,7 @@ class Controller:
                 f"{constants.CHALLENGE_DOCKER_PORT}/tcp": constants.CHALLENGE_DOCKER_PORT
             },
             name=self.challenge_name,
-            **kwargs,
+            **kwargs,  ## ADDED NEW HERE
         )
         bt.logging.info(container)
         return container
@@ -220,8 +208,8 @@ class Controller:
         containers = self.docker_client.containers.list(all=True)
         for container in containers:
             if container.name == self.challenge_name:
-                # res = container.remove(force=True)
-                bt.logging.info(f"Remove container ")
+                res = container.remove(force=True)
+                bt.logging.info(res)
 
     def _submit_challenge_to_miner(self, challenge) -> dict:
         """
@@ -250,22 +238,23 @@ class Controller:
             bt.logging.error(f"Submit challenge to miner failed: {str(ex)}")
             return None
 
-    def _check_alive(self, port=10001, is_miner=False) -> bool:
+    def _check_alive(self, port=10001, is_miner=False) -> bool:  ## ADDED NEW HERE
         """
         Checks if the challenge container is still running.
         """
+
+        ## ADDED NEW HERE
         protocol = "http"
         if "protocol" in self.challenge_info:
             protocol = self.challenge_info["protocol"]
         if is_miner:
             protocol = "http"
+        ## ADDED NEW HERE
 
         try:
-            # get request with ignoring SSL certificate
             response = requests.get(
-                f"{protocol}://localhost:{port}/health", verify=False
+                f"{protocol}://localhost:{port}/health", verify=False  ## ADDED NEW HERE
             )
-            # response = requests.get(f"https://localhost:{port}/health")
             if response.status_code == 200:
                 return True
         except requests.exceptions.ConnectionError:
@@ -280,13 +269,16 @@ class Controller:
         Returns:
             A dictionary representing the challenge input.
         """
+
+        ## ADDED NEW HERE
         protocol = "http"
         if "protocol" in self.challenge_info:
             protocol = self.challenge_info["protocol"]
+        ## ADDED NEW HERE
 
         response = requests.get(
-            f"{protocol}://localhost:{constants.CHALLENGE_DOCKER_PORT}/task",
-            verify=False,
+            f"{protocol}://localhost:{constants.CHALLENGE_DOCKER_PORT}/task",  ## ADDED NEW HERE
+            verify=False,  ## ADDED NEW HERE
         )
         return response.json()
 
@@ -302,9 +294,12 @@ class Controller:
         Returns:
             A float representing the score for the miner's solution.
         """
+
+        ## ADDED NEW HERE
         protocol = "http"
         if "protocol" in self.challenge_info:
             protocol = self.challenge_info["protocol"]
+        ## ADDED NEW HERE
 
         try:
             payload = {
@@ -312,22 +307,11 @@ class Controller:
                 "miner_output": miner_output,
             }
             bt.logging.debug(f"[Controller] Scoring payload: {str(payload)[:100]}...")
-            # bt log error with type miner_input, miner_output
-            bt.logging.error("bbbbbbbbbbbbbbbbbbbbbbbb")
-            bt.logging.error(type(miner_input))
-            bt.logging.error(miner_input)
-            bt.logging.error(type(miner_output))
-            bt.logging.error(miner_output)
-
             response = requests.post(
-                f"{protocol}://localhost:{constants.CHALLENGE_DOCKER_PORT}/score",
-                verify=False,
+                f"{protocol}://localhost:{constants.CHALLENGE_DOCKER_PORT}/score",  ## ADDED NEW HERE
+                verify=False,  ## ADDED NEW HERE
                 json=payload,
             )
-            bt.logging.error("aaaaaaaaaaaaaaaaaaaaaa")
-            bt.logging.error(type(response.json()))
-            bt.logging.error(response.json())
-
             return response.json()
         except Exception as ex:
             bt.logging.error(f"Score challenge failed: {str(ex)}")
@@ -376,13 +360,13 @@ class Controller:
                 ],
             ]
 
-            # for cmd in iptables_commands:
-            #     try:
-            #         # Try with sudo
-            #         subprocess.run(["sudo"] + cmd, check=True)
-            #     except subprocess.CalledProcessError:
-            #         # If running with sudo fails, try without sudo
-            #         subprocess.run(cmd, check=True)
+            for cmd in iptables_commands:
+                try:
+                    # Try with sudo
+                    subprocess.run(["sudo"] + cmd, check=True)
+                except subprocess.CalledProcessError:
+                    # If running with sudo fails, try without sudo
+                    subprocess.run(cmd, check=True)
 
         except docker.errors.APIError as e:
             bt.logging.error(f"Failed to create network: {e}")

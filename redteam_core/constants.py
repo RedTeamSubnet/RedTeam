@@ -33,7 +33,7 @@ class Constants(BaseModel):
         default=1, description="Number of challenges per epoch."
     )
     SCORING_HOUR: int = Field(
-        default=12, description="Hour of the day when scoring occurs (0-23)."
+        default=14, description="Hour of the day when scoring occurs (0-23)."
     )
     POINT_DECAY_RATE: float = Field(
         default=1 / 14, description="Daily point decay rate."

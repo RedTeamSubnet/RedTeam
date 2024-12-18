@@ -5,6 +5,8 @@ RUN sudo apt-get update && sudo apt-get install -y \
     python3 \
     python3-pip \
     python3-venv \
+	curl \
+	iputils-ping \
     && sudo apt-get clean \
     && sudo rm -rf /var/lib/apt/lists/*
 
