@@ -1,5 +1,16 @@
 ## Response Quality Adversarial Submission Guide
 
+### Description
+
+The **Response Quality Adversarial** challenge focuses on testing miners' ability to generate responses that can trick a ranking model into misjudging their quality. Miners are provided with a modified question prompt and are tasked to generate responses that appear higher quality to the ranking model than they might actually be, based on the prompt's intent.
+
+This challenge is designed to encourage creativity and strategic thinking in crafting responses, pushing models to identify and exploit weaknesses in ranking systems. It simultaneously helps improve ranking models by identifying potential adversarial strategies.
+
+Miners should aim to develop responses that maximize their score according to the ranking model, even when the responses are not strictly aligned with the ground truth. This helps foster innovation in adversarial generation and defense techniques.
+
+---
+
+### Example Code and Submission Instructions
 Example code for the Response Quality Adversarial Submission can be found in the `redteam_core/miner/commits/response_quality_adversarial` directory.
 
 Download model [unsloth/Llama-3.2-3B-Instruct](https://huggingface.co/unsloth/Llama-3.2-3B-Instruct) and place it in the `redteam_core/miner/commits/response_quality_adversarial` directory. **Remember to include all model files, as miner is prevented from connecting to the internet.**

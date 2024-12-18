@@ -71,7 +71,7 @@ class Validator(BaseValidator):
         bt.logging.success(f"[FORWARD LOCAL SCORING] Miner submit: {self.miner_submit}")
 
         revealed_commits = self.get_revealed_commits()
-        self._init_challenge_records_from_subnet(validator_ss58_address=self.metagraph.hotkeys[self.uid], is_today_scored=True)
+        self._init_challenge_records_from_subnet(validator_ss58_address=self.metagraph.hotkeys[self.uid], is_today_scored=False)
 
         today = datetime.datetime.now()
         current_hour = today.hour
