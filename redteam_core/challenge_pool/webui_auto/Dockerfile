@@ -19,10 +19,8 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 WORKDIR "/usr/src/${WUC_API_SLUG}"
 
-RUN --mount=type=cache,target=/opt/conda/pkgs,sharing=private \
-	--mount=type=cache,target=/root/.cache,sharing=locked \
-	_BUILD_TARGET_ARCH=$(uname -m) && \
-	echo "BUILDING TARGET ARCHITECTURE: ${_BUILD_TARGET_ARCH}" && \
+RUN _BUILD_TARGET_ARCH=$(uname -m) && \
+    echo "BUILDING TARGET ARCHITECTURE: $_BUILD_TARGET_ARCH" && \
 	rm -rfv /var/lib/apt/lists/* /var/cache/apt/archives/* /tmp/* && \
 	apt-get clean -y && \
 	apt-get update --fix-missing -o Acquire::CompressionTypes::Order::=gz && \
@@ -43,27 +41,29 @@ RUN --mount=type=cache,target=/opt/conda/pkgs,sharing=private \
 		echo "Unsupported platform: ${_BUILD_TARGET_ARCH}" && \
 		exit 1; \
 	fi && \
-	if [ ! -f "/root/.cache/${_MINICONDA_FILENAME}" ]; then \
-		wget -nv --show-progress --progress=bar:force:noscroll "${_MINICONDA_URL}" -O "/root/.cache/${_MINICONDA_FILENAME}"; \
+	if [ ! -f "/root/${_MINICONDA_FILENAME}" ]; then \
+		wget -nv --show-progress --progress=bar:force:noscroll "${_MINICONDA_URL}" -O "/root/${_MINICONDA_FILENAME}"; \
 	fi && \
-	/bin/bash "/root/.cache/${_MINICONDA_FILENAME}" -b -u -p /opt/conda && \
+	/bin/bash "/root/${_MINICONDA_FILENAME}" -b -u -p /opt/conda && \
 	/opt/conda/condabin/conda update -y conda && \
 	/opt/conda/condabin/conda install -y python=${PYTHON_VERSION} pip && \
 	/opt/conda/bin/pip install --timeout 60 -U pip
 
 # COPY ./requirements* ./
-RUN	--mount=type=cache,target=/root/.cache,sharing=locked \
-	--mount=type=bind,source=requirements.txt,target=requirements.txt \
-	# _BUILD_TARGET_ARCH=$(uname -m) && \
-	# if [ "${_BUILD_TARGET_ARCH}" == "x86_64" ] && [ "${USE_GPU}" == "false" ]; then \
-	# 	export _REQUIRE_FILE_PATH=./requirements/requirements.amd64.txt; \
-	# elif [ "${_BUILD_TARGET_ARCH}" == "x86_64" ] && [ "${USE_GPU}" == "true" ]; then \
-	# 	export _REQUIRE_FILE_PATH=./requirements/requirements.gpu.txt; \
-	# elif [ "${_BUILD_TARGET_ARCH}" == "aarch64" ]; then \
-	# 	export _REQUIRE_FILE_PATH=./requirements/requirements.arm64.txt; \
-	# fi && \
-	# /opt/conda/bin/pip install --timeout 60 -r "${_REQUIRE_FILE_PATH}" && \
-	/opt/conda/bin/pip install --timeout 60 -r ./requirements.txt
+COPY requirements.txt ./requirements.txt
+RUN /opt/conda/bin/pip install --timeout 60 -r ./requirements.txt
+# RUN	--mount=type=cache,target=/root/.cache,sharing=locked \
+# 	--mount=type=bind,source=requirements.txt,target=requirements.txt \
+# 	# _BUILD_TARGET_ARCH=$(uname -m) && \
+# 	# if [ "${_BUILD_TARGET_ARCH}" == "x86_64" ] && [ "${USE_GPU}" == "false" ]; then \
+# 	# 	export _REQUIRE_FILE_PATH=./requirements/requirements.amd64.txt; \
+# 	# elif [ "${_BUILD_TARGET_ARCH}" == "x86_64" ] && [ "${USE_GPU}" == "true" ]; then \
+# 	# 	export _REQUIRE_FILE_PATH=./requirements/requirements.gpu.txt; \
+# 	# elif [ "${_BUILD_TARGET_ARCH}" == "aarch64" ]; then \
+# 	# 	export _REQUIRE_FILE_PATH=./requirements/requirements.arm64.txt; \
+# 	# fi && \
+# 	# /opt/conda/bin/pip install --timeout 60 -r "${_REQUIRE_FILE_PATH}" && \
+# 	/opt/conda/bin/pip install --timeout 60 -r ./requirements.txt
 
 
 ## Here is the base image:
@@ -153,7 +153,7 @@ FROM base AS app
 
 WORKDIR "${WUC_API_DIR}"
 COPY --chown=${UID}:${GID} ./src ${WUC_API_DIR}
-COPY --chown=${UID}:${GID} --chmod=770 ./scripts/docker/*.sh /usr/local/bin/
+COPY --chown=${UID}:${GID} ./scripts/docker/*.sh /usr/local/bin/
 
 # VOLUME ["${WUC_API_DATA_DIR}"]
 # EXPOSE ${WUC_API_PORT}
