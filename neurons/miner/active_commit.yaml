@@ -1,3 +1,4 @@
-- text_detection---vietbeu/text-detection-miner@sha256:7be64b1a0b938951c6361195c58299540a21ff4ac8c34e5cc18bcae634e254b0
-- response_quality_adversarial---vietbeu/response_quality_adversarial@sha256:57cc89f7bb36bf906936d855a1a916695c78084bed5c4714c6a82d08eb54b71b
-- response_quality_ranker---vietbeu/response_quality_ranker@sha256:5b468ec48eae57907f1ba91de12bfe78f709351b0421e14a3b105dcb00844103
+# - text_detection---vietbeu/text-detection-miner@sha256:7be64b1a0b938951c6361195c58299540a21ff4ac8c34e5cc18bcae634e254b0
+# - response_quality_adversarial---vietbeu/response_quality_adversarial@sha256:57cc89f7bb36bf906936d855a1a916695c78084bed5c4714c6a82d08eb54b71b
+# - response_quality_ranker---vietbeu/response_quality_ranker@sha256:5b468ec48eae57907f1ba91de12bfe78f709351b0421e14a3b105dcb00844103
+- webui_auto---asadbekk/rest.rt-wu-miner@sha256:4978fa83eb50d773bab320749951e578bd7565b0f90e2e261225d80df7454332

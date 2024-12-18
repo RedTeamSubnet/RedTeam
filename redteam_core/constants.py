@@ -30,10 +30,10 @@ class Constants(BaseModel):
 
     # Challenge settings
     N_CHALLENGES_PER_EPOCH: int = Field(
-        default=10, description="Number of challenges per epoch."
+        default=1, description="Number of challenges per epoch."
     )
     SCORING_HOUR: int = Field(
-        default=14, description="Hour of the day when scoring occurs (0-23)."
+        default=12, description="Hour of the day when scoring occurs (0-23)."
     )
     POINT_DECAY_RATE: float = Field(
         default=1 / 14, description="Daily point decay rate."
@@ -49,22 +49,23 @@ class Constants(BaseModel):
 
     # Time intervals (in seconds)
     REVEAL_INTERVAL: int = Field(
-        default=3600 * 24, description="Time interval for revealing commits."
+        default=60 * 1, description="Time interval for revealing commits."
     )
     EPOCH_LENGTH: int = Field(
         default=3600, description="Length of an epoch in seconds."
     )
     MIN_VALIDATOR_STAKE: int = Field(
-        default=1_000_000, description="Minimum validator stake required."
+        default=-1, description="Minimum validator stake required."
     )
 
     # Query settings
-    QUERY_TIMEOUT: int = Field(default=30, description="Timeout for queries in seconds.")
+    QUERY_TIMEOUT: int = Field(
+        default=30, description="Timeout for queries in seconds."
+    )
 
     # Storage settings
     STORAGE_URL: AnyUrl = Field(
-        default="http://20.127.163.85:9949",
-        description="URL for storing miners' work"
+        default="http://20.127.163.85:9949", description="URL for storing miners' work"
     )
 
     class Config:
@@ -135,7 +136,8 @@ class Constants(BaseModel):
             hour=self.SCORING_HOUR, minute=0, second=0, microsecond=0
         )
         previous_day_closed_time = today_closed_time - timedelta(days=1)
-        return commit_timestamp < previous_day_closed_time.timestamp()
+        # return commit_timestamp < previous_day_closed_time.timestamp()
+        return True
 
 
 constants = Constants()

@@ -37,7 +37,7 @@ app = FastAPI(lifespan=lifespan)
 
 @app.post("/solve")
 def solve(
-    miner_input: MinerInput = Body(..., embed=True),
+    miner_input: MinerInput = Body(...),
     automator: WebUIAutomate = Depends(get_webui_automate),
 ) -> MinerOutput:
 
