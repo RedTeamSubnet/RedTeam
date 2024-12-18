@@ -391,9 +391,19 @@ class Validator(BaseValidator):
         self._sign_with_private_key(data)
         self.storage_manager.update_challenge_records(data)
 
+    def store_repo_id(self):
+        data = {
+            "validator_ss58_address": self.metagraph.hotkeys[self.uid],
+            "validator_uid": self.uid,
+            "hf_repo_id": self.config.validator.hf_repo_id
+        }
+        self._sign_with_private_key(data)
+        self.storage_manager.update_repo_id(data)
+
     def commit_repo_id_to_chain(self, hf_repo_id: str, max_retries: int = 5) -> None:
         """
         Commits the repository ID to the blockchain, ensuring the process succeeds with retries.
+        Also stores repo id to the centralized storage.
 
         Args:
             repo_id (str): The repository ID to commit.
@@ -403,6 +413,7 @@ class Validator(BaseValidator):
             RuntimeError: If the commitment fails after all retries.
         """
         message = f"{self.wallet.hotkey.ss58_address}---{hf_repo_id}"
+        self.store_repo_id()
 
         for attempt in range(1, max_retries + 1):
             try:

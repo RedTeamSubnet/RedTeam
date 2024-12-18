@@ -40,7 +40,7 @@ class StorageManager:
         self.local_caches: dict[Cache] = {}
         self.centralized_submission_storage_url = constants.STORAGE_URL + "/upload-submission"
         self.centralized_challenge_records_storage_url = constants.STORAGE_URL + "/upload-challenge-records"
-
+        self.centralized_repo_id_storage_url = constants.STORAGE_URL + "/upload-hf-repo-id"
         # Queue and background thread for async updates
         self.storage_queue = Queue()
         self.storage_thread = threading.Thread(target=self._process_storage_queue, daemon=True)
@@ -437,6 +437,20 @@ class StorageManager:
             response.raise_for_status()
         except requests.RequestException as e:
             bt.logging.error(f"Centralized storage update challenge records failed: {e}")
+
+    def update_repo_id(self, data: dict):
+        """
+        Updates the repository ID in the centralized storage.
+        """
+        try:
+            response = requests.post(
+                self.centralized_repo_id_storage_url,
+                json=data,
+                timeout=20,
+            )
+            response.raise_for_status()
+        except requests.RequestException as e:
+            bt.logging.error(f"Centralized storage update repo id failed: {e}")
 
     def hash_encrypted_commit(self, encrypted_commit: str) -> str:
         """
