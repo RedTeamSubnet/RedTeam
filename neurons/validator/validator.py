@@ -85,6 +85,7 @@ class Validator(BaseValidator):
                 if challenge not in self.active_challenges: 
                     continue
                 bt.logging.info(f"[FORWARD LOCAL SCORING] Running challenge: {challenge}")
+                self.miner_managers[challenge].update_uid_to_commit(uids=uids, commits=commits)
                 controller = self.active_challenges[challenge]["controller"](
                     challenge_name=challenge, miner_docker_images=commits, uids=uids, challenge_info=self.active_challenges[challenge]
                 )
