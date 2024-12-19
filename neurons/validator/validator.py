@@ -1,11 +1,12 @@
-import json
 import time
+import json
 import datetime
-import threading
 import requests
 
 import numpy as np
 import bittensor as bt
+
+from threading import Thread
 from cryptography.fernet import Fernet
 
 from redteam_core import (
@@ -18,13 +19,14 @@ from redteam_core import (
     ScoringLog,
 )
 from redteam_core.validator.miner_manager import ChallengeRecord
+from redteam_core.common import get_config
 
 class Validator(BaseValidator):
-    def __init__(self):
+    def __init__(self, config: bt.Config):
         """
         Initializes the Validator by setting up MinerManager instances for all active challenges.
         """
-        super().__init__()
+        super().__init__(config)
         self.active_challenges = challenge_pool.ACTIVE_CHALLENGES
         self.miner_managers = {
             challenge: MinerManager(challenge_name=challenge, challenge_incentive_weight=self.active_challenges[challenge]["challenge_incentive_weight"])
@@ -39,7 +41,7 @@ class Validator(BaseValidator):
         )
    
         # Start a thread to periodically commit the repo_id
-        commit_thread = threading.Thread(
+        commit_thread = Thread(
             target=self.commit_repo_id_to_chain,
             kwargs={"hf_repo_id": self.config.validator.hf_repo_id, "max_retries": 5},
             daemon=True
@@ -71,7 +73,7 @@ class Validator(BaseValidator):
         bt.logging.success(f"[FORWARD LOCAL SCORING] Miner submit: {self.miner_submit}")
 
         revealed_commits = self.get_revealed_commits()
-        self._init_challenge_records_from_subnet(validator_ss58_address=self.metagraph.hotkeys[self.uid], is_today_scored=True)
+        self._init_challenge_records_from_subnet(validator_ss58_address=self.metagraph.hotkeys[self.uid], is_today_scored=False)
 
         today = datetime.datetime.now()
         current_hour = today.hour
@@ -85,6 +87,7 @@ class Validator(BaseValidator):
                 if challenge not in self.active_challenges: 
                     continue
                 bt.logging.info(f"[FORWARD LOCAL SCORING] Running challenge: {challenge}")
+                self.miner_managers[challenge].update_uid_to_commit(uids=uids, commits=commits)
                 controller = self.active_challenges[challenge]["controller"](
                     challenge_name=challenge, miner_docker_images=commits, uids=uids, challenge_info=self.active_challenges[challenge]
                 )
@@ -390,9 +393,19 @@ class Validator(BaseValidator):
         self._sign_with_private_key(data)
         self.storage_manager.update_challenge_records(data)
 
+    def store_repo_id(self):
+        data = {
+            "validator_ss58_address": self.metagraph.hotkeys[self.uid],
+            "validator_uid": self.uid,
+            "hf_repo_id": self.config.validator.hf_repo_id
+        }
+        self._sign_with_private_key(data)
+        self.storage_manager.update_repo_id(data)
+
     def commit_repo_id_to_chain(self, hf_repo_id: str, max_retries: int = 5) -> None:
         """
         Commits the repository ID to the blockchain, ensuring the process succeeds with retries.
+        Also stores repo id to the centralized storage.
 
         Args:
             repo_id (str): The repository ID to commit.
@@ -402,6 +415,7 @@ class Validator(BaseValidator):
             RuntimeError: If the commitment fails after all retries.
         """
         message = f"{self.wallet.hotkey.ss58_address}---{hf_repo_id}"
+        self.store_repo_id()
 
         for attempt in range(1, max_retries + 1):
             try:
@@ -436,7 +450,7 @@ class Validator(BaseValidator):
             time.sleep(interval)
 
 if __name__ == "__main__":
-    with Validator() as validator:
+    with Validator(get_config()) as validator:
         while True:
             bt.logging.info("Validator is running...")
             time.sleep(constants.EPOCH_LENGTH // 4)

@@ -5,3 +5,6 @@ pandas
 huggingface-hub
 datasets
 diskcache
+pytest
+numpy
+requests
