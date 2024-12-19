@@ -1,13 +1,15 @@
-from typing import List, Dict
+import re
+import time
+import copy
+import subprocess
+from typing import List, Dict, Tuple, Union
+
 import docker
 import docker.types
 import requests
 import bittensor as bt
+
 from ..constants import constants
-import time
-import subprocess
-import copy
-import re
 
 
 class Controller:
@@ -68,7 +70,7 @@ class Controller:
         container = self._run_challenge_container()
         bt.logging.info(f"[Controller] Challenge container started: {container.status}")
         while not self._check_alive(
-            port=constants.CHALLENGE_DOCKER_PORT, is_miner=False  ## ADDED NEW HERE
+            port=constants.CHALLENGE_DOCKER_PORT, is_challenger=True
         ):
             bt.logging.info("[Controller] Waiting for challenge container to start.")
             time.sleep(1)
@@ -98,7 +100,6 @@ class Controller:
                 detach=True,
                 cpu_count=self.resource_limits.get("num_cpus", 2),
                 mem_limit=self.resource_limits.get("mem_limit", "1g"),
-                platform="linux/amd64",  ## ADDED NEW HERE
                 environment={
                     "CHALLENGE_NAME": self.challenge_name,
                     **self.challenge_info.get("enviroment", {}),
@@ -107,10 +108,10 @@ class Controller:
                     f"{constants.MINER_DOCKER_PORT}/tcp": constants.MINER_DOCKER_PORT
                 },
                 network=self.local_network,
-                **kwargs,  ## ADDED NEW HERE
+                **kwargs,
             )
             while not self._check_alive(
-                port=constants.MINER_DOCKER_PORT, is_miner=True  ## ADDED NEW HERE
+                port=constants.MINER_DOCKER_PORT, is_challenger=False
             ) and time.time() - docker_run_start_time < self.challenge_info.get(
                 "docker_run_timeout", 600
             ):
@@ -179,14 +180,12 @@ class Controller:
         The container runs in detached mode and listens on the port defined by constants.
         """
 
-        ## ADDED NEW HERE
         kwargs = {}
         if "same_network" in self.challenge_info:
             kwargs["network"] = self.local_network
 
         if "hostname" in self.challenge_info:
             kwargs["hostname"] = self.challenge_info["hostname"]
-        ## ADDED NEW HERE
 
         container = self.docker_client.containers.run(
             self.challenge_name,
@@ -195,7 +194,7 @@ class Controller:
                 f"{constants.CHALLENGE_DOCKER_PORT}/tcp": constants.CHALLENGE_DOCKER_PORT
             },
             name=self.challenge_name,
-            **kwargs,  ## ADDED NEW HERE
+            **kwargs,
         )
         bt.logging.info(container)
         return container
@@ -228,9 +227,11 @@ class Controller:
         for key in exclude_miner_input_key:
             miner_input[key] = None
         try:
+            _protocol, _ssl_verify = self._check_protocol(is_challenger=False)
             response = requests.post(
-                f"http://localhost:{constants.MINER_DOCKER_PORT}/solve",
+                f"{_protocol}://localhost:{constants.MINER_DOCKER_PORT}/solve",
                 timeout=self.challenge_info.get("challenge_solve_timeout", 60),
+                verify=_ssl_verify,
                 json=miner_input,
             )
             return response.json()
@@ -238,22 +239,17 @@ class Controller:
             bt.logging.error(f"Submit challenge to miner failed: {str(ex)}")
             return None
 
-    def _check_alive(self, port=10001, is_miner=False) -> bool:  ## ADDED NEW HERE
+    def _check_alive(self, port=10001, is_challenger=True) -> bool:
         """
         Checks if the challenge container is still running.
         """
 
-        ## ADDED NEW HERE
-        protocol = "http"
-        if "protocol" in self.challenge_info:
-            protocol = self.challenge_info["protocol"]
-        if is_miner:
-            protocol = "http"
-        ## ADDED NEW HERE
+        _protocol, _ssl_verify = self._check_protocol(is_challenger=is_challenger)
 
         try:
             response = requests.get(
-                f"{protocol}://localhost:{port}/health", verify=False  ## ADDED NEW HERE
+                f"{_protocol}://localhost:{port}/health",
+                verify=_ssl_verify,
             )
             if response.status_code == 200:
                 return True
@@ -261,7 +257,7 @@ class Controller:
             return False
         return False
 
-    def _get_challenge_from_container(self, is_check_alive=False) -> dict:
+    def _get_challenge_from_container(self) -> dict:
         """
         Retrieves a challenge input from the running challenge container by making an HTTP POST request.
         The challenge container returns a task that will be sent to the miners.
@@ -270,15 +266,11 @@ class Controller:
             A dictionary representing the challenge input.
         """
 
-        ## ADDED NEW HERE
-        protocol = "http"
-        if "protocol" in self.challenge_info:
-            protocol = self.challenge_info["protocol"]
-        ## ADDED NEW HERE
+        _protocol, _ssl_verify = self._check_protocol(is_challenger=True)
 
         response = requests.get(
-            f"{protocol}://localhost:{constants.CHALLENGE_DOCKER_PORT}/task",  ## ADDED NEW HERE
-            verify=False,  ## ADDED NEW HERE
+            f"{_protocol}://localhost:{constants.CHALLENGE_DOCKER_PORT}/task",
+            verify=_ssl_verify,
         )
         return response.json()
 
@@ -295,11 +287,7 @@ class Controller:
             A float representing the score for the miner's solution.
         """
 
-        ## ADDED NEW HERE
-        protocol = "http"
-        if "protocol" in self.challenge_info:
-            protocol = self.challenge_info["protocol"]
-        ## ADDED NEW HERE
+        _protocol, _ssl_verify = self._check_protocol(is_challenger=True)
 
         try:
             payload = {
@@ -308,8 +296,8 @@ class Controller:
             }
             bt.logging.debug(f"[Controller] Scoring payload: {str(payload)[:100]}...")
             response = requests.post(
-                f"{protocol}://localhost:{constants.CHALLENGE_DOCKER_PORT}/score",  ## ADDED NEW HERE
-                verify=False,  ## ADDED NEW HERE
+                f"{_protocol}://localhost:{constants.CHALLENGE_DOCKER_PORT}/score",
+                verify=_ssl_verify,
                 json=payload,
             )
             return response.json()
@@ -380,3 +368,37 @@ class Controller:
             )
             return False
         return True
+
+    def _check_protocol(
+        self, is_challenger: bool = True
+    ) -> Tuple[str, Union[bool, None]]:
+        """Check the protocol scheme and SSL/TLS verification for the challenger or miner.
+
+        Args:
+            is_challenger (bool, optional): Flag to check the protocol for the challenger or miner. Defaults to True.
+
+        Returns:
+            Tuple[str, Union[bool, None]]: A tuple containing the protocol scheme and SSL/TLS verification.
+        """
+
+        _protocol = "http"
+        _ssl_verify: Union[bool, None] = None
+
+        if "protocols" in self.challenge_info:
+            _protocols = self.challenge_info["protocols"]
+
+            if is_challenger:
+                if "challenger" in _protocols:
+                    _protocol = _protocols["challenger"]
+
+                if "challenger_ssl_verify" in _protocols:
+                    _ssl_verify = _protocols["challenger_ssl_verify"]
+
+            if not is_challenger:
+                if "miner" in _protocols:
+                    _protocol = _protocols["miner"]
+
+                if "miner_ssl_verify" in _protocols:
+                    _ssl_verify = _protocols["miner_ssl_verify"]
+
+        return _protocol, _ssl_verify

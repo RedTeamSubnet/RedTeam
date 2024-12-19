@@ -156,7 +156,7 @@ COPY --chown=${UID}:${GID} ./src ${WUC_API_DIR}
 COPY --chown=${UID}:${GID} ./scripts/docker/*.sh /usr/local/bin/
 
 # VOLUME ["${WUC_API_DATA_DIR}"]
-# EXPOSE ${WUC_API_PORT}
+EXPOSE ${WUC_API_PORT}
 
 USER ${UID}:${GID}
 # HEALTHCHECK --start-period=30s --start-interval=1s --interval=5m --timeout=5s --retries=3 \

@@ -46,14 +46,20 @@ webui_auto:
   description: "Detect automated UI interactions by analyzing behavioral patterns"
   challenge_incentive_weight: 0.3
   target: redteam_core.challenge_pool.webui_auto.Controller
-  challenge_solve_timeout: 15
-  docker_run_timeout: 300
+  challenge_solve_timeout: 45
+  docker_run_timeout: 600
   hostname: "webui_auto"
-  protocol: "https"
+  protocols:
+    challenger: "https"
+    challenger_ssl_verify: false
+    miner: "http"
+    miner_ssl_verify: false
   same_network: true
+  allowed_destinations:
+    - webui_auto
   resource_limits:
-    num_cpus: 2
-    mem_limit: "4g"
+    num_cpus: 4
+    mem_limit: "8g"
   environment:
     ENV: "PRODUCTION"
     WUC_WEB_URL: "https://webui_auto:10001/web"
