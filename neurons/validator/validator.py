@@ -78,26 +78,39 @@ class Validator(BaseValidator):
         bt.logging.info(f"[FORWARD CENTRALIZED SCORING] Saving Revealed commits to storage ...")
         self.store_miner_commit()
         
-        is_scoring_done = {
-            challenge_name: False for challenge_name in self.active_challenges.keys()
-        }
-        while True:
-            for challenge_name in self.active_challenges.keys():
-                if is_scoring_done[challenge_name]:
-                    continue
-                bt.logging.info(f"[FORWARD CENTRALIZED SCORING] Getting scoring logs from centralized scoring endpoint for challenge: {challenge_name} ...")
-                scoring_logs, is_done = self.get_centralized_scoring_logs(challenge_name, revealed_commits)
-                is_scoring_done[challenge_name] = is_done
-                if is_done:
-                    bt.logging.info(f"[FORWARD CENTRALIZED SCORING] Scoring done for challenge: {challenge_name} ...")
-                    self.miner_managers[challenge_name].update_scores(scoring_logs)
-            if all(is_scoring_done.values()):
-                break
-            time.sleep(60 * 10)
-        
-        self.store_miner_commit()
-        self.store_challenge_records()
-        
+        today = datetime.datetime.now()
+        today_key = today.strftime("%Y-%m-%d")
+        current_hour = today.hour
+        validate_scoring_hour = current_hour >= constants.SCORING_HOUR
+        validate_scoring_date = today_key not in self.scoring_dates
+        if validate_scoring_hour and validate_scoring_date and revealed_commits:
+            is_scoring_done = {
+                challenge_name: False for challenge_name in self.active_challenges.keys()
+            }
+            while True:
+                for challenge_name in self.active_challenges.keys():
+                    if is_scoring_done[challenge_name]:
+                        continue
+                    bt.logging.info(f"[FORWARD CENTRALIZED SCORING] Getting scoring logs from centralized scoring endpoint for challenge: {challenge_name} ...")
+                    scoring_logs, is_done = self.get_centralized_scoring_logs(challenge_name, revealed_commits)
+                    is_scoring_done[challenge_name] = is_done
+                    if is_done:
+                        bt.logging.info(f"[FORWARD CENTRALIZED SCORING] Scoring done for challenge: {challenge_name} ...")
+                        self.miner_managers[challenge_name].update_scores(scoring_logs)
+                if all(is_scoring_done.values()):
+                    break
+                time.sleep(60 * 10)
+            
+            self.scoring_dates.append(today_key)
+            self.store_miner_commit()
+            self.store_challenge_records()
+        else:
+            bt.logging.warning(f"[FORWARD CENTRALIZED SCORING] Skipping scoring for {today_key}")
+            bt.logging.info(
+                f"[FORWARD CENTRALIZED SCORING] Current hour: {current_hour}, Scoring hour: {constants.SCORING_HOUR}"
+            )
+            bt.logging.info(f"[FORWARD CENTRALIZED SCORING] Scoring dates: {self.scoring_dates}")
+            
     def forward_local_scoring(self, revealed_commits: dict[str, tuple[list[str], list[int]]]):
         """
         Params:
