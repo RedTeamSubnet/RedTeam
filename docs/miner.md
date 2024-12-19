@@ -36,7 +36,7 @@ pm2 start python --name "miner_snxxx" \
 --wallet.name "wallet_name" \
 --wallet.hotkey "wallet_hotkey" \
 --axon.port "axon_port" \
---subtensor.network finney
+--subtensor.network <network> \ # default is finney
 ```
 Optional flags:
 - `--logging.trace` - Enable trace logging

@@ -56,10 +56,10 @@ pm2 start python --name "validator_snxxx" \
 --netuid xxx \
 --wallet.name "wallet_name" \
 --wallet.hotkey "wallet_hotkey" \
---subtensor.network finney \
+--subtensor.network <network> \ # default is finney
 --validator.cache_dir "./.cache/" \ # Your local cache dir for miners commits.
---validator.hf_repo_id "my_username/my_repo" \ # Your HF repo ID for storing miners commits
---validator.use_centralized_scoring \ # Optional: Opt-in to get scores of challenges from a centralized server.
+--validator.hf_repo_id "my_username/my_repo" \ # Your HF repo ID for storing miners' commits. You need to create your own repo; recommend creating a new HF account
+--validator.use_centralized_scoring \ # Optional: Recommended for high VTRUST, opt-in to get scores of challenges from a centralized server
 ```
 Optional flags:
 - `--logging.trace` - Enable trace logging
