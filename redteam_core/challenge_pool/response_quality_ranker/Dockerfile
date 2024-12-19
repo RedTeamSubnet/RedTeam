@@ -5,7 +5,7 @@ FROM python:3.10-slim
 WORKDIR /app
 
 # Set the environment variable
-ENV VLLM_URL="http://127.0.0.1:8000/v1"  
+ENV VLLM_URL="http://20.127.163.85:8080/v1"  
 ENV API_KEY="your-api-key"
 ENV VLLM_MODEL="unsloth/Meta-Llama-3.1-8B-Instruct"
 

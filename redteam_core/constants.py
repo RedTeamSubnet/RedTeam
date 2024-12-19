@@ -61,10 +61,14 @@ class Constants(BaseModel):
     # Query settings
     QUERY_TIMEOUT: int = Field(default=30, description="Timeout for queries in seconds.")
 
-    # Storage settings
+    # Centralized API settings
     STORAGE_URL: AnyUrl = Field(
-        default="http://20.127.163.85:9949",
+        default="http://20.127.163.85:8080/storage",
         description="URL for storing miners' work"
+    )
+    REWARDING_URL: AnyUrl = Field(
+        default="http://20.127.163.85:8080/rewarding",
+        description="URL for rewarding miners"
     )
 
     class Config:
@@ -127,6 +131,7 @@ class Constants(BaseModel):
         return point * decay_factor
 
     def is_commit_on_time(self, commit_timestamp: float) -> bool:
+
         """
         Validator do scoring every day at SCORING_HOUR.
         So the commit time should be submitted before the previous day's SCORING_HOUR.
