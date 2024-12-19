@@ -14,8 +14,8 @@ import bittensor as bt
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--port", type=int, default=47920)
-    parser.add_argument("--netuid", type=int, default=119)
-    parser.add_argument("--network", type=str, default="test")
+    parser.add_argument("--netuid", type=int, default=61)
+    parser.add_argument("--network", type=str, default="finney")
     args = parser.parse_args()
     return args
 
