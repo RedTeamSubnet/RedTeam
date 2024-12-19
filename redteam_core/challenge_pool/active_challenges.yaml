@@ -1,18 +1,18 @@
-text_detection:
-  name: "Text Detection"  # Name of challenge
-  description: "Detect if text is ai generated"  # Brief description of what challenge does
-  challenge_incentive_weight: 0.2  # Weight for incentive distribution based on challenge difficulty or importance
-  target: redteam_core.challenge_pool.text_detection.Controller  # Path to the target controller handling the challenge
-  challenge_solve_timeout: 5  # Timeout (in seconds) for solving challenge
-  docker_run_timeout: 300  # Timeout (in seconds) for running Docker container during challenge
-  resource_limits:
-    num_cpus: 4  # Number of CPUs allocated for challenge
-    mem_limit: "2g"  # Memory limit for task (2 GB)
+# text_detection:
+#   name: "Text Detection"  # Name of challenge
+#   description: "Detect if text is ai generated"  # Brief description of what challenge does
+#   challenge_incentive_weight: 0.2  # Weight for incentive distribution based on challenge difficulty or importance
+#   target: redteam_core.challenge_pool.text_detection.Controller  # Path to the target controller handling the challenge
+#   challenge_solve_timeout: 5  # Timeout (in seconds) for solving challenge
+#   docker_run_timeout: 300  # Timeout (in seconds) for running Docker container during challenge
+#   resource_limits:
+#     num_cpus: 4  # Number of CPUs allocated for challenge
+#     mem_limit: "2g"  # Memory limit for task (2 GB)
 
 response_quality_adversarial:
   name: "Response Quality Adversarial"
   description: "Trick the classifier into rating your response higher, even with limited prompt information" 
-  challenge_incentive_weight: 0.4
+  challenge_incentive_weight: 0.5
   target: redteam_core.challenge_pool.response_quality_adversarial.Controller
   challenge_solve_timeout: 10
   docker_run_timeout: 600
@@ -32,7 +32,7 @@ response_quality_adversarial:
 response_quality_ranker:
   name: "Response Quality Ranker"
   description: "Rank generated responses based on their quality"
-  challenge_incentive_weight: 0.4
+  challenge_incentive_weight: 0.5
   target: redteam_core.challenge_pool.response_quality_ranker.Controller
   challenge_solve_timeout: 10
   docker_run_timeout: 600
