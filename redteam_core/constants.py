@@ -61,10 +61,14 @@ class Constants(BaseModel):
     # Query settings
     QUERY_TIMEOUT: int = Field(default=30, description="Timeout for queries in seconds.")
 
-    # Storage settings
+    # Centralized API settings
     STORAGE_URL: AnyUrl = Field(
-        default="http://20.127.163.85:9949",
+        default="http://storage.redteam.technology/storage",
         description="URL for storing miners' work"
+    )
+    REWARDING_URL: AnyUrl = Field(
+        default="http://storage.redteam.technology/rewarding",
+        description="URL for rewarding miners"
     )
 
     class Config:
