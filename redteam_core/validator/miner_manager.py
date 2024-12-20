@@ -1,12 +1,11 @@
-from pydantic import BaseModel
-from cryptography.fernet import Fernet
 import datetime
 import numpy as np
 import pandas as pd
+
 from typing import List, Dict, Optional, Union
-from ..constants import (
-    constants,
-)
+from pydantic import BaseModel
+from cryptography.fernet import Fernet
+from ..constants import constants
 
 
 class MinerCommit(BaseModel):
@@ -64,7 +63,11 @@ class MinerManager:
         self.uids_to_commits: Dict[int, MinerCommit] = {}
         self.challenge_records: Dict[str, ChallengeRecord] = {}
         self.challenge_incentive_weight = challenge_incentive_weight
-        
+    
+    def update_uid_to_commit(self, uids: List[int], commits: List[MinerCommit]) -> None:
+        for uid, commit in zip(uids, commits):
+            self.uids_to_commits[uid] = commit  
+
     def update_scores(self, logs: List[ScoringLog]) -> None:
         """
         Updates the scores for miners based on new logs.
@@ -88,8 +91,8 @@ class MinerManager:
 
         logs_df = pd.DataFrame([log.model_dump() for log in logs])
 
-        # Group by uid and sum the scores
-        scores = logs_df.groupby("uid")["score"].sum().sort_values(ascending=False)
+        # Group by uid and mean the scores
+        scores = logs_df.groupby("uid")["score"].mean().sort_values(ascending=False)
 
         best_uid = scores.index[0]
         best_score = scores.iloc[0]
@@ -100,8 +103,8 @@ class MinerManager:
                 score=best_score,
                 date=today,
                 docker_hub_id=self.uids_to_commits.get(
-                    best_uid, MinerCommit(encrypted_commit="", timestamp=0)
-                ).docker_hub_id,
+                    best_uid
+                ),
                 point=point,
                 uid=best_uid,
             )

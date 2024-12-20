@@ -24,8 +24,8 @@ pip install -e .
 
 2. Specify docker submissions for challenges at `neurons/miner/active_commit.yaml`:
 ```yaml
-- challenge_name_1---docker_hub_id_1
-- challenge_name_2---docker_hub_id_2
+- challenge_name_1---docker_hub_id_1@<sha256:digest>
+- challenge_name_2---docker_hub_id_2<sha256:digest>
 ```
 
 3. Start the miner node:
@@ -36,7 +36,7 @@ pm2 start python --name "miner_snxxx" \
 --wallet.name "wallet_name" \
 --wallet.hotkey "wallet_hotkey" \
 --axon.port "axon_port" \
---subtensor.network finney
+--subtensor.network <network> \ # default is finney
 ```
 Optional flags:
 - `--logging.trace` - Enable trace logging

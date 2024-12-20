@@ -1,10 +1,13 @@
 from typing import List, Dict
 import docker
+import docker.types
 import requests
 import bittensor as bt
 from ..constants import constants
 import time
-
+import subprocess
+import copy
+import re
 
 class Controller:
     """
@@ -29,7 +32,7 @@ class Controller:
         self.uids = uids
         self.challenge_info = challenge_info
         self.resource_limits = challenge_info["resource_limits"]
-        
+        self.local_network = "redteam_local"
 
     def _clear_all_container(self):
         """
@@ -55,6 +58,10 @@ class Controller:
         self._clear_all_container()
         self._build_challenge_image()
         self._remove_challenge_container()
+        self._create_network(self.local_network)
+
+        
+
         container = self._run_challenge_container()
         bt.logging.info(f"[Controller] Challenge container started: {container.status}")
         while not self._check_alive(port=constants.CHALLENGE_DOCKER_PORT):
@@ -67,21 +74,28 @@ class Controller:
         ]
         logs = []
         for miner_docker_image, uid in zip(self.miner_docker_images, self.uids):
+            is_image_valid = self._validate_image_with_digest(miner_docker_image)
+            if not is_image_valid:
+                continue
             bt.logging.info(f"[Controller] Running miner {uid}: {miner_docker_image}")
-            self._clear_miner_container_by_image(miner_docker_image)
+            self._clear_miner_container_by_port()
 
             docker_run_start_time = time.time()
+            kwargs = {}
+            if self.resource_limits.get("cuda_device_ids") is not None:
+                kwargs["device_requests"] = [docker.types.DeviceRequest(device_ids=self.resource_limits["cuda_device_ids"], capabilities=[['gpu']])]
             miner_container = self.docker_client.containers.run(
                 miner_docker_image,
                 detach=True,
                 cpu_count=self.resource_limits.get("num_cpus", 2),
                 mem_limit=self.resource_limits.get("mem_limit", "1g"),
-                environment={"CHALLENGE_NAME": self.challenge_name},
+                environment={"CHALLENGE_NAME": self.challenge_name, **self.challenge_info.get("enviroment", {})},
                 ports={
                     f"{constants.MINER_DOCKER_PORT}/tcp": constants.MINER_DOCKER_PORT
                 },
+                network=self.local_network,
+                **kwargs           
             )
-            
             while not self._check_alive(port=constants.MINER_DOCKER_PORT) and time.time() - docker_run_start_time < self.challenge_info.get("docker_run_timeout", 600):
                 bt.logging.info(
                     f"[Controller] Waiting for miner container to start. {miner_container.status}"
@@ -99,26 +113,25 @@ class Controller:
                         "uid": uid,
                     }
                 )
+            self._clear_miner_container_by_port()
         self._remove_challenge_container()
         return logs
 
-    def _clear_miner_container_by_image(self, miner_docker_image):
+    def _clear_miner_container_by_port(self):
         """
-        Stops and removes all running Docker containers for the miner Docker image.
+        Stops and removes all running Docker containers by running port.
         This is useful for cleaning up the environment before starting a new challenge.
-
-        Args:
-            miner_docker_image: The Docker image for the miner to be removed.
         """
         containers = self.docker_client.containers.list(all=True)
 
         for container in containers:
-            tags = container.image.tags
-            tags = [t.split(":")[0] for t in tags]
-            if miner_docker_image in tags:
-                res = container.remove(force=True)
-                bt.logging.info(res)
-
+            try:
+                container_ports = container.attrs['NetworkSettings']['Ports']
+                if any([str(constants.MINER_DOCKER_PORT) in port for port in container_ports]):
+                    res = container.remove(force=True)
+                    bt.logging.info(f"Removed container {container.name}: {res}")
+            except Exception as e:
+                bt.logging.error(f"Error while processing container {container.name}: {e}")
     def _build_challenge_image(self):
         """
         Builds the Docker image for the challenge using the provided challenge name.
@@ -177,13 +190,15 @@ class Controller:
             A dictionary representing the miner's output.
         """
 
+        miner_input = copy.deepcopy(challenge)
+        exclude_miner_input_key = self.challenge_info.get("exclude_miner_input_key", [])
+        for key in exclude_miner_input_key:
+            miner_input[key] = None
         try:
             response = requests.post(
                 f"http://localhost:{constants.MINER_DOCKER_PORT}/solve",
                 timeout=self.challenge_info.get("challenge_solve_timeout", 60),
-                json={
-                    "miner_input": challenge,
-                }
+                json=miner_input,
             )
             return response.json()
         except Exception as ex:
@@ -227,13 +242,60 @@ class Controller:
         Returns:
             A float representing the score for the miner's solution.
         """
-        payload = {
-            "miner_input": miner_input,
-            "miner_output": miner_output,
-        }
-        bt.logging.debug(f"[Controller] Scoring payload: {str(payload)[:100]}...")
-        response = requests.post(
-            f"http://localhost:{constants.CHALLENGE_DOCKER_PORT}/score",
-            json=payload,
-        )
-        return response.json()
+        try:
+            payload = {
+                "miner_input": miner_input,
+                "miner_output": miner_output,
+            }
+            bt.logging.debug(f"[Controller] Scoring payload: {str(payload)[:100]}...")
+            response = requests.post(
+                f"http://localhost:{constants.CHALLENGE_DOCKER_PORT}/score",
+                json=payload,
+            )
+            return response.json()
+        except Exception as ex:
+            bt.logging.error(f"Score challenge failed: {str(ex)}")
+            return 0
+    def _create_network(self, network_name):
+        try:
+            networks = self.docker_client.networks.list(names=[network_name])
+            if not networks:
+                network = self.docker_client.networks.create(
+                    name=self.local_network,
+                    driver="bridge",
+                )
+                bt.logging.info(f"Network '{network_name}' created successfully.")
+            else:
+                bt.logging.info(f"Network '{network_name}' already exists.")
+                network = self.docker_client.networks.get(network_name)
+
+
+            network_info = self.docker_client.api.inspect_network(network.id)
+            subnet = network_info['IPAM']['Config'][0]['Subnet']
+            iptables_commands = [
+                # Block forwarded traffic to the internet
+                ["iptables", "-I", "FORWARD", "-s", subnet, "!", "-d", subnet, "-j", "DROP"],
+                # Prevent NAT to the internet
+                ["iptables", "-t", "nat", "-I", "POSTROUTING", "-s", subnet, "-j", "RETURN"]
+            ]
+            
+            for cmd in iptables_commands:
+                try:
+                    # Try with sudo
+                    subprocess.run(["sudo"] + cmd, check=True)
+                except subprocess.CalledProcessError:
+                    # If running with sudo fails, try without sudo
+                    subprocess.run(cmd, check=True)
+
+        except docker.errors.APIError as e:
+            bt.logging.error(f"Failed to create network: {e}")
+            
+    
+    def _validate_image_with_digest(self, image):
+        """Validate that the provided Docker image includes a SHA256 digest."""
+        digest_pattern = r".+@sha256:[a-fA-F0-9]{64}$"  # Regex for SHA256 digest format
+        if not re.match(digest_pattern, image):
+            bt.logging.error(f"Invalid image format: {image}. Must include a SHA256 digest. Skip evaluation!")
+            return False
+        return True
+ 

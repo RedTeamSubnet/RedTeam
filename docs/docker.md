@@ -76,6 +76,17 @@
 3. **Push the Docker Image to Docker Hub**
    - Push the tagged image to Docker Hub:
      ```
+     docker inspect --format='{{index .RepoDigests 0}}' <dockerhub_username>/<repository_name>:<tag>
+     ```
+
+     Example:
+     ```
+     docker inspect --format='{{index .RepoDigests 0}}' redteam/challenge_name:0.0.1
+     ```
+
+4. **Retrieve the SHA256 Digest**
+   - After pushing the image, retrieve the digest by running:
+     ```
      docker push <dockerhub_username>/<repository_name>:<tag>
      ```
 
@@ -84,16 +95,9 @@
      docker push redteam/challenge_name:0.0.1
      ```
 
-
-4. **Verify the Image on Docker Hub**
+5. **Verify the Image on Docker Hub**
    - Log in to Docker Hub and navigate to your repository to ensure the image has been successfully uploaded.
 
 ### Notes:
 - Ensure your `<repository_name>` already exists on Docker Hub or create it before pushing the image.
 - Use descriptive tags to manage different versions of your Docker images effectively.
-
-### Common Commands Recap:
-- Build the image: `docker build -t challenge_name:0.0.1 .`
-- Tag the image: `docker tag challenge_name:0.0.1 redteam/challenge_name:0.0.1`
-- Push the image: `docker push redteam/challenge_name:0.0.1`
-- Log in to Docker: `docker login`

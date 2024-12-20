@@ -5,7 +5,8 @@ import time
 import json
 import yaml
 import os
-
+import copy
+import pickle
 
 class Miner(BaseMiner):
     def __init__(self):
@@ -20,7 +21,9 @@ class Miner(BaseMiner):
                 self.synapse_commit.add_encrypted_commit(commit)
         bt.logging.info(f"Synapse commit: {self.synapse_commit}")
         self.synapse_commit.reveal_if_ready()
-        return self.synapse_commit
+        self._save_synapse_commit()
+        synapse_response = self.synapse_commit._hide_secret_info()
+        return synapse_response 
 
     def blacklist(self, synapse: Commit) -> Tuple[bool, str]:
         hotkey = synapse.dendrite.hotkey
@@ -31,23 +34,24 @@ class Miner(BaseMiner):
         return False, "Passed"
 
     def _load_synapse_commit(self) -> Commit:
-        commit_file = self.config.neuron.fullpath + "/commit.json"
+        commit_file = self.config.neuron.fullpath + "/commit.pkl"
         if not os.path.exists(commit_file):
             return Commit()
-        commit = json.load(open(commit_file))
-        commit = Commit(**commit)
+        with open(commit_file, 'rb') as f:
+            commit = pickle.load(f)
         return commit
 
     def _save_synapse_commit(self):
-        commit_file = self.config.neuron.fullpath + "/commit.json"
-        json.dump(self.synapse_commit, open(commit_file, "w"))
+        commit_file = self.config.neuron.fullpath + "/commit.pkl"
+        with open(commit_file, 'wb') as f:
+            pickle.dump(self.synapse_commit, f)
 
     def _load_active_commit(self) -> list:
         commit_file = "neurons/miner/active_commit.yaml"
         commit = yaml.load(open(commit_file), yaml.FullLoader)
         return commit
 
-
+    
 if __name__ == "__main__":
     with Miner() as miner:
         while True:

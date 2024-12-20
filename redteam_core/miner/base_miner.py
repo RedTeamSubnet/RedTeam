@@ -1,4 +1,5 @@
 import bittensor as bt
+import time
 from typing import Tuple
 import threading
 from abc import ABC, abstractmethod
@@ -54,6 +55,7 @@ class BaseMiner(ABC):
     def run(self):
         # Check that miner is registered on the network.
         self.metagraph.sync(subtensor=self.subtensor)
+        last_sync = time.time()
 
         # Serve passes the axon information to the network + netuid we are hosting on.
         # This will auto-update if the axon port of external ip have changed.
@@ -64,6 +66,28 @@ class BaseMiner(ABC):
 
         # Start  starts the miner's axon, making it active on the network.
         self.axon.start()
+
+
+        while True:
+            RESYNC_INTERVAL = 600 # resync every 10 minutes
+            SLEEP_TIME = 30
+
+            try:
+                if time.time() - last_sync > RESYNC_INTERVAL:
+                    bt.logging.info("Resyncing metagraph...")
+                    self.metagraph.sync(subtensor=self.subtensor)
+                    bt.logging.info(f"Resynced metagraph Block: {self.metagraph.block.item()}")
+                    last_sync = time.time()
+                time.sleep(SLEEP_TIME)
+
+            except KeyboardInterrupt:
+                self.axon.stop()
+                bt.logging.success("Miner killed by keyboard interrupt.")
+                break
+            except Exception as e:
+                bt.logging.error(f"Miner exception: {e}")
+
+
 
     def run_in_background_thread(self):
         """

@@ -1,10 +1,45 @@
-text_detection:
-  name: "Text Detection"  # Name of challenge
-  description: "Detect if text is ai generated"  # Brief description of what challenge does
-  challenge_incentive_weight: 1.0  # Weight for incentive distribution based on challenge difficulty or importance
-  target: redteam_core.challenge_pool.text_detection.Controller  # Path to the target controller handling the challenge
-  challenge_solve_timeout: 5  # Timeout (in seconds) for solving challenge
-  docker_run_timeout: 300  # Timeout (in seconds) for running Docker container during challenge
+# text_detection:
+#   name: "Text Detection"  # Name of challenge
+#   description: "Detect if text is ai generated"  # Brief description of what challenge does
+#   challenge_incentive_weight: 0.2  # Weight for incentive distribution based on challenge difficulty or importance
+#   target: redteam_core.challenge_pool.text_detection.Controller  # Path to the target controller handling the challenge
+#   challenge_solve_timeout: 5  # Timeout (in seconds) for solving challenge
+#   docker_run_timeout: 300  # Timeout (in seconds) for running Docker container during challenge
+#   resource_limits:
+#     num_cpus: 4  # Number of CPUs allocated for challenge
+#     mem_limit: "2g"  # Memory limit for task (2 GB)
+
+response_quality_adversarial:
+  name: "Response Quality Adversarial"
+  description: "Trick the classifier into rating your response higher, even with limited prompt information" 
+  challenge_incentive_weight: 0.5
+  target: redteam_core.challenge_pool.response_quality_adversarial.Controller
+  challenge_solve_timeout: 10
+  docker_run_timeout: 600
   resource_limits:
-    num_cpus: 4  # Number of CPUs allocated for challenge
-    mem_limit: "2g"  # Memory limit for task (2 GB)
+    num_cpus: 4
+    mem_limit: "20g"
+    cuda_device_ids: ["0"]   # Use CUDA devices
+  enviroment:
+    TF_FORCE_GPU_ALLOW_GROWTH": "true"  # Allow memory to grow as needed
+    CUDA_DEVICE_ORDER": "PCI_BUS_ID"    # Ensure consistent device ordering
+    NVIDIA_VISIBLE_DEVICES": "all"      # Set to "all" or restrict devices
+    NVIDIA_MEMORY_LIMIT_MB": "20480"    # Limit GPU memory usage to 4GB (optional)
+  exclude_miner_input_key: # Hidden from miner; only visible to validator for evaluation purposes
+    - original_prompt
+
+
+response_quality_ranker:
+  name: "Response Quality Ranker"
+  description: "Rank generated responses based on their quality"
+  challenge_incentive_weight: 0.5
+  target: redteam_core.challenge_pool.response_quality_ranker.Controller
+  challenge_solve_timeout: 10
+  docker_run_timeout: 600
+  resource_limits:
+    num_cpus: 4
+    mem_limit: "10g"
+  exclude_miner_input_key: # Hidden from miner; only visible to validator for evaluation purposes
+    - groundtruth_ranking
+
+    

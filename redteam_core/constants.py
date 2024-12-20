@@ -1,7 +1,8 @@
 import os
 from datetime import datetime, timedelta
-from typing import Optional
-from pydantic import BaseModel, Field, field_validator, model_validator
+
+from pydantic import BaseModel, Field, field_validator, model_validator, AnyUrl
+
 from .common import generate_constants_docs
 
 
@@ -58,7 +59,17 @@ class Constants(BaseModel):
     )
 
     # Query settings
-    QUERY_TIMEOUT: int = Field(default=4, description="Timeout for queries in seconds.")
+    QUERY_TIMEOUT: int = Field(default=30, description="Timeout for queries in seconds.")
+
+    # Centralized API settings
+    STORAGE_URL: AnyUrl = Field(
+        default="http://storage.redteam.technology/storage",
+        description="URL for storing miners' work"
+    )
+    REWARDING_URL: AnyUrl = Field(
+        default="http://storage.redteam.technology/rewarding",
+        description="URL for rewarding miners"
+    )
 
     class Config:
         validate_assignment = True
