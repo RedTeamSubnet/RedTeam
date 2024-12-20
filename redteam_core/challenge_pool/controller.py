@@ -55,7 +55,7 @@ class Controller:
             - miner_scores: A dictionary mapping each miner Docker image to their scores.
             - logs: A dictionary of logs for each miner, detailing the input, output, and score.
         """
-        self._clear_all_container()
+        # self._clear_all_container()
         self._build_challenge_image()
         self._remove_challenge_container()
         self._create_network(self.local_network)
