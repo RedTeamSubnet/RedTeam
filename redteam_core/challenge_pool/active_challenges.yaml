@@ -19,15 +19,14 @@ response_quality_adversarial:
   resource_limits:
     num_cpus: 4
     mem_limit: "20g"
-    cuda_device_ids: ["0"]   # Use CUDA devices
+    cuda_device_ids: ["0"] # Use CUDA devices
   enviroment:
-    TF_FORCE_GPU_ALLOW_GROWTH": "true"  # Allow memory to grow as needed
-    CUDA_DEVICE_ORDER": "PCI_BUS_ID"    # Ensure consistent device ordering
-    NVIDIA_VISIBLE_DEVICES": "all"      # Set to "all" or restrict devices
-    NVIDIA_MEMORY_LIMIT_MB": "20480"    # Limit GPU memory usage to 4GB (optional)
+    TF_FORCE_GPU_ALLOW_GROWTH": "true" # Allow memory to grow as needed
+    CUDA_DEVICE_ORDER": "PCI_BUS_ID" # Ensure consistent device ordering
+    NVIDIA_VISIBLE_DEVICES": "all" # Set to "all" or restrict devices
+    NVIDIA_MEMORY_LIMIT_MB": "20480" # Limit GPU memory usage to 4GB (optional)
   exclude_miner_input_key: # Hidden from miner; only visible to validator for evaluation purposes
     - original_prompt
-
 
 response_quality_ranker:
   name: "Response Quality Ranker"
@@ -42,4 +41,25 @@ response_quality_ranker:
   exclude_miner_input_key: # Hidden from miner; only visible to validator for evaluation purposes
     - groundtruth_ranking
 
-    
+# webui_auto:
+#   name: "Web User Interface Automation"
+#   description: "Detect automated UI interactions by analyzing behavioral patterns"
+#   challenge_incentive_weight: 0.0
+#   target: redteam_core.challenge_pool.webui_auto.Controller
+#   challenge_solve_timeout: 45
+#   docker_run_timeout: 600
+#   hostname: "webui_auto"
+#   protocols:
+#     challenger: "https"
+#     challenger_ssl_verify: false
+#     miner: "http"
+#     miner_ssl_verify: false
+#   same_network: true
+#   allowed_destinations:
+#     - webui_auto
+#   resource_limits:
+#     num_cpus: 4
+#     mem_limit: "8g"
+#   environment:
+#     ENV: "PRODUCTION"
+#     WUC_WEB_URL: "https://webui_auto:10001/web"
