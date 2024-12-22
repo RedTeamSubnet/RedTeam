@@ -55,7 +55,7 @@ class Constants(BaseModel):
         default=3600, description="Length of an epoch in seconds."
     )
     MIN_VALIDATOR_STAKE: int = Field(
-        default=1_000_000, description="Minimum validator stake required."
+        default=10_000, description="Minimum validator stake required."
     )
 
     # Query settings

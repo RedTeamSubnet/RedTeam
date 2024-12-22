@@ -90,11 +90,14 @@ class RewardApp:
                     continue
                 if challenge_name not in docker_images_by_challenge:
                     docker_images_by_challenge[challenge_name] = []
-                if "docker_hub_id" in commit_data:
-                    docker_hub_id = commit_data["docker_hub_id"]
-                else:
-                    docker_hub_id = commit_data["commit"].split("---")[1]
-                docker_images_by_challenge[challenge_name].append(docker_hub_id)
+                try:
+                    if "docker_hub_id" in commit_data:
+                        docker_hub_id = commit_data["docker_hub_id"]
+                    else:
+                        docker_hub_id = commit_data["commit"].split("---")[1]
+                    docker_images_by_challenge[challenge_name].append(docker_hub_id)
+                except Exception as e:
+                    print(f"[ERROR] Error getting docker hub id: {e}")                
         return docker_images_by_challenge
 
     def fetch_miner_submit(self, validator_ss58_address: str):

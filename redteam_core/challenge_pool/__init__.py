@@ -1,8 +1,10 @@
 import yaml
 import importlib
+import os
 
+ACTIVE_CHALLENGES_FILE = os.getenv("ACTIVE_CHALLENGES_FILE", "redteam_core/challenge_pool/active_challenges.yaml")
 CHALLENGE_CONFIGS = yaml.load(
-    open("redteam_core/challenge_pool/active_challenges.yaml"), yaml.FullLoader
+    open(ACTIVE_CHALLENGES_FILE), yaml.FullLoader
 )
 
 print(CHALLENGE_CONFIGS)
