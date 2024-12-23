@@ -48,11 +48,10 @@ class Validator(BaseValidator):
         )
         commit_thread.start()
 
-        self.miner_submit = {}
+        self.miner_submit = self._init_miner_submit_from_cache()
         self.scoring_dates: list[str] = []
 
     def forward(self):
-        self.miner_submit = self._init_miner_submit_from_cache()
         self.update_miner_commit(self.active_challenges)
         bt.logging.success(f"[FORWARD] Miner submit: {self.miner_submit}")
         revealed_commits = self.get_revealed_commits()
