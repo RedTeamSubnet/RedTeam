@@ -214,6 +214,9 @@ class Validator(BaseValidator):
                         "log": {}
                     }
 
+                elif keys.get(challenge_name):
+                    this_miner_submit[challenge_name]["key"] = keys.get(challenge_name)
+
                 # Reveal commit if the interval has passed
                 commit_timestamp = this_miner_submit[challenge_name]["commit_timestamp"]
                 encrypted_commit = this_miner_submit[challenge_name]["encrypted_commit"]
