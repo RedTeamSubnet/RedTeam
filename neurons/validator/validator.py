@@ -48,7 +48,7 @@ class Validator(BaseValidator):
         )
         commit_thread.start()
 
-        self.miner_submit = {}
+        self.miner_submit = self._init_miner_submit_from_cache()
         self.scoring_dates: list[str] = []
 
     def forward(self):
@@ -67,7 +67,28 @@ class Validator(BaseValidator):
             self.forward_centralized_scoring(revealed_commits)
         else:
             self.forward_local_scoring(revealed_commits)
-        
+    
+    def _init_miner_submit_from_cache(self):
+        miner_submit = {}
+        for challenge_name, cache in self.storage_manager.local_caches.items():
+            for key in cache:
+                submission = cache[key]
+                miner_uid = submission["miner_uid"]
+                challenge_name = submission["challenge_name"]
+                current_submission = miner_submit.setdefault(miner_uid, {}).get(challenge_name)
+                if current_submission:
+                    current_commit_timestamp = current_submission["commit_timestamp"]
+                    # Update submission if it is newer and  encrypted commit is different
+                    if current_commit_timestamp < submission["commit_timestamp"] and current_submission["encrypted_commit"] != submission["encrypted_commit"]:
+                        miner_submit[miner_uid][challenge_name] = submission
+                    # Update submission if it is older and encrypted commit is the same
+                    elif current_commit_timestamp > submission["commit_timestamp"] and current_submission["encrypted_commit"] == submission["encrypted_commit"]:
+                        miner_submit[miner_uid][challenge_name] = submission
+                else:
+                    miner_submit[miner_uid][challenge_name] = submission
+
+        return miner_submit
+
     def forward_centralized_scoring(self, revealed_commits: dict[str, tuple[list[str], list[int]]]): 
         """
         Forward pass for centralized scoring.
@@ -179,6 +200,7 @@ class Validator(BaseValidator):
 
             for challenge_name, encrypted_commit in encrypted_commit_dockers.items():
                 if challenge_name not in active_challenges:
+                    this_miner_submit.pop(challenge_name, None)
                     continue
                 # Update miner commit data if it's new
                 if encrypted_commit != this_miner_submit.get(challenge_name, {}).get(
@@ -191,6 +213,9 @@ class Validator(BaseValidator):
                         "commit": "",
                         "log": {}
                     }
+
+                elif keys.get(challenge_name):
+                    this_miner_submit[challenge_name]["key"] = keys.get(challenge_name)
 
                 # Reveal commit if the interval has passed
                 commit_timestamp = this_miner_submit[challenge_name]["commit_timestamp"]

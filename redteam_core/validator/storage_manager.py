@@ -145,8 +145,7 @@ class StorageManager:
             
             if not os.path.isdir(challenge_folder_path):
                 continue
-            # For each challenge, iterate over the date folders in reverse order
-            for date_str in reversed(date_strings):
+            for date_str in date_strings:
                 date_folder_path = os.path.join(challenge_folder_path, date_str)
 
                 if not os.path.isdir(date_folder_path):

@@ -85,7 +85,7 @@ class Controller:
             if not is_image_valid:
                 continue
             bt.logging.info(f"[Controller] Running miner {uid}: {miner_docker_image}")
-            self._clear_miner_container_by_port()
+            self._clear_container_by_port(constants.MINER_DOCKER_PORT)
 
             docker_run_start_time = time.time()
             kwargs = {}
@@ -136,11 +136,11 @@ class Controller:
                         "uid": uid,
                     }
                 )
-            self._clear_miner_container_by_port()
+            self._clear_container_by_port(constants.MINER_DOCKER_PORT)
         self._remove_challenge_container()
         return logs
 
-    def _clear_miner_container_by_port(self):
+    def _clear_container_by_port(self, port):
         """
         Stops and removes all running Docker containers by running port.
         This is useful for cleaning up the environment before starting a new challenge.
@@ -150,7 +150,7 @@ class Controller:
         for container in containers:
             try:
                 container_ports = container.attrs['NetworkSettings']['Ports']
-                if any([str(constants.MINER_DOCKER_PORT) in port for port in container_ports]):
+                if any([str(port) in p for p in container_ports]):
                     res = container.remove(force=True)
                     bt.logging.info(f"Removed container {container.name}: {res}")
             except Exception as e:
@@ -210,6 +210,8 @@ class Controller:
                 res = container.remove(force=True)
                 bt.logging.info(res)
 
+        self._clear_container_by_port(constants.CHALLENGE_DOCKER_PORT)
+        
     def _submit_challenge_to_miner(self, challenge) -> dict:
         """
         Sends the challenge input to a miner by making an HTTP POST request to a local endpoint.
