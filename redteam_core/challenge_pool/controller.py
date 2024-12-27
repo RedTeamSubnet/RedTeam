@@ -69,11 +69,10 @@ class Controller:
 
         container = self._run_challenge_container()
         bt.logging.info(f"[Controller] Challenge container started: {container.status}")
-        while not self._check_alive(
-            port=constants.CHALLENGE_DOCKER_PORT, is_challenger=True
-        ):
-            bt.logging.info("[Controller] Waiting for challenge container to start.")
-            time.sleep(1)
+        self._check_container_alive(
+            container, health_port=constants.CHALLENGE_DOCKER_PORT,
+            is_challenger=True
+        )
 
         challenges = [
             self._get_challenge_from_container()
@@ -81,63 +80,75 @@ class Controller:
         ]
         logs = []
         for miner_docker_image, uid in zip(self.miner_docker_images, self.uids):
-            is_image_valid = self._validate_image_with_digest(miner_docker_image)
-            if not is_image_valid:
-                continue
-            bt.logging.info(f"[Controller] Running miner {uid}: {miner_docker_image}")
-            self._clear_container_by_port(constants.MINER_DOCKER_PORT)
+            try:    
+                is_image_valid = self._validate_image_with_digest(miner_docker_image)
+                if not is_image_valid:
+                    continue
+                bt.logging.info(f"[Controller] Running miner {uid}: {miner_docker_image}")
+                self._clear_container_by_port(constants.MINER_DOCKER_PORT)
 
-            docker_run_start_time = time.time()
-            kwargs = {}
-            if self.resource_limits.get("cuda_device_ids") is not None:
-                kwargs["device_requests"] = [
-                    docker.types.DeviceRequest(
-                        device_ids=self.resource_limits["cuda_device_ids"],
-                        capabilities=[["gpu"]],
+                kwargs = {}
+                if self.resource_limits.get("cuda_device_ids") is not None:
+                    kwargs["device_requests"] = [
+                        docker.types.DeviceRequest(
+                            device_ids=self.resource_limits["cuda_device_ids"],
+                            capabilities=[["gpu"]],
+                        )
+                    ]
+                miner_container = self.docker_client.containers.run(
+                    miner_docker_image,
+                    detach=True,
+                    cpu_count=self.resource_limits.get("num_cpus", 2),
+                    mem_limit=self.resource_limits.get("mem_limit", "1g"),
+                    environment={
+                        "CHALLENGE_NAME": self.challenge_name,
+                        **self.challenge_info.get("enviroment", {}),
+                    },
+                    ports={
+                        f"{constants.MINER_DOCKER_PORT}/tcp": constants.MINER_DOCKER_PORT
+                    },
+                    network=self.local_network,
+                    **kwargs,
+                )
+
+                self._check_container_alive(
+                    miner_container, 
+                    health_port=constants.MINER_DOCKER_PORT, 
+                    is_challenger=False,
+                    timeout=self.challenge_info.get("docker_run_timeout", 600)
+                )
+
+                for miner_input in challenges:
+                    miner_output = self._submit_challenge_to_miner(miner_input)
+                    score = (
+                        self._score_challenge(miner_input, miner_output)
+                        if miner_output is not None
+                        else 0
                     )
-                ]
-            miner_container = self.docker_client.containers.run(
-                miner_docker_image,
-                detach=True,
-                cpu_count=self.resource_limits.get("num_cpus", 2),
-                mem_limit=self.resource_limits.get("mem_limit", "1g"),
-                environment={
-                    "CHALLENGE_NAME": self.challenge_name,
-                    **self.challenge_info.get("enviroment", {}),
-                },
-                ports={
-                    f"{constants.MINER_DOCKER_PORT}/tcp": constants.MINER_DOCKER_PORT
-                },
-                network=self.local_network,
-                **kwargs,
-            )
-            while not self._check_alive(
-                port=constants.MINER_DOCKER_PORT, is_challenger=False
-            ) and time.time() - docker_run_start_time < self.challenge_info.get(
-                "docker_run_timeout", 600
-            ):
-                bt.logging.info(
-                    f"[Controller] Waiting for miner container to start. {miner_container.status}"
-                )
-                time.sleep(1)
-            for miner_input in challenges:
-                miner_output = self._submit_challenge_to_miner(miner_input)
-                score = (
-                    self._score_challenge(miner_input, miner_output)
-                    if miner_output is not None
-                    else 0
-                )
+                    logs.append(
+                        {
+                            "miner_input": miner_input,
+                            "miner_output": miner_output,
+                            "score": score,
+                            "miner_docker_image": miner_docker_image,
+                            "uid": uid,
+                        }
+                    )
+            except Exception as e:
+                bt.logging.error(f"Error while processing miner {uid}: {e}")
                 logs.append(
                     {
-                        "miner_input": miner_input,
-                        "miner_output": miner_output,
-                        "score": score,
+                        "miner_input": None,
+                        "miner_output": None,
+                        "score": 0,
                         "miner_docker_image": miner_docker_image,
                         "uid": uid,
+                        "error": str(e),
                     }
                 )
             self._clear_container_by_port(constants.MINER_DOCKER_PORT)
         self._remove_challenge_container()
+        self._clean_up_docker_resources()
         return logs
 
     def _clear_container_by_port(self, port):
@@ -404,3 +415,51 @@ class Controller:
                     _ssl_verify = _protocols["miner_ssl_verify"]
 
         return _protocol, _ssl_verify
+
+    def _clean_up_docker_resources(self, remove_containers: bool = True, remove_images: bool = True):
+        """Clean up docker resources by removing all exited or dead containers, dangling images, and unused networks."""
+        try:
+            if remove_containers:
+                # Delete all containers that have exited or dead
+                bt.logging.info("Removing stopped containers...")
+                for container in self.docker_client.containers.list(all=True):
+                    if container.status in ["exited", "dead"]:
+                        print(f"Removing container {container.name} ({container.id})...")
+                        container.remove(force=True)
+
+            if remove_images:
+                # Delete all dangling images
+                bt.logging.info("Removing dangling images...")
+                for image in self.docker_client.images.list(filters={"dangling": True}):
+                    bt.logging.info(f"Removing image {image.id}...")
+                    self.docker_client.images.remove(image.id, force=True, noprune=False)
+
+            # Delete unused resources (volumes, build cache)
+            bt.logging.info("Pruning unused resources (volumes, build cache)...")
+            self.docker_client.api.prune_builds()
+            self.docker_client.volumes.prune()
+            self.docker_client.networks.prune()
+
+            bt.logging.info("Docker resources cleaned up successfully.")
+        except Exception as e:
+            bt.logging.error(f"An error occurred while cleaning up docker resources: {e}")
+
+    def _check_container_alive(self, container: docker.models.containers.Container, health_port, is_challenger=True, timeout=None):
+        """Check when the container is running successfully"""
+        start_time = time.time() 
+        while not self._check_alive(
+            port=health_port, is_challenger=is_challenger
+        ) and ( 
+            not timeout or time.time() - start_time < timeout
+        ):
+            container.reload()
+            if container.status in ["exited", "dead"]:
+                container_logs = container.logs().decode("utf-8", errors="ignore")
+                bt.logging.error(f"[Controller] Container {container} failed with status: {container.status}")
+                bt.logging.error(f"[Controller] Container logs:\n{container_logs}")
+                raise RuntimeError(f"Container failed to start. Status: {container.status}. Container logs: {container_logs}")
+            else:
+                bt.logging.info(
+                    f"[Controller] Waiting for  container to start. {container.status}"
+                )
+                time.sleep(5)

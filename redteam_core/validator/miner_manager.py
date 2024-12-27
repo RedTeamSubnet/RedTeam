@@ -49,8 +49,8 @@ class ChallengeRecord(BaseModel):
 class ScoringLog(BaseModel):
     uid: int
     score: float
-    miner_input: dict
-    miner_output: Union[dict, None]
+    miner_input: Optional[dict]
+    miner_output: Optional[dict]
     miner_docker_image: str
 
 
@@ -112,7 +112,10 @@ class MinerManager:
         else:
             # Handle if no score improvement
             self.challenge_records[today] = ChallengeRecord(
-                score=prev_day_record.score, date=today
+                score=prev_day_record.score, 
+                date=today, 
+                docker_hub_id=prev_day_record.docker_hub_id, 
+                uid=prev_day_record.uid
             )
 
     def get_onchain_scores(self, n_uids: int) -> np.ndarray:

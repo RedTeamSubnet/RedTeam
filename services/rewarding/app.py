@@ -4,6 +4,7 @@ from redteam_core import (
     challenge_pool,
     constants,
 )
+from cryptography.fernet import Fernet
 import requests
 import argparse
 import threading
@@ -93,6 +94,10 @@ class RewardApp:
                 try:
                     if "docker_hub_id" in commit_data:
                         docker_hub_id = commit_data["docker_hub_id"]
+                    elif not commit_data.get("commit") and commit_data.get("key"):
+                        f = Fernet(commit_data["key"])
+                        commit = f.decrypt(commit_data["encrypted_commit"]).decode()
+                        docker_hub_id = commit.split("---")[1]
                     else:
                         docker_hub_id = commit_data["commit"].split("---")[1]
                     docker_images_by_challenge[challenge_name].append(docker_hub_id)
