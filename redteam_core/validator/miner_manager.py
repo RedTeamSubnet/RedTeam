@@ -114,8 +114,8 @@ class MinerManager:
             self.challenge_records[today] = ChallengeRecord(
                 score=prev_day_record.score, 
                 date=today, 
-                docker_hub_id=prev_day_record.docker_hub_id, 
-                uid=prev_day_record.uid
+                # docker_hub_id=prev_day_record.docker_hub_id, 
+                # uid=prev_day_record.uid
             )
 
     def get_onchain_scores(self, n_uids: int) -> np.ndarray:
