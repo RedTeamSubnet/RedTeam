@@ -30,7 +30,7 @@ class Constants(BaseModel):
 
     # Challenge settings
     N_CHALLENGES_PER_EPOCH: int = Field(
-        default=10, description="Number of challenges per epoch."
+        default=100, description="Number of challenges per epoch."
     )
     SCORING_HOUR: int = Field(
         default=14, description="Hour of the day when scoring occurs (0-23)."
@@ -131,6 +131,7 @@ class Constants(BaseModel):
         return point * decay_factor
 
     def is_commit_on_time(self, commit_timestamp: float) -> bool:
+        return True
         """
         Validator do scoring every day at SCORING_HOUR.
         So the commit time should be submitted before the previous day's SCORING_HOUR.

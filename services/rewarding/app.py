@@ -38,8 +38,6 @@ class RewardApp:
 
         self.app = FastAPI()
         self.app.add_api_route("/get_scoring_logs", self.get_scoring_logs, methods=["GET"])
-        
-        
 
     def reward_submission(self):
         """Background thread to reward submission.
@@ -94,7 +92,7 @@ class RewardApp:
                 try:
                     if "docker_hub_id" in commit_data:
                         docker_hub_id = commit_data["docker_hub_id"]
-                    elif not commit_data.get("commit") and commit_data.get("key"):
+                    elif not commit_data.get("commit") and commit_data.get("key") and time.time() - commit_data["commit_timestamp"] > 24 * 60 * 60:
                         f = Fernet(commit_data["key"])
                         commit = f.decrypt(commit_data["encrypted_commit"]).decode()
                         docker_hub_id = commit.split("---")[1]
