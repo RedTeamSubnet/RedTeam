@@ -4,6 +4,11 @@ FROM python:3.10-slim
 # Set the working directory inside the container
 WORKDIR /app
 
+# Set the environment variable
+ENV VLLM_URL="http://storage.redteam.technology/v1"  
+ENV API_KEY="your-api-key"
+ENV VLLM_MODEL="unsloth/Meta-Llama-3.1-8B-Instruct"
+
 # Copy the requirements file into the container
 COPY requirements.txt .
 
