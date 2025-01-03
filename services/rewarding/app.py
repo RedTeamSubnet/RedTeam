@@ -115,8 +115,8 @@ class RewardApp:
             if response.status_code == 200:
                 data = response.json()
                 
-                for address, challenges in data['miner_submit'].items():
-                    if address  in self.metagraph.hotkeys:
+                for address, challenges in data["miner_submit"].items():
+                    if address in self.metagraph.hotkeys:
                         uid = self.metagraph.hotkeys.index(address)
                     else:
                         # Skip if miner hotkey no longer in metagraph
@@ -156,6 +156,7 @@ class RewardApp:
         except Exception as e:
             print(f"[ERROR] Error fetching submission scoring logs from storage: {e}")
             return {}
+        
     def save_submission_scoring_logs(self):
         endpoint = constants.STORAGE_URL + "/upload-centralized-score"
         try:
@@ -174,6 +175,7 @@ class RewardApp:
         except Exception as e:
             print(f"[ERROR] Error saving submission scoring logs to storage: {e}")
         return True
+    
     def get_scoring_logs(self, challenge_name: str):
         return {
             "submission_scoring_logs": self.submission_scoring_logs.get(challenge_name, {}),

@@ -1,6 +1,6 @@
 import pytest
 
-from datetime import datetime, timedelta
+import datetime
 from redteam_core.validator.miner_manager import MinerManager, ScoringLog, ChallengeRecord
 
 @pytest.fixture
@@ -19,14 +19,14 @@ def test_update_scores(miner_manager):
         ScoringLog(uid=2, score=20.0, miner_input={}, miner_output=None, miner_docker_image="image2"),
     ]
     miner_manager.update_scores(logs)
-    today = datetime.now().strftime("%Y-%m-%d")
+    today = datetime.datetime.now(datetime.UTC).strftime("%Y-%m-%d")
     assert today in miner_manager.challenge_records
     assert miner_manager.challenge_records[today].score == 20.0
     assert miner_manager.challenge_records[today].uid == 2
 
 def test_get_onchain_scores(miner_manager):
-    today = datetime.now().strftime("%Y-%m-%d")
-    yesterday = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
+    today = datetime.datetime.now(datetime.UTC).strftime("%Y-%m-%d")
+    yesterday = (datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
     miner_manager.challenge_records[today] = ChallengeRecord(point=100, score=100, date=today, uid=1)
     miner_manager.challenge_records[yesterday] = ChallengeRecord(point=50, score=50, date=yesterday, uid=2)
 
