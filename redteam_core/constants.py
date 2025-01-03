@@ -1,5 +1,5 @@
 import os
-from datetime import datetime, timedelta
+import datetime
 
 from pydantic import BaseModel, Field, field_validator, model_validator, AnyUrl
 
@@ -131,15 +131,14 @@ class Constants(BaseModel):
         return point * decay_factor
 
     def is_commit_on_time(self, commit_timestamp: float) -> bool:
-        return True
         """
         Validator do scoring every day at SCORING_HOUR.
         So the commit time should be submitted before the previous day's SCORING_HOUR.
         """
-        today_closed_time = datetime.now().replace(
+        today_closed_time = datetime.datetime.now(datetime.UTC).replace(
             hour=self.SCORING_HOUR, minute=0, second=0, microsecond=0
         )
-        previous_day_closed_time = today_closed_time - timedelta(days=1)
+        previous_day_closed_time = today_closed_time - datetime.timedelta(days=1)
         return commit_timestamp < previous_day_closed_time.timestamp()
 
 

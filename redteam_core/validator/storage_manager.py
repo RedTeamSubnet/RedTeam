@@ -7,13 +7,14 @@ import hashlib
 from shutil import rmtree
 from queue import Queue, Empty
 from collections import defaultdict
-from datetime import datetime, timedelta
+import datetime
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import bittensor as bt
 from diskcache import Cache
 from huggingface_hub import HfApi
 
+from .. import challenge_pool
 from ..constants import constants
 
 
@@ -27,6 +28,7 @@ class StorageManager:
             hf_repo_id (str): ID of the Hugging Face Hub repository.
             sync_on_init (bool): Whether to sync data from the Hub to the local cache during initialization.
         """
+        self.active_challenges = challenge_pool.ACTIVE_CHALLENGES
 
         # Decentralized storage on Hugging Face Hub
         self.hf_repo_id = hf_repo_id
@@ -36,85 +38,25 @@ class StorageManager:
 
         # Local cache with disk cache
         self.cache_dir = cache_dir
-        self.cache_ttl = int(timedelta(days=14).total_seconds()) # TTL set equal to a decaying period
+        self.cache_ttl = int(datetime.timedelta(days=14).total_seconds()) # TTL set equal to a decaying period
         self.local_caches: dict[Cache] = {}
+
+        # Centralized storage URLs
         self.centralized_submission_storage_url = constants.STORAGE_URL + "/upload-submission"
         self.centralized_challenge_records_storage_url = constants.STORAGE_URL + "/upload-challenge-records"
         self.centralized_repo_id_storage_url = constants.STORAGE_URL + "/upload-hf-repo-id"
+
         # Queue and background thread for async updates
         self.storage_queue = Queue()
         self.storage_thread = threading.Thread(target=self._process_storage_queue, daemon=True)
         self.storage_thread.start()
 
-        # Start periodic cache-to-hub synchronization
-        self.sync_thread = threading.Thread(
-            target=self._sync_cache_to_hub_periodically,
-            kwargs={"interval": 3600},
-            daemon=True
-        )
-        self.sync_thread.start()
-
         os.makedirs(self.cache_dir, exist_ok=True)
-
         # Sync data from Hugging Face Hub to local cache if required
         if sync_on_init:
             self.sync_hub_to_cache()
 
-    def _validate_hf_repo(self):
-        """
-        Validates the Hugging Face repository:
-        - Ensures the token has write permissions.
-        - Confirms the repository exists and meets required attributes.
-        - Creates a public repository if it does not exist.
-        """
-        # Step 1: Ensure token has write permissions
-        permission = self.hf_api.get_token_permission()
-        if permission != "write":
-            raise PermissionError(f"Token does not have sufficient permissions for repository {self.hf_repo_id}. Current permission: {permission}.")
-        bt.logging.info("Token has write permissions.")
-
-        # Step 2: Check accessible namespaces (users/orgs)
-        user_info = self.hf_api.whoami()
-        allowed_namespaces = {user_info["name"]} | {org["name"] for org in user_info["orgs"] if org["roleInOrg"] == "write"}
-        repo_namespace, _ = self.hf_repo_id.split("/")
-        if repo_namespace not in allowed_namespaces:
-            raise PermissionError(f"Token does not grant write access to the namespace '{repo_namespace}'. Accessible namespaces: {allowed_namespaces}.")
-        bt.logging.info(f"Namespace '{repo_namespace}' is accessible with write permissions.")
-
-        # Step 3: Validate or create the repository
-        try:
-            repo_info = self.hf_api.repo_info(repo_id=self.hf_repo_id)
-            if repo_info.private:
-                raise ValueError(f"Repository '{self.hf_repo_id}' is private but must be public.")
-            bt.logging.info(f"Repository '{self.hf_repo_id}' exists and is public.")
-        except requests.exceptions.HTTPError as e:
-            if e.response.status_code == 404:  # Repo does not exist
-                bt.logging.warning(f"Repository '{self.hf_repo_id}' does not exist. Attempting to create it.")
-                try:
-                    self.hf_api.create_repo(repo_id=self.hf_repo_id, private=False, exist_ok=True)
-                    bt.logging.info(f"Repository '{self.hf_repo_id}' has been successfully created.")
-                except Exception as create_err:
-                    raise RuntimeError(f"Failed to create repository '{self.hf_repo_id}': {create_err}")
-            else:
-                raise RuntimeError(f"Error validating repository '{self.hf_repo_id}': {e}")
-
-    def _get_cache(self, challenge_name: str) -> Cache:
-        """
-        Returns the diskcache instance for a specific challenge, with a expiration policy.
-
-        Args:
-            challenge_name (str): The name of the challenge.
-
-        Returns:
-            Cache: The cache instance.
-        """
-        if challenge_name not in self.local_caches:
-            challenge_cache_path = os.path.join(self.cache_dir, challenge_name)
-            cache = Cache(challenge_cache_path, eviction_policy="none")
-            cache.expire = self.cache_ttl
-            self.local_caches[challenge_name] = cache
-        return self.local_caches[challenge_name]
-
+    # MARK: Sync Methods
     def sync_hub_to_cache(self, erase_local_cache=True):
         """
         Syncs data from Hugging Face Hub to the local cache.
@@ -129,7 +71,7 @@ class StorageManager:
             os.makedirs(self.cache_dir, exist_ok=True)
 
         # Get the list of the last 14 days' date strings in the format 'YYYY-MM-DD' and create allow patterns
-        date_strings = [(datetime.now() - timedelta(days=i)).strftime("%Y-%m-%d") for i in range(14)]
+        date_strings = [(datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=i)).strftime("%Y-%m-%d") for i in range(14)]
         allow_patterns = [f"*{date_str}/*" for date_str in date_strings]
         # Download the snapshot
         repo_snapshot_path = self._snapshot_repo(erase_cache=False, allow_patterns=allow_patterns)
@@ -187,7 +129,7 @@ class StorageManager:
         bt.logging.warning("This operation may alter the Hub repository significantly!")
 
         # Take a snapshot of the Hugging Face Hub repository
-        today = datetime.now().strftime("%Y-%m-%d")
+        today = datetime.datetime.now(datetime.UTC).strftime("%Y-%m-%d")
         repo_snapshot_path = self._snapshot_repo(erase_cache=False, allow_patterns=[f"*{today}/*"])
 
         # Step 1: Build a set of records already in the Hub
@@ -264,6 +206,229 @@ class StorageManager:
             except Exception as e:
                 bt.logging.error(f"Error during periodic cache sync: {e}")
 
+    # MARK: Update Methods
+    def update_record(self, data: dict, async_update=True, retry_config=None):
+        """
+        Updates or inserts a submission record across all storages with independent retries.
+
+        Args:
+            data (dict): The record data. Must include "encrypted_commit" and "challenge_name".
+            async_update (bool): Whether to process the update asynchronously.
+            retry_config (dict, optional): Retry configuration for each storage type.
+        """
+        # Validate required fields
+        required_fields = ["miner_ss58_address", "encrypted_commit", "challenge_name"]
+        if not all(field in data for field in required_fields):
+            bt.logging.error(f"Data must include all required fields: {required_fields} in update_record()")
+            return
+
+        if async_update:
+            self.storage_queue.put(data)
+            bt.logging.info(f"Record with encrypted_commit={data["encrypted_commit"]} queued for storage.")
+            return
+        
+        # Process the record immediately
+        if retry_config is None:
+            retry_config = {"local": 3, "centralized": 5, "decentralized": 5}
+
+        challenge_name = data["challenge_name"]
+        hashed_cache_key = self.hash_cache_key(data["encrypted_commit"])
+        cache_data = self._sanitize_data_for_storage(data=data)
+        
+        # Track success for all storage operations
+        success = True
+        errors = []
+
+        # Step 1: Local Cache with retry
+        def local_operation():
+            cache = self._get_cache(challenge_name)
+            cache[hashed_cache_key] = cache_data
+
+        local_success, error = self._retry_operation(local_operation, retry_config["local"], "Local cache update")
+        if not local_success:
+            success = False
+            errors.append(error)
+
+        # Step 2: Centralized Storage with retry
+        def centralized_operation():
+            response = requests.post(
+                self.centralized_submission_storage_url,
+                json=data,
+                timeout=20
+            )
+            response.raise_for_status()
+
+        central_success, error = self._retry_operation(centralized_operation, retry_config["centralized"], "Centralized storage update")
+        if not central_success:
+            success = False
+            errors.append(error)
+
+        # Step 3: HuggingFace Hub with retry
+        today = datetime.datetime.now(datetime.UTC).strftime("%Y-%m-%d")
+        hf_filepath = f"{challenge_name}/{today}/{hashed_cache_key}.json"
+
+        def decentralized_operation():
+            self.hf_api.upload_file(
+                path_or_fileobj=json.dumps(cache_data, indent=4).encode("utf-8"),
+                path_in_repo=hf_filepath,
+                repo_id=self.hf_repo_id,
+                commit_message=f"Update submission record {hashed_cache_key}"
+            )
+
+        hf_success, error = self._retry_operation(decentralized_operation, retry_config["decentralized"], "Decentralized storage update")
+        if not hf_success:
+            success = False
+            errors.append(error)
+
+        # Final Logging
+        if success:
+            bt.logging.success(f"Record successfully updated across all storages: {hashed_cache_key}")
+        else:
+            bt.logging.error(f"Failed to update record {hashed_cache_key}. Errors: {errors}")
+
+    def update_challenge_record(self, data: dict, async_update=True, retry_config=None):
+        """
+        Updates challenge records across all storages with independent retries.
+        
+        Args:
+            data (dict): The challenge records data.
+            async_update (bool): Whether to process the update asynchronously.
+            retry_config (dict, optional): Retry configuration for each storage type.
+        """
+        # Validate required fields
+        required_fields = ["challenge_name", "date"]
+        if not all(field in data for field in required_fields):
+            bt.logging.error(f"Data must include all required fields: {required_fields} in update_challenge_record()")
+            return
+        
+        if async_update:
+            self.storage_queue.put(data)
+            return
+
+        # Process the record immediately
+        if retry_config is None:
+            retry_config = {"local": 3, "centralized": 5, "decentralized": 5}
+
+        # Track success for all storage operations
+        success = True
+        errors = []
+
+        # Step 1: Local Cache with retry
+        def local_operation():
+            challenge_cache = self._get_cache("_challenge_records")
+            cache_key = f"{data["challenge_name"]}---{data["date"]}" # TODO: MAYBE RECONSIDER THIS KEY
+            challenge_cache[cache_key] = data
+
+        local_success, error = self._retry_operation(local_operation, retry_config["local"], "Local cache update")
+        if not local_success:
+            success = False
+            errors.append(error)
+
+        # Step 2: Centralized Storage with retry
+        def centralized_operation():
+            response = requests.post(
+                self.centralized_challenge_records_storage_url,
+                json=data,
+                timeout=20
+            )
+            response.raise_for_status()
+
+        central_success, error = self._retry_operation(centralized_operation, retry_config["centralized"], "Centralized storage update")
+        if not central_success:
+            success = False
+            errors.append(error)
+
+        # Step 3: HuggingFace Hub with retry
+        def decentralized_operation():
+            hf_filepath = f"_challenge_records/{data["challenge_name"]}/{data["date"]}.json"
+            self.hf_api.upload_file(
+                path_or_fileobj=json.dumps(data, indent=4).encode("utf-8"),
+                path_in_repo=hf_filepath,
+                repo_id=self.hf_repo_id,
+                commit_message=f"Update challenge record {data["challenge_name"]} for {data["date"]}"
+            )
+
+        hf_success, error = self._retry_operation(decentralized_operation, retry_config["decentralized"], "Decentralized storage update")
+        if not hf_success:
+            success = False
+            errors.append(error)
+
+        # Final Logging
+        if success:
+            bt.logging.success(f"Challenge records successfully updated across all storages for validator {data["validator_uid"]}")
+        else:
+            bt.logging.error(f"Failed to update challenge records. Errors: {errors}")
+
+    def update_batch(self, records: list[dict], update_method: str = "update_record", async_update=True):
+        """
+        Processes a batch of records efficiently across all storages.
+
+        Args:
+            records (list[dict]): A list of record data dictionaries.
+            process_method (str): The method to use for processing each record ("update_record" or "update_challenge_record")
+            async_update (bool): Whether to process the batch asynchronously.
+        """
+        if async_update:
+            # Enqueue the entire batch along with the processing method
+            self.storage_queue.put((records, update_method))
+            bt.logging.info(f"Batch of size {len(records)} queued for storage using {update_method}")
+            return
+        
+        # Get the appropriate processing method
+        processor = getattr(self, update_method)
+        
+        # Process each record synchronously
+        with ThreadPoolExecutor(max_workers=5) as executor:
+            executor.map(lambda record: processor(record, async_update=False), records)
+
+    def update_repo_id(self, data: dict):
+        """ 
+        Updates repository ID to the centralized storage. 
+        """
+        try:
+            response = requests.post(
+                self.centralized_repo_id_storage_url,
+                json=data, 
+                timeout=20,
+            )
+            response.raise_for_status()
+            bt.logging.info(f"Successfully updated repo_id in centralized storage")
+        except Exception as e:
+            bt.logging.error(f"Error updating repo_id to centralized storage: {e}")
+            raise
+
+    # def _update_centralized_storage(self, data: dict, url: str):
+    #     """
+    #     Generic method to update data in centralized storage.
+        
+    #     Args:
+    #         data (dict): Data to update
+    #         url (str): URL endpoint to send data to
+    #     """
+    #     try:
+    #         response = requests.post(
+    #             url,
+    #             json=data, 
+    #             timeout=20,
+    #         )
+    #         response.raise_for_status()
+    #     except requests.RequestException as e:
+    #         bt.logging.error(f"Centralized storage update {url} failed: {e}")
+
+    # def update_challenge_records(self, data: dict):
+    #     """Updates the challenge records in the centralized storage."""
+    #     self._update_centralized_storage(
+    #         data,
+    #         self.centralized_challenge_records_storage_url,
+    #     )
+
+    # MARK: Helper Methods
+    def hash_cache_key(self, cache_key: str) -> str:
+        """
+        Hashes the cache key using SHA-256 to avoid Filename too long error.
+        """
+        return hashlib.sha256(cache_key.encode()).hexdigest()
+    
     def _snapshot_repo(self, erase_cache: bool, allow_patterns=None, ignore_patterns=None) -> str:
         """
         Creates a snapshot of the Hugging Face Hub repository in a temporary cache directory.
@@ -280,125 +445,82 @@ class StorageManager:
             ignore_patterns=ignore_patterns
         )
     
-    def update_batch(self, challenge_name: str, records: list[dict]):
+    def _validate_hf_repo(self):
         """
-        Processes a batch of records, ensuring updates across all storages.
+        Validates the Hugging Face repository:
+        - Ensures the token has write permissions.
+        - Confirms the repository exists and meets required attributes.
+        - Creates a public repository if it does not exist.
+        """
+        # Step 1: Ensure token has write permissions
+        permission = self.hf_api.get_token_permission()
+        if permission != "write":
+            raise PermissionError(f"Token does not have sufficient permissions for repository {self.hf_repo_id}. Current permission: {permission}.")
+        bt.logging.info("Token has write permissions.")
+
+        # Step 2: Check accessible namespaces (users/orgs)
+        user_info = self.hf_api.whoami()
+        allowed_namespaces = {user_info["name"]} | {org["name"] for org in user_info["orgs"] if org["roleInOrg"] == "write"}
+        repo_namespace, _ = self.hf_repo_id.split("/")
+        if repo_namespace not in allowed_namespaces:
+            raise PermissionError(f"Token does not grant write access to the namespace '{repo_namespace}'. Accessible namespaces: {allowed_namespaces}.")
+        bt.logging.info(f"Namespace '{repo_namespace}' is accessible with write permissions.")
+
+        # Step 3: Validate or create the repository
+        try:
+            repo_info = self.hf_api.repo_info(repo_id=self.hf_repo_id)
+            if repo_info.private:
+                raise ValueError(f"Repository '{self.hf_repo_id}' is private but must be public.")
+            bt.logging.info(f"Repository '{self.hf_repo_id}' exists and is public.")
+        except requests.exceptions.HTTPError as e:
+            if e.response.status_code == 404:  # Repo does not exist
+                bt.logging.warning(f"Repository '{self.hf_repo_id}' does not exist. Attempting to create it.")
+                try:
+                    self.hf_api.create_repo(repo_id=self.hf_repo_id, private=False, exist_ok=True)
+                    bt.logging.info(f"Repository '{self.hf_repo_id}' has been successfully created.")
+                except Exception as create_err:
+                    raise RuntimeError(f"Failed to create repository '{self.hf_repo_id}': {create_err}")
+            else:
+                raise RuntimeError(f"Error validating repository '{self.hf_repo_id}': {e}")
+
+    def _get_cache(self, cache_name: str) -> Cache:
+        """
+        Returns the diskcache instance for a specific name.
+        Sets TTL only for challenge caches, no expiration for other caches.
 
         Args:
-            challenge_name (str): The challenge name.
-            records (list[dict]): A list of record data dictionaries.
+            cache_name (str): The name of the cache (e.g., challenge name, "_challenge_records", "_repo_ids")
+
+        Returns:
+            Cache: The cache instance
         """
-        for record in records:
-            try:
-                self.update_record(challenge_name, record)
-            except ValueError as e:
-                bt.logging.error(f"Invalid record skipped: {e}")
-
-    def update_record(self, data: dict, async_update=True):
-        """
-        Updates or inserts a record across all storages: centralized, local, and decentralized.
-
-        Args:
-            data (dict): The record data. Must include "encrypted_commit" and "challenge_name".
-            async_update (bool): Whether to process the update asynchronously.
-        """
-        # Validate required fields in data
-        if "encrypted_commit" not in data:
-            bt.logging.error("Data must include 'encrypted_commit' as a unique identifier.")
-            return
-        if "challenge_name" not in data:
-            bt.logging.error("Data must include 'challenge_name'.")
-            return
-
-        if async_update:
-            # Enqueue the task for the background thread
-            self.storage_queue.put(data)
-            bt.logging.info(f"Record with encrypted_commit={data['encrypted_commit']} queued for storage.")
-            return
-
-        # Process the record immediately
-        challenge_name = data["challenge_name"]
-        hashed_encrypted_commit = self.hash_encrypted_commit(data["encrypted_commit"])
-
-        # Track success for all storage operations
-        success = True
-        errors = []
-
-        cache_data = self._sanitize_data_for_storage(data=data)
-        # Step 1: Upsert in Local Cache
-        try:
-            cache = self._get_cache(challenge_name)
-            cache[hashed_encrypted_commit] = cache_data
-        except Exception as e:
-            success = False
-            errors.append(f"Local cache update failed: {e}")
-
-        # Step 2: Upsert in Centralized Storage
-        try:
-            response = requests.post(
-                self.centralized_submission_storage_url,
-                json=data,
-                timeout=20,
-            )
-            response.raise_for_status()
-        except requests.RequestException as e:
-            success = False
-            errors.append(f"Centralized storage update failed: {e}")
-
-        # Step 3: Sync to Decentralized Storage (Hugging Face Hub)
-        today = datetime.now().strftime("%Y-%m-%d")
-        try:
-            filepath = f"{challenge_name}/{today}/{hashed_encrypted_commit}.json"
-            self.hf_api.upload_file(
-                path_or_fileobj=json.dumps(cache_data, indent=4).encode("utf-8"),
-                path_in_repo=filepath,
-                repo_id=self.hf_repo_id,
-            )
-        except KeyError:
-            success = False
-            errors.append(f"Record with key {hashed_encrypted_commit} not found in local cache for decentralized sync.")
-        except Exception as e:
-            success = False
-            errors.append(f"Decentralized storage sync failed: {e}")
-
-        # Final Logging
-        if success:
-            bt.logging.success(f"Record successfully updated across all storages: {hashed_encrypted_commit}")
-        else:
-            bt.logging.error(f"Failed to update record {hashed_encrypted_commit} across all storages. Errors: {errors}")
-
-    def update_batch(self, records: list[dict], async_update=True):
-        """
-        Processes a batch of records efficiently across all storages.
-
-        Args:
-            records (list[dict]): A list of record data dictionaries.
-            async_update (bool): Whether to process the batch asynchronously.
-        """
-        if async_update:
-            # Enqueue the entire batch for the background thread
-            self.storage_queue.put(records)
-            bt.logging.info(f"Batch of size {len(records)} queued for storage.")
-            return
-        
-        # Process each record synchronously
-        with ThreadPoolExecutor(max_workers=5) as executor:
-            executor.map(lambda record: self.update_record(record, async_update=False), records)
-
+        if cache_name not in self.local_caches:
+            cache_path = os.path.join(self.cache_dir, cache_name)
+            cache = Cache(cache_path, eviction_policy="none")
+            
+            # Set TTL only if it's an active challenge
+            if cache_name in self.active_challenges:
+                cache.expire = self.cache_ttl
+                
+            self.local_caches[cache_name] = cache
+        return self.local_caches[cache_name]
+    
     def _process_storage_queue(self):
         """
         Background thread function to process storage tasks from the queue.
-        Handles both single records and batches.
+        Handles both single records and batches with their processing methods.
         """
         while True:
             try:
                 data = self.storage_queue.get(timeout=1)  # Wait for a task
-                if isinstance(data, list):
-                    self.update_batch(data, async_update=False)
+                
+                if isinstance(data, tuple) and isinstance(data[0], list):  # Batch update with method
+                    records, process_method = data
+                    self.update_batch(records, process_method=process_method, async_update=False)
                 elif isinstance(data, dict):
                     self.update_record(data, async_update=False)
                 else:
-                    bt.logging.warning("Unknown submission type in storage queue.")
+                    bt.logging.warning(f"Unknown submission type in storage queue: {type(data)} with data: {data}")
                 self.storage_queue.task_done()
             except Empty:
                 pass  # No tasks in the queue, keep looping
@@ -406,13 +528,13 @@ class StorageManager:
 
     def _sanitize_data_for_storage(self, data: dict) -> dict:
         """
-        Sanitizes the data by removing the 'log' field and filtering sensitive information 
-        (e.g., 'miner_input' and 'miner_output') from the nested 'log' dictionaries.
+        Sanitizes the data by removing the "log" field and filtering sensitive information 
+        (e.g., "miner_input" and "miner_output") from the nested "log" dictionaries.
         """
         # Create a deep copy of the data to avoid modifying the original in-place
         cache_data = data.copy()
         
-        # Remove the 'log' field and sanitize the nested 'log' dictionaries
+        # Remove the "log" field and sanitize the nested "log" dictionaries
         cache_data.pop("log", None)
         if "log" in data:
             cache_data["log"] = {
@@ -422,41 +544,33 @@ class StorageManager:
             }
             
         return cache_data
-
-    def _update_centralized_storage(self, data: dict, url: str):
+    
+    def _retry_operation(self, operation, max_retries: int, operation_name: str) -> tuple[bool, str]:
         """
-        Generic method to update data in centralized storage.
-        
+        Helper method to retry operations with exponential backoff.
+
         Args:
-            data (dict): Data to update
-            url (str): URL endpoint to send data to
-        """
-        try:
-            response = requests.post(
-                url,
-                json=data, 
-                timeout=20,
-            )
-            response.raise_for_status()
-        except requests.RequestException as e:
-            bt.logging.error(f"Centralized storage update {url} failed: {e}")
+            operation (callable): Function to retry
+            max_retries (int): Maximum number of retry attempts
+            operation_name (str): Name of operation for logging
 
-    def update_challenge_records(self, data: dict):
-        """Updates the challenge records in the centralized storage."""
-        self._update_centralized_storage(
-            data,
-            self.centralized_challenge_records_storage_url,
-        )
-
-    def update_repo_id(self, data: dict):
-        """Updates the repository ID in the centralized storage."""
-        self._update_centralized_storage(
-            data,
-            self.centralized_repo_id_storage_url,
-        )
-
-    def hash_encrypted_commit(self, encrypted_commit: str) -> str:
+        Returns:
+            tuple[bool, str]: (success status, error message if any)
+                - First element is True if operation succeeded, False otherwise
+                - Second element is empty string on success, error message on failure
         """
-        Hashes the encrypted commit using SHA-256 to avoid Filename too long error.
-        """
-        return hashlib.sha256(encrypted_commit.encode()).hexdigest()
+        last_error = None
+        for attempt in range(max_retries):
+            try:
+                operation()
+                return True, ""
+            except Exception as e:
+                last_error = str(e)
+                if attempt == max_retries - 1:
+                    break
+                wait_time = min(2 ** attempt, 32)  # Exponential backoff, max 8 seconds
+                bt.logging.warning(f"{operation_name} attempt {attempt + 1} failed, retrying in {wait_time}s: {last_error}")
+                time.sleep(wait_time)
+        
+        error_msg = f"{operation_name} failed after {max_retries} attempts. Last error: {last_error}"
+        return False, error_msg
