@@ -99,7 +99,7 @@ class Validator(BaseValidator):
         bt.logging.info(f"[FORWARD CENTRALIZED SCORING] Saving Revealed commits to storage ...")
         self.store_miner_commit()
         
-        today = datetime.datetime.now()
+        today = datetime.datetime.utcnow()
         today_key = today.strftime("%Y-%m-%d")
         current_hour = today.hour
         validate_scoring_hour = current_hour >= constants.SCORING_HOUR
@@ -143,7 +143,7 @@ class Validator(BaseValidator):
         3. Runs challenges and updates scores.
         4. Store the commits.
         """
-        today = datetime.datetime.now()
+        today = datetime.datetime.utcnow()
         current_hour = today.hour
         today_key = today.strftime("%Y-%m-%d")
         validate_scoring_hour = current_hour >= constants.SCORING_HOUR
