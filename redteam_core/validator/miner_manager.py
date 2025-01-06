@@ -50,8 +50,8 @@ class ChallengeRecord(BaseModel):
 class ScoringLog(BaseModel):
     uid: int
     score: float
-    miner_input: Optional[dict]
-    miner_output: Optional[dict]
+    miner_input: Optional[dict] = None
+    miner_output: Optional[dict] = None
     miner_docker_image: str
     error: Optional[str] = None
 
