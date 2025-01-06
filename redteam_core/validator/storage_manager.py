@@ -61,6 +61,7 @@ class StorageManager:
         """
         Syncs data from Hugging Face Hub to the local cache.
         This method will fetch data from the last 14 days from the Hugging Face Hub and build the cache accordingly.
+        Note: This method only syncs submission records (active challenges), not challenge records.
 
         Args:
             erase_local_cache (bool): Whether to erase the local cache before syncing.
@@ -83,6 +84,10 @@ class StorageManager:
         # Build a temporary dict
         all_records = defaultdict(dict)
         for challenge_name in os.listdir(repo_snapshot_path):
+            # Skip non-active challenges and non challenge submissions
+            if challenge_name not in self.active_challenges:
+                continue
+
             challenge_folder_path = os.path.join(repo_snapshot_path, challenge_name)
             
             if not os.path.isdir(challenge_folder_path):
@@ -113,6 +118,7 @@ class StorageManager:
     def sync_cache_to_hub(self):
         """
         Syncs the local cache to the Hugging Face Hub in batches using `run_as_future`.
+        Note: This method only syncs submission records (active challenges).
 
         This method ensures:
         1. Records found in the local cache are added to the Hub if not present.
@@ -157,6 +163,10 @@ class StorageManager:
         # Step 2: Compare the local cache with the Hub and prepare updates
         upload_futures = []
         for challenge_name, cache in self.local_caches.items():
+            # Skip non-active challenges and non challenge submissions
+            if challenge_name not in self.active_challenges:
+                continue
+            
             for key in cache.iterkeys():
                 value = cache[key]
                 filepath = f"{challenge_name}/{today}/{key}.json"
@@ -528,18 +538,19 @@ class StorageManager:
 
     def _sanitize_data_for_storage(self, data: dict) -> dict:
         """
-        Sanitizes the data by removing the "log" field and filtering sensitive information 
-        (e.g., "miner_input" and "miner_output") from the nested "log" dictionaries.
+        Sanitizes the data by replacing sensitive information in logs with placeholder values
+        while maintaining the required schema structure.
         """
         # Create a deep copy of the data to avoid modifying the original in-place
         cache_data = data.copy()
         
-        # Remove the "log" field and sanitize the nested "log" dictionaries
-        cache_data.pop("log", None)
+        # Sanitize the nested 'log' dictionaries with placeholder values
         if "log" in data:
             cache_data["log"] = {
                 date: [{
-                    key: value for key, value in log_value.items() if key not in ["miner_input", "miner_output"]
+                    **{key: value for key, value in log_value.items() if key not in ["miner_input", "miner_output"]},
+                    **{"miner_input": {} if "miner_input" in log_value else None},  # Only add placeholder if exists
+                    **{"miner_output": {} if "miner_output" in log_value else None}  # Only add placeholder if exists
                 } for log_value in logs_value] for date, logs_value in data["log"].items()
             }
             
