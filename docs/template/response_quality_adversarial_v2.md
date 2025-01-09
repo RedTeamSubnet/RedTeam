@@ -1,8 +1,8 @@
-## Response Quality Adversarial Submission Guide
+## Response Quality Adversarial V2 Submission Guide (Active after Jan 15th 2025 14:00 UTC)
 
 ### Description
 
-The **Response Quality Adversarial** challenge focuses on testing miners' ability to generate responses that can trick a ranking model into misjudging their quality. Miners are provided with a modified question prompt and are tasked to generate responses that appear higher quality to the ranking model than they might actually be, based on the prompt's intent.
+The **Response Quality Adversarial V2** challenge focuses on testing miners' ability to generate responses that can trick a ranking model into misjudging their quality. Miners are provided with a modified question prompt and are tasked to generate responses that appear higher quality to the ranking model than they might actually be, based on the prompt's intent.
 
 This challenge is designed to encourage creativity and strategic thinking in crafting responses, pushing models to identify and exploit weaknesses in ranking systems. It simultaneously helps improve ranking models by identifying potential adversarial strategies.
 
@@ -57,6 +57,6 @@ docker inspect --format='{{index .RepoDigests 0}}' myhub/response_quality_advers
 Finally, go to the `neurons/miner/active_commit.yaml` file and update it with the new image tag:
 
 ```yaml
-- response_quality_adversarial---myhub/response_quality_adversarial@<sha256:digest>
+- response_quality_adversarial_v2---myhub/response_quality_adversarial@<sha256:digest>
 ```
 

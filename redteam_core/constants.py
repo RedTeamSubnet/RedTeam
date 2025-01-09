@@ -1,5 +1,5 @@
 import os
-from datetime import datetime, timedelta
+import datetime
 
 from pydantic import BaseModel, Field, field_validator, model_validator, AnyUrl
 
@@ -59,41 +59,37 @@ class Constants(BaseModel):
     )
 
     # Query settings
-    QUERY_TIMEOUT: int = Field(default=30, description="Timeout for queries in seconds.")
+    QUERY_TIMEOUT: int = Field(
+        default=30, description="Timeout for queries in seconds."
+    )
 
     # Centralized API settings
     STORAGE_URL: AnyUrl = Field(
         default="http://storage.redteam.technology/storage",
-        description="URL for storing miners' work"
+        description="URL for storing miners' work",
     )
     REWARDING_URL: AnyUrl = Field(
         default="http://storage.redteam.technology/rewarding",
-        description="URL for rewarding miners"
+        description="URL for rewarding miners",
     )
 
     class Config:
         validate_assignment = True
 
-    @field_validator("SPEC_VERSION", mode="before")
-    def calculate_spec_version(cls, v, values):
+    @model_validator(mode="before")
+    def calculate_spec_version(cls, values):
         """
         Calculates the specification version as an integer based on the version string.
-
-        Args:
-            v: The current value of spec_version (unused).
-            values: Dictionary of field values.
-
-        Returns:
-            int: The calculated specification version.
         """
         version_str = values.get("VERSION", "0.0.1")
         try:
             major, minor, patch = (int(part) for part in version_str.split("."))
-            return (1000 * major) + (10 * minor) + patch
+            values["SPEC_VERSION"] = (1000 * major) + (10 * minor) + patch
         except ValueError as e:
             raise ValueError(
                 f"Invalid version format '{version_str}'. Expected 'major.minor.patch'."
             ) from e
+        return values
 
     @model_validator(mode="before")
     def adjust_for_testnet(cls, values):
@@ -135,14 +131,14 @@ class Constants(BaseModel):
         Validator do scoring every day at SCORING_HOUR.
         So the commit time should be submitted before the previous day's SCORING_HOUR.
         """
-        today_closed_time = datetime.now().replace(
+        today_closed_time = datetime.datetime.now(datetime.timezone.utc).replace(
             hour=self.SCORING_HOUR, minute=0, second=0, microsecond=0
         )
-        previous_day_closed_time = today_closed_time - timedelta(days=1)
+        previous_day_closed_time = today_closed_time - datetime.timedelta(days=1)
         return commit_timestamp < previous_day_closed_time.timestamp()
 
 
-constants = Constants()
+constants = Constants(VERSION="0.0.2")
 
 
 if __name__ == "__main__":
