@@ -438,7 +438,7 @@ class Validator(BaseValidator):
                     except Exception as e:
                         bt.logging.error(f"[GET CENTRALIZED SCORING LOGS] Get scoring logs for{docker_hub_id} failed: {e}")
             # Determine if scoring is complete by checking if all revealed commits have scores
-            is_scoring_done = len(scored_docker_ids) == len(docker_ids)
+            is_scoring_done = len(scored_docker_ids) == len(set(docker_ids)) or data.get("is_scoring_done", False)
 
         except Exception as e:
             bt.logging.error(f"[GET CENTRALIZED SCORING LOGS] Error getting scoring logs: {e}")

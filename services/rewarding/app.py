@@ -251,8 +251,8 @@ class RewardApp:
                     docker_hub_id = log["docker_hub_id"]
                     if challenge_name not in submission_scoring_logs:
                         submission_scoring_logs[challenge_name] = {}
-                    for log in log["logs"]:
-                        log = self._normalize_log(log)
+                    for l in log["logs"]:
+                        l = self._normalize_log(l)
                     submission_scoring_logs[challenge_name][docker_hub_id] = log["logs"]
 
             else:
