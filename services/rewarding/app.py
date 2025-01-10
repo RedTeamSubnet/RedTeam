@@ -97,6 +97,7 @@ class RewardApp:
         """
         while True:
             self.smooth_transition_challenge()
+            print("Active challenges: ", self.active_challenges.keys())
             self.fetch_miner_submit(validator_ss58_address=None)
             grouped_miner_submit, self.mapping_docker_id_miner_id = self.group_miner_submit_by_challenge(self.miner_submit)
             self.run_challenges(grouped_miner_submit)
@@ -114,31 +115,35 @@ class RewardApp:
             validate_scoring_date = today_key not in self.scoring_dates
             # Validate if scoring is due
             if validate_scoring_hour and validate_scoring_date:
+                bt.logging.info(f"[SCORING] Scoring for {today_key} is due")
                 for challenge_name in self.miner_managers:
                     if self.is_scoring_done.get(challenge_name, False):
                         scoring_logs = []
                         submission_scoring_logs = self.submission_scoring_logs[challenge_name]
                         for docker_hub_id, logs in submission_scoring_logs.items():
                             for log in logs:
-                                scoring_logs.append(
-                                    ScoringLog(
-                                        uid=self.mapping_docker_id_miner_id[docker_hub_id]["uid"], # TODO: Change to log["uid"] in next update
-                                        score=log["score"],
-                                        miner_input=log.get("miner_input"),
-                                        miner_output=log.get("miner_output"),
-                                        miner_docker_image=docker_hub_id,
-                                        error=log.get("error"),
-                                        baseline_score=log.get("baseline_score")
-                                    )
+                                if docker_hub_id in self.mapping_docker_id_miner_id:
+                                    log = self._normalize_log(log)
+                                    scoring_logs.append(
+                                        ScoringLog(
+                                            uid=self.mapping_docker_id_miner_id[docker_hub_id]["uid"], # TODO: Change to log["uid"] in next update
+                                            score=log["score"],
+                                            miner_input=log.get("miner_input"),
+                                            miner_output=log.get("miner_output"),
+                                            miner_docker_image=docker_hub_id,
+                                            error=log.get("error"),
+                                            baseline_score=log.get("baseline_score")
+                                        )
                                 )
                         self.miner_managers[challenge_name].update_scores(scoring_logs)
                         self._store_challenge_records()
                         bt.logging.info(f"[SCORING] Scoring for challenge: {challenge_name} has been completed for {today_key}")
-
+            else:
+                bt.logging.info(f"[SCORING] Scoring for {today_key} is not due")
             if all(self.is_scoring_done.get(challenge_name, False) for challenge_name in self.active_challenges.keys()):
                 bt.logging.info(f"[SCORING] All tasks: Scoring completed for {today_key}")
                 self.scoring_dates.append(today_key)
-            time.sleep(600)
+            time.sleep(100)
 
 
     def run_challenges(self, docker_images_by_challenge: dict):
@@ -162,6 +167,7 @@ class RewardApp:
             )
             logs = controller.start_challenge()
             for log in logs:
+                log = self._normalize_log(log)
                 miner_docker_image = log["miner_docker_image"]
                 if miner_docker_image not in self.submission_scoring_logs[challenge_name]:
                     self.submission_scoring_logs[challenge_name][miner_docker_image] = []
@@ -245,7 +251,10 @@ class RewardApp:
                     docker_hub_id = log["docker_hub_id"]
                     if challenge_name not in submission_scoring_logs:
                         submission_scoring_logs[challenge_name] = {}
+                    for log in log["logs"]:
+                        log = self._normalize_log(log)
                     submission_scoring_logs[challenge_name][docker_hub_id] = log["logs"]
+
             else:
                 print(f"[ERROR] Failed to fetch submission scoring logs from storage: {response.status_code} - {response.text}")
             return submission_scoring_logs
@@ -327,6 +336,12 @@ class RewardApp:
         self.storage_manager.update_challenge_records(data)
         print("[SUCCESS] Challenge records successfully stored to storage.")
 
+    def _normalize_log(self, log: dict):
+        if type(log.get("score")) == int:
+            log["score"] = float(log["score"])
+        elif not type(log.get("score")) == float:
+            log["score"] = 0
+        return log
 
 if __name__ == "__main__":
     bt.logging.enable_info()

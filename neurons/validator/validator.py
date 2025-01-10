@@ -418,23 +418,25 @@ class Validator(BaseValidator):
 
                 # Process scoring logs
                 for docker_hub_id, logs in submission_scoring_logs.items():
-                    if docker_hub_id in mapping_docker_id_miner_id and logs:
-                        miner_uid = mapping_docker_id_miner_id[docker_hub_id]
-                        scored_docker_ids.add(docker_hub_id)
+                    try:
+                        if docker_hub_id in mapping_docker_id_miner_id and logs:
+                            miner_uid = mapping_docker_id_miner_id[docker_hub_id]
+                            scored_docker_ids.add(docker_hub_id)
 
-                        for log in logs:
-                            scoring_logs.append(
-                                ScoringLog(
-                                    uid=miner_uid,
-                                    score=log["score"],
-                                    miner_input=log.get("miner_input"),
-                                    miner_output=log.get("miner_output"),
-                                    miner_docker_image=docker_hub_id,
-                                    error=log.get("error"),
-                                    baseline_score=log.get("baseline_score")
+                            for log in logs:
+                                scoring_logs.append(
+                                    ScoringLog(
+                                        uid=miner_uid,
+                                        score=log["score"],
+                                        miner_input=log.get("miner_input"),
+                                        miner_output=log.get("miner_output"),
+                                        miner_docker_image=docker_hub_id,
+                                        error=log.get("error"),
+                                        baseline_score=log.get("baseline_score")
+                                    )
                                 )
-                            )
-
+                    except Exception as e:
+                        bt.logging.error(f"[GET CENTRALIZED SCORING LOGS] Get scoring logs for{docker_hub_id} failed: {e}")
             # Determine if scoring is complete by checking if all revealed commits have scores
             is_scoring_done = len(scored_docker_ids) == len(docker_ids)
 
