@@ -1,8 +1,8 @@
-# Response Quality Ranker Submission Guide
+# Response Quality Ranker V2 Submission Guide (Active after Jan 15th 2025 14:00 UTC)
 
 ## Description
 
-The **Response Quality Ranker** challenge evaluates miners on their ability to rank multiple responses to a given question based on quality, including relevance, clarity, and detail. Miners must submit models capable of ranking these responses, aligning as closely as possible to the provided ground truth rankings. This challenge is designed to foster advancements in text evaluation and ranking algorithms.
+The **Response Quality Ranker V2** challenge evaluates miners on their ability to rank multiple responses to a given question based on quality, including relevance, clarity, and detail. Miners must submit models capable of ranking these responses, aligning as closely as possible to the provided ground truth rankings. This challenge is designed to foster advancements in text evaluation and ranking algorithms.
 
 ---
 
@@ -54,6 +54,6 @@ docker inspect --format='{{index .RepoDigests 0}}' myhub/response_quality_ranker
 Finally, go to the `neurons/miner/active_commit.yaml` file and update it with the new image tag:
 
 ```yaml
-- response_quality_ranker---myhub/response_quality_ranker@<sha256:digest>
+- response_quality_ranker_v2---myhub/response_quality_ranker@<sha256:digest>
 ```
 

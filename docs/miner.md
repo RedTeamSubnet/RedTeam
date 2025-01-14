@@ -17,9 +17,8 @@ pip install -e .
 
 2. Explore challenges at `redteam_core/challenge_pool/`, build your solution, dockerize it, and push it to Docker Hub. You can view the detailed guide [here](challenge_submission_guide.md). We have some limitations on your solution:
 - The solution must be a Python script.
-- Allowed to use GPU with 24GB VRAM
 - The solution won't be able to access the internet.
-- Total size of the solution must be less than 10GB.
+- Resource limit: see [Active Challenge Config](../redteam_core/challenge_pool/active_challenges.yaml)
 
 
 2. Specify docker submissions for challenges at `neurons/miner/active_commit.yaml`:
