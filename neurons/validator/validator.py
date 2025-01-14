@@ -90,7 +90,9 @@ class Validator(BaseValidator):
         """
         Smooth transition challenge from old to new challenge
         """
-        all_challenges = challenge_pool.ACTIVE_CHALLENGES
+        from copy import deepcopy
+        # avoid mutating the original ACTIVE_CHALLENGES
+        all_challenges = deepcopy(challenge_pool.ACTIVE_CHALLENGES)
         if datetime.datetime.now(datetime.timezone.utc) <= datetime.datetime(2025, 1, 15, 14, 0, 0, 0, datetime.timezone.utc):
             all_challenges.pop("response_quality_adversarial_v2", None)
             all_challenges.pop("response_quality_ranker_v2", None)
