@@ -1,10 +1,11 @@
 # Miner Setup
 
 ## Minimum System Requirements
+
 Below is the minimum system requirements for running a miner node on the RedTeam Subnet:
 - 8-GB RAM
 - 2-Cores CPU
-
+- tested on Ubuntu 22.04
 But you may need more resources for engineering challenges.
 
 ## Setup Instructions
