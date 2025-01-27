@@ -57,11 +57,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy all necessary files into the container
 COPY . .
 
-# Expose the port the app runs on (must be 10001)
-EXPOSE 10001
+# Expose the port the app runs on (must be 10002)
+EXPOSE 10002
 
 # Run the app using the command (adjust accordingly if using Flask or FastAPI)
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "10001"]
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "10002"]
 ```
 
 

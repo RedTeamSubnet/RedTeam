@@ -1,4 +1,4 @@
-# Web UI Automation Challenge Submission Guide
+# Web UI Automation Challenge Submission Guide (Active after Jan 15th 2025 14:00 UTC)
 
 ## Description
 

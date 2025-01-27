@@ -1,5 +1,5 @@
 
-## Text Detection Submission Guide
+## Text Detection Submission Guide (Deprecated)
 
 Example code for the Text Detection Submission can be found in the `redteam_core/miner/commits/text_detection` directory. Follow the steps below to build, tag, push, and update the active commit:
 

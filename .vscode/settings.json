@@ -6,7 +6,6 @@
 	"git.autofetchPeriod": 120,
 	"diffEditor.ignoreTrimWhitespace": false,
 	"editor.fontWeight": "500",
-	"editor.renderWhitespace": "all",
 	"editor.smoothScrolling": true,
 	"editor.detectIndentation": false,
 	"editor.insertSpaces": false,
