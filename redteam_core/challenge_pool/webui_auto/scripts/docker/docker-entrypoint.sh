@@ -15,10 +15,10 @@ _doStart()
 main()
 {
 	umask 0002 || exit 2
-	sudo chown -Rc "${USER}:${GROUP}" "${WUC_HOME_DIR}" "${WUC_API_DATA_DIR}" "${WUC_API_LOGS_DIR}" "${WUC_API_TMP_DIR}" || exit 2
-	find "${WUC_API_DIR}" "${WUC_API_DATA_DIR}" -type d -exec chmod 770 {} + || exit 2
-	find "${WUC_API_DIR}" "${WUC_API_DATA_DIR}" -type f -not -path "*/scripts/*" -not -path "*/main.py" -exec chmod 660 {} + || exit 2
-	find "${WUC_API_DIR}" "${WUC_API_DATA_DIR}" -type d -exec chmod ug+s {} + || exit 2
+	find "${WUC_HOME_DIR}" "${WUC_API_DATA_DIR}" "${WUC_API_LOGS_DIR}" "${WUC_API_TMP_DIR}" -path "*/modules" -prune -o -name ".env" -o -print0 | sudo xargs -0 chown -c "${USER}:${GROUP}" || exit 2
+	find "${WUC_API_DIR}" "${WUC_API_DATA_DIR}" -type d -not -path "*/modules/*" -exec chmod 770 {} + || exit 2
+	find "${WUC_API_DIR}" "${WUC_API_DATA_DIR}" -type f -not -path "*/modules/*" -exec chmod 660 {} + || exit 2
+	find "${WUC_API_DIR}" "${WUC_API_DATA_DIR}" -type d -not -path "*/modules/*" -exec chmod ug+s {} + || exit 2
 	find "${WUC_API_LOGS_DIR}" "${WUC_API_TMP_DIR}" -type d -exec chmod 775 {} + || exit 2
 	find "${WUC_API_LOGS_DIR}" "${WUC_API_TMP_DIR}" -type f -exec chmod 664 {} + || exit 2
 	find "${WUC_API_LOGS_DIR}" "${WUC_API_TMP_DIR}" -type d -exec chmod +s {} + || exit 2
@@ -31,7 +31,6 @@ main()
 		"" | -s | --start | start | --run | run)
 			_doStart;;
 			# shift;;
-
 		-b | --bash | bash | /bin/bash)
 			shift
 			if [ -z "${*:-}" ]; then

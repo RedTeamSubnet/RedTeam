@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from .__version__ import __version__
-from .server import app
+from api.__version__ import __version__
 
 
-__all__ = ["app", "__version__"]
+__all__ = ["__version__"]

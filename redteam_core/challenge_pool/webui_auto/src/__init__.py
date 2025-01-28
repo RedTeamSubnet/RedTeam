@@ -11,9 +11,8 @@ if os.path.isdir("./src"):
     os.chdir("./src")
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-# sys.path.append(os.getcwd())
 
-from .api import app, __version__
+from .api import __version__
 
 
-__all__ = ["app", "__version__"]
+__all__ = ["__version__"]

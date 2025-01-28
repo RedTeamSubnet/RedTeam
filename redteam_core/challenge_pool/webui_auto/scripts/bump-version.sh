@@ -99,7 +99,7 @@ main()
 
 	echoInfo "Bumping version to '${_new_version}'..."
 	# Update the version file with the new version:
-	echo -e "# -*- coding: utf-8 -*-\n\n__version__ = \"${_new_version}\"" > "${VERSION_FILE_PATH}" || exit 2
+	echo -e "__version__ = \"${_new_version}\"" > "${VERSION_FILE_PATH}" || exit 2
 	echoOk "New version: '${_new_version}'"
 
 	if [ "${_IS_COMMIT}" == true ]; then

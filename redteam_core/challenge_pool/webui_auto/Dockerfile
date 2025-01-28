@@ -29,14 +29,13 @@ RUN _BUILD_TARGET_ARCH=$(uname -m) && \
 		build-essential \
 		git \
 		wget && \
+	_MINICONDA_VERSION=py39_24.11.1-0 && \
 	if [ "${_BUILD_TARGET_ARCH}" == "x86_64" ]; then \
-		export _MINICONDA_FILENAME=Miniconda3-py310_24.9.2-0-Linux-x86_64.sh; \
+		_MINICONDA_FILENAME=Miniconda3-${_MINICONDA_VERSION}-Linux-x86_64.sh && \
 		export _MINICONDA_URL=https://repo.anaconda.com/miniconda/${_MINICONDA_FILENAME}; \
 	elif [ "${_BUILD_TARGET_ARCH}" == "aarch64" ]; then \
-		export _MINICONDA_FILENAME=Miniconda3-py310_24.9.2-0-Linux-aarch64.sh; \
+		_MINICONDA_FILENAME=Miniconda3-${_MINICONDA_VERSION}-Linux-aarch64.sh && \
 		export _MINICONDA_URL=https://repo.anaconda.com/miniconda/${_MINICONDA_FILENAME}; \
-		# export _MINICONDA_FILENAME=Miniforge3-24.9.2-0-Linux-aarch64.sh; \
-		# export _MINICONDA_URL=https://github.com/conda-forge/miniforge/releases/download/24.9.2-0/${_MINICONDA_FILENAME}; \
 	else \
 		echo "Unsupported platform: ${_BUILD_TARGET_ARCH}" && \
 		exit 1; \
@@ -49,21 +48,8 @@ RUN _BUILD_TARGET_ARCH=$(uname -m) && \
 	/opt/conda/condabin/conda install -y python=${PYTHON_VERSION} pip && \
 	/opt/conda/bin/pip install --timeout 60 -U pip
 
-# COPY ./requirements* ./
 COPY requirements.txt ./requirements.txt
 RUN /opt/conda/bin/pip install --timeout 60 -r ./requirements.txt
-# RUN	--mount=type=cache,target=/root/.cache,sharing=locked \
-# 	--mount=type=bind,source=requirements.txt,target=requirements.txt \
-# 	# _BUILD_TARGET_ARCH=$(uname -m) && \
-# 	# if [ "${_BUILD_TARGET_ARCH}" == "x86_64" ] && [ "${USE_GPU}" == "false" ]; then \
-# 	# 	export _REQUIRE_FILE_PATH=./requirements/requirements.amd64.txt; \
-# 	# elif [ "${_BUILD_TARGET_ARCH}" == "x86_64" ] && [ "${USE_GPU}" == "true" ]; then \
-# 	# 	export _REQUIRE_FILE_PATH=./requirements/requirements.gpu.txt; \
-# 	# elif [ "${_BUILD_TARGET_ARCH}" == "aarch64" ]; then \
-# 	# 	export _REQUIRE_FILE_PATH=./requirements/requirements.arm64.txt; \
-# 	# fi && \
-# 	# /opt/conda/bin/pip install --timeout 60 -r "${_REQUIRE_FILE_PATH}" && \
-# 	/opt/conda/bin/pip install --timeout 60 -r ./requirements.txt
 
 
 ## Here is the base image:
