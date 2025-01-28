@@ -120,6 +120,7 @@
 		"**/env": true,
 		"**/venv": true,
 		"**/envs": true,
+		"**/.venv": true,
 		"**/dist": true,
 		"**/sdist": true,
 		"**/build": true,

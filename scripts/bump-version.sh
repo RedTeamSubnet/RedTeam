@@ -22,7 +22,7 @@ fi
 
 ## --- Variables --- ##
 # Load from envrionment variables:
-VERSION_FILE_PATH="${VERSION_FILE_PATH:-./src/api/__version__.py}"
+VERSION_FILE_PATH="${VERSION_FILE_PATH:-./VERSION.txt}"
 
 
 _BUMP_TYPE=""
@@ -99,7 +99,7 @@ main()
 
 	echoInfo "Bumping version to '${_new_version}'..."
 	# Update the version file with the new version:
-	echo -e "__version__ = \"${_new_version}\"" > "${VERSION_FILE_PATH}" || exit 2
+	echo "${_new_version}" > "${VERSION_FILE_PATH}" || exit 2
 	echoOk "New version: '${_new_version}'"
 
 	if [ "${_IS_COMMIT}" == true ]; then
