@@ -50,8 +50,7 @@ cd ~/workspaces/projects
 
 ```sh
 git clone https://github.com/RedTeamSubnet/RedTeam.git && \
-    cd RedTeam/redteam_core/challenge_pool/webui_auto && \
-    git checkout feat/webui-auto-challenge
+    cd RedTeam/redteam_core/challenge_pool/webui_auto
 ```
 
 **OPTION B.** Clone the repository (for **DEVELOPMENT**: git + ssh key):
@@ -59,7 +58,6 @@ git clone https://github.com/RedTeamSubnet/RedTeam.git && \
 ```sh
 git clone --recursive git@github.com:RedTeamSubnet/RedTeam.git && \
     cd RedTeam/redteam_core/challenge_pool/webui_auto && \
-    git checkout feat/webui-auto-challenge && \
     git submodule update --init --recursive && \
     git submodule foreach --recursive git checkout main
 ```
