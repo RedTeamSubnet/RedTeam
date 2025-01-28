@@ -6,7 +6,6 @@ import base64
 from typing import Tuple, Union
 
 import aiofiles
-from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric import rsa, padding
 from cryptography.hazmat.primitives import serialization, hashes
 from cryptography.hazmat.primitives.asymmetric.types import (
@@ -16,8 +15,8 @@ from cryptography.hazmat.primitives.asymmetric.types import (
 from pydantic import validate_call
 from beans_logging import logger
 
-from api.constants import WarnEnum
-from api import utils
+from api.core.constants import WarnEnum
+from api.core import utils
 
 
 @validate_call
@@ -26,33 +25,66 @@ async def async_create_keys(
     key_size: int,
     private_key_fname: str,
     public_key_fname: str,
+    force: bool = False,
     warn_mode: WarnEnum = WarnEnum.DEBUG,
 ) -> None:
-    """Async create asymmetric keys and save them to files.
+    """Async generate and create asymmetric key files.
 
     Args:
         asymmetric_keys_dir (str     , required): Asymmetric keys directory.
         key_size            (int     , required): Asymmetric key size.
         private_key_fname   (str     , required): Asymmetric private key filename.
         public_key_fname    (str     , required): Asymmetric public key filename.
+        force               (bool    , optional): Force to create asymmetric keys. Defaults to False.
         warn_mode           (WarnEnum, optional): Warning mode. Defaults to WarnEnum.DEBUG.
 
     Raises:
-        OSError: If failed to create asymmetric keys.
+        FileExistsError: If warning mode is ERROR and asymmetric keys already exist.
+        OSError        : If failed to create asymmetric keys.
     """
 
     _private_key_path = os.path.join(asymmetric_keys_dir, private_key_fname)
     _public_key_path = os.path.join(asymmetric_keys_dir, public_key_fname)
-    if await aiofiles.os.path.isfile(
-        _private_key_path
-    ) and await aiofiles.os.path.isfile(_public_key_path):
+
+    if force:
+        await utils.async_remove_file(file_path=_private_key_path, warn_mode=warn_mode)
+        await utils.async_remove_file(file_path=_public_key_path, warn_mode=warn_mode)
+
+    if (await aiofiles.os.path.isfile(_private_key_path)) and (
+        await aiofiles.os.path.isfile(_public_key_path)
+    ):
+        logger.trace(
+            f"Asymmetric keys already exist: ['{_private_key_path}', '{_public_key_path}']"
+        )
         return
 
-    _private_key = rsa.generate_private_key(
-        public_exponent=65537,
-        key_size=key_size,
-        backend=default_backend(),
+    _message = (
+        f"Generating asymmetric keys: ['{_private_key_path}', '{_public_key_path}']..."
     )
+    if warn_mode == WarnEnum.ALWAYS:
+        logger.info(_message)
+    elif warn_mode == WarnEnum.DEBUG:
+        logger.debug(_message)
+
+    _private_key: PrivateKeyTypes
+    if await aiofiles.os.path.isfile(_private_key_path):
+        if warn_mode == WarnEnum.ERROR:
+            raise FileExistsError(f"'{_private_key_path}' private key already exists!")
+
+        _private_key: PrivateKeyTypes = await async_get_private_key(
+            private_key_path=_private_key_path
+        )
+    else:
+        _private_key: PrivateKeyTypes = rsa.generate_private_key(
+            public_exponent=65537, key_size=key_size
+        )
+
+    if await aiofiles.os.path.isfile(_public_key_path):
+        if warn_mode == WarnEnum.ERROR:
+            raise FileExistsError(f"'{_public_key_path}' public key already exists!")
+
+        await utils.async_remove_file(file_path=_public_key_path, warn_mode=warn_mode)
+
     _public_key = _private_key.public_key()
 
     _private_pem = _private_key.private_bytes(
@@ -92,6 +124,12 @@ async def async_create_keys(
                 logger.error(f"Failed to create '{_public_key_path}' public key!")
                 raise
 
+    _message = f"Successfully generated asymmetric keys: ['{_private_key_path}', '{_public_key_path}']"
+    if warn_mode == WarnEnum.ALWAYS:
+        logger.success(_message)
+    elif warn_mode == WarnEnum.DEBUG:
+        logger.debug(_message)
+
     return
 
 
@@ -115,11 +153,12 @@ async def async_get_private_key(
     if not await aiofiles.os.path.isfile(private_key_path):
         raise FileNotFoundError(f"Not found '{private_key_path}' private key!")
 
-    _private_key: PrivateKeyTypes = None
+    logger.debug(f"Reading '{private_key_path}' private key...")
+    _private_key: PrivateKeyTypes
     async with aiofiles.open(private_key_path, "rb") as _private_key_file:
         _private_key_bytes: bytes = await _private_key_file.read()
         _private_key: PrivateKeyTypes = serialization.load_pem_private_key(
-            _private_key_bytes, password=None, backend=default_backend()
+            data=_private_key_bytes, password=None
         )
 
     if as_str:
@@ -128,6 +167,8 @@ async def async_get_private_key(
             format=serialization.PrivateFormat.PKCS8,
             encryption_algorithm=serialization.NoEncryption(),
         ).decode()
+
+    logger.debug(f"Successfully read '{private_key_path}' private key.")
 
     return _private_key
 
@@ -152,11 +193,12 @@ async def async_get_public_key(
     if not await aiofiles.os.path.isfile(public_key_path):
         raise FileNotFoundError(f"Not found '{public_key_path}' public key!")
 
-    _public_key: PublicKeyTypes = None
+    logger.debug(f"Reading '{public_key_path}' public key...")
+    _public_key: PublicKeyTypes
     async with aiofiles.open(public_key_path, "rb") as _public_key_file:
         _public_key_bytes: bytes = await _public_key_file.read()
         _public_key: PublicKeyTypes = serialization.load_pem_public_key(
-            _public_key_bytes, backend=default_backend()
+            data=_public_key_bytes
         )
 
     if as_str:
@@ -164,6 +206,8 @@ async def async_get_public_key(
             encoding=serialization.Encoding.PEM,
             format=serialization.PublicFormat.SubjectPublicKeyInfo,
         ).decode()
+
+    logger.debug(f"Successfully read '{public_key_path}' public key.")
 
     return _public_key
 
@@ -199,31 +243,64 @@ def create_keys(
     key_size: int,
     private_key_fname: str,
     public_key_fname: str,
+    force: bool = False,
     warn_mode: WarnEnum = WarnEnum.DEBUG,
 ) -> None:
-    """Create asymmetric keys and save them to files.
+    """Generate and create asymmetric key files.
 
     Args:
         asymmetric_keys_dir (str     , required): Asymmetric keys directory.
         key_size            (int     , required): Asymmetric key size.
         private_key_fname   (str     , required): Asymmetric private key filename.
         public_key_fname    (str     , required): Asymmetric public key filename.
+        force               (bool    , optional): Force to create asymmetric keys. Defaults to False.
         warn_mode           (WarnEnum, optional): Warning mode. Defaults to WarnEnum.DEBUG.
 
     Raises:
-        OSError: If failed to create asymmetric keys.
+        FileExistsError: If warning mode is ERROR and asymmetric keys already exist.
+        OSError        : If failed to create asymmetric keys.
     """
 
     _private_key_path = os.path.join(asymmetric_keys_dir, private_key_fname)
     _public_key_path = os.path.join(asymmetric_keys_dir, public_key_fname)
+
+    if force:
+        utils.remove_file(file_path=_private_key_path, warn_mode=warn_mode)
+        utils.remove_file(file_path=_public_key_path, warn_mode=warn_mode)
+
     if os.path.isfile(_private_key_path) and os.path.isfile(_public_key_path):
+        logger.trace(
+            f"Asymmetric keys already exist: ['{_private_key_path}', '{_public_key_path}']"
+        )
         return
 
-    _private_key = rsa.generate_private_key(
-        public_exponent=65537,
-        key_size=key_size,
-        backend=default_backend(),
+    _message = (
+        f"Generating asymmetric keys: ['{_private_key_path}', '{_public_key_path}']..."
     )
+    if warn_mode == WarnEnum.ALWAYS:
+        logger.info(_message)
+    elif warn_mode == WarnEnum.DEBUG:
+        logger.debug(_message)
+
+    _private_key: PrivateKeyTypes
+    if os.path.isfile(_private_key_path):
+        if warn_mode == WarnEnum.ERROR:
+            raise FileExistsError(f"'{_private_key_path}' private key already exists!")
+
+        _private_key: PrivateKeyTypes = get_private_key(
+            private_key_path=_private_key_path
+        )
+    else:
+        _private_key = rsa.generate_private_key(
+            public_exponent=65537, key_size=key_size
+        )
+
+    if os.path.isfile(_public_key_path):
+        if warn_mode == WarnEnum.ERROR:
+            raise FileExistsError(f"'{_public_key_path}' public key already exists!")
+
+        utils.remove_file(file_path=_public_key_path, warn_mode=warn_mode)
+
     _public_key = _private_key.public_key()
 
     _private_pem = _private_key.private_bytes(
@@ -263,6 +340,12 @@ def create_keys(
                 logger.error(f"Failed to create '{_public_key_path}' public key!")
                 raise
 
+    _message = f"Successfully generated asymmetric keys: ['{_private_key_path}', '{_public_key_path}']"
+    if warn_mode == WarnEnum.ALWAYS:
+        logger.success(_message)
+    elif warn_mode == WarnEnum.DEBUG:
+        logger.debug(_message)
+
     return
 
 
@@ -286,11 +369,12 @@ def get_private_key(
     if not os.path.isfile(private_key_path):
         raise FileNotFoundError(f"Not found '{private_key_path}' private key!")
 
-    _private_key: PrivateKeyTypes = None
+    logger.debug(f"Reading '{private_key_path}' private key...")
+    _private_key: PrivateKeyTypes
     with open(private_key_path, "rb") as _private_key_file:
         _private_key_bytes: bytes = _private_key_file.read()
         _private_key: PrivateKeyTypes = serialization.load_pem_private_key(
-            _private_key_bytes, password=None, backend=default_backend()
+            data=_private_key_bytes, password=None
         )
 
     if as_str:
@@ -299,6 +383,8 @@ def get_private_key(
             format=serialization.PrivateFormat.PKCS8,
             encryption_algorithm=serialization.NoEncryption(),
         ).decode()
+
+    logger.debug(f"Successfully read '{private_key_path}' private key.")
 
     return _private_key
 
@@ -323,11 +409,12 @@ def get_public_key(
     if not os.path.isfile(public_key_path):
         raise FileNotFoundError(f"Not found '{public_key_path}' public key!")
 
-    _public_key: PublicKeyTypes = None
+    logger.debug(f"Reading '{public_key_path}' public key...")
+    _public_key: PublicKeyTypes
     with open(public_key_path, "rb") as _public_key_file:
         _public_key_bytes: bytes = _public_key_file.read()
         _public_key: PublicKeyTypes = serialization.load_pem_public_key(
-            _public_key_bytes, backend=default_backend()
+            data=_public_key_bytes
         )
 
     if as_str:
@@ -335,6 +422,8 @@ def get_public_key(
             encoding=serialization.Encoding.PEM,
             format=serialization.PublicFormat.SubjectPublicKeyInfo,
         ).decode()
+
+    logger.debug(f"Successfully read '{public_key_path}' public key.")
 
     return _public_key
 
@@ -366,6 +455,7 @@ def encrypt_with_public_key(
     public_key: PublicKeyTypes,
     base64_encode: bool = False,
     as_str: bool = False,
+    warn_mode: WarnEnum = WarnEnum.DEBUG,
 ) -> Union[str, bytes]:
     """Encrypt plaintext with public key.
 
@@ -374,6 +464,7 @@ def encrypt_with_public_key(
         public_key     (PublicKeyTypes   , required): Public key.
         base64_encode  (bool             , optional): Encode ciphertext with base64. Defaults to False.
         as_str         (bool             , optional): Return ciphertext as string or bytes. Defaults to False.
+        warn_mode      (WarnEnum         , optional): Warning mode. Defaults to WarnEnum.DEBUG.
 
     Raises:
         Exception: If failed to encrypt plaintext with asymmetric public key.
@@ -387,7 +478,12 @@ def encrypt_with_public_key(
 
     _ciphertext: Union[str, bytes]
     try:
-        logger.debug("Encrypting plaintext with asymmetric public key...")
+        _message = "Encrypting plaintext with asymmetric public key..."
+        if warn_mode == WarnEnum.ALWAYS:
+            logger.info(_message)
+        elif warn_mode == WarnEnum.DEBUG:
+            logger.debug(_message)
+
         _ciphertext: bytes = public_key.encrypt(
             plaintext=plaintext,
             padding=padding.OAEP(
@@ -396,9 +492,20 @@ def encrypt_with_public_key(
                 label=None,
             ),
         )
-        logger.debug("Successfully encrypted plaintext with asymmetric public key.")
+
+        _message = "Successfully encrypted plaintext with asymmetric public key."
+        if warn_mode == WarnEnum.ALWAYS:
+            logger.success(_message)
+        elif warn_mode == WarnEnum.DEBUG:
+            logger.debug(_message)
+
     except Exception:
-        logger.debug("Failed to encrypt plaintext with asymmetric public key!")
+        _message = "Failed to encrypt plaintext with asymmetric public key!"
+        if warn_mode == WarnEnum.ALWAYS:
+            logger.error(_message)
+        elif warn_mode == WarnEnum.DEBUG:
+            logger.debug(_message)
+
         raise
 
     if base64_encode:
@@ -416,6 +523,7 @@ def decrypt_with_private_key(
     private_key: PrivateKeyTypes,
     base64_decode: bool = False,
     as_str: bool = False,
+    warn_mode: WarnEnum = WarnEnum.DEBUG,
 ) -> Union[str, bytes]:
     """Decrypt ciphertext with private key.
 
@@ -424,6 +532,7 @@ def decrypt_with_private_key(
         private_key   (PrivateKeyTypes  , required): Private key.
         base64_decode (bool             , optional): Decode ciphertext with base64. Defaults to False.
         as_str        (bool             , optional): Return plaintext as string or bytes. Defaults to False.
+        warn_mode     (WarnEnum         , optional): Warning mode. Defaults to WarnEnum.DEBUG.
 
     Raises:
         Exception: If failed to decrypt ciphertext with asymmetric private key for any reason.
@@ -440,7 +549,12 @@ def decrypt_with_private_key(
 
     _plaintext: Union[str, bytes]
     try:
-        logger.debug("Decrypting ciphertext with asymmetric private key...")
+        _message = "Decrypting ciphertext with asymmetric private key..."
+        if warn_mode == WarnEnum.ALWAYS:
+            logger.info(_message)
+        elif warn_mode == WarnEnum.DEBUG:
+            logger.debug(_message)
+
         _plaintext: bytes = private_key.decrypt(
             ciphertext=ciphertext,
             padding=padding.OAEP(
@@ -449,9 +563,20 @@ def decrypt_with_private_key(
                 label=None,
             ),
         )
-        logger.debug("Successfully decrypted ciphertext with asymmetric private key.")
+
+        _message = "Successfully decrypted ciphertext with asymmetric private key."
+        if warn_mode == WarnEnum.ALWAYS:
+            logger.success(_message)
+        elif warn_mode == WarnEnum.DEBUG:
+            logger.debug(_message)
+
     except Exception:
-        logger.debug("Failed to decrypt ciphertext with asymmetric private key!")
+        _message = "Failed to decrypt ciphertext with asymmetric private key!"
+        if warn_mode == WarnEnum.ALWAYS:
+            logger.error(_message)
+        elif warn_mode == WarnEnum.DEBUG:
+            logger.debug(_message)
+
         raise
 
     if as_str:

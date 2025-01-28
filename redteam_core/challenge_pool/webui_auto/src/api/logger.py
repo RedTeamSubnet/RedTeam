@@ -10,8 +10,8 @@ from beans_logging_fastapi import (
     http_file_format,
 )
 
-from .constants import WarnEnum
-from .config import config
+from api.core.constants import WarnEnum
+from api.config import config
 
 
 logger_loader = LoggerLoader(config=config.logger, auto_config_file=False)

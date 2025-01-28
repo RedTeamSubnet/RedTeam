@@ -12,8 +12,8 @@ from beans_logging_fastapi import (
     ResponseHTTPInfoMiddleware,
 )
 
-from .config import config
-from .middlewares import ProcessTimeMiddleware, RequestIdMiddleware
+from api.config import config
+from api.core.middlewares import ProcessTimeMiddleware, RequestIdMiddleware
 
 
 @validate_call(config={"arbitrary_types_allowed": True})
@@ -24,7 +24,7 @@ def add_middlewares(app: FastAPI) -> None:
         app (FastAPI): FastAPI app instance.
     """
 
-    # Add more middlewares here...
+    ## Add more middlewares here...
     app.add_middleware(ResponseHTTPInfoMiddleware)
     app.add_middleware(
         HttpAccessLogMiddleware,
@@ -43,6 +43,8 @@ def add_middlewares(app: FastAPI) -> None:
     )
     app.add_middleware(RequestIdMiddleware)
     app.add_middleware(ProcessTimeMiddleware)
+
+    return
 
 
 __all__ = ["add_middlewares"]
