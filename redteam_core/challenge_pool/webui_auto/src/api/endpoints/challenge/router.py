@@ -1,33 +1,16 @@
 # -*- coding: utf-8 -*-
 
-import os
-import json
-import base64
-import pathlib
-from typing import Any, Dict
-
-from fastapi import APIRouter, Request
+from pydantic import constr
+from fastapi import APIRouter, Request, HTTPException, Query
 from fastapi.responses import HTMLResponse, JSONResponse
-from fastapi.templating import Jinja2Templates
-from cryptography.hazmat.primitives.asymmetric.types import PrivateKeyTypes
 
-try:
-    from modules.rt_wc_score import MetricsProcessor  # type: ignore
-except ImportError:
-    from rt_wc_score import MetricsProcessor  # type: ignore
-
-from api.core import utils
-from api.config import config
-from api.helpers.crypto import asymmetric as asymmetric_helper
-from api.helpers.crypto import symmetric as symmetric_helper
+from api.core.constants import ALPHANUM_REGEX
 from api.endpoints.challenge.schemas import MinerInput, MinerOutput
+from api.endpoints.challenge import service
 from api.logger import logger
 
 
 router = APIRouter(tags=["Challenge"])
-
-_src_dir = pathlib.Path(__file__).parent.parent.parent.parent.resolve()
-_templates = Jinja2Templates(directory=(_src_dir / "./templates/html"))
 
 
 @router.get(
@@ -37,8 +20,25 @@ _templates = Jinja2Templates(directory=(_src_dir / "./templates/html"))
     response_class=JSONResponse,
     response_model=MinerInput,
 )
-async def get_task():
-    _miner_input = MinerInput(web_url=config.web.url)
+def get_task(request: Request):
+
+    _request_id = request.state.request_id
+    logger.info(f"[{_request_id}] - Getting task...")
+
+    _miner_input: MinerInput
+    try:
+        _miner_input = service.get_task()
+
+        logger.success(f"[{_request_id}] - Successfully got the task.")
+    except Exception as err:
+        if isinstance(err, HTTPException):
+            raise
+
+        logger.error(
+            f"[{_request_id}] - Failed to get task!",
+        )
+        raise
+
     return _miner_input
 
 
@@ -47,62 +47,67 @@ async def get_task():
     summary="Serves the webpage",
     description="This endpoint serves the webpage for the challenge.",
     response_class=HTMLResponse,
+    responses={429: {}},
 )
-async def get_web(request: Request):
+def get_web(request: Request):
 
-    ## Get the public key
-    _public_key_path = os.path.join(
-        config.api.paths.asymmetric_keys_dir,
-        config.api.security.asymmetric.public_key_fname,
-    )
-    _public_key: str = await asymmetric_helper.async_get_public_key(
-        public_key_path=_public_key_path, as_str=True
-    )
+    _request_id = request.state.request_id
+    logger.info(f"[{_request_id}] - Getting webpage...")
 
-    _id = utils.gen_unique_id()
-    _nonce = utils.gen_random_string(length=32)
+    _html_response: HTMLResponse
+    try:
+        _html_response = service.get_web(request=request)
 
-    _html_response = _templates.TemplateResponse(
-        request=request,
-        name="index.html",
-        context={
-            "app_id": _id,
-            "public_key": _public_key,
-            "nonce": _nonce,
-        },
-    )
+        logger.success(f"[{_request_id}] - Successfully got the webpage.")
+    except Exception as err:
+        if isinstance(err, HTTPException):
+            raise
+
+        logger.error(
+            f"[{_request_id}] - Failed to get the webpage!",
+        )
+        raise
+
     return _html_response
 
 
-async def post_decrypt(miner_output: MinerOutput) -> str:
+@router.get(
+    "/public_key",
+    summary="Get public key",
+    description="This endpoint returns the public key.",
+    responses={400: {}, 429: {}},
+)
+def get_public_key(
+    request: Request,
+    nonce: constr(strip_whitespace=True) = Query(  # type: ignore
+        ...,
+        min_length=4,
+        max_length=64,
+        pattern=ALPHANUM_REGEX,
+        title="Nonce",
+        description="Nonce to prevent replay attacks.",
+    ),
+):
 
-    ## 1. Get the private key
-    _private_key_path = os.path.join(
-        config.api.paths.asymmetric_keys_dir,
-        config.api.security.asymmetric.private_key_fname,
-    )
-    _private_key: PrivateKeyTypes = await asymmetric_helper.async_get_private_key(
-        private_key_path=_private_key_path
-    )
+    _request_id = request.state.request_id
+    logger.info(f"[{_request_id}] - Getting public key...")
 
-    ## 2. Decrypt the symmetric key
-    _key_bytes: bytes = asymmetric_helper.decrypt_with_private_key(
-        ciphertext=miner_output.key,
-        private_key=_private_key,
-        base64_decode=True,
-    )
+    _public_key: str
+    try:
+        _public_key = service.get_public_key(nonce=nonce)
 
-    ## 3. Decrypt the ciphertext
-    _iv_bytes: bytes = base64.b64decode(miner_output.iv)
-    _plaintext: str = symmetric_helper.decrypt_aes_cbc(
-        ciphertext=miner_output.ciphertext,
-        key=_key_bytes,
-        iv=_iv_bytes,
-        base64_decode=True,
-        as_str=True,
-    )
+        logger.success(f"[{_request_id}] - Successfully got the public key.")
+    except Exception as err:
+        if isinstance(err, HTTPException):
+            raise
 
-    return _plaintext
+        logger.error(
+            f"[{_request_id}] - Failed to get the public key!",
+        )
+        raise
+
+    _response = {"public_key": _public_key}
+    return _response
 
 
 @router.post(
@@ -110,33 +115,27 @@ async def post_decrypt(miner_output: MinerOutput) -> str:
     summary="Evaluate the challenge",
     description="This endpoint evaluates the challenge.",
     response_class=JSONResponse,
-    responses={422: {}},
+    responses={422: {}, 429: {}},
 )
-async def post_score(miner_input: MinerInput, miner_output: MinerOutput):
+async def post_score(
+    request: Request, miner_input: MinerInput, miner_output: MinerOutput
+):
 
-    _score = 0.0
-    _plaintext_miner_output = ""
-    try:
-        _plaintext_miner_output = await post_decrypt(miner_output=miner_output)
-    except Exception as e:
-        logger.error(f"Error in decrypting: {str(e)}")
-        return _score
+    _request_id = request.state.request_id
+    logger.info(f"[{_request_id}] - Evaluating the miner output...")
 
-    _data = {}
+    _score: float = 0.0
     try:
-        _data = json.loads(_plaintext_miner_output.strip())
-    except json.JSONDecodeError as e:
-        logger.error(f"JSON decode error: {str(e)}")
-        return _score
+        _score = await service.async_score(miner_output=miner_output)
 
-    try:
-        _processor = MetricsProcessor()
-        _result_dict: Dict[str, Any] = _processor(raw_data=_data)
-        if _result_dict["analysis"]["score"]:
-            _score = _result_dict["analysis"]["score"]
-    except Exception as e:
-        logger.error(f"Error in processing: {str(e)}")
-        return _score
+        logger.success(f"[{_request_id}] - Successfully evaluated the miner output.")
+    except Exception as err:
+        if isinstance(err, HTTPException):
+            raise
+
+        logger.error(
+            f"[{_request_id}] - Failed to evaluate the miner output!",
+        )
 
     return _score
 

@@ -8,13 +8,6 @@ ALPHANUM_HOST_REGEX = r"^[0-9a-zA-Z_\-.]+$"
 ALPHANUM_EXTEND_REGEX = r"^[0-9a-zA-Z_\-. ]+$"
 ALPHANUM_PATH_REGEX = r"^[0-9a-zA-Z_\-. \\\/]+$"
 
-ALPHANUM_KR_MN_REGEX = r"^[0-9a-zA-Z가-힣А-яҮүӨөЁё]+$"
-ALPHANUM_KR_MN_SPACE_REGEX = r"^[0-9a-zA-Z가-힣А-яҮүӨөЁё ]+$"
-ALPHANUM_KR_MN_HYPHEN_REGEX = r"^[0-9a-zA-Z가-힣А-яҮүӨөЁё_\-]+$"
-ALPHANUM_KR_MN_HOST_REGEX = r"^[0-9a-zA-Z가-힣А-яҮүӨөЁё_\-.]+$"
-ALPHANUM_KR_MN_EXTEND_REGEX = r"^[0-9a-zA-Z가-힣А-яҮүӨөЁё_\-. ]+$"
-ALPHANUM_KR_MN_PATH_REGEX = r"^[0-9a-zA-Z가-힣А-яҮүӨөЁё_\-. \\\/]+$"
-
 REQUEST_ID_REGEX = (
     r"\b[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\b|"
     r"\b[0-9a-fA-F]{32}\b"
@@ -41,12 +34,6 @@ __all__ = [
     "ALPHANUM_HOST_REGEX",
     "ALPHANUM_EXTEND_REGEX",
     "ALPHANUM_PATH_REGEX",
-    "ALPHANUM_KR_MN_REGEX",
-    "ALPHANUM_KR_MN_SPACE_REGEX",
-    "ALPHANUM_KR_MN_HYPHEN_REGEX",
-    "ALPHANUM_KR_MN_HOST_REGEX",
-    "ALPHANUM_KR_MN_EXTEND_REGEX",
-    "ALPHANUM_KR_MN_PATH_REGEX",
     "REQUEST_ID_REGEX",
     "HTTP_METHOD_REGEX",
     "ASYMMETRIC_ALGORITHM_REGEX",

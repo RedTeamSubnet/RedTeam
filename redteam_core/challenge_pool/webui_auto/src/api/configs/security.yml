@@ -2,6 +2,8 @@ api:
   security:
     allowed_hosts: ["*"]
     forwarded_allow_ips: ["*"]
+    allowed_miner_exts: [".py", ".json", ".yaml", ".yml", ".txt", ".pt"]
+    n_challenges_per_epoch: 10
     cors:
       allow_origins: ["*"]
       allow_origin_regex: null

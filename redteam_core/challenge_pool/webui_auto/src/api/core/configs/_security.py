@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 
-from typing import List, Optional, Dict, Any
+from typing import List, Optional
 
-from pydantic import Field, constr, SecretStr, model_validator
+from pydantic import Field, constr
 from pydantic_settings import SettingsConfigDict
 
 from api.core.constants import (
     ENV_PREFIX_API,
     HTTP_METHOD_REGEX,
     ASYMMETRIC_ALGORITHM_REGEX,
-    JWT_ALGORITHM_REGEX,
+    ALPHANUM_HOST_REGEX,
 )
 from ._base import FrozenBaseConfig
 
@@ -85,6 +85,15 @@ class SecurityConfig(FrozenBaseConfig):
     forwarded_allow_ips: List[
         constr(strip_whitespace=True, min_length=1, max_length=256)  # type: ignore
     ] = Field(...)
+    allowed_miner_exts: List[
+        constr(
+            strip_whitespace=True,
+            min_length=2,
+            max_length=16,
+            pattern=ALPHANUM_HOST_REGEX,
+        )  # type: ignore
+    ] = Field(..., min_length=1)
+    n_challenges_per_epoch: int = Field(..., ge=1, le=1000)
     cors: CorsConfig = Field(...)
     ssl: SSLConfig = Field(...)
     asymmetric: AsymmetricConfig = Field(...)

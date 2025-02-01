@@ -20,6 +20,32 @@ from api.core import utils
 
 
 @validate_call
+def gen_key_pair(
+    key_size: int,
+    as_str: bool = False,
+) -> Tuple[Union[PrivateKeyTypes, str], Union[PublicKeyTypes, str]]:
+
+    _private_key: PrivateKeyTypes = rsa.generate_private_key(
+        public_exponent=65537, key_size=key_size
+    )
+    _public_key: PublicKeyTypes = _private_key.public_key()
+
+    if as_str:
+        _private_key: bytes = _private_key.private_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PrivateFormat.PKCS8,
+            encryption_algorithm=serialization.NoEncryption(),
+        ).decode()
+
+        _public_key: bytes = _public_key.public_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PublicFormat.SubjectPublicKeyInfo,
+        ).decode()
+
+    return _private_key, _public_key
+
+
+@validate_call
 async def async_create_keys(
     asymmetric_keys_dir: str,
     key_size: int,
@@ -586,6 +612,7 @@ def decrypt_with_private_key(
 
 
 __all__ = [
+    "gen_key_pair",
     "async_create_keys",
     "async_get_private_key",
     "async_get_public_key",
