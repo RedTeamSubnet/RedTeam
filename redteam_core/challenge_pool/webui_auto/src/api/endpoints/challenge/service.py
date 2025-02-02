@@ -4,8 +4,8 @@ import base64
 import pathlib
 from typing import List, Tuple, Union, Dict
 
-import aiofiles
 import docker
+from docker import DockerClient
 from pydantic import validate_call
 from fastapi import Request
 from fastapi.responses import HTMLResponse
@@ -26,6 +26,8 @@ from api.helpers.crypto import asymmetric as asymmetric_helper
 from api.helpers.crypto import symmetric as symmetric_helper
 from api.endpoints.challenge.schemas import KeyPairPM, MinerInput, MinerOutput
 from api.logger import logger
+
+_src_dir = pathlib.Path(__file__).parent.parent.parent.parent.resolve()
 
 
 @validate_call
@@ -52,66 +54,99 @@ _KEY_PAIRS: List[KeyPairPM] = _gen_key_pairs(
 _CUR_KEY_PAIR: Union[KeyPairPM, None] = None
 
 
-def get_task() -> MinerInput:
-    _miner_input = MinerInput(web_url=config.web.url)
-    return _miner_input
+@validate_call
+def _copy_bot_files(miner_output: MinerOutput) -> None:
+
+    logger.debug("Copying bot files...")
+    try:
+        if miner_output.extra_files:
+            for _extra_file_pm in miner_output.extra_files:
+                _extra_file_path = str(
+                    _src_dir / "bot" / "src" / "miner" / _extra_file_pm.fname
+                )
+                with open(_extra_file_path, "w") as _extra_file:
+                    _extra_file.write(_extra_file_pm.content)
+
+        if miner_output.requirements_txt:
+            _requirements_path = str(_src_dir / "bot" / "requirements.txt")
+            with open(_requirements_path, "w") as _requirements_file:
+                _requirements_file.write(miner_output.requirements_txt)
+
+        _bot_path = str(_src_dir / "bot" / "src" / "miner" / "bot.py")
+        with open(_bot_path, "w") as _bot_file:
+            _bot_file.write(miner_output.bot_py)
+
+        logger.debug("Successfully copied bot files.")
+    except Exception as err:
+        logger.error(f"Failed to copy bot files: {str(err)}!")
+        raise
+
+    return
 
 
 @validate_call(config={"arbitrary_types_allowed": True})
-def get_web(request: Request) -> HTMLResponse:
+def _build_bot_image(
+    docker_client: DockerClient, miner_output: MinerOutput, image_name: str = "bot"
+) -> None:
 
-    global _CUR_KEY_PAIR
+    logger.debug("Building bot docker image...")
+    try:
+        _build_path = str(_src_dir / "bot")
 
-    if not _KEY_PAIRS:
-        raise BaseHTTPException(
-            error_enum=ErrorCodeEnum.TOO_MANY_REQUESTS,
-            message=f"No more web pages available for this epoch!",
+        _build_args: Dict[str, str] = {}
+        if miner_output.system_deps:
+            _system_deps = " ".join(miner_output.system_deps)
+            _build_args["APT_PACKAGES"] = _system_deps
+
+        _, _logs = docker_client.images.build(
+            path=_build_path, tag=image_name, buildargs=_build_args, rm=True
         )
 
-    _CUR_KEY_PAIR = _KEY_PAIRS[-1]
+        for _log in _logs:
+            if "stream" in _log:
+                _log_stream = _log["stream"].strip()
+                logger.info(_log_stream)
 
-    _nonce = _CUR_KEY_PAIR.nonce
-    _CUR_KEY_PAIR.nonce = None
-    _public_key = utils.gen_random_string(length=32)
+        logger.debug("Successfully built bot docker image.")
+    except Exception as err:
+        logger.error(f"Failed to build bot docker: {str(err)}!")
+        raise
 
-    _src_dir = pathlib.Path(__file__).parent.parent.parent.parent.resolve()
-    _templates = Jinja2Templates(directory=(_src_dir / "./templates/html"))
-    _html_response = _templates.TemplateResponse(
-        request=request,
-        name="index.html",
-        context={"nonce": _nonce, "public_key": _public_key},
-    )
-    return _html_response
+    return
 
 
-@validate_call
-def get_public_key(nonce: str) -> str:
+@validate_call(config={"arbitrary_types_allowed": True})
+def _run_bot_container(
+    docker_client: DockerClient,
+    container_name: str = "bot",
+    image_name: str = "bot",
+    **kwargs,
+) -> None:
 
-    global _CUR_KEY_PAIR
-
-    if not _CUR_KEY_PAIR:
-        raise BaseHTTPException(
-            error_enum=ErrorCodeEnum.TOO_MANY_REQUESTS,
-            message=f"No more public keys available for this epoch!",
+    logger.debug("Running bot docker container...")
+    try:
+        _ulimit_nofile = docker.types.Ulimit(name="nofile", soft=32768, hard=32768)
+        _container = docker_client.containers.run(
+            image=image_name,
+            name=container_name,
+            detach=True,
+            auto_remove=True,
+            ulimits=[_ulimit_nofile],
+            **kwargs,
         )
 
-    if _CUR_KEY_PAIR.nonce != nonce:
-        raise BaseHTTPException(
-            error_enum=ErrorCodeEnum.BAD_REQUEST,
-            message=f"Invalid nonce value!",
+        for _log in _container.logs(stream=True):
+            logger.info(_log.decode().strip())
+
+        logger.info(
+            f"Container '{_container.name}' exited with code - {_container.wait()}."
         )
+        logger.debug("Successfully ran bot docker container.")
+    except Exception as err:
+        logger.error(f"Failed to run bot docker: {str(err)}!")
+        raise
 
-    if not _CUR_KEY_PAIR.public_key:
-        raise BaseHTTPException(
-            error_enum=ErrorCodeEnum.TOO_MANY_REQUESTS,
-            message=f"Public key is already retrieved!",
-        )
-
-    _public_key: str = _CUR_KEY_PAIR.public_key
-    _CUR_KEY_PAIR.public_key = None
-    _CUR_KEY_PAIR.nonce = None
-
-    return _public_key
+    return
 
 
 @validate_call
@@ -154,110 +189,127 @@ def _decrypt(ciphertext: str) -> str:
     return _plaintext
 
 
+def get_task() -> MinerInput:
+    _miner_input = MinerInput(web_url=config.web.url)
+    return _miner_input
+
+
+@validate_call(config={"arbitrary_types_allowed": True})
+def get_web(request: Request) -> HTMLResponse:
+
+    global _CUR_KEY_PAIR
+
+    if not _KEY_PAIRS:
+        raise BaseHTTPException(
+            error_enum=ErrorCodeEnum.TOO_MANY_REQUESTS,
+            message=f"No more web pages available for this epoch!",
+        )
+
+    _CUR_KEY_PAIR = _KEY_PAIRS[-1]
+
+    _nonce = _CUR_KEY_PAIR.nonce
+    _CUR_KEY_PAIR.nonce = None
+    _public_key = utils.gen_random_string(length=32)
+
+    _templates = Jinja2Templates(directory=(_src_dir / "./templates/html"))
+    _html_response = _templates.TemplateResponse(
+        request=request,
+        name="index.html",
+        context={"nonce": _nonce, "public_key": _public_key},
+    )
+    return _html_response
+
+
 @validate_call
-async def async_score(miner_output: MinerOutput) -> float:
+def get_nonce(nonce: str) -> str:
+
+    global _CUR_KEY_PAIR
+
+    if not _CUR_KEY_PAIR:
+        raise BaseHTTPException(
+            error_enum=ErrorCodeEnum.TOO_MANY_REQUESTS,
+            message=f"No more public keys available for this epoch!",
+        )
+
+    if _CUR_KEY_PAIR.nonce != nonce:
+        raise BaseHTTPException(
+            error_enum=ErrorCodeEnum.BAD_REQUEST,
+            message=f"Invalid nonce value!",
+        )
+
+    if not _CUR_KEY_PAIR.public_key:
+        raise BaseHTTPException(
+            error_enum=ErrorCodeEnum.TOO_MANY_REQUESTS,
+            message=f"Nonce is already retrieved!",
+        )
+
+    _nonce_key: str = _CUR_KEY_PAIR.public_key
+    _CUR_KEY_PAIR.public_key = None
+    _CUR_KEY_PAIR.nonce = None
+
+    return _nonce_key
+
+
+@validate_call
+def score(miner_output: MinerOutput) -> float:
 
     _score = 0.0
 
+    logger.debug("Scoring the miner output...")
     try:
-        _score = 0.0
+        _docker_client = docker.from_env()
+        _image_name = "bot"
+        _container_name = "bot"
 
-        await async_copy_bot_files(miner_output=miner_output)
+        _copy_bot_files(miner_output=miner_output)
+        _build_bot_image(
+            docker_client=_docker_client,
+            miner_output=miner_output,
+            image_name=_image_name,
+        )
+        _run_bot_container(
+            docker_client=_docker_client,
+            container_name=_container_name,
+            image_name=_image_name,
+        )
 
+        logger.debug("Successfully scored the miner output.")
     except Exception as err:
-        logger.error(f"Failed to evaluate the miner output: {str(err)}!")
+        if isinstance(err, BaseHTTPException):
+            raise
+
+        logger.error(f"Failed to score the miner output: {str(err)}!")
         raise
 
     return _score
 
 
-def build_docker(miner_output: MinerOutput, **kwargs) -> None:
+@validate_call
+def eval_bot(data: str) -> float:
 
-    _src_dir = pathlib.Path(__file__).parent.parent.parent.parent.resolve()
-    _build_path = str(_src_dir / "bot")
+    _score = 0.0
 
-    _build_args: Dict[str, str] = {}
-    if miner_output.system_deps:
-        _system_deps = " ".join(miner_output.system_deps)
-        _build_args["APT_PACKAGES"] = _system_deps
-
-    _image_name = "bot"
-    _docker_client = docker.from_env()
-
-    _image, _logs = _docker_client.images.build(
-        path=_build_path, tag=_image_name, rm=True, buildargs=_build_args
-    )
-
-    for _log in _logs:
-        if "stream" in _log:
-            _log_row = _log["stream"].strip()
-            logger.info(_log_row)
-
-    _container = _docker_client.containers.run(
-        image=_image, detach=True, name="bot", **kwargs
-    )
-
-    _logs = _container.logs()
-    logger.info(_logs.decode())
-
-    _container.remove(force=True)
-
-    return
-
-
-async def async_copy_bot_files(miner_output: MinerOutput) -> None:
-
+    logger.debug("Evaluating the bot...")
     try:
-        _src_dir = pathlib.Path(__file__).parent.parent.parent.parent.resolve()
+        _plaintext = _decrypt(ciphertext=data)
+        _metrics_processor = MetricsProcessor()
+        _score = _metrics_processor(raw_data=_plaintext)
 
-        if miner_output.extra_files:
-            for _extra_file_pm in miner_output.extra_files:
-                _extra_file_path = str(
-                    _src_dir / "bot" / "src" / "miner" / _extra_file_pm.fname
-                )
-                async with aiofiles.open(_extra_file_path, "w") as _extra_file:
-                    await _extra_file.write(_extra_file_pm.content)
-
-        if miner_output.requirements_txt:
-            _requirements_path = str(_src_dir / "bot" / "requirements.txt")
-            async with aiofiles.open(_requirements_path, "w") as _requirements_file:
-                await _requirements_file.write(miner_output.requirements_txt)
-
-        _bot_path = str(_src_dir / "bot" / "src" / "miner" / "bot.py")
-        async with aiofiles.open(_bot_path, "w") as _bot_file:
-            await _bot_file.write(miner_output.bot_py)
-
-        build_docker()
-
+        logger.debug("Successfully evaluated the bot.")
     except Exception as err:
-        logger.error(f"Failed to copy bot files: {str(err)}!")
+        if isinstance(err, BaseHTTPException):
+            raise
+
+        logger.error(f"Failed to evaluate the bot: {str(err)}!")
         raise
 
-    return
-
-
-# def _install_packages(packages: List[str]) -> None:
-
-#     logger.debug(f"Installing packages '{packages}'...")
-#     _package: str
-#     try:
-#         subprocess.run(["sudo", "apt", "update"], check=True)
-#         for _package in packages:
-#             subprocess.run(
-#                 ["sudo", "apt", "install", "-y", "--no-install-recommends", _package],
-#                 check=True,
-#             )
-
-#         logger.debug(f"Successfully installed packages '{packages}'.")
-#     except subprocess.CalledProcessError as err:
-#         logger.error(f"Failed to install package '{_package}': {str(err)}!")
-
-#     return
+    return _score
 
 
 __all__ = [
     "get_task",
     "get_web",
-    "get_public_key",
-    "async_score",
+    "get_nonce",
+    "score",
+    "eval_bot",
 ]

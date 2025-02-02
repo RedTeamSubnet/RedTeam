@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from pydantic import constr
-from fastapi import APIRouter, Request, HTTPException, Query
+from fastapi import APIRouter, Request, HTTPException, Query, Body
 from fastapi.responses import HTMLResponse, JSONResponse
 
-from api.core.constants import ALPHANUM_REGEX
+from api.core.constants import ALPHANUM_REGEX, ALPHANUM_HYPHEN_REGEX
 from api.endpoints.challenge.schemas import MinerInput, MinerOutput
 from api.endpoints.challenge import service
 from api.logger import logger
@@ -49,7 +49,7 @@ def get_task(request: Request):
     response_class=HTMLResponse,
     responses={429: {}},
 )
-def get_web(request: Request):
+def _get_web(request: Request):
 
     _request_id = request.state.request_id
     logger.info(f"[{_request_id}] - Getting webpage...")
@@ -72,12 +72,11 @@ def get_web(request: Request):
 
 
 @router.get(
-    "/public_key",
-    summary="Get public key",
-    description="This endpoint returns the public key.",
-    responses={400: {}, 429: {}},
+    "/nonce",
+    summary="Nonce",
+    responses={400: {}, 422: {}, 429: {}},
 )
-def get_public_key(
+def _get_nonce(
     request: Request,
     nonce: constr(strip_whitespace=True) = Query(  # type: ignore
         ...,
@@ -90,43 +89,41 @@ def get_public_key(
 ):
 
     _request_id = request.state.request_id
-    logger.info(f"[{_request_id}] - Getting public key...")
+    logger.info(f"[{_request_id}] - Checking nonce...")
 
-    _public_key: str
+    _nonce_key: str
     try:
-        _public_key = service.get_public_key(nonce=nonce)
+        _nonce_key = service.get_nonce(nonce=nonce)
 
-        logger.success(f"[{_request_id}] - Successfully got the public key.")
+        logger.success(f"[{_request_id}] - Successfully checked the nonce.")
     except Exception as err:
         if isinstance(err, HTTPException):
             raise
 
         logger.error(
-            f"[{_request_id}] - Failed to get the public key!",
+            f"[{_request_id}] - Failed to check the nonce!",
         )
         raise
 
-    _response = {"public_key": _public_key}
+    _response = {"nonce_key": _nonce_key}
     return _response
 
 
 @router.post(
     "/score",
-    summary="Evaluate the challenge",
-    description="This endpoint evaluates the challenge.",
+    summary="Score",
+    description="This endpoint score miner output.",
     response_class=JSONResponse,
-    responses={422: {}, 429: {}},
+    responses={400: {}, 422: {}},
 )
-async def post_score(
-    request: Request, miner_input: MinerInput, miner_output: MinerOutput
-):
+def post_score(request: Request, miner_input: MinerInput, miner_output: MinerOutput):
 
     _request_id = request.state.request_id
     logger.info(f"[{_request_id}] - Evaluating the miner output...")
 
     _score: float = 0.0
     try:
-        _score = await service.async_score(miner_output=miner_output)
+        _score = service.score(miner_output=miner_output)
 
         logger.success(f"[{_request_id}] - Successfully evaluated the miner output.")
     except Exception as err:
@@ -138,6 +135,45 @@ async def post_score(
         )
 
     return _score
+
+
+@router.post(
+    "/eval",
+    summary="Evaluate",
+    description="This endpoint evaluate.",
+    responses={422: {}, 429: {}},
+)
+def _eval_bot(
+    request: Request,
+    data: str = Body(
+        ...,
+        embed=True,
+        min_length=2,
+        pattern=ALPHANUM_HYPHEN_REGEX,
+        title="Data",
+        description="Bot data to evaluate.",
+        examples=["data"],
+    ),
+):
+
+    _request_id = request.state.request_id
+    logger.info(f"[{_request_id}] - Evaluating the bot...")
+
+    _score: float = 0.0
+    try:
+        _score = service.eval_bot(data=data)
+
+        logger.success(f"[{_request_id}] - Successfully evaluated the bot.")
+    except Exception as err:
+        if isinstance(err, HTTPException):
+            raise
+
+        logger.error(
+            f"[{_request_id}] - Failed to evaluate the bot!",
+        )
+
+    _response = {"score": _score}
+    return _response
 
 
 __all__ = ["router"]

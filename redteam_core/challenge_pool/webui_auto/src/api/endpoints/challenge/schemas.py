@@ -103,7 +103,7 @@ class MinerOutput(BaseModel):
         ...,
         title="bot.py",
         description="The main bot.py source code for the challenge.",
-        examples=["print('Hello, World!')"],
+        examples=["def run_bot(driver):\n    print('Hello, World!')"],
     )
     system_deps: Optional[
         List[
@@ -127,7 +127,7 @@ class MinerOutput(BaseModel):
         default=None,
         title="requirements.txt",
         description="Dependencies required for the bot.py as a string (requirements.txt).",
-        examples=["pydantic[email,timezone]>=2.0.0,<3.0.0\nselenium>=4.16.0,<5.0.0"],
+        examples=["pydantic[email,timezone]>=2.0.0,<3.0.0\nselenium>=4.16.0,<5.0.0\n"],
     )
     extra_files: Optional[List[MinerFilePM]] = Field(
         default=None,
@@ -138,11 +138,7 @@ class MinerOutput(BaseModel):
                 {
                     "fname": "config.py",
                     "content": "threshold = 0.5",
-                },
-                {
-                    "fname": "utils.py",
-                    "content": "def add(a, b):\n    return a + b",
-                },
+                }
             ]
         ],
     )
