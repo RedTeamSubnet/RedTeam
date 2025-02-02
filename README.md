@@ -3,6 +3,8 @@
 ## Overview
 The RedTeam subnet by Innerworks is a decentralized platform designed to drive innovation in cybersecurity through competitive programming challenges. The subnet incentivizes miners to develop and submit code solutions to various technical challenges, with a focus on enhancing security. These solutions can be integrated into real-world products to improve their security features.
 
+#### Dashboard: http://storage.redteam.technology/
+
 ![Overview](assets/overview.png)
 
 ## Subnet Functionality
