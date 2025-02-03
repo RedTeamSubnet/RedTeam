@@ -183,7 +183,7 @@ DEBUG=false
 
 
 ## -- API configs -- ##
-WUC_WEB_URL="https://webui_auto:10001/web"
+WUC_WEB_URL="https://172.17.0.1:10001/web"
 WUC_API_PORT=10001
 WUC_API_LOGS_DIR="/var/log/rest.rt-wu-challenger"
 WUC_API_DATA_DIR="/var/lib/rest.rt-wu-challenger"

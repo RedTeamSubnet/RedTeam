@@ -10,7 +10,6 @@ services:
       TERM: ${TERM:-xterm}
       TZ: ${TZ:-UTC}
       WUM_API_PORT: ${WUM_API_PORT:-8000}
-      # DOCKER_HOST_INTERNAL: host.docker.internal # comment out for production
     env_file:
       - path: .env
         required: false

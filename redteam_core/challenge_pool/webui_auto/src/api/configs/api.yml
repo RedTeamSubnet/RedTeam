@@ -18,4 +18,4 @@ api:
       [".*", "~*", ".py[cod]", ".sw.*", "__pycache__", "*.log", "logs"]
 
 web:
-  url: "https://webui_auto:10001/web"
+  url: "https://172.17.0.1:10001/web"

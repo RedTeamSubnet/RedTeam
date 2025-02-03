@@ -1,56 +1,71 @@
+# -*- coding: utf-8 -*-
+
+import os
+import sys
 import logging
-from typing import AsyncGenerator
-from contextlib import asynccontextmanager
+import pathlib
+from typing import Union
 
-from fastapi import FastAPI, Depends, Body
+from fastapi import FastAPI, Body, HTTPException
 
-from bot import WebUIAutomate
 from data_types import MinerInput, MinerOutput
-from dependency import get_webui_automate
 
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    stream=sys.stdout,
+    level=logging.INFO,
+    datefmt="%Y-%m-%d %H:%M:%S %z",
+    format="[%(asctime)s | %(levelname)s | %(filename)s:%(lineno)d]: %(message)s",
+)
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
-    """Lifespan context manager for FastAPI application.
-    Startup and shutdown events are logged.
-
-    Args:
-        app (FastAPI, required): FastAPI application instance.
-    """
-
-    logging.info("Preparing to startup...")
-    get_webui_automate()
-    logging.info("Finished preparation to startup.")
-
-    yield
-
-    logging.info("Praparing to shutdown...")
-    get_webui_automate().cleanup()
-    logging.info("Finished preparation to shutdown.")
-
-
-app = FastAPI(lifespan=lifespan)
-
-
-@app.post("/solve")
-def solve(
-    miner_input: MinerInput = Body(...),
-    automator: WebUIAutomate = Depends(get_webui_automate),
-) -> MinerOutput:
-
-    result = automator(miner_input)
-
-    return MinerOutput(
-        ciphertext=result.ciphertext,
-        key=result.key,
-        iv=result.iv,
-    )
+app = FastAPI()
 
 
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+
+@app.post("/solve", response_model=MinerOutput)
+def solve(miner_input: MinerInput = Body(...)) -> MinerOutput:
+
+    logger.info(f"Retrieving bot.py and related files...")
+
+    _miner_output: MinerOutput
+    try:
+        _src_dir = pathlib.Path(__file__).parent.resolve()
+        _bot_dir = _src_dir / "bot"
+
+        _bot_py_path = str(_bot_dir / "bot.py")
+        _bot_py = "def run_bot(driver):\n    print('Hello, World!')"
+        with open(_bot_py_path, "r") as _bot_py_file:
+            _bot_py = _bot_py_file.read()
+
+        _requirements_txt_path = str(_bot_dir / "requirements.txt")
+        _requirements_txt: Union[str, None]
+        if os.path.exists(_requirements_txt_path):
+            with open(_requirements_txt_path, "r") as _requirements_txt_file:
+                _requirements_txt = _requirements_txt_file.read()
+
+        _system_deps_path = str(_bot_dir / "system_deps.txt")
+        _system_deps: Union[str, None]
+        if os.path.exists(_system_deps_path):
+            with open(_system_deps_path, "r") as _system_deps_file:
+                _system_deps = _system_deps_file.read()
+
+        _miner_output = MinerOutput(
+            bot_py=_bot_py, system_deps=_system_deps, requirements_txt=_requirements_txt
+        )
+        logger.info(f"Successfully retrieved bot.py and related files.")
+    except Exception as err:
+        logger.error(f"Failed to retrieve bot.py and related files: {err}")
+        raise HTTPException(
+            status_code=500, detail="Failed to retrieve bot.py and related files."
+        )
+
+    return _miner_output
+
+
+___all___ = ["app"]

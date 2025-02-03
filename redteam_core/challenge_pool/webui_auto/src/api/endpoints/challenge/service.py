@@ -27,7 +27,9 @@ from api.helpers.crypto import symmetric as symmetric_helper
 from api.endpoints.challenge.schemas import KeyPairPM, MinerInput, MinerOutput
 from api.logger import logger
 
+
 _src_dir = pathlib.Path(__file__).parent.parent.parent.parent.resolve()
+_bot_dir = _src_dir / "bot"
 
 
 @validate_call
@@ -59,20 +61,20 @@ def _copy_bot_files(miner_output: MinerOutput) -> None:
 
     logger.debug("Copying bot files...")
     try:
+        _bot_core_dir = _src_dir / "bot" / "src" / "core"
+
         if miner_output.extra_files:
             for _extra_file_pm in miner_output.extra_files:
-                _extra_file_path = str(
-                    _src_dir / "bot" / "src" / "miner" / _extra_file_pm.fname
-                )
+                _extra_file_path = str(_bot_core_dir / _extra_file_pm.fname)
                 with open(_extra_file_path, "w") as _extra_file:
                     _extra_file.write(_extra_file_pm.content)
 
         if miner_output.requirements_txt:
-            _requirements_path = str(_src_dir / "bot" / "requirements.txt")
+            _requirements_path = str(_bot_dir / "requirements.txt")
             with open(_requirements_path, "w") as _requirements_file:
                 _requirements_file.write(miner_output.requirements_txt)
 
-        _bot_path = str(_src_dir / "bot" / "src" / "miner" / "bot.py")
+        _bot_path = str(_bot_core_dir / "bot.py")
         with open(_bot_path, "w") as _bot_file:
             _bot_file.write(miner_output.bot_py)
 
@@ -91,7 +93,7 @@ def _build_bot_image(
 
     logger.debug("Building bot docker image...")
     try:
-        _build_path = str(_src_dir / "bot")
+        _build_path = str(_bot_dir)
 
         _kwargs = {}
         if miner_output.system_deps:

@@ -12,7 +12,7 @@ from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-from miner.bot import run_bot
+from core.bot import run_bot
 
 
 logger = logging.getLogger(__name__)

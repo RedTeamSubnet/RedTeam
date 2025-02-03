@@ -62,7 +62,7 @@ webui_auto:
     mem_limit: "8g"
   environment:
     ENV: "PRODUCTION"
-    WUC_WEB_URL: "https://webui_auto:10001/web"
+    WUC_WEB_URL: "https://172.17.0.1:10001/web"
   # baseline: "asadbekk/rest.rt-wu-miner@sha256:b8cd274c0fbb4b30b98274465424025a8b0d070c9cca4e80e0d79f69f49a5c17"
 
 response_quality_adversarial_v2: ## active after Jan 15th 2025 14:00 UTC

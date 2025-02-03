@@ -2,7 +2,7 @@
 
 import os
 import pathlib
-from typing import List, Optional, Union
+from typing import Optional, Union, List
 
 from pydantic import BaseModel, Field, constr, field_validator, HttpUrl
 
@@ -17,8 +17,9 @@ from api.core import utils
 
 
 _src_dir = pathlib.Path(__file__).parent.parent.parent.parent.resolve()
+_bot_core_dir = _src_dir / "bot" / "src" / "core"
 
-_bot_py_path = str(_src_dir / "bot" / "src" / "miner" / "bot.py")
+_bot_py_path = str(_bot_core_dir / "bot.py")
 _bot_py_content = "def run_bot(driver):\n    print('Hello, World!')"
 if os.path.exists(_bot_py_path):
     with open(_bot_py_path, "r") as _bot_py_file:
@@ -62,14 +63,14 @@ class MinerFilePM(BaseModel):
         pattern=ALPHANUM_HOST_REGEX,
         title="File Name",
         description="Name of the file.",
-        examples=["config.py", "utils.py"],
+        examples=["config.py"],
     )
     content: constr(strip_whitespace=True) = Field(  # type: ignore
         ...,
         min_length=2,
         title="File Content",
         description="Content of the file as a string.",
-        examples=["print('Hello, World!')"],
+        examples=["threshold = 0.5"],
     )
 
     @field_validator("fname")
@@ -93,10 +94,10 @@ class MinerFilePM(BaseModel):
 
 class MinerInput(BaseModel):
     web_url: HttpUrl = Field(
-        default="https://webui_auto:10001/web",
+        default="https://172.17.0.1:10001/web",
         title="Web URL",
         description="Webpage URL for the challenge.",
-        examples=["https://webui_auto:10001/web"],
+        examples=["https://172.17.0.1:10001/web"],
     )
     random_val: Optional[
         constr(
@@ -119,25 +120,22 @@ class MinerOutput(BaseModel):
         examples=[_bot_py_content],
     )
     system_deps: Optional[
-        constr(
-            strip_whitespace=True,
-            pattern=ALPHANUM_EXTEND_REGEX,
-            min_length=2,
-            max_length=2048,
-        )  # type: ignore
+        constr(strip_whitespace=True, pattern=ALPHANUM_EXTEND_REGEX, max_length=2048)  # type: ignore
     ] = Field(
         default=None,
         title="System Dependencies",
         description="System dependencies (Debian/Ubuntu) that needs to be installed as space-separated string.",
         examples=["python3 python3-pip"],
     )
-    requirements_txt: Optional[
-        constr(min_length=2, max_length=2048, pattern=REQUIREMENTS_REGEX)  # type: ignore
-    ] = Field(
-        default=None,
-        title="requirements.txt",
-        description="Dependencies required for the bot.py as a string (requirements.txt).",
-        examples=["pydantic[email,timezone]>=2.0.0,<3.0.0\nselenium>=4.16.0,<5.0.0\n"],
+    requirements_txt: Optional[constr(max_length=2048, pattern=REQUIREMENTS_REGEX)] = (  # type: ignore
+        Field(
+            default=None,
+            title="requirements.txt",
+            description="Dependencies required for the bot.py as a string (requirements.txt).",
+            examples=[
+                "pydantic[email,timezone]>=2.0.0,<3.0.0\nselenium>=4.16.0,<5.0.0\n"
+            ],
+        )
     )
     extra_files: Optional[List[MinerFilePM]] = Field(
         default=None,
