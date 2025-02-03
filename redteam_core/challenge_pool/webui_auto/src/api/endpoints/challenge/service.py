@@ -2,7 +2,7 @@
 
 import base64
 import pathlib
-from typing import List, Tuple, Union, Dict
+from typing import List, Tuple, Union
 
 import docker
 from docker import DockerClient
@@ -59,7 +59,7 @@ _CUR_KEY_PAIR: Union[KeyPairPM, None] = None
 @validate_call
 def _copy_bot_files(miner_output: MinerOutput) -> None:
 
-    logger.debug("Copying bot files...")
+    logger.info("Copying bot files...")
     try:
         _bot_core_dir = _src_dir / "bot" / "src" / "core"
 
@@ -78,7 +78,7 @@ def _copy_bot_files(miner_output: MinerOutput) -> None:
         with open(_bot_path, "w") as _bot_file:
             _bot_file.write(miner_output.bot_py)
 
-        logger.debug("Successfully copied bot files.")
+        logger.success("Successfully copied bot files.")
     except Exception as err:
         logger.error(f"Failed to copy bot files: {str(err)}!")
         raise
@@ -91,7 +91,7 @@ def _build_bot_image(
     docker_client: DockerClient, miner_output: MinerOutput, image_name: str = "bot"
 ) -> None:
 
-    logger.debug("Building bot docker image...")
+    logger.info("Building bot docker image...")
     try:
         _build_path = str(_bot_dir)
 
@@ -108,7 +108,7 @@ def _build_bot_image(
                 _log_stream = _log["stream"].strip()
                 logger.info(_log_stream)
 
-        logger.debug("Successfully built bot docker image.")
+        logger.success("Successfully built bot docker image.")
     except Exception as err:
         logger.error(f"Failed to build bot docker: {str(err)}!")
         raise
@@ -124,7 +124,7 @@ def _run_bot_container(
     **kwargs,
 ) -> None:
 
-    logger.debug("Running bot docker container...")
+    logger.info("Running bot docker container...")
     try:
         _ulimit_nofile = docker.types.Ulimit(name="nofile", soft=32768, hard=32768)
         _container = docker_client.containers.run(
@@ -133,6 +133,7 @@ def _run_bot_container(
             detach=True,
             auto_remove=True,
             ulimits=[_ulimit_nofile],
+            environment={"TZ": "UTC"},
             **kwargs,
         )
 
@@ -142,7 +143,7 @@ def _run_bot_container(
         logger.info(
             f"Container '{_container.name}' exited with code - {_container.wait()}."
         )
-        logger.debug("Successfully ran bot docker container.")
+        logger.info("Successfully ran bot docker container.")
     except Exception as err:
         logger.error(f"Failed to run bot docker: {str(err)}!")
         raise

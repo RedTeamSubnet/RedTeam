@@ -9,7 +9,7 @@ services:
       nofile: 32768
     environment:
       TERM: ${TERM:-xterm}
-      TZ: ${TZ:-UTC}
+      TZ: UTC
       WUC_API_PORT: ${WUC_API_PORT:-10001}
     env_file:
       - path: .env

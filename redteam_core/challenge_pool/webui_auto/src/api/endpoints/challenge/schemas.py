@@ -120,14 +120,14 @@ class MinerOutput(BaseModel):
         examples=[_bot_py_content],
     )
     system_deps: Optional[
-        constr(strip_whitespace=True, pattern=ALPHANUM_EXTEND_REGEX, max_length=2048)  # type: ignore
+        constr(strip_whitespace=True, min_length=2, max_length=2048, pattern=ALPHANUM_EXTEND_REGEX)  # type: ignore
     ] = Field(
         default=None,
         title="System Dependencies",
         description="System dependencies (Debian/Ubuntu) that needs to be installed as space-separated string.",
         examples=["python3 python3-pip"],
     )
-    requirements_txt: Optional[constr(max_length=2048, pattern=REQUIREMENTS_REGEX)] = (  # type: ignore
+    requirements_txt: Optional[constr(min_length=2, max_length=2048, pattern=REQUIREMENTS_REGEX)] = (  # type: ignore
         Field(
             default=None,
             title="requirements.txt",
