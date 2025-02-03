@@ -6,7 +6,9 @@ echo "INFO: Running 'rest.rt-wu-challenger' docker-entrypoint.sh..."
 
 _doStart()
 {
-	exec python -u ./main.py || exit 2
+	sudo service docker start || exit 2
+	exec sg docker "exec python -u ./main.py" || exit 2
+	# exec python -u ./main.py || exit 2
 	# exec uvicorn main:app --host=0.0.0.0 --port=${WUC_API_PORT:-10001} --no-access-log --no-server-header --proxy-headers --forwarded-allow-ips='*' || exit 2
 	exit 0
 }

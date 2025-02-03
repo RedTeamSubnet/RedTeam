@@ -26,6 +26,7 @@ RUN sudo chown -R seluser:seluser /app && \
 	python3 -m pip install --no-cache-dir -r requirements.txt
 
 # Copy application source code
-COPY ./src .
+COPY --chown=seluser:seluser ./src .
+# RUN sudo chown -R seluser:seluser /app
 
 CMD ["/bin/bash", "-c", "source venv/bin/activate && python3 -u ./main.py"]

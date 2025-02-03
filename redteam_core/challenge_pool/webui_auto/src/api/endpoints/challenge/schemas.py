@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import os
+import pathlib
 from typing import List, Optional, Union
 
 from pydantic import BaseModel, Field, constr, field_validator, HttpUrl
@@ -7,10 +9,20 @@ from pydantic import BaseModel, Field, constr, field_validator, HttpUrl
 from api.core.constants import (
     ALPHANUM_REGEX,
     ALPHANUM_HOST_REGEX,
-    ALPHANUM_HYPHEN_REGEX,
+    ALPHANUM_EXTEND_REGEX,
+    REQUIREMENTS_REGEX,
 )
 from api.config import config
 from api.core import utils
+
+
+_src_dir = pathlib.Path(__file__).parent.parent.parent.parent.resolve()
+
+_bot_py_path = str(_src_dir / "bot" / "src" / "miner" / "bot.py")
+_bot_py_content = "def run_bot(driver):\n    print('Hello, World!')"
+if os.path.exists(_bot_py_path):
+    with open(_bot_py_path, "r") as _bot_py_file:
+        _bot_py_content = _bot_py_file.read()
 
 
 class KeyPairPM(BaseModel):
@@ -99,30 +111,28 @@ class MinerInput(BaseModel):
 
 
 class MinerOutput(BaseModel):
-    bot_py: constr(strip_whitespace=True, min_length=2) = Field(  # type: ignore
+    bot_py: str = Field(
         ...,
         title="bot.py",
+        min_length=2,
         description="The main bot.py source code for the challenge.",
-        examples=["def run_bot(driver):\n    print('Hello, World!')"],
+        examples=[_bot_py_content],
     )
     system_deps: Optional[
-        List[
-            constr(
-                strip_whitespace=True,
-                pattern=ALPHANUM_HYPHEN_REGEX,
-                min_length=2,
-                max_length=64,
-            )  # type: ignore
-        ]
+        constr(
+            strip_whitespace=True,
+            pattern=ALPHANUM_EXTEND_REGEX,
+            min_length=2,
+            max_length=2048,
+        )  # type: ignore
     ] = Field(
         default=None,
-        max_length=32,
         title="System Dependencies",
-        description="List of system dependencies (Debian/Ubuntu) that needs to be installed.",
-        examples=[["python3", "python3-pip", "iproute2"]],
+        description="System dependencies (Debian/Ubuntu) that needs to be installed as space-separated string.",
+        examples=[["python3 python3-pip"]],
     )
     requirements_txt: Optional[
-        constr(strip_whitespace=True, min_length=2, max_length=2048)  # type: ignore
+        constr(min_length=2, max_length=2048, pattern=REQUIREMENTS_REGEX)  # type: ignore
     ] = Field(
         default=None,
         title="requirements.txt",

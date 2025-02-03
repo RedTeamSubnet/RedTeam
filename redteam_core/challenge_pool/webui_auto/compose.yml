@@ -4,6 +4,9 @@ services:
     build:
       context: .
     restart: unless-stopped
+    privileged: true
+    ulimits:
+      nofile: 32768
     environment:
       TERM: ${TERM:-xterm}
       TZ: ${TZ:-UTC}
