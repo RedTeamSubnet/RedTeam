@@ -95,11 +95,7 @@ def _build_bot_image(
 
         _kwargs = {}
         if miner_output.system_deps:
-            _kwargs = {
-                "buildargs": {
-                    "APT_PACKAGES": miner_output.system_deps,
-                },
-            }
+            _kwargs["buildargs"] = {"APT_PACKAGES": miner_output.system_deps}
 
         _, _logs = docker_client.images.build(
             path=_build_path, tag=image_name, rm=True, **_kwargs

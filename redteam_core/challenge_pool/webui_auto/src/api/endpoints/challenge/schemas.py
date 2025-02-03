@@ -129,7 +129,7 @@ class MinerOutput(BaseModel):
         default=None,
         title="System Dependencies",
         description="System dependencies (Debian/Ubuntu) that needs to be installed as space-separated string.",
-        examples=[["python3 python3-pip"]],
+        examples=["python3 python3-pip"],
     )
     requirements_txt: Optional[
         constr(min_length=2, max_length=2048, pattern=REQUIREMENTS_REGEX)  # type: ignore
