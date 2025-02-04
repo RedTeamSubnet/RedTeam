@@ -137,19 +137,19 @@ class MinerOutput(BaseModel):
             ],
         )
     )
-    extra_files: Optional[List[MinerFilePM]] = Field(
-        default=None,
-        title="Extra Files",
-        description="List of extra files to support the bot.py.",
-        examples=[
-            [
-                {
-                    "fname": "config.py",
-                    "content": "threshold = 0.5",
-                }
-            ]
-        ],
-    )
+    # extra_files: Optional[List[MinerFilePM]] = Field(
+    #     default=None,
+    #     title="Extra Files",
+    #     description="List of extra files to support the bot.py.",
+    #     examples=[
+    #         [
+    #             {
+    #                 "fname": "config.py",
+    #                 "content": "threshold = 0.5",
+    #             }
+    #         ]
+    #     ],
+    # )
 
 
 __all__ = [

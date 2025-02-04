@@ -32,7 +32,6 @@ def health():
 def solve(miner_input: MinerInput = Body(...)) -> MinerOutput:
 
     logger.info(f"Retrieving bot.py and related files...")
-
     _miner_output: MinerOutput
     try:
         _src_dir = pathlib.Path(__file__).parent.resolve()

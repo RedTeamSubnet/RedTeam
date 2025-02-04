@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from pydantic import constr
-from fastapi import APIRouter, Request, HTTPException, Query, Body
+from fastapi import APIRouter, Request, HTTPException, Body
 from fastapi.responses import HTMLResponse, JSONResponse
 
 from api.core.constants import ALPHANUM_REGEX, ALPHANUM_HYPHEN_REGEX
@@ -71,15 +71,16 @@ def _get_web(request: Request):
     return _html_response
 
 
-@router.get(
+@router.post(
     "/nonce",
     summary="Nonce",
-    responses={400: {}, 422: {}, 429: {}},
+    responses={401: {}, 422: {}, 429: {}},
 )
-def _get_nonce(
+def _post_nonce(
     request: Request,
-    nonce: constr(strip_whitespace=True) = Query(  # type: ignore
+    nonce: constr(strip_whitespace=True) = Body(  # type: ignore
         ...,
+        embed=True,
         min_length=4,
         max_length=64,
         pattern=ALPHANUM_REGEX,
