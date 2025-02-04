@@ -99,13 +99,13 @@ def copy_bot_files(miner_output: MinerOutput, src_dir: str) -> None:
             with open(_requirements_path, "w") as _requirements_file:
                 _requirements_file.write(miner_output.requirements_txt)
 
-        _bot_path = str(_bot_core_dir / "bot.py")
+        _bot_path = os.path.join(_bot_core_dir, "bot.py")
         with open(_bot_path, "w") as _bot_file:
             _bot_file.write(miner_output.bot_py)
 
         logger.success("Successfully copied bot files.")
     except Exception as err:
-        logger.error(f"Failed to copy bot files: {str(err)}!")
+        logger.error(f"Failed to copy bot files: {err}!")
         raise
 
     return

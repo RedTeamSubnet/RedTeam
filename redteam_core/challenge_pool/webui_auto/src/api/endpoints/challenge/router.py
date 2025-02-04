@@ -134,6 +134,7 @@ def post_score(request: Request, miner_input: MinerInput, miner_output: MinerOut
         logger.error(
             f"[{_request_id}] - Failed to evaluate the miner output!",
         )
+        raise
 
     return _score
 
@@ -172,6 +173,7 @@ def _eval_bot(
         logger.error(
             f"[{_request_id}] - Failed to evaluate the bot!",
         )
+        raise
 
     _response = {"score": _score}
     return _response
