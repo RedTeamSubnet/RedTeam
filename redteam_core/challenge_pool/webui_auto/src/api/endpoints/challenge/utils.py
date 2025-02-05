@@ -1,14 +1,19 @@
 # -*- coding: utf-8 -*-
 
 import os
+import re
 import random
-from typing import List, Dict, Union, Tuple
+import requests
+from datetime import datetime, timezone
+from typing import List, Dict, Union, Tuple, Optional
 
 import docker
 from docker import DockerClient
 from pydantic import validate_call
 
+from api.core.constants import ErrorCodeEnum
 from api.core import utils
+from api.core.exceptions import BaseHTTPException
 from api.helpers.crypto import asymmetric as asymmetric_helper
 from api.endpoints.challenge.schemas import KeyPairPM, MinerOutput
 from api.logger import logger
@@ -38,13 +43,13 @@ def gen_cb_positions(
     window_height: int = 1080,
     n_checkboxes: int = 5,
     min_distance: int = 300,
-    max_attempts_factor: int = 10,
+    max_factor: int = 10,
     checkbox_size: int = 20,  # Assuming checkbox size ~20px
-    exclude_areas: Union[List[Dict[int, int]], None] = None,
+    exclude_areas: Union[List[Dict[str, int]], None] = None,
 ) -> List[Dict[str, int]]:
 
     _positions = []
-    _max_attempts = n_checkboxes * max_attempts_factor  # Avoid infinite loops
+    _max_attempts = n_checkboxes * max_factor  # Avoid infinite loops
 
     _attempts = 0
     while len(_positions) < n_checkboxes:
@@ -81,6 +86,49 @@ def gen_cb_positions(
 
 
 @validate_call
+def check_pip_requirements(pip_requirements: List[str], target_dt: datetime) -> None:
+
+    for _package_name in pip_requirements:
+        _package_name = re.split(r"[<>=\[!]", _package_name)[0].strip()
+
+        _url = f"https://pypi.org/pypi/{_package_name}/json"
+        _response = requests.get(_url)
+
+        if _response.status_code != 200:
+            logger.warning(f"Package '{_package_name}' not found on PyPi or API error!")
+            raise BaseHTTPException(
+                error_enum=ErrorCodeEnum.BAD_REQUEST,
+                message=f"Package '{_package_name}' not found on PyPi or API error!",
+            )
+
+        _data = _response.json()
+
+        _releases = _data.get("releases", {})
+        _upload_dts = []
+        for _, _files in _releases.items():
+            for _file in _files:
+                _upload_dt_str = _file.get("upload_time_iso_8601", "")
+                if _upload_dt_str:
+                    _upload_dt = datetime.fromisoformat(_upload_dt_str.rstrip("Z"))
+                    if not _upload_dt.tzinfo:
+                        _upload_dt = _upload_dt.replace(tzinfo=timezone.utc)
+                    _upload_dts.append(_upload_dt)
+
+        if _upload_dts:
+            _package_created_dt = min(_upload_dts)
+            if target_dt < _package_created_dt:
+                logger.warning(
+                    f"New package found created after '{target_dt}': '{_package_name}'!"
+                )
+                raise BaseHTTPException(
+                    error_enum=ErrorCodeEnum.BAD_REQUEST,
+                    message=f"We do not allow new packages like these: '{_package_name}'!",
+                )
+
+    return
+
+
+@validate_call
 def copy_bot_files(miner_output: MinerOutput, src_dir: str) -> None:
 
     logger.info("Copying bot files...")
@@ -94,10 +142,11 @@ def copy_bot_files(miner_output: MinerOutput, src_dir: str) -> None:
         #         with open(_extra_file_path, "w") as _extra_file:
         #             _extra_file.write(_extra_file_pm.content)
 
-        if miner_output.requirements_txt:
-            _requirements_path = os.path.join(_bot_dir, "requirements.txt")
-            with open(_requirements_path, "w") as _requirements_file:
-                _requirements_file.write(miner_output.requirements_txt)
+        if miner_output.pip_requirements:
+            _requirements_txt_path = os.path.join(_bot_dir, "requirements.txt")
+            with open(_requirements_txt_path, "w") as _requirements_txt_file:
+                for _package_name in miner_output.pip_requirements:
+                    _requirements_txt_file.write(f"{_package_name}\n")
 
         _bot_path = os.path.join(_bot_core_dir, "bot.py")
         with open(_bot_path, "w") as _bot_file:
@@ -115,15 +164,15 @@ def copy_bot_files(miner_output: MinerOutput, src_dir: str) -> None:
 def build_bot_image(
     docker_client: DockerClient,
     build_dir: str,
-    miner_output: MinerOutput,
+    system_deps: Optional[str] = None,
     image_name: str = "bot:latest",
 ) -> None:
 
     logger.info("Building bot docker image...")
     try:
         _kwargs = {}
-        if miner_output.system_deps:
-            _kwargs["buildargs"] = {"APT_PACKAGES": miner_output.system_deps}
+        if system_deps:
+            _kwargs["buildargs"] = {"APT_PACKAGES": system_deps}
 
         _, _logs = docker_client.images.build(
             path=build_dir, tag=image_name, rm=True, **_kwargs
@@ -147,12 +196,13 @@ def run_bot_container(
     docker_client: DockerClient,
     image_name: str = "bot:latest",
     container_name: str = "bot_container",
+    ulimit: int = 32768,
     **kwargs,
 ) -> None:
 
     logger.info("Running bot docker container...")
     try:
-        _ulimit_nofile = docker.types.Ulimit(name="nofile", soft=32768, hard=32768)
+        _ulimit_nofile = docker.types.Ulimit(name="nofile", soft=ulimit, hard=ulimit)
         _container = docker_client.containers.run(
             image=image_name,
             name=container_name,
@@ -180,6 +230,7 @@ def run_bot_container(
 __all__ = [
     "gen_key_pairs",
     "gen_cb_positions",
+    "check_pip_requirements",
     "copy_bot_files",
     "build_bot_image",
     "run_bot_container",

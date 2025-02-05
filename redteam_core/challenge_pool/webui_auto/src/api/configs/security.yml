@@ -2,8 +2,6 @@ api:
   security:
     allowed_hosts: ["*"]
     forwarded_allow_ips: ["*"]
-    allowed_miner_exts: [".py", ".json", ".yaml", ".yml", ".txt", ".pt"]
-    n_challenges_per_epoch: 10
     cors:
       allow_origins: ["*"]
       allow_origin_regex: null
@@ -20,7 +18,7 @@ api:
       key_fname: "key.pem"
       cert_fname: "cert.pem"
     asymmetric:
-      generate: true
+      generate: false
       algorithm: "RS256"
       key_size: 2048
       private_key_fname: "private_key.pem"

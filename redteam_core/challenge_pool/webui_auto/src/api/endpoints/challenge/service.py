@@ -33,7 +33,7 @@ _bot_dir = _src_dir / "bot"
 
 
 _KEY_PAIRS: List[KeyPairPM] = ch_utils.gen_key_pairs(
-    n_challenge=config.api.security.n_challenges_per_epoch,
+    n_challenge=config.challenge.n_ch_per_epoch,
     key_size=config.api.security.asymmetric.key_size,
 )
 _CUR_KEY_PAIR: Union[KeyPairPM, None] = None
@@ -78,7 +78,7 @@ def _decrypt(ciphertext: str) -> str:
 
 
 def get_task() -> MinerInput:
-    _miner_input = MinerInput(web_url=config.web.url)
+    _miner_input = MinerInput(web_url=config.challenge.web_url)
     return _miner_input
 
 
@@ -98,7 +98,6 @@ def get_web(request: Request) -> HTMLResponse:
     _CUR_KEY_PAIR = _KEY_PAIRS.pop()
 
     _nonce = _CUR_KEY_PAIR.nonce
-    # _CUR_KEY_PAIR.nonce = None
     _public_key = utils.gen_random_string(length=32)
 
     _templates = Jinja2Templates(directory=(_src_dir / "./templates/html"))
@@ -147,21 +146,28 @@ def score(miner_output: MinerOutput) -> float:
 
     logger.debug("Scoring the miner output...")
     try:
+        if miner_output.pip_requirements:
+            ch_utils.check_pip_requirements(
+                pip_requirements=miner_output.pip_requirements,
+                target_dt=config.challenge.allowed_pip_pkg_dt,
+            )
+
+        ch_utils.copy_bot_files(miner_output=miner_output, src_dir=str(_src_dir))
+
         _docker_client = docker.from_env()
         _image_name = "bot:latest"
         _container_name = "bot_container"
-
-        ch_utils.copy_bot_files(miner_output=miner_output, src_dir=str(_src_dir))
         ch_utils.build_bot_image(
             docker_client=_docker_client,
             build_dir=str(_bot_dir),
-            miner_output=miner_output,
+            system_deps=miner_output.system_deps,
             image_name=_image_name,
         )
         ch_utils.run_bot_container(
             docker_client=_docker_client,
-            container_name=_container_name,
             image_name=_image_name,
+            container_name=_container_name,
+            ulimit=config.challenge.docker_ulimit,
         )
 
         logger.debug("Successfully scored the miner output.")

@@ -3,14 +3,7 @@
 import os
 from typing_extensions import Self
 
-from pydantic import (
-    Field,
-    constr,
-    field_validator,
-    ValidationInfo,
-    model_validator,
-    HttpUrl,
-)
+from pydantic import Field, constr, field_validator, ValidationInfo, model_validator
 from pydantic_settings import SettingsConfigDict
 
 from beans_logging import LoggerConfigPM
@@ -20,12 +13,7 @@ from api.core.constants import EnvEnum, ENV_PREFIX, ENV_PREFIX_API
 from ._base import FrozenBaseConfig
 from ._dev import DevConfig, FrozenDevConfig
 from ._api import ApiConfig, FrozenApiConfig
-
-
-class WebConfig(FrozenBaseConfig):
-    url: HttpUrl = Field(...)
-
-    model_config = SettingsConfigDict(env_prefix=f"{ENV_PREFIX}WEB_")
+from ._challenge import ChallengeConfig
 
 
 # Main config schema:
@@ -36,7 +24,7 @@ class MainConfig(FrozenBaseConfig):
         default=__version__, min_length=3, max_length=32
     )
     api: ApiConfig = Field(...)
-    web: WebConfig = Field(...)
+    challenge: ChallengeConfig = Field(...)
     logger: LoggerConfigPM = Field(default_factory=LoggerConfigPM)
 
     @field_validator("env")
@@ -108,7 +96,4 @@ class MainConfig(FrozenBaseConfig):
     model_config = SettingsConfigDict(env_prefix=ENV_PREFIX, env_nested_delimiter="__")
 
 
-__all__ = [
-    "MainConfig",
-    "WebConfig",
-]
+__all__ = ["MainConfig"]

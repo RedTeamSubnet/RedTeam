@@ -83,7 +83,7 @@ class MinerFilePM(BaseModel):
         if val.startswith("."):
             raise ValueError("File name cannot start with a dot(.)!")
 
-        _allowed_exts = config.api.security.allowed_miner_exts
+        _allowed_exts = config.challenge.allowed_file_exts
         if not val.endswith(tuple(_allowed_exts)):
             raise ValueError(
                 f"File extension is not supported, only '{_allowed_exts}' extensions are allowed!"
@@ -127,15 +127,15 @@ class MinerOutput(BaseModel):
         description="System dependencies (Debian/Ubuntu) that needs to be installed as space-separated string.",
         examples=["python3 python3-pip"],
     )
-    requirements_txt: Optional[constr(min_length=2, max_length=2048, pattern=REQUIREMENTS_REGEX)] = (  # type: ignore
-        Field(
-            default=None,
-            title="requirements.txt",
-            description="Dependencies required for the bot.py as a string (requirements.txt).",
-            examples=[
-                "pydantic[email,timezone]>=2.0.0,<3.0.0\nselenium>=4.16.0,<5.0.0\n"
-            ],
-        )
+    pip_requirements: Optional[
+        List[constr(min_length=2, max_length=128, pattern=REQUIREMENTS_REGEX)]  # type: ignore
+    ] = Field(
+        default=None,
+        title="Pip Requirements",
+        description="Dependencies required for the bot.py as a list of strings.",
+        examples=[
+            ["pydantic[email,timezone]>=2.0.0,<3.0.0", "selenium>=4.16.0,<5.0.0"]
+        ],
     )
     # extra_files: Optional[List[MinerFilePM]] = Field(
     #     default=None,

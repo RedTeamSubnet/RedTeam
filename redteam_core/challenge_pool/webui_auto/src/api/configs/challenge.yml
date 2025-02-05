@@ -1,0 +1,13 @@
+challenge:
+  web_url: "https://172.17.0.1:10001/web"
+  n_ch_per_epoch: 10
+  docker_ulimit: 32768
+  allowed_pip_pkg_dt: "2025-01-01T00:00:00Z"
+  allowed_file_exts: [".py", ".json", ".yaml", ".yml", ".txt", ".pt"]
+  window_width: 1920
+  window_height: 1080
+  n_checkboxes: 5
+  cb_min_distance: 300
+  cb_gen_max_factor: 10
+  cb_size: 20
+  # cb_exclude_areas: [[0, 0, 100, 100], [0, 980, 100, 1080]]
