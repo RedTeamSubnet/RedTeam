@@ -4,7 +4,7 @@ import os
 import sys
 import logging
 import pathlib
-from typing import Union
+from typing import Union, List
 
 from fastapi import FastAPI, Body, HTTPException
 
@@ -43,19 +43,19 @@ def solve(miner_input: MinerInput = Body(...)) -> MinerOutput:
             _bot_py = _bot_py_file.read()
 
         _requirements_txt_path = str(_bot_dir / "requirements.txt")
-        _requirements_txt: Union[str, None]
+        _pip_requirements: Union[List[str], None] = None
         if os.path.exists(_requirements_txt_path):
             with open(_requirements_txt_path, "r") as _requirements_txt_file:
-                _requirements_txt = _requirements_txt_file.read()
+                _pip_requirements = [_line.strip() for _line in _requirements_txt_file]
 
         _system_deps_path = str(_bot_dir / "system_deps.txt")
-        _system_deps: Union[str, None]
+        _system_deps: Union[str, None] = None
         if os.path.exists(_system_deps_path):
             with open(_system_deps_path, "r") as _system_deps_file:
                 _system_deps = _system_deps_file.read()
 
         _miner_output = MinerOutput(
-            bot_py=_bot_py, system_deps=_system_deps, requirements_txt=_requirements_txt
+            bot_py=_bot_py, system_deps=_system_deps, pip_requirements=_pip_requirements
         )
         logger.info(f"Successfully retrieved bot.py and related files.")
     except Exception as err:
