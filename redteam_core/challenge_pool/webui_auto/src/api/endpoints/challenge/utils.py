@@ -4,10 +4,12 @@ import os
 import re
 import random
 import requests
+import subprocess
 from datetime import datetime, timezone
 from typing import List, Dict, Union, Tuple, Optional
 
 import docker
+from docker.models.networks import Network
 from docker import DockerClient
 from pydantic import validate_call
 
@@ -196,28 +198,48 @@ def run_bot_container(
     docker_client: DockerClient,
     image_name: str = "bot:latest",
     container_name: str = "bot_container",
+    network_name: str = "local_network",
     ulimit: int = 32768,
     **kwargs,
 ) -> None:
 
     logger.info("Running bot docker container...")
     try:
+        _networks = docker_client.networks.list(names=[network_name])
+        _network: Union[Network, None] = None
+        if not _networks:
+            _network: Network = docker_client.networks.create(
+                name=network_name, driver="bridge"
+            )
+        else:
+            _network: Network = docker_client.networks.get(network_name)
+
+        _network_info = docker_client.api.inspect_network(_network.id)
+        _subnet = _network_info["IPAM"]["Config"][0]["Subnet"]
+
+        # fmt: off
+        subprocess.run(["sudo", "iptables", "-I", "FORWARD", "-s", _subnet, "!", "-d", _subnet, "-j", "DROP"])
+        subprocess.run(["sudo", "iptables", "-t", "nat", "-I", "POSTROUTING", "-s", _subnet, "-j", "RETURN"])
+        # fmt: on
+
         _ulimit_nofile = docker.types.Ulimit(name="nofile", soft=ulimit, hard=ulimit)
-        _container = docker_client.containers.run(
+        docker_client.containers.run(
             image=image_name,
             name=container_name,
-            detach=True,
-            auto_remove=True,
             ulimits=[_ulimit_nofile],
             environment={"TZ": "UTC"},
+            network=network_name,
+            detach=True,
+            auto_remove=True,
             **kwargs,
         )
+        _container = docker_client.containers.get(container_name)
 
         for _log in _container.logs(stream=True):
             logger.info(_log.decode().strip())
 
         logger.info(
-            f"Container '{_container.name}' exited with code - {_container.wait()}."
+            f"Container '{container_name}' exited with code - {_container.wait()}."
         )
         logger.info("Successfully ran bot docker container.")
     except Exception as err:

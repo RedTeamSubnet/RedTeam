@@ -7,6 +7,8 @@ echo "INFO: Running 'rest.rt-wu-challenger' docker-entrypoint.sh..."
 _doStart()
 {
 	sudo service docker start || exit 2
+	# sleep 3
+	# sudo docker load -i "./packages/selenium.tar" || exit 2
 	exec sg docker "exec python -u ./main.py" || exit 2
 	# exec python -u ./main.py || exit 2
 	# exec uvicorn main:app --host=0.0.0.0 --port=${WUC_API_PORT:-10001} --no-access-log --no-server-header --proxy-headers --forwarded-allow-ips='*' || exit 2
@@ -18,12 +20,12 @@ main()
 {
 	umask 0002 || exit 2
 	find "${WUC_HOME_DIR}" "${WUC_API_DATA_DIR}" "${WUC_API_LOGS_DIR}" "${WUC_API_TMP_DIR}" -path "*/modules" -prune -o -name ".env" -o -print0 | sudo xargs -0 chown -c "${USER}:${GROUP}" || exit 2
-	find "${WUC_API_DIR}" "${WUC_API_DATA_DIR}" -type d -not -path "*/modules/*" -exec chmod 770 {} + || exit 2
-	find "${WUC_API_DIR}" "${WUC_API_DATA_DIR}" -type f -not -path "*/modules/*" -exec chmod 660 {} + || exit 2
-	find "${WUC_API_DIR}" "${WUC_API_DATA_DIR}" -type d -not -path "*/modules/*" -exec chmod ug+s {} + || exit 2
-	find "${WUC_API_LOGS_DIR}" "${WUC_API_TMP_DIR}" -type d -exec chmod 775 {} + || exit 2
-	find "${WUC_API_LOGS_DIR}" "${WUC_API_TMP_DIR}" -type f -exec chmod 664 {} + || exit 2
-	find "${WUC_API_LOGS_DIR}" "${WUC_API_TMP_DIR}" -type d -exec chmod +s {} + || exit 2
+	find "${WUC_API_DIR}" "${WUC_API_DATA_DIR}" -type d -not -path "*/modules/*" -exec sudo chmod 770 {} + || exit 2
+	find "${WUC_API_DIR}" "${WUC_API_DATA_DIR}" -type f -not -path "*/modules/*" -exec sudo chmod 660 {} + || exit 2
+	find "${WUC_API_DIR}" "${WUC_API_DATA_DIR}" -type d -not -path "*/modules/*" -exec sudo chmod ug+s {} + || exit 2
+	find "${WUC_API_LOGS_DIR}" "${WUC_API_TMP_DIR}" -type d -exec sudo chmod 775 {} + || exit 2
+	find "${WUC_API_LOGS_DIR}" "${WUC_API_TMP_DIR}" -type f -exec sudo chmod 664 {} + || exit 2
+	find "${WUC_API_LOGS_DIR}" "${WUC_API_TMP_DIR}" -type d -exec sudo chmod +s {} + || exit 2
 	chmod ug+x "${WUC_API_DIR}/main.py" || exit 2
 	# echo "${USER} ALL=(ALL) ALL" | sudo tee -a "/etc/sudoers.d/${USER}" > /dev/null || exit 2
 	echo ""

@@ -100,6 +100,7 @@ RUN rm -rfv /var/lib/apt/lists/* /var/cache/apt/archives/* /tmp/* /root/.cache/*
 		iputils-ping \
 		net-tools \
 		curl \
+		iproute2 \
 		nano && \
 	curl -fsSL https://get.docker.com/ | sh && \
 	apt-get clean -y && \
