@@ -35,7 +35,7 @@ def main() -> None:
     if not _action_list:
         raise ValueError("WUC_ACTION_LIST is not set!")
 
-    _action_list = json.loads(_action_list)
+    _action_list = json.loads(str(_action_list).replace("'", '"'))
     if not isinstance(_action_list, list):
         raise ValueError("WUC_ACTION_LIST must be a list!")
 

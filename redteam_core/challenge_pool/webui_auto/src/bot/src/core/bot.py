@@ -67,6 +67,10 @@ def run_bot(
                 _actions.move_by_offset(x, y).click().perform()
                 _actions.move_by_offset(-x, -y).perform()
 
+        checkboxes = driver.find_elements(By.CSS_SELECTOR, 'input[type="checkbox"]')
+        for checkbox in checkboxes:
+            driver.execute_script("arguments[0].click();", checkbox)
+
         # Submit login
         _login_button = _wait.until(EC.element_to_be_clickable((By.ID, "login-button")))
         _login_button.click()

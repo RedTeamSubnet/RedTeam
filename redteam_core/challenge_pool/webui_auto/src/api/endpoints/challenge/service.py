@@ -71,6 +71,7 @@ def get_web(request: Request) -> HTMLResponse:
     # _CUR_KEY_PAIR = _KEY_PAIRS[-1]
     _CUR_KEY_PAIR = _KEY_PAIRS.pop()
     _CUR_ACTION_LIST = _CHALLENGES_ACTION_LIST.pop()
+    logger.debug(_CUR_ACTION_LIST)
 
     _nonce = _CUR_KEY_PAIR.nonce
     _key_pair: Tuple[str, str] = asymmetric_helper.gen_key_pair(
@@ -199,12 +200,12 @@ def eval_bot(data: str) -> None:
     try:
         _plaintext = ch_utils.decrypt(ciphertext=data, private_key=_private_key)
 
-        _metrics_processor = MetricsProcessor()
-        _result = _metrics_processor(
-            raw_data=_plaintext, config={"actions": _CUR_ACTION_LIST}
-        )
+        _metrics_processor = MetricsProcessor(config={"actions": _CUR_ACTION_LIST})
+        _result = _metrics_processor(raw_data=_plaintext)
+        logger.info(f"Bot evaluation result: {_result}")
         _CUR_SCORE = _result["analysis"]["score"]
         _CUR_ACTION_LIST = None
+        logger.info(_CUR_SCORE)
 
         logger.debug("Successfully evaluated the bot.")
     except Exception as err:
