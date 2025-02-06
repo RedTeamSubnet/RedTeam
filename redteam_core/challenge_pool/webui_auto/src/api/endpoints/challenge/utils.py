@@ -94,7 +94,7 @@ def gen_cb_positions(
 
 
 @validate_call
-def format_positions(list_positions: List[List[Dict[str, int]]]) -> str:
+def format_positions(list_positions: List[List[Dict[str, int]]]) -> List[Dict]:
     _formatted_session = []
     for _positions in list_positions:
         action_list = []

@@ -2,7 +2,7 @@
 
 import time
 import pathlib
-from typing import List, Union, Dict, Any
+from typing import List, Union, Dict
 
 import docker
 from pydantic import validate_call
