@@ -2,7 +2,7 @@
 
 import time
 import pathlib
-from typing import List, Union, Dict
+from typing import List, Union, Dict, Tuple
 
 import docker
 from pydantic import validate_call
@@ -16,9 +16,9 @@ except ImportError:
     from rt_wc_score import MetricsProcessor  # type: ignore
 
 from api.core.constants import ErrorCodeEnum
-from api.core import utils
 from api.config import config
 from api.core.exceptions import BaseHTTPException
+from api.helpers.crypto import asymmetric as asymmetric_helper
 from api.endpoints.challenge.schemas import KeyPairPM, MinerInput, MinerOutput
 from api.endpoints.challenge import utils as ch_utils
 from api.logger import logger
@@ -73,7 +73,10 @@ def get_web(request: Request) -> HTMLResponse:
     _CUR_ACTION_LIST = _CHALLENGES_ACTION_LIST.pop()
 
     _nonce = _CUR_KEY_PAIR.nonce
-    _public_key = utils.gen_random_string(length=32)
+    _key_pair: Tuple[str, str] = asymmetric_helper.gen_key_pair(
+        key_size=config.api.security.asymmetric.key_size, as_str=True
+    )
+    _, _public_key = _key_pair
 
     _templates = Jinja2Templates(directory=(_src_dir / "./templates/html"))
     _html_response = _templates.TemplateResponse(

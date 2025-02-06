@@ -6,7 +6,7 @@ import random
 import requests
 import subprocess
 from datetime import datetime, timezone
-from typing import List, Dict, Union, Tuple, Optional, Any
+from typing import List, Dict, Union, Tuple, Optional
 
 import vault_unlock
 import docker
