@@ -32,7 +32,7 @@ def run_bot(
 
     try:
         _wait = WebDriverWait(driver, 15)
-        actions = ActionChains(driver)
+        _actions = ActionChains(driver)
 
         # Ensure the page has fully loaded
         _wait.until(
@@ -57,12 +57,15 @@ def run_bot(
         _password_field.send_keys(password)
 
         # Interact with checkboxes
-        for action in action_list["actions"]:
-            if action["type"] == "click":
-                x, y = action["args"]["location"]["x"], action["args"]["location"]["y"]
+        for _action in config["actions"]:
+            if _action["type"] == "click":
+                x, y = (
+                    _action["args"]["location"]["x"],
+                    _action["args"]["location"]["y"],
+                )
                 print(f"Clicking at ({x}, {y})")
-                actions.move_by_offset(x, y).click().perform()
-                actions.move_by_offset(-x, -y).perform()
+                _actions.move_by_offset(x, y).click().perform()
+                _actions.move_by_offset(-x, -y).perform()
 
         # Submit login
         _login_button = _wait.until(EC.element_to_be_clickable((By.ID, "login-button")))
