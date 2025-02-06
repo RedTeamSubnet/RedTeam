@@ -47,7 +47,7 @@ _CHALLENGES_CB_LIST: List[List[Dict[str, int]]] = ch_utils.gen_cb_positions(
 _CHALLENGES_ACTION_LIST: List[List[Dict]] = ch_utils.format_positions(
     list_positions=_CHALLENGES_CB_LIST
 )
-_CUR_ACTION_LIST: List[Dict] = None
+_CUR_ACTION_LIST: Union[List[Dict], None] = None
 
 
 def get_task() -> MinerInput:
@@ -118,7 +118,6 @@ def get_nonce(nonce: str) -> str:
 def score(miner_output: MinerOutput) -> float:
 
     global _CUR_SCORE
-    global _CUR_ACTION_LIST
 
     _score = 0.0
 
@@ -181,6 +180,7 @@ def score(miner_output: MinerOutput) -> float:
 def eval_bot(data: str) -> None:
 
     global _CUR_KEY_PAIR
+    global _CUR_ACTION_LIST
     global _CUR_SCORE
 
     if not _CUR_KEY_PAIR:
@@ -197,8 +197,11 @@ def eval_bot(data: str) -> None:
         _plaintext = ch_utils.decrypt(ciphertext=data, private_key=_private_key)
 
         _metrics_processor = MetricsProcessor()
-        _result = _metrics_processor(raw_data=_plaintext)
+        _result = _metrics_processor(
+            raw_data=_plaintext, config={"actions": _CUR_ACTION_LIST}
+        )
         _CUR_SCORE = _result["analysis"]["score"]
+        _CUR_ACTION_LIST = None
 
         logger.debug("Successfully evaluated the bot.")
     except Exception as err:

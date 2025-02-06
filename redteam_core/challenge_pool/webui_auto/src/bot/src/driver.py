@@ -2,7 +2,7 @@
 
 import time
 import logging
-from typing import Optional, Union, List, Dict
+from typing import Union, Any, Dict
 
 from pydantic import HttpUrl
 from selenium import webdriver
@@ -24,16 +24,17 @@ class WebUIAutomate:
     _VIEWPORT_WIDTH = 1920
     _VIEWPORT_HEIGHT = 1080
 
-    def __init__(self, action_list: List[Dict], web_url: Optional[HttpUrl] = None):
+    def __init__(self, web_url: HttpUrl, config: Dict[str, Any]):
         """
         Initialize WebUI automation.
 
         Args:
-            web_url (str, optional): URL to automate.
+            web_url (str , required): URL to automate.
+            config  (Dict, required): Configuration.
         """
 
         self.web_url = web_url
-        self.action_list = action_list
+        self.config = config
         self.driver: Union[WebDriver, None] = None
 
     def setup_driver(self) -> None:
@@ -116,13 +117,13 @@ class WebUIAutomate:
         if not self.web_url:
             raise RuntimeError("Web URL is empty, cannot proceed!")
 
-        if not self.action_list:
-            raise RuntimeError("Action list is empty, cannot proceed!")
+        if not self.config:
+            raise RuntimeError("Configuration is empty, cannot proceed!")
 
         try:
             self.setup_driver()
 
-            if not run_bot(driver=self.driver, action_list=self.action_list):
+            if not run_bot(driver=self.driver, config=self.config):
                 return None
 
             time.sleep(3)

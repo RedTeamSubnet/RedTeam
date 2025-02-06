@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import logging
-from typing import List, Dict
+from typing import Any, Dict
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 def run_bot(
     driver: WebDriver,
-    action_list: list[dict],
+    config: Dict[str, Any],
     username: str = "username",
     password: str = "password",
 ) -> bool:
