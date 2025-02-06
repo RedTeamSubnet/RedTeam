@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import base64
+import time
 import pathlib
 from typing import List, Union
 
@@ -9,26 +9,21 @@ from pydantic import validate_call
 from fastapi import Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
-from cryptography.hazmat.primitives import serialization
-from cryptography.hazmat.primitives.asymmetric.types import PrivateKeyTypes
 
 try:
     from modules.rt_wc_score import MetricsProcessor  # type: ignore
 except ImportError:
     from rt_wc_score import MetricsProcessor  # type: ignore
 
-import vault_unlock
 from api.core.constants import ErrorCodeEnum
 from api.core import utils
 from api.config import config
 from api.core.exceptions import BaseHTTPException
-from api.helpers.crypto import asymmetric as asymmetric_helper
-from api.helpers.crypto import symmetric as symmetric_helper
 from api.endpoints.challenge.schemas import KeyPairPM, MinerInput, MinerOutput
 from api.endpoints.challenge import utils as ch_utils
 from api.logger import logger
 
-_cur_dir = pathlib.Path(__file__).parent.resolve()
+
 _src_dir = pathlib.Path(__file__).parent.parent.parent.parent.resolve()
 _bot_dir = _src_dir / "bot"
 
@@ -39,48 +34,7 @@ _KEY_PAIRS: List[KeyPairPM] = ch_utils.gen_key_pairs(
 )
 _CUR_KEY_PAIR: Union[KeyPairPM, None] = None
 
-
-@validate_call
-def _decrypt(ciphertext: str) -> str:
-
-    global _CUR_KEY_PAIR
-
-    if not _CUR_KEY_PAIR:
-        raise BaseHTTPException(
-            error_enum=ErrorCodeEnum.TOO_MANY_REQUESTS,
-            message=f"No more scoring available for this epoch!",
-        )
-
-    _private_key: str = _CUR_KEY_PAIR.private_key
-    _CUR_KEY_PAIR = None
-
-    # _ciphertext, _key, _iv = _extract(ciphertext=ciphertext)
-    # _ciphertext, _key, _iv = ("", "", "")
-
-    # _private_key: PrivateKeyTypes = serialization.load_pem_private_key(
-    #     data=_private_key.encode()
-    # )
-    # _key_bytes: bytes = asymmetric_helper.decrypt_with_private_key(
-    #     ciphertext=_key,
-    #     private_key=_private_key,
-    #     base64_decode=True,
-    # )
-
-    # _iv_bytes: bytes = base64.b64decode(_iv)
-    # _plaintext: str = symmetric_helper.decrypt_aes_cbc(
-    #     ciphertext=_ciphertext,
-    #     key=_key_bytes,
-    #     iv=_iv_bytes,
-    #     base64_decode=True,
-    #     as_str=True,
-    # )
-    # cur dir
-
-    _plaintext: str = vault_unlock.decrypt_payload(
-        encrypted_text=ciphertext, private_key_pem=_private_key
-    )
-
-    return _plaintext
+_CUR_SCORE: Union[float, None] = None
 
 
 def get_task() -> MinerInput:
@@ -148,6 +102,8 @@ def get_nonce(nonce: str) -> str:
 @validate_call
 def score(miner_output: MinerOutput) -> float:
 
+    global _CUR_SCORE
+
     _score = 0.0
 
     logger.debug("Scoring the miner output...")
@@ -176,6 +132,15 @@ def score(miner_output: MinerOutput) -> float:
             ulimit=config.challenge.docker_ulimit,
         )
 
+        while True:
+            if _CUR_SCORE is not None:
+                _score = _CUR_SCORE
+                _CUR_SCORE = None
+                break
+
+            logger.debug("Waiting for the bot to finish...")
+            time.sleep(1)
+
         logger.debug("Successfully scored the miner output.")
     except Exception as err:
         if isinstance(err, BaseHTTPException):
@@ -188,17 +153,27 @@ def score(miner_output: MinerOutput) -> float:
 
 
 @validate_call
-def eval_bot(data: str) -> float:
+def eval_bot(data: str) -> None:
 
-    _score = 0.0
+    global _CUR_KEY_PAIR
+    global _CUR_SCORE
+
+    if not _CUR_KEY_PAIR:
+        raise BaseHTTPException(
+            error_enum=ErrorCodeEnum.TOO_MANY_REQUESTS,
+            message=f"No more scoring available for this epoch!",
+        )
+
+    _private_key: str = _CUR_KEY_PAIR.private_key
+    _CUR_KEY_PAIR = None
 
     logger.debug("Evaluating the bot...")
-    logger.debug(f"Data: {data}")
-
     try:
-        _plaintext = _decrypt(ciphertext=data)
+        _plaintext = ch_utils.decrypt(ciphertext=data, private_key=_private_key)
+
         _metrics_processor = MetricsProcessor()
-        _score = _metrics_processor(raw_data=_plaintext)
+        _result = _metrics_processor(raw_data=_plaintext)
+        _CUR_SCORE = _result["analysis"]["score"]
 
         logger.debug("Successfully evaluated the bot.")
     except Exception as err:
@@ -208,7 +183,7 @@ def eval_bot(data: str) -> float:
         logger.error(f"Failed to evaluate the bot: {str(err)}!")
         raise
 
-    return _score
+    return
 
 
 __all__ = [

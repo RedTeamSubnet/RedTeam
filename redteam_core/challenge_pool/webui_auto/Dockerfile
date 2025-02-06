@@ -48,6 +48,7 @@ RUN _BUILD_TARGET_ARCH=$(uname -m) && \
 	/opt/conda/condabin/conda install -y python=${PYTHON_VERSION} pip && \
 	/opt/conda/bin/pip install --timeout 60 -U pip
 
+COPY requirements ./requirements
 COPY requirements.txt ./requirements.txt
 RUN /opt/conda/bin/pip install --timeout 60 -r ./requirements.txt
 

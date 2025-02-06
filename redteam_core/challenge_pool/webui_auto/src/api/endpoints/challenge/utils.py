@@ -8,6 +8,7 @@ import subprocess
 from datetime import datetime, timezone
 from typing import List, Dict, Union, Tuple, Optional
 
+import vault_unlock
 import docker
 from docker.models.networks import Network
 from docker import DockerClient
@@ -249,6 +250,15 @@ def run_bot_container(
     return
 
 
+@validate_call
+def decrypt(ciphertext: str, private_key: str) -> str:
+
+    _plaintext: str = vault_unlock.decrypt_payload(
+        encrypted_text=ciphertext, private_key_pem=private_key
+    )
+    return _plaintext
+
+
 __all__ = [
     "gen_key_pairs",
     "gen_cb_positions",
@@ -256,4 +266,5 @@ __all__ = [
     "copy_bot_files",
     "build_bot_image",
     "run_bot_container",
+    "decrypt",
 ]

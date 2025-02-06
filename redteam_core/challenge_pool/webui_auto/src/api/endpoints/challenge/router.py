@@ -5,6 +5,7 @@ from fastapi import APIRouter, Request, HTTPException, Body
 from fastapi.responses import HTMLResponse, JSONResponse
 
 from api.core.constants import ALPHANUM_REGEX, ALPHANUM_CUSTOM_REGEX
+from api.core.responses import BaseResponse
 from api.endpoints.challenge.schemas import MinerInput, MinerOutput
 from api.endpoints.challenge import service
 from api.logger import logger
@@ -160,9 +161,8 @@ def _eval_bot(
     _request_id = request.state.request_id
     logger.info(f"[{_request_id}] - Evaluating the bot...")
 
-    _score: float = 0.0
     try:
-        _score = service.eval_bot(data=data)
+        service.eval_bot(data=data)
 
         logger.success(f"[{_request_id}] - Successfully evaluated the bot.")
     except Exception as err:
@@ -174,7 +174,7 @@ def _eval_bot(
         )
         raise
 
-    _response = {"score": _score}
+    _response = BaseResponse(request=request, message="Successfully evaluated the bot.")
     return _response
 
 
