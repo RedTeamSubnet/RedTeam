@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import logging
+from typing import List, Dict
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webdriver import WebDriver
@@ -12,7 +13,10 @@ logger = logging.getLogger(__name__)
 
 
 def run_bot(
-    driver: WebDriver, username: str = "username", password: str = "password"
+    driver: WebDriver,
+    action_list: list[dict],
+    username: str = "username",
+    password: str = "password",
 ) -> bool:
     """Run bot to automate login.
 

@@ -4,6 +4,7 @@
 ## Standard libraries
 import os
 import sys
+import json
 import logging
 import subprocess
 
@@ -30,7 +31,13 @@ def main() -> None:
         _host = subprocess.check_output(_command, shell=True, text=True).strip()
         _web_url = f"https://{_host}:10001/web"
 
-    _webui_automate = WebUIAutomate(web_url=_web_url)
+    _action_list = os.getenv("WUC_ACTION_LIST")
+    if not _action_list:
+        raise ValueError("WUC_ACTION_LIST is not set!")
+
+    _action_list = json.loads(_action_list)
+
+    _webui_automate = WebUIAutomate(web_url=_web_url, action_list=_action_list)
     _webui_automate()
 
     logger.info("Done!\n")

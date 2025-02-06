@@ -6,7 +6,7 @@ import random
 import requests
 import subprocess
 from datetime import datetime, timezone
-from typing import List, Dict, Union, Tuple, Optional
+from typing import List, Dict, Union, Tuple, Optional, Any
 
 import vault_unlock
 import docker
@@ -218,6 +218,7 @@ def build_bot_image(
 @validate_call(config={"arbitrary_types_allowed": True})
 def run_bot_container(
     docker_client: DockerClient,
+    action_list: List[Dict],
     image_name: str = "bot:latest",
     container_name: str = "bot_container",
     network_name: str = "local_network",
@@ -249,7 +250,10 @@ def run_bot_container(
             image=image_name,
             name=container_name,
             ulimits=[_ulimit_nofile],
-            environment={"TZ": "UTC"},
+            environment={
+                "TZ": "UTC",
+                "WUC_ACTION_LIST": action_list,
+            },
             network=network_name,
             detach=True,
             auto_remove=True,

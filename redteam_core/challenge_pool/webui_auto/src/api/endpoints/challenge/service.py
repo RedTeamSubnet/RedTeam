@@ -143,10 +143,10 @@ def score(miner_output: MinerOutput) -> float:
         )
         ch_utils.run_bot_container(
             docker_client=_docker_client,
+            action_list=_CUR_ACTION_LIST,
             image_name=_image_name,
             container_name=_container_name,
             ulimit=config.challenge.docker_ulimit,
-            action_list=_CUR_ACTION_LIST,
         )
 
         _i = 0
