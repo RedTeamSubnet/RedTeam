@@ -88,7 +88,7 @@ def get_web(request: Request) -> HTMLResponse:
 
 
 @validate_call
-def get_nonce(nonce: str) -> str:
+def get_random_val(nonce: str) -> str:
 
     global _CUR_KEY_PAIR
 
@@ -220,7 +220,7 @@ def eval_bot(data: str) -> None:
 __all__ = [
     "get_task",
     "get_web",
-    "get_nonce",
+    "get_random_val",
     "score",
     "eval_bot",
 ]

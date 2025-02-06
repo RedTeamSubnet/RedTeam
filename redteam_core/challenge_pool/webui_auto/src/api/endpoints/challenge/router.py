@@ -44,7 +44,7 @@ def get_task(request: Request):
 
 
 @router.get(
-    "/web",
+    "/_web",
     summary="Serves the webpage",
     description="This endpoint serves the webpage for the challenge.",
     response_class=HTMLResponse,
@@ -73,11 +73,11 @@ def _get_web(request: Request):
 
 
 @router.post(
-    "/nonce",
-    summary="Nonce",
+    "/_random_val",
+    summary="Random value",
     responses={401: {}, 422: {}, 429: {}},
 )
-def _post_nonce(
+def _post_random_val(
     request: Request,
     nonce: constr(strip_whitespace=True) = Body(  # type: ignore
         ...,
@@ -93,9 +93,9 @@ def _post_nonce(
     _request_id = request.state.request_id
     logger.info(f"[{_request_id}] - Checking nonce...")
 
-    _nonce_key: str
+    _nonce_val: str
     try:
-        _nonce_key = service.get_nonce(nonce=nonce)
+        _nonce_val = service.get_random_val(nonce=nonce)
 
         logger.success(f"[{_request_id}] - Successfully checked the nonce.")
     except Exception as err:
@@ -107,7 +107,7 @@ def _post_nonce(
         )
         raise
 
-    _response = {"nonce_key": _nonce_key}
+    _response = {"nonce_val": _nonce_val}
     return _response
 
 
@@ -141,12 +141,12 @@ def post_score(request: Request, miner_input: MinerInput, miner_output: MinerOut
 
 
 @router.post(
-    "/eval",
+    "/_eval",
     summary="Evaluate",
     description="This endpoint evaluate.",
     responses={422: {}, 429: {}},
 )
-def _eval_bot(
+def _post_eval_bot(
     request: Request,
     data: str = Body(
         ...,

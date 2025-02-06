@@ -29,7 +29,7 @@ def main() -> None:
     if not _web_url:
         _command = "ip route | awk '/default/ { print $3 }'"
         _host = subprocess.check_output(_command, shell=True, text=True).strip()
-        _web_url = f"https://{_host}:10001/web"
+        _web_url = f"https://{_host}:10001/_web"
 
     _action_list = os.getenv("WUC_ACTION_LIST")
     if not _action_list:
