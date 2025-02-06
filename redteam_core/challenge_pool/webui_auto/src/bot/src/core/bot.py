@@ -4,6 +4,7 @@ import logging
 from typing import List, Dict
 
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
@@ -31,6 +32,7 @@ def run_bot(
 
     try:
         _wait = WebDriverWait(driver, 15)
+        actions = ActionChains(driver)
 
         # Ensure the page has fully loaded
         _wait.until(
@@ -55,9 +57,12 @@ def run_bot(
         _password_field.send_keys(password)
 
         # Interact with checkboxes
-        _checkboxes = driver.find_elements(By.CSS_SELECTOR, 'input[type="checkbox"]')
-        for _checkbox in _checkboxes:
-            driver.execute_script("arguments[0].click();", _checkbox)
+        for action in action_list["actions"]:
+            if action["type"] == "click":
+                x, y = action["args"]["location"]["x"], action["args"]["location"]["y"]
+                print(f"Clicking at ({x}, {y})")
+                actions.move_by_offset(x, y).click().perform()
+                actions.move_by_offset(-x, -y).perform()
 
         # Submit login
         _login_button = _wait.until(EC.element_to_be_clickable((By.ID, "login-button")))
