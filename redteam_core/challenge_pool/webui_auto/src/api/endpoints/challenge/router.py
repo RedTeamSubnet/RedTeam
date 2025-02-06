@@ -4,7 +4,7 @@ from pydantic import constr
 from fastapi import APIRouter, Request, HTTPException, Body
 from fastapi.responses import HTMLResponse, JSONResponse
 
-from api.core.constants import ALPHANUM_REGEX, ALPHANUM_HYPHEN_REGEX
+from api.core.constants import ALPHANUM_REGEX, ALPHANUM_CUSTOM_REGEX
 from api.endpoints.challenge.schemas import MinerInput, MinerOutput
 from api.endpoints.challenge import service
 from api.logger import logger
@@ -151,13 +151,12 @@ def _eval_bot(
         ...,
         embed=True,
         min_length=2,
-        pattern=ALPHANUM_HYPHEN_REGEX,
+        pattern=ALPHANUM_CUSTOM_REGEX,
         title="Data",
         description="Bot data to evaluate.",
         examples=["data"],
     ),
 ):
-
     _request_id = request.state.request_id
     logger.info(f"[{_request_id}] - Evaluating the bot...")
 
