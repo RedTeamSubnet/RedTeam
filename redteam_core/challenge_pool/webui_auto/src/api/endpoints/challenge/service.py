@@ -44,8 +44,8 @@ _CHALLENGES_CB_LIST: List[List[Dict[str, int]]] = ch_utils.gen_cb_positions(
     checkbox_size=config.challenge.cb_size,
     exclude_areas=config.challenge.cb_exclude_areas,
 )
-_CHALLENGES_ACTION_LIST: List[List[Dict]] = ch_utils.format_positions(
-    list_positions=_CHALLENGES_CB_LIST
+_CHALLENGES_ACTION_LIST: List[List[Dict]] = ch_utils.format_ch_actions(
+    ch_list=_CHALLENGES_CB_LIST
 )
 _CUR_ACTION_LIST: Union[List[Dict], None] = None
 

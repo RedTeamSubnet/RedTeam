@@ -94,18 +94,19 @@ def gen_cb_positions(
 
 
 @validate_call
-def format_positions(list_positions: List[List[Dict[str, int]]]) -> List[Dict]:
+def format_ch_actions(ch_list: List[List[Dict[str, int]]]) -> List[List[Dict]]:
     _formatted_list = []
-    for _positions in list_positions:
+    for _cb_positions in ch_list:
         _action_list = []
-        for index_pos, _position in enumerate(_positions):
+        for _index_pos, _position in enumerate(_cb_positions):
             _action = {
-                "id": index_pos,
+                "id": _index_pos,
                 "type": "click",
                 "args": {"location": _position},
             }
             _action_list.append(_action)
-        _formatted_list.append({"actions": _action_list})
+        _formatted_list.append(_action_list)
+
     return _formatted_list
 
 
@@ -287,6 +288,7 @@ def decrypt(ciphertext: str, private_key: str) -> str:
 __all__ = [
     "gen_key_pairs",
     "gen_cb_positions",
+    "format_ch_actions",
     "check_pip_requirements",
     "copy_bot_files",
     "build_bot_image",
