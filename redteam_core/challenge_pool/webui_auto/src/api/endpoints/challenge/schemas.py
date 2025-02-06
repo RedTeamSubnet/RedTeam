@@ -2,7 +2,7 @@
 
 import os
 import pathlib
-from typing import Optional, Union, List ,Dict,Any
+from typing import Optional, Union, List, Dict, Any
 
 from pydantic import BaseModel, Field, constr, field_validator, HttpUrl
 
@@ -91,6 +91,7 @@ class MinerFilePM(BaseModel):
 
         return val
 
+
 class ActionConfig(BaseModel):
     action_list: Dict[str, Any] = Field(
         ...,
@@ -98,15 +99,13 @@ class ActionConfig(BaseModel):
         description="List of actions to be performed.",
         examples=[
             {
-                "sessionConfig": {
-                    "actions": [
-                        {
-                            "id": "1",
-                            "type": "click",
-                            "args": {"location": {"x": 100, "y": 200}},
-                        }
-                    ]
-                }
+                "actions": [
+                    {
+                        "id": "1",
+                        "type": "click",
+                        "args": {"location": {"x": 100, "y": 200}},
+                    }
+                ]
             }
         ],
     )
