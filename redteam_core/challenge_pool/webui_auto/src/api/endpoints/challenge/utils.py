@@ -95,18 +95,18 @@ def gen_cb_positions(
 
 @validate_call
 def format_positions(list_positions: List[List[Dict[str, int]]]) -> List[Dict]:
-    _formatted_session = []
+    _formatted_list = []
     for _positions in list_positions:
-        action_list = []
+        _action_list = []
         for index_pos, _position in enumerate(_positions):
-            action = {
+            _action = {
                 "id": index_pos,
                 "type": "click",
                 "args": {"location": _position},
             }
-            action_list.append(action)
-        _formatted_session.append({"sessionConfig": {"actions": action_list}})
-    return _formatted_session
+            _action_list.append(_action)
+        _formatted_list.append({"actions": _action_list})
+    return _formatted_list
 
 
 @validate_call

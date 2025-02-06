@@ -36,8 +36,10 @@ def main() -> None:
         raise ValueError("WUC_ACTION_LIST is not set!")
 
     _action_list = json.loads(_action_list)
+    if not isinstance(_action_list, list):
+        raise ValueError("WUC_ACTION_LIST must be a list!")
 
-    _webui_automate = WebUIAutomate(web_url=_web_url, action_list=_action_list)
+    _webui_automate = WebUIAutomate(web_url=_web_url, config={"actions": _action_list})
     _webui_automate()
 
     logger.info("Done!\n")
