@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import List, Optional, Dict
 
-from pydantic import Field, constr, HttpUrl
+from pydantic import Field, constr
 from pydantic_settings import SettingsConfigDict
 
 from api.core.constants import ALPHANUM_HOST_REGEX, ENV_PREFIX
@@ -11,7 +11,6 @@ from ._base import FrozenBaseConfig
 
 
 class ChallengeConfig(FrozenBaseConfig):
-    web_url: HttpUrl = Field(...)
     n_ch_per_epoch: int = Field(...)
     docker_ulimit: int = Field(...)
     allowed_pip_pkg_dt: datetime = Field(...)

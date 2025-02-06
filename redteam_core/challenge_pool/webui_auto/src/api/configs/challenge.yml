@@ -1,5 +1,4 @@
 challenge:
-  web_url: "https://172.17.0.1:10001/web"
   n_ch_per_epoch: 10
   docker_ulimit: 32768
   allowed_pip_pkg_dt: "2025-01-01T00:00:00Z"

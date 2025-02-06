@@ -2,7 +2,7 @@
 
 import time
 import pathlib
-from typing import List, Union
+from typing import List, Union, Dict, Any
 
 import docker
 from pydantic import validate_call
@@ -33,12 +33,23 @@ _KEY_PAIRS: List[KeyPairPM] = ch_utils.gen_key_pairs(
     key_size=config.api.security.asymmetric.key_size,
 )
 _CUR_KEY_PAIR: Union[KeyPairPM, None] = None
-
 _CUR_SCORE: Union[float, None] = None
+_CB_CH_LIST: List[List[Dict[str, int]]] = ch_utils.gen_cb_positions(
+    n_challenge=config.challenge.n_ch_per_epoch,
+    window_width=config.challenge.window_width,
+    window_height=config.challenge.window_height,
+    n_checkboxes=config.challenge.n_checkboxes,
+    min_distance=config.challenge.cb_min_distance,
+    max_factor=config.challenge.cb_gen_max_factor,
+    checkbox_size=config.challenge.cb_size,
+    exclude_areas=config.challenge.cb_exclude_areas,
+)
+_CH_LIST: List[List[Dict]] = None
+_CUR_CH_LIST: List[Dict] = None
 
 
 def get_task() -> MinerInput:
-    _miner_input = MinerInput(web_url=config.challenge.web_url)
+    _miner_input = MinerInput()
     return _miner_input
 
 

@@ -93,12 +93,6 @@ class MinerFilePM(BaseModel):
 
 
 class MinerInput(BaseModel):
-    web_url: HttpUrl = Field(
-        default="https://172.17.0.1:10001/web",
-        title="Web URL",
-        description="Webpage URL for the challenge.",
-        examples=["https://172.17.0.1:10001/web"],
-    )
     random_val: Optional[
         constr(
             strip_whitespace=True, min_length=4, max_length=64, pattern=ALPHANUM_REGEX

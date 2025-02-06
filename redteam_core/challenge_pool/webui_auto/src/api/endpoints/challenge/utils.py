@@ -42,6 +42,7 @@ def gen_key_pairs(n_challenge: int, key_size: int) -> List[KeyPairPM]:
 
 @validate_call
 def gen_cb_positions(
+    n_challenge: int,
     window_width: int = 1920,
     window_height: int = 1080,
     n_checkboxes: int = 5,
@@ -49,43 +50,47 @@ def gen_cb_positions(
     max_factor: int = 10,
     checkbox_size: int = 20,  # Assuming checkbox size ~20px
     exclude_areas: Union[List[Dict[str, int]], None] = None,
-) -> List[Dict[str, int]]:
+) -> List[List[Dict[str, int]]]:
 
-    _positions = []
     _max_attempts = n_checkboxes * max_factor  # Avoid infinite loops
 
-    _attempts = 0
-    while len(_positions) < n_checkboxes:
-        _x = random.randint(0, window_width - checkbox_size)
-        _y = random.randint(0, window_height - checkbox_size)
+    _cb_ch_list = []
+    for _ in range(n_challenge):
+        _attempts = 0
+        _positions = []
+        while len(_positions) < n_checkboxes:
+            _x = random.randint(checkbox_size, window_width - checkbox_size)
+            _y = random.randint(checkbox_size, window_height - checkbox_size)
 
-        _is_near = False
-        for _pos in _positions:
-            ## Calculate distance between two points using Euclidean distance:
-            if (_x - _pos["x"]) ** 2 + (_y - _pos["y"]) ** 2 < min_distance**2:
-                _is_near = True
-                break
-
-        _is_in_area = False
-        if exclude_areas:
-            for _area in exclude_areas:
-                if (_area["x1"] <= _x <= _area["x2"]) and (
-                    _area["y1"] <= _y <= _area["y2"]
-                ):
-                    _is_in_area = True
+            _is_near = False
+            for _pos in _positions:
+                ## Calculate distance between two points using Euclidean distance:
+                if (_x - _pos["x"]) ** 2 + (_y - _pos["y"]) ** 2 < min_distance**2:
+                    _is_near = True
                     break
 
-        if (not _is_near) and (not _is_in_area):
-            _position = {"x": _x, "y": _y}
-            _positions.append(_position)
+            _is_in_area = False
+            if exclude_areas:
+                for _area in exclude_areas:
+                    if (_area["x1"] <= _x <= _area["x2"]) and (
+                        _area["y1"] <= _y <= _area["y2"]
+                    ):
+                        _is_in_area = True
+                        break
 
-        _attempts += 1
+            if (not _is_near) and (not _is_in_area):
+                _position = {"x": _x, "y": _y}
+                _positions.append(_position)
 
-        if _max_attempts <= _attempts:
-            logger.warning("Skipped generating positions due to max attempts!")
-            break
+            _attempts += 1
 
-    return _positions
+            if _max_attempts <= _attempts:
+                logger.warning("Skipped generating positions due to max attempts!")
+                break
+
+        _cb_ch_list.append(_positions)
+
+    return _cb_ch_list
 
 
 @validate_call
