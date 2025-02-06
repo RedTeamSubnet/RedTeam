@@ -43,35 +43,6 @@ def get_task(request: Request):
     return _miner_input
 
 
-@router.post(
-    "/score",
-    summary="Score",
-    description="This endpoint score miner output.",
-    response_class=JSONResponse,
-    responses={400: {}, 408: {}, 422: {}},
-)
-def post_score(request: Request, miner_input: MinerInput, miner_output: MinerOutput):
-
-    _request_id = request.state.request_id
-    logger.info(f"[{_request_id}] - Evaluating the miner output...")
-
-    _score: float = 0.0
-    try:
-        _score = service.score(miner_output=miner_output)
-
-        logger.success(f"[{_request_id}] - Successfully evaluated the miner output.")
-    except Exception as err:
-        if isinstance(err, HTTPException):
-            raise
-
-        logger.error(
-            f"[{_request_id}] - Failed to evaluate the miner output!",
-        )
-        raise
-
-    return _score
-
-
 @router.get(
     "/_web",
     summary="Serves the webpage",
@@ -99,6 +70,35 @@ def _get_web(request: Request):
         raise
 
     return _html_response
+
+
+@router.post(
+    "/score",
+    summary="Score",
+    description="This endpoint score miner output.",
+    response_class=JSONResponse,
+    responses={400: {}, 408: {}, 422: {}},
+)
+def post_score(request: Request, miner_input: MinerInput, miner_output: MinerOutput):
+
+    _request_id = request.state.request_id
+    logger.info(f"[{_request_id}] - Evaluating the miner output...")
+
+    _score: float = 0.0
+    try:
+        _score = service.score(miner_output=miner_output)
+
+        logger.success(f"[{_request_id}] - Successfully evaluated the miner output.")
+    except Exception as err:
+        if isinstance(err, HTTPException):
+            raise
+
+        logger.error(
+            f"[{_request_id}] - Failed to evaluate the miner output!",
+        )
+        raise
+
+    return _score
 
 
 @router.post(
