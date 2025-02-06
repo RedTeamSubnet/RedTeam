@@ -48,7 +48,7 @@ def get_task(request: Request):
     summary="Score",
     description="This endpoint score miner output.",
     response_class=JSONResponse,
-    responses={400: {}, 422: {}},
+    responses={400: {}, 408: {}, 422: {}},
 )
 def post_score(request: Request, miner_input: MinerInput, miner_output: MinerOutput):
 
@@ -108,31 +108,32 @@ def _get_web(request: Request):
 )
 def _post_random_val(
     request: Request,
-    nonce: constr(strip_whitespace=True) = Body(  # type: ignore
+    random_val: constr(strip_whitespace=True) = Body(  # type: ignore
         ...,
         embed=True,
         min_length=4,
         max_length=64,
         pattern=ALPHANUM_REGEX,
-        title="Nonce",
-        description="Nonce to prevent replay attacks.",
+        title="Random value",
+        description="Random value.",
+        examples=["a1b2c3d4e5f6g7h8"],
     ),
 ):
 
     _request_id = request.state.request_id
-    logger.info(f"[{_request_id}] - Checking nonce...")
+    logger.info(f"[{_request_id}] - Checking random val...")
 
     _nonce_val: str
     try:
-        _nonce_val = service.get_random_val(nonce=nonce)
+        _nonce_val = service.get_random_val(nonce=random_val)
 
-        logger.success(f"[{_request_id}] - Successfully checked the nonce.")
+        logger.success(f"[{_request_id}] - Successfully checked the random val.")
     except Exception as err:
         if isinstance(err, HTTPException):
             raise
 
         logger.error(
-            f"[{_request_id}] - Failed to check the nonce!",
+            f"[{_request_id}] - Failed to check the random val!",
         )
         raise
 
