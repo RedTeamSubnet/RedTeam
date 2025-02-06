@@ -17,6 +17,7 @@ try:
 except ImportError:
     from rt_wc_score import MetricsProcessor  # type: ignore
 
+import vault_unlock
 from api.core.constants import ErrorCodeEnum
 from api.core import utils
 from api.config import config
@@ -27,7 +28,7 @@ from api.endpoints.challenge.schemas import KeyPairPM, MinerInput, MinerOutput
 from api.endpoints.challenge import utils as ch_utils
 from api.logger import logger
 
-
+_cur_dir = pathlib.Path(__file__).parent.resolve()
 _src_dir = pathlib.Path(__file__).parent.parent.parent.parent.resolve()
 _bot_dir = _src_dir / "bot"
 
@@ -54,24 +55,29 @@ def _decrypt(ciphertext: str) -> str:
     _CUR_KEY_PAIR = None
 
     # _ciphertext, _key, _iv = _extract(ciphertext=ciphertext)
-    _ciphertext, _key, _iv = ("", "", "")
+    # _ciphertext, _key, _iv = ("", "", "")
 
-    _private_key: PrivateKeyTypes = serialization.load_pem_private_key(
-        data=_private_key.encode()
-    )
-    _key_bytes: bytes = asymmetric_helper.decrypt_with_private_key(
-        ciphertext=_key,
-        private_key=_private_key,
-        base64_decode=True,
-    )
+    # _private_key: PrivateKeyTypes = serialization.load_pem_private_key(
+    #     data=_private_key.encode()
+    # )
+    # _key_bytes: bytes = asymmetric_helper.decrypt_with_private_key(
+    #     ciphertext=_key,
+    #     private_key=_private_key,
+    #     base64_decode=True,
+    # )
 
-    _iv_bytes: bytes = base64.b64decode(_iv)
-    _plaintext: str = symmetric_helper.decrypt_aes_cbc(
-        ciphertext=_ciphertext,
-        key=_key_bytes,
-        iv=_iv_bytes,
-        base64_decode=True,
-        as_str=True,
+    # _iv_bytes: bytes = base64.b64decode(_iv)
+    # _plaintext: str = symmetric_helper.decrypt_aes_cbc(
+    #     ciphertext=_ciphertext,
+    #     key=_key_bytes,
+    #     iv=_iv_bytes,
+    #     base64_decode=True,
+    #     as_str=True,
+    # )
+    # cur dir
+
+    _plaintext: str = vault_unlock.decrypt_payload(
+        encrypted_text=ciphertext, private_key_pem=_private_key
     )
 
     return _plaintext
@@ -187,6 +193,8 @@ def eval_bot(data: str) -> float:
     _score = 0.0
 
     logger.debug("Evaluating the bot...")
+    logger.debug(f"Data: {data}")
+
     try:
         _plaintext = _decrypt(ciphertext=data)
         _metrics_processor = MetricsProcessor()
