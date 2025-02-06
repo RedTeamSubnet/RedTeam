@@ -29,6 +29,7 @@ class ChallengeConfig(FrozenBaseConfig):
     cb_gen_max_factor: int = Field(..., ge=2, le=100)
     cb_size: int = Field(..., ge=10, le=100)
     cb_exclude_areas: Optional[List[Dict[str, int]]] = Field(default=None)
+    bot_timeout: int = Field(..., ge=1)
 
     model_config = SettingsConfigDict(env_prefix=f"{ENV_PREFIX}CHALLENGE_")
 

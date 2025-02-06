@@ -34,7 +34,7 @@ _KEY_PAIRS: List[KeyPairPM] = ch_utils.gen_key_pairs(
 )
 _CUR_KEY_PAIR: Union[KeyPairPM, None] = None
 _CUR_SCORE: Union[float, None] = None
-_CB_CH_LIST: List[List[Dict[str, int]]] = ch_utils.gen_cb_positions(
+_CHALLENGES_CB_LIST: List[List[Dict[str, int]]] = ch_utils.gen_cb_positions(
     n_challenge=config.challenge.n_ch_per_epoch,
     window_width=config.challenge.window_width,
     window_height=config.challenge.window_height,
@@ -44,8 +44,10 @@ _CB_CH_LIST: List[List[Dict[str, int]]] = ch_utils.gen_cb_positions(
     checkbox_size=config.challenge.cb_size,
     exclude_areas=config.challenge.cb_exclude_areas,
 )
-_CH_LIST: List[List[Dict]] = None
-_CUR_CH_LIST: List[Dict] = None
+_CHALLENGES_ACTION_LIST: List[List[Dict]] = ch_utils.format_positions(
+    list_positions=_CHALLENGES_CB_LIST
+)
+_CUR_ACTION_LIST: List[Dict] = None
 
 
 def get_task() -> MinerInput:
@@ -58,6 +60,7 @@ def get_web(request: Request) -> HTMLResponse:
 
     global _KEY_PAIRS
     global _CUR_KEY_PAIR
+    global _CUR_ACTION_LIST
 
     if not _KEY_PAIRS:
         raise BaseHTTPException(
@@ -67,6 +70,7 @@ def get_web(request: Request) -> HTMLResponse:
 
     # _CUR_KEY_PAIR = _KEY_PAIRS[-1]
     _CUR_KEY_PAIR = _KEY_PAIRS.pop()
+    _CUR_ACTION_LIST = _CHALLENGES_ACTION_LIST.pop()
 
     _nonce = _CUR_KEY_PAIR.nonce
     _public_key = utils.gen_random_string(length=32)
@@ -114,6 +118,7 @@ def get_nonce(nonce: str) -> str:
 def score(miner_output: MinerOutput) -> float:
 
     global _CUR_SCORE
+    global _CUR_ACTION_LIST
 
     _score = 0.0
 
@@ -141,8 +146,10 @@ def score(miner_output: MinerOutput) -> float:
             image_name=_image_name,
             container_name=_container_name,
             ulimit=config.challenge.docker_ulimit,
+            action_list=_CUR_ACTION_LIST,
         )
 
+        _i = 0
         while True:
             if _CUR_SCORE is not None:
                 _score = _CUR_SCORE
@@ -151,6 +158,13 @@ def score(miner_output: MinerOutput) -> float:
 
             logger.debug("Waiting for the bot to finish...")
             time.sleep(1)
+            _i += 1
+
+            if config.challenge.bot_timeout < _i:
+                raise BaseHTTPException(
+                    error_enum=ErrorCodeEnum.REQUEST_TIMEOUT,
+                    message=f"Bot execution timeout!",
+                )
 
         logger.debug("Successfully scored the miner output.")
     except Exception as err:

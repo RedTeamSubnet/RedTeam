@@ -10,3 +10,4 @@ challenge:
   cb_gen_max_factor: 10
   cb_size: 20
   # cb_exclude_areas: [[0, 0, 100, 100], [0, 980, 100, 1080]]
+  bot_timeout: 60

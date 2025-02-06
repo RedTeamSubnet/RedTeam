@@ -42,7 +42,7 @@ def gen_key_pairs(n_challenge: int, key_size: int) -> List[KeyPairPM]:
 
 @validate_call
 def gen_cb_positions(
-    n_challenge: int,
+    n_challenge: int = 10,
     window_width: int = 1920,
     window_height: int = 1080,
     n_checkboxes: int = 5,
@@ -92,20 +92,22 @@ def gen_cb_positions(
 
     return _cb_ch_list
 
+
 @validate_call
-def formate_positions(list_positions: List[List[Dict[str, int]]]) -> str:
+def format_positions(list_positions: List[List[Dict[str, int]]]) -> str:
     _formatted_session = []
     for _positions in list_positions:
         action_list = []
         for index_pos, _position in enumerate(_positions):
             action = {
-                "id":index_pos,
+                "id": index_pos,
                 "type": "click",
                 "args": {"location": _position},
             }
             action_list.append(action)
         _formatted_session.append({"sessionConfig": {"actions": action_list}})
     return _formatted_session
+
 
 @validate_call
 def check_pip_requirements(pip_requirements: List[str], target_dt: datetime) -> None:
