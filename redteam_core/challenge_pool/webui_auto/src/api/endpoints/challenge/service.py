@@ -28,7 +28,7 @@ from api.endpoints.challenge.schemas import KeyPairPM, MinerInput, MinerOutput
 from api.endpoints.challenge import utils as ch_utils
 from api.logger import logger
 
-
+_cur_dir = pathlib.Path(__file__).parent.resolve()
 _src_dir = pathlib.Path(__file__).parent.parent.parent.parent.resolve()
 _bot_dir = _src_dir / "bot"
 
@@ -74,8 +74,10 @@ def _decrypt(ciphertext: str) -> str:
     #     base64_decode=True,
     #     as_str=True,
     # )
+    # cur dir
+
     _plaintext: str = vault_unlock.decrypt_payload(
-        ciphertext=ciphertext, private_key=_private_key
+        encrypted_text=ciphertext, private_key_pem=_private_key
     )
 
     return _plaintext
@@ -185,6 +187,8 @@ def eval_bot(data: str) -> float:
     _score = 0.0
 
     logger.debug("Evaluating the bot...")
+    logger.debug(f"Data: {data}")
+
     try:
         _plaintext = _decrypt(ciphertext=data)
         _metrics_processor = MetricsProcessor()
