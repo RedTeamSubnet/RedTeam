@@ -53,6 +53,8 @@ def solve(miner_input: MinerInput = Body(...)) -> MinerOutput:
         if os.path.exists(_system_deps_path):
             with open(_system_deps_path, "r") as _system_deps_file:
                 _system_deps = _system_deps_file.read()
+                if _system_deps:
+                    _system_deps = None
 
         _miner_output = MinerOutput(
             bot_py=_bot_py, system_deps=_system_deps, pip_requirements=_pip_requirements
