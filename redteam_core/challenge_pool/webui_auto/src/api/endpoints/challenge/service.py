@@ -78,12 +78,12 @@ def get_web(request: Request) -> HTMLResponse:
         key_size=config.api.security.asymmetric.key_size, as_str=True
     )
     _, _public_key = _key_pair
-    _actions_config = _CUR_ACTION_LIST
+    _actions_list = _CUR_ACTION_LIST
     _templates = Jinja2Templates(directory=(_src_dir / "./templates/html"))
     _html_response = _templates.TemplateResponse(
         request=request,
         name="index.html",
-        context={"nonce": _nonce, "public_key": _public_key, "actions_config": _actions_config},
+        context={"nonce": _nonce, "public_key": _public_key, "actions_list": _actions_list},
     )
     return _html_response
 
