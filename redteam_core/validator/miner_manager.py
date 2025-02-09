@@ -154,6 +154,10 @@ class MinerManager:
         total_points = 0
         for date_str, record in self.challenge_records.items():
             record_date = datetime.datetime.strptime(date_str, "%Y-%m-%d").replace(tzinfo=datetime.timezone.utc)
+
+            if record.date.year == 2025 and record.date.month == 2 and record.date.day < 8 and record.uid == 27:
+                record.uid = 230
+
             days_passed = (today - record_date).days
             point = constants.decay_points(record.point, days_passed)
             if record.uid is not None:
