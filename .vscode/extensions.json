@@ -1,0 +1,29 @@
+{
+	"recommendations": [
+		"ms-python.python",
+		"ms-python.vscode-pylance",
+		"ms-toolsai.jupyter",
+		"ms-python.black-formatter",
+		"ms-vscode-remote.vscode-remote-extensionpack",
+		"ms-azuretools.vscode-docker",
+		"ms-toolsai.datawrangler",
+		"njpwerner.autodocstring",
+		"editorconfig.editorconfig",
+		"hediet.vscode-drawio",
+		"mikestead.dotenv",
+		"alefragnani.project-manager",
+		"pkief.material-icon-theme",
+		"aaron-bond.better-comments",
+		"gruntfuggly.todo-tree",
+		"piotrpalarz.vscode-gitignore-generator",
+		"timonwong.shellcheck",
+		"davidanson.vscode-markdownlint",
+		"redhat.vscode-yaml",
+		"emilast.logfilehighlighter",
+		"ibm.output-colorizer",
+		"wengerk.highlight-bad-chars",
+		"nhoizey.gremlins",
+		"tamasfe.even-better-toml",
+		"jeff-hykin.better-dockerfile-syntax"
+	]
+}

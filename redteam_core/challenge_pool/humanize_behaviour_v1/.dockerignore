@@ -487,33 +487,36 @@ zsdoc/data
 
 # Custom rules (everything added below won't be overriden by 'Generate .gitignore File' if you use 'Update' option)
 
+
 # Directories:
-log/
-logs/
-backup/
-backups/
-tmp/
-.benchmarks/
+.git
+.github
 
 # Files:
-log
-logs
-backup
-backups
-tmp
+.gitignore
+.gitkeep
+.gitmodules
 .benchmarks
-env
-*.bak
-pm2-process.json
-compose.override.yml
-compose.override.yaml
 
-# Specific directories:
-volumes/**
-
-
-redteam_core.egg-info/
-./.cache/
-
-data/
-logs/
+**/*.git
+**/*.gitignore
+**/*.gitkeep
+**/*.gitmodules
+**/*.github
+**/*__pycache__
+**/*.pytest_cache
+**/*.benchmarks
+**/*.coverage
+**/*.DS_Store
+**/*.Thumbs.db
+**/*.pyc
+**/*.pyo
+**/*.pyd
+**/*.env
+**/*.lock
+**/*.bak
+**/*.log
+**/logs
+**/tmp
+**/data
+**/modules

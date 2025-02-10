@@ -1,0 +1,172 @@
+challenge:
+  n_ch_per_epoch: 10
+  docker_ulimit: 32768
+  allowed_pip_pkg_dt: "2025-01-01T00:00:00Z"
+  allowed_file_exts: [".py", ".json", ".yaml", ".yml", ".txt", ".pt"]
+  bot_timeout: 60
+  window_width: 1420
+  window_height: 740
+  n_checkboxes: 5
+  cb_min_distance: 300
+  cb_gen_max_factor: 10
+  cb_size: 20
+  cb_exclude_areas: [{ "x1": 740, "y1": 520, "x2": 1180, "y2": 720 }]
+  cb_pre_action_list:
+    [
+      [
+        {
+          "id": 0,
+          "type": "click",
+          "args": { "location": { "x": 768, "y": 486 } },
+        },
+        {
+          "id": 1,
+          "type": "click",
+          "args": { "location": { "x": 68, "y": 260 } },
+        },
+        {
+          "id": 2,
+          "type": "click",
+          "args": { "location": { "x": 79, "y": 625 } },
+        },
+        {
+          "id": 3,
+          "type": "click",
+          "args": { "location": { "x": 603, "y": 187 } },
+        },
+        {
+          "id": 4,
+          "type": "click",
+          "args": { "location": { "x": 1320, "y": 91 } },
+        },
+      ],
+      [
+        {
+          "id": 0,
+          "type": "click",
+          "args": { "location": { "x": 390, "y": 78 } },
+        },
+        {
+          "id": 1,
+          "type": "click",
+          "args": { "location": { "x": 1057, "y": 427 } },
+        },
+        {
+          "id": 2,
+          "type": "click",
+          "args": { "location": { "x": 1376, "y": 266 } },
+        },
+        {
+          "id": 3,
+          "type": "click",
+          "args": { "location": { "x": 730, "y": 654 } },
+        },
+        {
+          "id": 4,
+          "type": "click",
+          "args": { "location": { "x": 1384, "y": 716 } },
+        },
+      ],
+      [
+        {
+          "id": 0,
+          "type": "click",
+          "args": { "location": { "x": 611, "y": 364 } },
+        },
+        {
+          "id": 1,
+          "type": "click",
+          "args": { "location": { "x": 234, "y": 669 } },
+        },
+        {
+          "id": 2,
+          "type": "click",
+          "args": { "location": { "x": 1266, "y": 501 } },
+        },
+        {
+          "id": 3,
+          "type": "click",
+          "args": { "location": { "x": 1078, "y": 105 } },
+        },
+      ],
+      [
+        {
+          "id": 0,
+          "type": "click",
+          "args": { "location": { "x": 766, "y": 261 } },
+        },
+        {
+          "id": 1,
+          "type": "click",
+          "args": { "location": { "x": 1321, "y": 52 } },
+        },
+        {
+          "id": 2,
+          "type": "click",
+          "args": { "location": { "x": 110, "y": 520 } },
+        },
+        {
+          "id": 3,
+          "type": "click",
+          "args": { "location": { "x": 638, "y": 564 } },
+        },
+      ],
+      [
+        {
+          "id": 0,
+          "type": "click",
+          "args": { "location": { "x": 603, "y": 247 } },
+        },
+        {
+          "id": 1,
+          "type": "click",
+          "args": { "location": { "x": 224, "y": 608 } },
+        },
+        {
+          "id": 2,
+          "type": "click",
+          "args": { "location": { "x": 142, "y": 200 } },
+        },
+      ],
+      [
+        {
+          "id": 0,
+          "type": "click",
+          "args": { "location": { "x": 544, "y": 208 } },
+        },
+        {
+          "id": 1,
+          "type": "click",
+          "args": { "location": { "x": 1205, "y": 562 } },
+        },
+        {
+          "id": 2,
+          "type": "click",
+          "args": { "location": { "x": 1152, "y": 62 } },
+        },
+      ],
+      [
+        {
+          "id": 0,
+          "type": "click",
+          "args": { "location": { "x": 803, "y": 510 } },
+        },
+        {
+          "id": 1,
+          "type": "click",
+          "args": { "location": { "x": 1320, "y": 434 } },
+        },
+      ],
+      [
+        {
+          "id": 0,
+          "type": "click",
+          "args": { "location": { "x": 969, "y": 271 } },
+        },
+        {
+          "id": 1,
+          "type": "click",
+          "args": { "location": { "x": 301, "y": 122 } },
+        },
+      ],
+    ]
