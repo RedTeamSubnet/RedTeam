@@ -4,7 +4,7 @@ import os
 import pathlib
 from typing import Optional, Union, List, Dict, Any
 
-from pydantic import BaseModel, Field, constr, field_validator, HttpUrl
+from pydantic import BaseModel, Field, constr, field_validator
 
 from api.core.constants import (
     ALPHANUM_REGEX,

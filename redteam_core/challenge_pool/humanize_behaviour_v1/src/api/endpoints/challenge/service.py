@@ -11,9 +11,9 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
 try:
-    from modules.rt_au_score import MetricsProcessor  # type: ignore
+    from modules.rt_hb_score import MetricsProcessor  # type: ignore
 except ImportError:
-    from rt_au_score import MetricsProcessor  # type: ignore
+    from rt_hb_score import MetricsProcessor  # type: ignore
 
 from api.core.constants import ErrorCodeEnum
 from api.config import config
