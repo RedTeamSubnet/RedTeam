@@ -1,6 +1,6 @@
-# Web UI Automation Challenge
+# Humanize Behaviour Challenge
 
-This challenge is designed to test/detect the ability of bot script by measuring how well it can mimic human interaction with a Web UI form.
+The **Humanize Behaviour v1** is designed to test the ability of a bot script to mimic human interaction with a Web UI form. The challenge measures how well the bot script can interact with the form and submit the required information.
 
 ## ✨ Features
 

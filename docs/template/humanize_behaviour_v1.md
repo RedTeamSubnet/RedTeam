@@ -1,22 +1,22 @@
-# Web UI Automation Challenge Submission Guide (Active after Jan 15th 2025 14:00 UTC)
+# Humanize Behaviour v1 Submission Guide (Active after Feb 11st 2025 14:00 UTC)
 
 ## Description
 
-The **Web UI Automation** challenge is designed to test the ability of a bot script to mimic human interaction with a Web UI form. The challenge measures how well the bot script can interact with the form and submit the required information.
+The **Humanize Behaviour v1** is designed to test the ability of a bot script to mimic human interaction with a web ui form. The challenge measures how well the bot script can interact with the form and submit the required information.
 
 This challenge is intended to evaluate the accuracy and efficiency of bot scripts in completing web-based tasks. It assesses the ability of the bot script to navigate through the UI elements, interact with form fields, and submit the required data.
 
-Miners participating in this challenge should be capable of simulating human-like behavior while interacting with the Web UI form by bot script.
+Miners participating in this challenge should be capable of simulating human-like behavior while interacting with the web ui form by bot script.
 
 ---
 
 ## Example Code and Submission Instructions
 
-Example code for the Web UI Automation Challenge can be found in the `redteam_core/miner/commits/webui_auto` directory.
+Example code for the Humanize Behaviour v1 can be found in the `redteam_core/miner/commits/humanize_behaviour_v1` directory.
 
 ### Before You Begin
 
-- Use the template bot script provided in the `redteam_core/miner/commits/webui_auto` directory.
+- Use the template bot script provided in the `redteam_core/miner/commits/humanize_behaviour_v1` directory.
 - Inside `src` folder, you will find the `bot.py` file, which contains the bot script.
 - Modify only **`automate_login()`** function while keeping the rest of the code if you do not know what you are doing.
 - Bot script must be able to check all the checkboxes, fill username and password, and submit the form.
@@ -48,15 +48,15 @@ Example code for the Web UI Automation Challenge can be found in the `redteam_co
 
     - Miner docker container must be run in **amd64** (x86_64) architecture because the selenium driver (chromedriver) is not compatible with **arm64** architecture. If managed to run in ARM architecture, then it's up to you.
 
-### 1. Navigate to the Web UI Automation Commit Directory
+### 1. Navigate to the Humanize Behaviour v1 Commit Directory
 
 ```bash
-cd redteam_core/miner/commits/webui_auto
+cd redteam_core/miner/commits/humanize_behaviour_v1
 ```
 
 ### 2. Build the Docker Image
 
-To build the Docker image for the Web UI Automation submission, run:
+To build the Docker image for the Humanize Behaviour v1 submission, run:
 
 ```bash
 docker build -t my_hub/webui-auto-miner:0.0.1 .
