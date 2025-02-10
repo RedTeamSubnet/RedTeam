@@ -1,4 +1,4 @@
-# Humanize Behaviour Challenge
+# Humanize Behaviour v1 Challenge
 
 The **Humanize Behaviour v1** is designed to test the ability of a bot script to mimic human interaction with a Web UI form. The challenge measures how well the bot script can interact with the form and submit the required information.
 
