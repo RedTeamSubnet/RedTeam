@@ -7,7 +7,7 @@ echo "INFO: Running 'rest.rt-hb-challenger' docker-entrypoint.sh..."
 _doStart()
 {
 	sudo service docker start || exit 2
-	sleep 1
+	sleep 2
 	sudo docker pull redteamsn61/hbc-bot-base:latest || exit 2
 	exec sg docker "exec python -u ./main.py" || exit 2
 	# exec python -u ./main.py || exit 2
