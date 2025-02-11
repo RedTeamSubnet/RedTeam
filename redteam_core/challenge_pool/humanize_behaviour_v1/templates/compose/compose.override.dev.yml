@@ -1,5 +1,5 @@
 services:
-  webui_auto:
+  challenger-api:
     volumes:
       - "./volumes/storage/rest.rt-hb-challenger/logs:${HBC_API_LOGS_DIR:-/var/log/rest.rt-hb-challenger}"
       - "./volumes/storage/rest.rt-hb-challenger/data:${HBC_API_DATA_DIR:-/var/lib/rest.rt-hb-challenger}"
