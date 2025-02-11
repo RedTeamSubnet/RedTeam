@@ -517,3 +517,7 @@ redteam_core.egg-info/
 
 data/
 logs/
+
+
+validator_env/
+miner_env/

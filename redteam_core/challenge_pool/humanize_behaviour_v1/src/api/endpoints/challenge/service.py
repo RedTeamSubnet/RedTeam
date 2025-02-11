@@ -49,8 +49,18 @@ _CHALLENGES_ACTION_LIST: List[
 )
 _CUR_ACTION_LIST: Union[List[Dict], None] = None
 
+# _CUR_KEY_PAIR = _KEY_PAIRS.pop(0)
+# _CUR_ACTION_LIST = _CHALLENGES_ACTION_LIST.pop(0)
+
 
 def get_task() -> MinerInput:
+
+    _miner_input = MinerInput()
+    return _miner_input
+
+
+@validate_call
+def score(miner_output: MinerOutput) -> float:
 
     global _KEY_PAIRS
     global _CHALLENGES_ACTION_LIST
@@ -73,23 +83,6 @@ def get_task() -> MinerInput:
     _CUR_KEY_PAIR = _KEY_PAIRS.pop(0)
     _CUR_ACTION_LIST = _CHALLENGES_ACTION_LIST.pop(0)
     _CUR_SCORE = None
-
-    logger.debug(f"Current action list: {_CUR_ACTION_LIST}")
-
-    _miner_input = MinerInput()
-    return _miner_input
-
-
-@validate_call
-def score(miner_output: MinerOutput) -> float:
-
-    global _CUR_SCORE
-
-    if not _CUR_ACTION_LIST:
-        raise BaseHTTPException(
-            error_enum=ErrorCodeEnum.BAD_REQUEST,
-            message=f"You should get the task first!",
-        )
 
     logger.debug(f"Current action list: {_CUR_ACTION_LIST}")
 

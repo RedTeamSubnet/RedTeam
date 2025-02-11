@@ -245,13 +245,16 @@ def run_bot_container(
         subprocess.run(["sudo", "iptables", "-t", "nat", "-I", "POSTROUTING", "-s", _subnet, "-j", "RETURN"])
         # fmt: on
 
-        # _container = docker_client.containers.get(container_name)
-        # if _container:
-        #     _container.stop()
-        #     _container.remove()
+        try:
+            _containers = docker_client.containers.list(all=True)
+            if _containers:
+                for _container in _containers:
+                    _container.remove(force=True)
+        except Exception:
+            pass
 
         _ulimit_nofile = docker.types.Ulimit(name="nofile", soft=ulimit, hard=ulimit)
-        docker_client.containers.run(
+        _container = docker_client.containers.run(
             image=image_name,
             name=container_name,
             ulimits=[_ulimit_nofile],
@@ -264,7 +267,6 @@ def run_bot_container(
             auto_remove=True,
             **kwargs,
         )
-        _container = docker_client.containers.get(container_name)
 
         for _log in _container.logs(stream=True):
             logger.info(_log.decode().strip())
@@ -272,6 +274,15 @@ def run_bot_container(
         logger.info(
             f"Container '{container_name}' exited with code - {_container.wait()}."
         )
+
+        try:
+            _containers = docker_client.containers.list(all=True)
+            if _containers:
+                for _container in _containers:
+                    _container.remove(force=True)
+        except Exception:
+            pass
+
         logger.info("Successfully ran bot docker container.")
     except Exception as err:
         logger.error(f"Failed to run bot docker: {str(err)}!")

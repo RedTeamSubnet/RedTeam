@@ -242,6 +242,9 @@ class Controller:
         if "hostname" in self.challenge_info:
             kwargs["hostname"] = self.challenge_info["hostname"]
 
+        if "privileged" in self.challenge_info:
+            kwargs["privileged"] = self.challenge_info["privileged"]
+
         container = self.docker_client.containers.run(
             self.challenge_name,
             detach=True,
