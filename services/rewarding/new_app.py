@@ -1,3 +1,4 @@
+import os
 import time
 import argparse
 import datetime
@@ -24,7 +25,7 @@ from redteam_core import (
 )
 from redteam_core.common import get_config
 
-REWARD_APP_SS58_ADDRESS = "5GEPhXy4b6QBvnKnrUeTevxVVuNCZLPng3JVcGqXwRc7Rg1n"
+REWARD_APP_SS58_ADDRESS = os.getenv("REWARD_APP_SS58_ADDRESS")
 REWARD_APP_UID = -1
 
 def get_reward_app_config() -> bt.Config:
@@ -117,7 +118,7 @@ class RewardApp(Validator):
         4. Store results back to storage
         """
         # Update submissions from all validators
-        self.update_validators_miner_commit(self.active_challenges)
+        self._update_validators_miner_commit(self.active_challenges)
 
         # Get unscored submissions and their revealed commits
         unscored_submissions = self.get_unscored_miner_submissions()
@@ -282,7 +283,7 @@ class RewardApp(Validator):
 
     # MARK: Commit Management
     # TODO: Check can we use uid instead of ss58_address for miner_submit keys
-    def update_validators_miner_commit(self, active_challenges) -> list[dict]:
+    def _update_validators_miner_commit(self, active_challenges) -> list[dict]:
         """
         Fetch all miner_submit for challenges from all valid validators in the subnet.
         """

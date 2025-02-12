@@ -1,0 +1,33 @@
+name: 1. Bump Version
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump_type:
+        type: choice
+        description: "Choose bump version type:"
+        required: true
+        options: ["patch", "minor", "major"]
+
+jobs:
+  bump_version:
+    name: 1.2. Bump Version
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Bump version
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          ./scripts/bump-version.sh -b=${{ inputs.bump_type }} -c -p
+      - name: Trigger release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh workflow run 2.create-release.yml

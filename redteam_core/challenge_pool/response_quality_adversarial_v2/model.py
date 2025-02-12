@@ -17,7 +17,7 @@ class SimcseGenerator(TransformerMixin):
     ) -> None:
 
         self.model_name = model_name
-        
+
         self.device =  torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         tokenizer = AutoTokenizer.from_pretrained(model_name)
@@ -49,7 +49,7 @@ class SimcseGenerator(TransformerMixin):
 
         embeddings = np.concatenate(embeddings)
         embeddings /= np.sqrt(np.square(embeddings).sum(axis=1))[:,np.newaxis]
-            
+
         return embeddings
 
 class ResponseQualityHandler():
@@ -64,10 +64,10 @@ class ResponseQualityHandler():
         with open(os.path.join(model_path, 'instruction_label_map.json'),'r') as fp:
             self.instruction_label_map = json.load(fp)
             self.instruction_label_map = {int(k):v for k,v in self.instruction_label_map.items()}
-        
+
         self.instruction_pipeline = joblib.load(os.path.join(model_path, 'instruction_classification_pipeline.joblib'))
         self.response_pipeline = joblib.load(os.path.join(model_path, 'response_quality_pipeline.joblib'))
-        
+
         self.simcse_generator = SimcseGenerator()
 
     def _get_stop_word_proportion(self, s):
@@ -76,12 +76,11 @@ class ResponseQualityHandler():
             words = nltk.tokenize.word_tokenize(s)
         except:
             words = nltk.tokenize.word_tokenize(s[1:])
-        
+
         if len(words)==0:
             return 0
         else:
             return sum(x in self.stop_words for x in words) / len(words)
-            
 
     def predict_instruction_classes(self, df: pd.DataFrame) -> np.ndarray:
         instruction_classes = self.instruction_pipeline.predict(df)
@@ -89,7 +88,6 @@ class ResponseQualityHandler():
         return np.array(list(map(lambda x: self.instruction_label_map[x], instruction_classes))), instruction_class_confidence
 
     def compute_response_quality_feature_space(self, df: pd.DataFrame, instruction_classes: Optional[np.ndarray] = None):
-
         if instruction_classes is None:
             instruction_classes, _ = self.predict_instruction_classes(df)
 
@@ -105,12 +103,12 @@ class ResponseQualityHandler():
         df1['stop_word_proportion'] = df1['response'].apply(self._get_stop_word_proportion)
 
         return df1
-    
+
     def predict_response_quality(self, df, instruction_classes):
         df1 = self.compute_response_quality_feature_space(df, instruction_classes)
         return self.response_pipeline.predict_proba(df1)[:,1]
-    
-    
+
+
     def __call__(self, data: Dict[str, Union[Dict, List]]):
 
         inputs = data['inputs']

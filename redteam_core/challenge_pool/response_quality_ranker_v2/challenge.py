@@ -24,14 +24,14 @@ Guidelines for responses:
     + Simple but accurate
     + Include relevant examples or analogies
 
-- Medium responses (rank 2) might have: 
+- Medium responses (rank 2) might have:
     +  Minor factual errors
     +  Excessive or insufficient detail
     +  Unclear explanations
     +  Mixed accuracy
     +  Partial answers
     +  Overconfident tone with incomplete information
-    
+
 - Lower responses (rank 3+) should include various flaws:
     + Long, detailed responses with incorrect information
     + Confident tone but wrong conclusions
@@ -47,7 +47,7 @@ class Challenge:
     It provides the task to be completed and evaluates the output.
     """
     def __init__(self):
-        VLLM_URL = os.environ.get("VLLM_URL", "http://127.0.0.1:8000/v1") 
+        VLLM_URL = os.environ.get("VLLM_URL", "http://127.0.0.1:8000/v1")
         VLLM_API_KEY = os.environ.get("API_KEY", "api-key")
         self.model_name = os.environ.get("VLLM_MODEL", "unsloth/Meta-Llama-3.1-8B-Instruct")
         self.client = openai.OpenAI(
@@ -98,30 +98,30 @@ class Challenge:
         # Try to parse the response as JSON
         try:
             parsed_response = json.loads(response)
-            
+
             # Validate the required keys exist
             required_keys = ["question", "response", "ranking"]
             if not all(key in parsed_response for key in required_keys):
                 print("Missing required keys in JSON response")
                 return None
-            
+
             # Validate response and ranking arrays have the same length
             if len(parsed_response["response"]) != len(parsed_response["ranking"]):
-                print("Response and ranking arrays length mismatch: response=%d, ranking=%d", 
+                print("Response and ranking arrays length mismatch: response=%d, ranking=%d",
                            len(parsed_response["response"]), len(parsed_response["ranking"]))
                 return None
-            
+
             # Validate minimum number of responses
             if len(parsed_response["response"]) < 3:
                 print("Insufficient number of responses: got %d, expected at least 3", len(parsed_response["response"]))
                 return None
             return parsed_response
-            
+
         except json.JSONDecodeError as e:
             print("Failed to parse JSON response: %s", str(e))
             return None
-        
-    
+
+
     def _call_vllm(self, messages):
         response = self.client.chat.completions.create(
             model=self.model_name,
@@ -151,7 +151,7 @@ class Challenge:
         # Compare the model's ranking with the ground truth ranking
         spearman_corr, _ = spearmanr(ground_truth, model_ranking)
         exact_match = ground_truth == list(model_ranking)
-        
+
         return {
             "ground_truth": ground_truth,
             "model_ranking": list(model_ranking),

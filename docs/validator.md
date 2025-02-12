@@ -14,7 +14,14 @@ Below is the minimum system requirements for running a validator node on the Red
 To set up a validator node on the RedTeam Subnet, follow these steps:
 1. Install the latest version of the RedTeam Subnet repository.
 ```bash
+# Clone the repository
 git clone https://github.com/RedTeamSubnet/RedTeam && cd RedTeam
+
+# Create and activate a virtual environment
+python -m venv .venv
+source venv/bin/activate
+
+# Install the dependencies
 pip install -e .
 ```
 
@@ -39,7 +46,23 @@ To verify the installation, run:
 sudo docker run hello-world
 ```
 
-3. Login to Hugging Face Hub
+3. Install PM2 Process Manager
+Here is an example of how to install PM2 on Ubuntu 20.04 LTS:
+```bash
+# Install Node.js and npm
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+# Install PM2 globally
+sudo npm install -g pm2
+
+# Verify PM2 installation
+pm2 --version
+```
+
+For other platforms, please refer to the [PM2 Installation Guide](https://pm2.io/docs/runtime/guide/installation/).
+
+4. Login to Hugging Face Hub
 Authenticate your Hugging Face Hub account. Run the following command to log in:
 ```bash
 huggingface-cli login
@@ -51,6 +74,10 @@ For setup instructions related to specific challenges, please refer to the [Vali
 
 5. Start the validator node:
 ```bash
+# Activate the virtual environment if not already activated
+source venv/bin/activate
+
+# Start the validator process
 pm2 start python --name "validator_snxxx" \
 -- -m neurons.validator.validator \
 --netuid xxx \
@@ -64,3 +91,15 @@ pm2 start python --name "validator_snxxx" \
 Optional flags:
 - `--logging.trace` - Enable trace logging
 - `--logging.debug` - Enable debug logging
+
+6. (Optional but Recommended) Start the Auto-Update Script
+```bash
+# Activate the virtual environment if not already activated
+source venv/bin/activate
+
+# Start auto-updater
+pm2 start python --name "validator_autoupdate" \
+    -- -m scripts.validator_auto_update \
+    -- --process-name "validator_snxxx"
+```
+

@@ -93,13 +93,14 @@ class Validator(BaseValidator):
         from copy import deepcopy
         # avoid mutating the original ACTIVE_CHALLENGES
         all_challenges = deepcopy(challenge_pool.ACTIVE_CHALLENGES)
-        if datetime.datetime.now(datetime.timezone.utc) <= datetime.datetime(2025, 1, 15, 14, 0, 0, 0, datetime.timezone.utc):
+        if datetime.datetime.now(datetime.timezone.utc) <= datetime.datetime(2025, 2, 14, 14, 0, 0, 0, datetime.timezone.utc):
+            all_challenges.pop("response_quality_adversarial_v3", None)
+            all_challenges.pop("response_quality_ranker_v3", None)
+            all_challenges.pop("humanize_behaviour_v1", None)
+        else:
             all_challenges.pop("response_quality_adversarial_v2", None)
             all_challenges.pop("response_quality_ranker_v2", None)
             all_challenges.pop("webui_auto", None)
-        else:
-            all_challenges.pop("response_quality_adversarial", None)
-            all_challenges.pop("response_quality_ranker", None)
 
         self.active_challenges = all_challenges
         for challenge in self.active_challenges.keys():
@@ -211,7 +212,7 @@ class Validator(BaseValidator):
         """
         self.smooth_transition_challenge()
         self.update_miner_commit(self.active_challenges)
-        bt.logging.success(f"[FORWARD] Miner submit: {self.miner_submit}")
+        bt.logging.success(f"[FORWARD] Forwarding for {datetime.datetime.now(datetime.timezone.utc)}")
         revealed_commits = self.get_revealed_commits()
 
         for challenge, (commits, uids) in revealed_commits.items():
@@ -453,7 +454,7 @@ class Validator(BaseValidator):
         Sets the weights of the miners on-chain based on their accumulated scores.
         Accumulates scores from all challenges.
         """
-        n_uids = len(self.metagraph.axons)
+        n_uids = int(self.metagraph.n)
         uids = list(range(n_uids))
         weights = np.zeros(len(uids))
 
@@ -559,8 +560,8 @@ class Validator(BaseValidator):
         revealed_commits = {}
         for uid, commits in self.miner_submit.items():
             for challenge_name, commit in commits.items():
-                bt.logging.info(f"- {uid} - {challenge_name} - {commit}")
-                if commit["commit"]:
+                bt.logging.info(f"- {uid} - {challenge_name} - {commit.get('encrypted_commit')}")
+                if commit.get("commit"):
                     this_challenge_revealed_commits = revealed_commits.setdefault(
                         challenge_name, ([], [])
                     )

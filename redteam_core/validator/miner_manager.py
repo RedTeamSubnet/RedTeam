@@ -100,6 +100,7 @@ class MinerManager:
         best_docker_hub_id = logs_df[logs_df["uid"] == best_uid]["miner_docker_image"].iloc[0]
 
         if best_score > prev_day_record.score:
+            # Miner made improvement
             point = max(best_score - prev_day_record.score, 0) * 100
             today_record = ChallengeRecord(
                 point=point,
@@ -111,37 +112,14 @@ class MinerManager:
             )
             self.challenge_records[today] = today_record
         else:
-            # Handle if no score improvement
-
-            # Handle backward compatibility for scored_date
-            prev_scored_date = getattr(prev_day_record, "scored_date", None)
-            if prev_scored_date is None and prev_day_record.docker_hub_id:
-                # Search backwards for the nearest record with same docker_hub_id and non-zero points
-                current_date = datetime.datetime.strptime(prev_day, "%Y-%m-%d")
-                while current_date.strftime("%Y-%m-%d") in self.challenge_records:
-                    record = self.challenge_records[current_date.strftime("%Y-%m-%d")]
-                    # If the docker_hub_id is the same and the point is greater than 0, then we have found the nearest scored date
-                    if (record.docker_hub_id == prev_day_record.docker_hub_id and record.point > 0):
-                        prev_scored_date = record.date
-                        break
-                    current_date -= datetime.timedelta(days=1)
-
-            # If no matching record found, use the prev_day_record's date
-            if prev_scored_date is None:
-                prev_scored_date = prev_day_record.date
+            # Miner did not make improvement, so we use the decayed points from the previous day
             today_record = ChallengeRecord(
                 score=prev_day_record.score,
                 date=today,
-                scored_date=prev_scored_date,
+                scored_date=prev_day_record.scored_date,
                 docker_hub_id=prev_day_record.docker_hub_id,
-                # uid=prev_day_record.uid
+                uid=prev_day_record.uid
             )
-            # REMEMBER WE ARE HANDLING BACKWARD COMPATIBILITY USING POINT FIELD SO WAIT FOR THE NEW VERSION TO BE STABLE BEFORE ADDING THIS !!!
-            # Do this if we want to explicitly save the decayed points.
-            # scored_date = datetime.datetime.strptime(today_record.scored_date, "%Y-%m-%d")
-            # days_passed = (today - scored_date).days
-            # point = constants.decay_points(today_record.point, days_passed)
-            # today_record.point = point
             self.challenge_records[today] = today_record
 
     def get_onchain_scores(self, n_uids: int) -> np.ndarray:
@@ -153,18 +131,14 @@ class MinerManager:
 
         total_points = 0
         for date_str, record in self.challenge_records.items():
-            record_date = datetime.datetime.strptime(date_str, "%Y-%m-%d").replace(tzinfo=datetime.timezone.utc)
-            days_passed = (today - record_date).days
-            point = constants.decay_points(record.point, days_passed)
-            if record.uid is not None:
+            # Only add points for the records that have scored date equal to recorded date (recorded by making improvement)
+            if record.scored_date == record.date:
+                # Calculate decayed points
+                record_date = datetime.datetime.strptime(date_str, "%Y-%m-%d").replace(tzinfo=datetime.timezone.utc)
+                days_passed = (today - record_date).days
+                point = constants.decay_points(record.point, days_passed)
                 scores[record.uid] += point
                 total_points += point
-
-            # NOT UPDATED FOR COMPATIBILITY WITH OLD DATA
-            # Only add points for the records that have scored date equal to recorded date (recorded by making improvement)
-            # if record.scored_date == record.date:
-            #     scores[record.uid] += point
-            #     total_points += point
 
         if total_points > 0:
             scores /= total_points

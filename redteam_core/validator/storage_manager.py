@@ -1,6 +1,7 @@
 import os
 import time
 import json
+import random
 import requests
 import threading
 import hashlib
@@ -240,11 +241,20 @@ class StorageManager:
 
         # Process the record immediately
         if retry_config is None:
-            retry_config = {"local": 3, "centralized": 5, "decentralized": 5}
+            retry_config = {"local": 3, "centralized": 3, "decentralized": 3}
 
         challenge_name = data["challenge_name"]
         hashed_cache_key = self.hash_cache_key(data["encrypted_commit"])
         cache_data = self._sanitize_data_for_storage(data=data)
+
+        # Check if update is needed
+        if self._compare_record_to_cache(challenge_name, hashed_cache_key, cache_data):
+            # 10% chance to update anyway
+            if random.random() < 0.1:
+                bt.logging.info(f"Record {hashed_cache_key} already exists in local cache for challenge {challenge_name}, but updating anyway.")
+            else:
+                bt.logging.info(f"Record {hashed_cache_key} already exists in local cache for challenge {challenge_name}, skipping update.")
+                return
 
         # Track success for all storage operations
         success = True
@@ -583,6 +593,33 @@ class StorageManager:
 
         return cache_data
 
+    def _compare_record_to_cache(self, cache_name: str, cache_key: str, record: dict) -> bool:
+        """
+        Compares a record to the cache and returns True if the record is already in the cache with the same data, False otherwise.
+        """
+        # Non-content fields
+        non_content_fields = ["nonce", "signature"]
+
+        cache = self._get_cache(cache_name)
+        existing_record = cache.get(cache_key, None)
+
+        # Construct temp records that exclude non-content fields for comparison
+        temp_existing_record = {field: existing_record[field] for field in existing_record if field not in non_content_fields}
+        temp_record = {field: record[field] for field in record if field not in non_content_fields}
+
+        # Check if data exists in cache
+        if existing_record is None:
+            return False
+
+        # Serialize and compare
+        try:
+            existing_record_str = json.dumps(temp_existing_record)
+            record_str = json.dumps(temp_record)
+            return existing_record_str == record_str
+        except Exception as e:
+            bt.logging.error(f"Error serializing record to compare: {e}")
+            return False
+
     def _retry_operation(self, operation, max_retries: int, operation_name: str) -> tuple[bool, str]:
         """
         Helper method to retry operations with exponential backoff.
@@ -606,7 +643,7 @@ class StorageManager:
                 last_error = str(e)
                 if attempt == max_retries - 1:
                     break
-                wait_time = min(2 ** attempt, 32)  # Exponential backoff, max 8 seconds
+                wait_time = min(5 ** attempt, 32)  # Exponential backoff
                 bt.logging.warning(f"{operation_name} attempt {attempt + 1} failed, retrying in {wait_time}s: {last_error}")
                 time.sleep(wait_time)
 
