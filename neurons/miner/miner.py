@@ -23,7 +23,7 @@ class Miner(BaseMiner):
         self.synapse_commit.reveal_if_ready()
         self._save_synapse_commit()
         synapse_response = self.synapse_commit._hide_secret_info()
-        return synapse_response 
+        return synapse_response
 
     def blacklist(self, synapse: Commit) -> Tuple[bool, str]:
         hotkey = synapse.dendrite.hotkey
@@ -51,7 +51,7 @@ class Miner(BaseMiner):
         commit = yaml.load(open(commit_file), yaml.FullLoader)
         return commit
 
-    
+
 if __name__ == "__main__":
     with Miner() as miner:
         while True:

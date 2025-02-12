@@ -86,14 +86,14 @@ class Challenge:
         return score["spearman_correlation"]
 
     def _create_question_with_ranked_responses(self):
-        question = random.choice(self.questions)
+        original_prompt = random.choice(self.questions)
+        rephrased_prompt = self._rephrase_question(original_prompt)
 
         messages = [
             {"role": "system", "content": SYSTEM_PROMT},
-            {"role": "user", "content": question}
+            {"role": "user", "content": rephrased_prompt}
         ]
         response = self._call_vllm(messages)
-
 
         # Try to parse the response as JSON
         try:
@@ -121,6 +121,22 @@ class Challenge:
             print("Failed to parse JSON response: %s", str(e))
             return None
 
+    def _rephrase_question(self, original_prompt: str) -> str:
+        PROMPT_REPHRASE = f"""Original question: {original_prompt}
+Rephrase the short question that i provided into a more detailed and complex one. Expand context, introduce ambiguities, and add variables or perspectives that make reasoning more challenging while staying relevant to the original intent.
+
+Return only the modified question without any explanation."
+"""
+        messages = [
+            {"role": "user", "content": PROMPT_REPHRASE}
+        ]
+        try:
+            response = self._call_vllm(messages)
+            return response
+        except Exception as e:
+            print(f"[REPHRASE] Failed to rephrase the question: {e}")
+            return original_prompt
+
 
     def _call_vllm(self, messages):
         response = self.client.chat.completions.create(
@@ -128,7 +144,6 @@ class Challenge:
             messages=messages,
             max_tokens=1024,
         )
-        print(response)
         content = response.choices[0].message.content
         return content
 

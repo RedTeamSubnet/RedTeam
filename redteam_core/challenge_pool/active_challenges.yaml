@@ -9,37 +9,37 @@
 #     num_cpus: 4  # Number of CPUs allocated for challenge
 #     mem_limit: "2g"  # Memory limit for task (2 GB)
 
-response_quality_adversarial: ## deprecated after Jan 15th 2025 14:00 UTC
-  name: "Response Quality Adversarial"
-  description: "Trick the classifier into rating your response higher, even with limited prompt information"
-  challenge_incentive_weight: 0.3
-  target: redteam_core.challenge_pool.response_quality_adversarial.Controller
-  challenge_solve_timeout: 10
-  docker_run_timeout: 600
-  resource_limits:
-    num_cpus: 4
-    mem_limit: "20g"
-    cuda_device_ids: ["0"] # Use CUDA devices
-  enviroment:
-    TF_FORCE_GPU_ALLOW_GROWTH": "true" # Allow memory to grow as needed
-    CUDA_DEVICE_ORDER": "PCI_BUS_ID" # Ensure consistent device ordering
-    NVIDIA_VISIBLE_DEVICES": "all" # Set to "all" or restrict devices
-    NVIDIA_MEMORY_LIMIT_MB": "20480" # Limit GPU memory usage to 4GB (optional)
-  exclude_miner_input_key: # Hidden from miner; only visible to validator for evaluation purposes
-    - original_prompt
+# response_quality_adversarial: ## deprecated after Jan 15th 2025 14:00 UTC
+#   name: "Response Quality Adversarial"
+#   description: "Trick the classifier into rating your response higher, even with limited prompt information"
+#   challenge_incentive_weight: 0.3
+#   target: redteam_core.challenge_pool.response_quality_adversarial.Controller
+#   challenge_solve_timeout: 10
+#   docker_run_timeout: 600
+#   resource_limits:
+#     num_cpus: 4
+#     mem_limit: "20g"
+#     cuda_device_ids: ["0"] # Use CUDA devices
+#   enviroment:
+#     TF_FORCE_GPU_ALLOW_GROWTH": "true" # Allow memory to grow as needed
+#     CUDA_DEVICE_ORDER": "PCI_BUS_ID" # Ensure consistent device ordering
+#     NVIDIA_VISIBLE_DEVICES": "all" # Set to "all" or restrict devices
+#     NVIDIA_MEMORY_LIMIT_MB": "20480" # Limit GPU memory usage to 4GB (optional)
+#   exclude_miner_input_key: # Hidden from miner; only visible to validator for evaluation purposes
+#     - original_prompt
 
-response_quality_ranker: ## deprecated after Jan 15th 2025 14:00 UTC
-  name: "Response Quality Ranker"
-  description: "Rank generated responses based on their quality"
-  challenge_incentive_weight: 0.3
-  target: redteam_core.challenge_pool.response_quality_ranker.Controller
-  challenge_solve_timeout: 10
-  docker_run_timeout: 600
-  resource_limits:
-    num_cpus: 4
-    mem_limit: "10g"
-  exclude_miner_input_key: # Hidden from miner; only visible to validator for evaluation purposes
-    - groundtruth_ranking
+# response_quality_ranker: ## deprecated after Jan 15th 2025 14:00 UTC
+#   name: "Response Quality Ranker"
+#   description: "Rank generated responses based on their quality"
+#   challenge_incentive_weight: 0.3
+#   target: redteam_core.challenge_pool.response_quality_ranker.Controller
+#   challenge_solve_timeout: 10
+#   docker_run_timeout: 600
+#   resource_limits:
+#     num_cpus: 4
+#     mem_limit: "10g"
+#   exclude_miner_input_key: # Hidden from miner; only visible to validator for evaluation purposes
+#     - groundtruth_ranking
 
 webui_auto:
   name: "Web User Interface Automation"
@@ -100,3 +100,37 @@ response_quality_ranker_v2: ## active after Jan 15th 2025 14:00 UTC
   exclude_miner_input_key: # Hidden from miner; only visible to validator for evaluation purposes
     - groundtruth_ranking
   baseline: "vietbeu/response_quality_ranker@sha256:5b468ec48eae57907f1ba91de12bfe78f709351b0421e14a3b105dcb00844103"
+
+response_quality_adversarial_v3:
+  name: "Response Quality Adversarial v3"
+  description: "Trick the classifier into rating your response higher, even with limited prompt information"
+  challenge_incentive_weight: 0.3
+  target: redteam_core.challenge_pool.response_quality_adversarial_v3.Controller
+  challenge_solve_timeout: 30
+  docker_run_timeout: 600
+  num_tasks: 30 # Num of tasks for each miner
+  resource_limits:
+    num_cpus: 4
+    mem_limit: "20g"
+    cuda_device_ids: ["0"] # Use CUDA devices
+  enviroment:
+    TF_FORCE_GPU_ALLOW_GROWTH": "true" # Allow memory to grow as needed
+    CUDA_DEVICE_ORDER": "PCI_BUS_ID" # Ensure consistent device ordering
+    NVIDIA_VISIBLE_DEVICES": "all" # Set to "all" or restrict devices
+    NVIDIA_MEMORY_LIMIT_MB": "20480" # Limit GPU memory usage to 4GB (optional)
+  exclude_miner_input_key: # Hidden from miner; only visible to validator for evaluation purposes
+    - original_prompt
+
+response_quality_ranker_v3:
+  name: "Response Quality Ranker v3"
+  description: "Rank generated responses based on their quality"
+  challenge_incentive_weight: 0.3
+  target: redteam_core.challenge_pool.response_quality_ranker_v3.Controller
+  challenge_solve_timeout: 20
+  docker_run_timeout: 600
+  num_tasks: 30 # Num of tasks for each miner
+  resource_limits:
+    num_cpus: 4
+    mem_limit: "10g"
+  exclude_miner_input_key: # Hidden from miner; only visible to validator for evaluation purposes
+    - groundtruth_ranking

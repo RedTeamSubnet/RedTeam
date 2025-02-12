@@ -18,7 +18,8 @@
 	"[python]": {
 		"editor.defaultFormatter": "ms-python.black-formatter",
 		"editor.formatOnSave": true,
-		"editor.insertSpaces": true
+		"editor.insertSpaces": true,
+		"diffEditor.ignoreTrimWhitespace": true
 	},
 	"[yaml]": {
 		"editor.formatOnSave": true,
