@@ -1,12 +1,10 @@
-# Web UI Automation Challenge - Miner
+# Humanize Behaviour v1 Challenge - Miner
 
-This is miner bot script repo for the Web UI Automation Challenge. This is sandboxed sample code for the challenge, you can use this code to test your bot script.
+This is miner bot script repo for the Humanize Behaviour v1 Challenge. This is sandboxed sample code for the challenge, you can use this code to test your bot script.
 
 ## ✨ Features
 
-- API server solving the challenge
 - Health check endpoint
-- Dockerfile for deployment
 - FastAPI
 - Web service
 
@@ -67,10 +65,11 @@ pip install -r ./requirements.txt
 
 ```sh
 cd src
-uvicorn main:app --host="0.0.0.0" --port=10002 --no-access-log --no-server-header --proxy-headers --forwarded-allow-ips="*"
+uvicorn app:app --host="0.0.0.0" --port=10002 --no-access-log --no-server-header --proxy-headers --forwarded-allow-ips="*"
 
 # For DEVELOPMENT:
-uvicorn main:app --host="0.0.0.0" --port=10002 --no-access-log --no-server-header --proxy-headers --forwarded-allow-ips="*" --reload
+cd src
+uvicorn app:app --host="0.0.0.0" --port=10002 --no-access-log --no-server-header --proxy-headers --forwarded-allow-ips="*" --reload
 ```
 
 ### 5. ✅ Check server is running
@@ -79,7 +78,7 @@ Check with CLI (curl):
 
 ```sh
 # Send a ping request with 'curl' to API server and parse JSON response with 'jq':
-curl -s http://localhost:10002/ping | jq
+curl -s http://localhost:10002/ping
 ```
 
 Check with web browser:
@@ -88,8 +87,6 @@ Check with web browser:
 - Swagger: <http://localhost:10002/docs>
 - Redoc: <http://localhost:10002/redoc>
 - OpenAPI JSON: <http://localhost:10002/openapi.json>
-
-👍
 
 ---
 
