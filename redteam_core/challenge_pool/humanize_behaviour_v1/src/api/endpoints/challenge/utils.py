@@ -2,6 +2,7 @@
 
 import os
 import re
+import time
 import random
 import requests
 import subprocess
@@ -249,9 +250,12 @@ def run_bot_container(
             _containers = docker_client.containers.list(all=True)
             if _containers:
                 for _container in _containers:
+                    _container.stop()
                     _container.remove(force=True)
         except Exception:
             pass
+
+        time.sleep(1)
 
         _ulimit_nofile = docker.types.Ulimit(name="nofile", soft=ulimit, hard=ulimit)
         _container = docker_client.containers.run(
@@ -264,7 +268,6 @@ def run_bot_container(
             },
             network=network_name,
             detach=True,
-            auto_remove=True,
             **kwargs,
         )
 
@@ -275,13 +278,9 @@ def run_bot_container(
             f"Container '{container_name}' exited with code - {_container.wait()}."
         )
 
-        try:
-            _containers = docker_client.containers.list(all=True)
-            if _containers:
-                for _container in _containers:
-                    _container.remove(force=True)
-        except Exception:
-            pass
+        _container.remove(force=True)
+
+        time.sleep(1)
 
         logger.info("Successfully ran bot docker container.")
     except Exception as err:

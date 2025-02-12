@@ -49,9 +49,6 @@ _CHALLENGES_ACTION_LIST: List[
 )
 _CUR_ACTION_LIST: Union[List[Dict], None] = None
 
-# _CUR_KEY_PAIR = _KEY_PAIRS.pop(0)
-# _CUR_ACTION_LIST = _CHALLENGES_ACTION_LIST.pop(0)
-
 
 def get_task() -> MinerInput:
 
