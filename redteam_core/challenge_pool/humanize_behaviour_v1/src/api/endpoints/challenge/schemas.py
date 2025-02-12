@@ -147,11 +147,7 @@ class MinerOutput(BaseModel):
         title="Pip Requirements",
         description="Dependencies required for the bot.py as a list of strings.",
         examples=[
-            [
-                "pydantic[email,timezone]>=2.0.0,<3.0.0",
-                "selenium>=4.16.0,<5.0.0",
-                "PyAutoGUI>=0.9.54,<1.0.0",
-            ]
+            ["pydantic[email,timezone]>=2.0.0,<3.0.0", "selenium>=4.16.0,<5.0.0"]
         ],
     )
     # extra_files: Optional[List[MinerFilePM]] = Field(
