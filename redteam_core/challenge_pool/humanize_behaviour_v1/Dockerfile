@@ -29,7 +29,7 @@ RUN _BUILD_TARGET_ARCH=$(uname -m) && \
 		build-essential \
 		git \
 		wget && \
-	_MINICONDA_VERSION=py39_24.11.1-0 && \
+	_MINICONDA_VERSION=py310_25.1.1-2 && \
 	if [ "${_BUILD_TARGET_ARCH}" == "x86_64" ]; then \
 		_MINICONDA_FILENAME=Miniconda3-${_MINICONDA_VERSION}-Linux-x86_64.sh && \
 		export _MINICONDA_URL=https://repo.anaconda.com/miniconda/${_MINICONDA_FILENAME}; \

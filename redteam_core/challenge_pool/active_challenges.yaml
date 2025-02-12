@@ -44,10 +44,11 @@
 humanize_behaviour_v1:
   name: "Humanize Behaviour v1"
   description: "Imitate human-like behaviour for given UI tasks"
-  challenge_incentive_weight: 0.4
+  challenge_incentive_weight: 0.3
   target: redteam_core.challenge_pool.humanize_behaviour_v1.Controller
   challenge_solve_timeout: 45
   docker_run_timeout: 1200
+  privileged: true
   protocols:
     challenger: "https"
     challenger_ssl_verify: false
