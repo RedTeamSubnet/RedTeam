@@ -1,6 +1,6 @@
 services:
   challenger-api:
-    image: rest.rt-hb-challenger:latest
+    image: humanize_behaviour_v1:latest
     build:
       context: .
     restart: unless-stopped
