@@ -15,3 +15,4 @@ async def solve(data: MinerInput):
 @app.get("/health")
 def health():
     return {"status": "ok"}
+

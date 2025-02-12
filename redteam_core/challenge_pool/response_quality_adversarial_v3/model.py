@@ -82,12 +82,14 @@ class ResponseQualityHandler():
         else:
             return sum(x in self.stop_words for x in words) / len(words)
 
+
     def predict_instruction_classes(self, df: pd.DataFrame) -> np.ndarray:
         instruction_classes = self.instruction_pipeline.predict(df)
         instruction_class_confidence = self.instruction_pipeline.predict_proba(df).max(axis=1)
         return np.array(list(map(lambda x: self.instruction_label_map[x], instruction_classes))), instruction_class_confidence
 
     def compute_response_quality_feature_space(self, df: pd.DataFrame, instruction_classes: Optional[np.ndarray] = None):
+
         if instruction_classes is None:
             instruction_classes, _ = self.predict_instruction_classes(df)
 
@@ -96,17 +98,17 @@ class ResponseQualityHandler():
         instruction_classes_onehot = pd.DataFrame(instruction_classes[:,np.newaxis]==np.array(instruction_class_set)[np.newaxis,:], columns=instruction_class_set).astype(float)
 
         df1 = pd.concat([df,instruction_classes_onehot], axis=1)
-
-        df1['instruction_response_similarity'] = (self.simcse_generator.transform(df['instruction'].tolist()) * self.simcse_generator.transform(df['response'].tolist())).sum(axis=1)
-
+        embedding_similarity = (self.simcse_generator.transform(df['instruction'].tolist()) * self.simcse_generator.transform(df['response'].tolist())).sum(axis=1)
+        df1['instruction_response_similarity'] = embedding_similarity
         df1['token_number'] = df1['response'].str.split().apply(len)
         df1['stop_word_proportion'] = df1['response'].apply(self._get_stop_word_proportion)
 
-        return df1
+        return embedding_similarity, df1
 
     def predict_response_quality(self, df, instruction_classes):
-        df1 = self.compute_response_quality_feature_space(df, instruction_classes)
-        return self.response_pipeline.predict_proba(df1)[:,1]
+        embedding_similarity, df1 = self.compute_response_quality_feature_space(df, instruction_classes)
+        response_qal = self.response_pipeline.predict_proba(df1)
+        return (embedding_similarity * response_qal[:,1] + 1) / 2
 
 
     def __call__(self, data: Dict[str, Union[Dict, List]]):
@@ -131,7 +133,7 @@ class ResponseQualityHandler():
 
         if 'response' in df.columns:
             response_qualities = self.predict_response_quality(df, instruction_classes)
-            for i,response_quality in enumerate(response_qualities):
+            for i, response_quality in enumerate(response_qualities):
                 predictions[i].update({'response_quality': response_quality})
 
         if is_dict:

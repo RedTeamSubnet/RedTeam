@@ -211,7 +211,7 @@ class Validator(BaseValidator):
         """
         self.smooth_transition_challenge()
         self.update_miner_commit(self.active_challenges)
-        bt.logging.success(f"[FORWARD] Miner submit: {self.miner_submit}")
+        bt.logging.success(f"[FORWARD] Forwarding for {datetime.datetime.now(datetime.timezone.utc)}")
         revealed_commits = self.get_revealed_commits()
 
         for challenge, (commits, uids) in revealed_commits.items():
@@ -453,7 +453,7 @@ class Validator(BaseValidator):
         Sets the weights of the miners on-chain based on their accumulated scores.
         Accumulates scores from all challenges.
         """
-        n_uids = len(self.metagraph.axons)
+        n_uids = int(self.metagraph.n)
         uids = list(range(n_uids))
         weights = np.zeros(len(uids))
 
@@ -559,8 +559,8 @@ class Validator(BaseValidator):
         revealed_commits = {}
         for uid, commits in self.miner_submit.items():
             for challenge_name, commit in commits.items():
-                bt.logging.info(f"- {uid} - {challenge_name} - {commit}")
-                if commit["commit"]:
+                bt.logging.info(f"- {uid} - {challenge_name} - {commit.get('encrypted_commit')}")
+                if commit.get("commit"):
                     this_challenge_revealed_commits = revealed_commits.setdefault(
                         challenge_name, ([], [])
                     )

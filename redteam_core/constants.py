@@ -20,7 +20,7 @@ class Constants(BaseModel):
 
     # Versioning
     VERSION: str = Field(
-        default="0.0.1",
+        default="0.0.3",
         description="Version of the application in 'major.minor.patch' format.",
     )
     SPEC_VERSION: int = Field(
@@ -60,7 +60,7 @@ class Constants(BaseModel):
 
     # Query settings
     QUERY_TIMEOUT: int = Field(
-        default=30, description="Timeout for queries in seconds."
+        default=60, description="Timeout for queries in seconds."
     )
 
     # Centralized API settings

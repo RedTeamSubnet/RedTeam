@@ -1,7 +1,8 @@
 ## Custom Setup for Specific Challenges
 
-### Response Quality Ranker Challenge
-To set up the environment for the **Response Quality Ranker** challenge, you will need to create a vLLM server.
+Some challenges include using LLM models to generate responses. We setup a vLLM server to serve the these challenges and use it in default so your validator can run the challenges without hosting one. In case you want to host your own vLLM server, you can follow the instructions below.
+
+To set up the environment for the **Response Quality Ranker** challenges and **Response Quality Adversarial V2-V3** challenges, you will need to create a vLLM server.
 
 1. Create a virtual environment and install the required dependencies:
    ```bash
@@ -12,7 +13,7 @@ To set up the environment for the **Response Quality Ranker** challenge, you wil
 
 2. Run the vLLM server with the appropriate model:
    ```bash
-   HF_TOKEN=<your-huggingface-token> python -m vllm.entrypoints.openai.api_server --model unsloth/Meta-Llama-3.1-8B-Instruct --max-model-len 4096 --port <your-vllm-port>
+   HF_TOKEN=<your-huggingface-token> python -m vllm.entrypoints.openai.api_server --model unsloth/Meta-Llama-3.1-8B-Instruct --max-model-len 4096 --port <your-vllm-port> --gpu_memory_utilization <your-gpu-memory-utilization>
    ```
 
 3. Set the necessary environment variables in Dockerfile:
@@ -21,4 +22,11 @@ To set up the environment for the **Response Quality Ranker** challenge, you wil
    ENV API_KEY="your-api-key"
    ENV VLLM_MODEL="unsloth/Meta-Llama-3.1-8B-Instruct"
    ```
+
+   You can find these Dockerfile in each challenge folder in the challenge_pool folders:
+    - redteam_core/challenge_pool/response_quality_adversarial_v2/Dockerfile
+    - redteam_core/challenge_pool/response_quality_adversarial_v3/Dockerfile
+    - redteam_core/challenge_pool/response_quality_ranker/Dockerfile
+    - redteam_core/challenge_pool/response_quality_ranker_v2/Dockerfile
+    - redteam_core/challenge_pool/response_quality_ranker_v3/Dockerfile
 
