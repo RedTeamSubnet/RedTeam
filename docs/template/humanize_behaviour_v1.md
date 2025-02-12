@@ -17,9 +17,10 @@ Example code for the Humanize Behaviour v1 can be found in the [`redteam_core/mi
 ### Environment
 
 Your bot script should be compatible with these:
-- Python: 3.10
-- Ubuntu: 24.04
-- Docker image: selenium/standalone-chrome:4.28.1
+
+- Python: **3.12**
+- Ubuntu: **24.04**
+- Docker image: **selenium/standalone-chrome:4.28.1**
 
 ### Before You Begin
 
@@ -33,21 +34,16 @@ Your bot script should be compatible with these:
     - Submit the form
 - Do not remove or rename `run_bot` function.
 
-> [!IMPORTANT]
-> ### Things to remember
-> - Use provided `driver` as your main driver. If you don't follow, you may fail to run the challenge or get a low score.
-> - Click only in `provided locations`:
->   - Clicking extra for input and submit button is ok
->   - If your script clicks in wrong order or skips some locations, you will not be able to submit the form
-> - Make sure the bot scripts run on **`headless browser`**
-> - Click `login-button` at the end of session; if you press it before, the session will end automatically
-> - Provide dependencies in [`requirements.txt`](../../redteam_core/miner/commits/humanize_behaviour_v1/src/bot/requirements.txt)
-> - The miner docker container must be run in **amd64** (x86_64) architecture because the selenium driver (chromedriver) is not compatible with **arm64** architecture. If managed to run in ARM architecture, then it's up to you.
-> ### Strict requirements
-> - `run_bot` function of yours will be imported and used in `solve` endpoint. As for this reason, make sure:
->    - **Optional**:To provide system level dependencies so that we can use your script. If you don't provide them we will use default `docker image`
->    - **PS**: It is allowed to use third party packages as far as it is compatible with our Environment
+### Things to remember
 
+- Use provided `driver` as your main driver. If you don't follow, you may fail to run the challenge or get a low score.
+- Click only in `provided locations`:
+    - Clicking extra for input and submit button is ok
+    - If your script clicks in wrong order or skips some locations, you will not be able to submit the form
+- Make sure the bot scripts run on **`headless browser`**
+- Click `login-button` at the end of session; if you press it before, the session will end automatically
+- Provide dependencies in [`requirements.txt`](../../redteam_core/miner/commits/humanize_behaviour_v1/src/bot/requirements.txt)
+- The miner docker container must be run in **amd64** (x86_64) architecture because the selenium driver (chromedriver) is not compatible with **arm64** architecture. If managed to run in ARM architecture, then it's up to you.
 
 ### 1. Navigate to the Humanize Behaviour v1 Commit Directory
 
