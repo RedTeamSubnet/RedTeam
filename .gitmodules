@@ -1,6 +1,6 @@
-[submodule "redteam_core/challenge_pool/webui_auto/src/modules/rt_wc_score"]
-	path = redteam_core/challenge_pool/webui_auto/src/modules/rt_wc_score
-	url = ../module.rt-wc-score.git
-[submodule "redteam_core/challenge_pool/webui_auto/volumes/src/web.rtc-wc-login-page"]
-	path = redteam_core/challenge_pool/webui_auto/volumes/src/web.rtc-wc-login-page
-	url = ../web.rt-wc-login-page.git
+[submodule "redteam_core/challenge_pool/humanize_behaviour_v1/src/modules/rt_hb_score"]
+	path = redteam_core/challenge_pool/humanize_behaviour_v1/src/modules/rt_hb_score
+	url = ../module.rt-hb-score.git
+[submodule "redteam_core/challenge_pool/humanize_behaviour_v1/volumes/src/web.rt-hb-login-page"]
+	path = redteam_core/challenge_pool/humanize_behaviour_v1/volumes/src/web.rt-hb-login-page
+	url = ../web.rt-hb-login-page.git

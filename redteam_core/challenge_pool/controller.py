@@ -79,16 +79,14 @@ class Controller:
         container = self._run_challenge_container()
         bt.logging.info(f"[Controller] Challenge container started: {container.status}")
         self._check_container_alive(
-            container, health_port=constants.CHALLENGE_DOCKER_PORT,
-            is_challenger=True
+            container, health_port=constants.CHALLENGE_DOCKER_PORT, is_challenger=True
         )
-        num_task = self.challenge_info.get("num_tasks", constants.N_CHALLENGES_PER_EPOCH)
-        challenges = [
-            self._get_challenge_from_container()
-            for _ in range(num_task)
-        ]
-        logs = [] # Logs for miners
-        baseline_logs = [] # Logs for baseline
+        num_task = self.challenge_info.get(
+            "num_tasks", constants.N_CHALLENGES_PER_EPOCH
+        )
+        challenges = [self._get_challenge_from_container() for _ in range(num_task)]
+        logs = []  # Logs for miners
+        baseline_logs = []  # Logs for baseline
         for miner_docker_image, uid in zip(self.miner_docker_images, self.uids):
             try:
                 is_image_valid = self._validate_image_with_digest(miner_docker_image)
@@ -104,7 +102,9 @@ class Controller:
                         }
                     )
                     continue
-                bt.logging.info(f"[Controller] Running miner {uid}: {miner_docker_image}")
+                bt.logging.info(
+                    f"[Controller] Running miner {uid}: {miner_docker_image}"
+                )
                 self._clear_container_by_port(constants.MINER_DOCKER_PORT)
 
                 kwargs = {}
@@ -138,11 +138,13 @@ class Controller:
                     health_port=constants.MINER_DOCKER_PORT,
                     is_challenger=False,
                     timeout=self.challenge_info.get("docker_run_timeout", 600),
-                    start_time=miner_start_time
+                    start_time=miner_start_time,
                 )
 
                 for i, miner_input in enumerate(challenges):
-                    miner_output, error_message = self._submit_challenge_to_miner(miner_input)
+                    miner_output, error_message = self._submit_challenge_to_miner(
+                        miner_input
+                    )
                     score = (
                         self._score_challenge(miner_input, miner_output)
                         if miner_output is not None
@@ -239,6 +241,9 @@ class Controller:
 
         if "hostname" in self.challenge_info:
             kwargs["hostname"] = self.challenge_info["hostname"]
+
+        if "privileged" in self.challenge_info:
+            kwargs["privileged"] = self.challenge_info["privileged"]
 
         container = self.docker_client.containers.run(
             self.challenge_name,
@@ -382,31 +387,12 @@ class Controller:
             network_info = self.docker_client.api.inspect_network(network.id)
             subnet = network_info["IPAM"]["Config"][0]["Subnet"]
             iptables_commands = [
-                # Block forwarded traffic to the internet
-                [
-                    "iptables",
-                    "-I",
-                    "FORWARD",
-                    "-s",
-                    subnet,
-                    "!",
-                    "-d",
-                    subnet,
-                    "-j",
-                    "DROP",
-                ],
-                # Prevent NAT to the internet
-                [
-                    "iptables",
-                    "-t",
-                    "nat",
-                    "-I",
-                    "POSTROUTING",
-                    "-s",
-                    subnet,
-                    "-j",
-                    "RETURN",
-                ],
+                # fmt: off
+                # Block forwarded traffic to the internet:
+                ["iptables", "-I", "FORWARD", "-s", subnet, "!", "-d", subnet, "-j", "DROP"],
+                # Prevent NAT to the internet:
+                [ "iptables", "-t", "nat", "-I", "POSTROUTING", "-s", subnet, "-j", "RETURN"]
+                # fmt: on
             ]
 
             for cmd in iptables_commands:
@@ -464,7 +450,12 @@ class Controller:
 
         return _protocol, _ssl_verify
 
-    def _clean_up_docker_resources(self, remove_containers: bool = True, remove_images: bool = True, remove_networks: bool = False):
+    def _clean_up_docker_resources(
+        self,
+        remove_containers: bool = True,
+        remove_images: bool = True,
+        remove_networks: bool = False,
+    ):
         """Clean up docker resources by removing all exited or dead containers, dangling images, and unused networks."""
         try:
             if remove_containers:
@@ -472,7 +463,9 @@ class Controller:
                 bt.logging.info("Removing stopped containers...")
                 for container in self.docker_client.containers.list(all=True):
                     if container.status in ["exited", "dead"]:
-                        print(f"Removing container {container.name} ({container.id})...")
+                        print(
+                            f"Removing container {container.name} ({container.id})..."
+                        )
                         container.remove(force=True)
 
             if remove_images:
@@ -480,7 +473,9 @@ class Controller:
                 bt.logging.info("Removing dangling images...")
                 for image in self.docker_client.images.list(filters={"dangling": True}):
                     bt.logging.info(f"Removing image {image.id}...")
-                    self.docker_client.images.remove(image.id, force=True, noprune=False)
+                    self.docker_client.images.remove(
+                        image.id, force=True, noprune=False
+                    )
 
             # Delete unused resources (volumes, build cache)
             bt.logging.info("Pruning unused resources (volumes, build cache)...")
@@ -491,23 +486,34 @@ class Controller:
 
             bt.logging.info("Docker resources cleaned up successfully.")
         except Exception as e:
-            bt.logging.error(f"An error occurred while cleaning up docker resources: {e}")
+            bt.logging.error(
+                f"An error occurred while cleaning up docker resources: {e}"
+            )
 
-    def _check_container_alive(self, container: docker.models.containers.Container, health_port, is_challenger=True, timeout=None, start_time=None):
+    def _check_container_alive(
+        self,
+        container: docker.models.containers.Container,
+        health_port,
+        is_challenger=True,
+        timeout=None,
+        start_time=None,
+    ):
         """Check when the container is running successfully"""
         if not start_time:
             start_time = time.time()
-        while not self._check_alive(
-            port=health_port, is_challenger=is_challenger
-        ) and (
+        while not self._check_alive(port=health_port, is_challenger=is_challenger) and (
             not timeout or time.time() - start_time < timeout
         ):
             container.reload()
             if container.status in ["exited", "dead"]:
                 container_logs = container.logs().decode("utf-8", errors="ignore")
-                bt.logging.error(f"[Controller] Container {container} failed with status: {container.status}")
+                bt.logging.error(
+                    f"[Controller] Container {container} failed with status: {container.status}"
+                )
                 bt.logging.error(f"[Controller] Container logs:\n{container_logs}")
-                raise RuntimeError(f"Container failed to start. Status: {container.status}. Container logs: {container_logs}")
+                raise RuntimeError(
+                    f"Container failed to start. Status: {container.status}. Container logs: {container_logs}"
+                )
             else:
                 bt.logging.info(
                     f"[Controller] Waiting for  container to start. {container.status}"

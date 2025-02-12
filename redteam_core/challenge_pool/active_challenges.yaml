@@ -41,29 +41,24 @@
 #   exclude_miner_input_key: # Hidden from miner; only visible to validator for evaluation purposes
 #     - groundtruth_ranking
 
-webui_auto:
-  name: "Web User Interface Automation"
-  description: "Detect automated UI interactions by analyzing behavioral patterns"
-  challenge_incentive_weight: 0.4
-  target: redteam_core.challenge_pool.webui_auto.Controller
+humanize_behaviour_v1:
+  name: "Humanize Behaviour v1"
+  description: "Imitate human-like behaviour for given UI tasks"
+  challenge_incentive_weight: 0.3
+  target: redteam_core.challenge_pool.humanize_behaviour_v1.Controller
   challenge_solve_timeout: 45
-  docker_run_timeout: 600
-  hostname: "webui_auto"
+  docker_run_timeout: 1200
+  privileged: true
   protocols:
     challenger: "https"
     challenger_ssl_verify: false
     miner: "http"
     miner_ssl_verify: false
-  same_network: true
-  allowed_destinations:
-    - webui_auto
   resource_limits:
     num_cpus: 4
-    mem_limit: "8g"
+    mem_limit: "12g"
   environment:
     ENV: "PRODUCTION"
-    WUC_WEB_URL: "https://webui_auto:10001/web"
-  # baseline: "asadbekk/rest.rt-wu-miner@sha256:b8cd274c0fbb4b30b98274465424025a8b0d070c9cca4e80e0d79f69f49a5c17"
 
 response_quality_adversarial_v2: ## active after Jan 15th 2025 14:00 UTC
   name: "Response Quality Adversarial v2"

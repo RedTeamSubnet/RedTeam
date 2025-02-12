@@ -1,2 +1,0 @@
-fastapi[all]~=0.110.1
-selenium~=4.27.1
