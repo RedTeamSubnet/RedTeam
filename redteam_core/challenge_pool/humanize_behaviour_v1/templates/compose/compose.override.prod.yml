@@ -1,6 +1,6 @@
 services:
   challenger-api:
-    image: rest.rt-hb-challenger:0.0.1-241210
+    image: humanize_behaviour_v1:0.0.1-241210
     # volumes:
     #   - "api-vscode-server:/home/wuc-user/.vscode-server"
     # deploy:
