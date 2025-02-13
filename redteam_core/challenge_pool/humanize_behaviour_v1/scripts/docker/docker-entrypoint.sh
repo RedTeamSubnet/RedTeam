@@ -22,9 +22,9 @@ main()
 {
 	umask 0002 || exit 2
 	find "${HBC_HOME_DIR}" "${HBC_API_DATA_DIR}" "${HBC_API_LOGS_DIR}" "${HBC_API_TMP_DIR}" -path "*/modules" -prune -o -name ".env" -o -print0 | sudo xargs -0 chown -c "${USER}:${GROUP}" || exit 2
-	find "${HBC_API_DIR}" "${HBC_API_DATA_DIR}" -type d -not -path "*/modules/*" -exec sudo chmod 770 {} + || exit 2
-	find "${HBC_API_DIR}" "${HBC_API_DATA_DIR}" -type f -not -path "*/modules/*" -exec sudo chmod 660 {} + || exit 2
-	find "${HBC_API_DIR}" "${HBC_API_DATA_DIR}" -type d -not -path "*/modules/*" -exec sudo chmod ug+s {} + || exit 2
+	find "${HBC_API_DIR}" "${HBC_API_DATA_DIR}" -type d -not -path "*/modules/*" -not -path "*/scripts/*" -exec sudo chmod 770 {} + || exit 2
+	find "${HBC_API_DIR}" "${HBC_API_DATA_DIR}" -type f -not -path "*/modules/*" -not -path "*/scripts/*" -exec sudo chmod 660 {} + || exit 2
+	find "${HBC_API_DIR}" "${HBC_API_DATA_DIR}" -type d -not -path "*/modules/*" -not -path "*/scripts/*" -exec sudo chmod ug+s {} + || exit 2
 	find "${HBC_API_LOGS_DIR}" "${HBC_API_TMP_DIR}" -type d -exec sudo chmod 775 {} + || exit 2
 	find "${HBC_API_LOGS_DIR}" "${HBC_API_TMP_DIR}" -type f -exec sudo chmod 664 {} + || exit 2
 	find "${HBC_API_LOGS_DIR}" "${HBC_API_TMP_DIR}" -type d -exec sudo chmod +s {} + || exit 2

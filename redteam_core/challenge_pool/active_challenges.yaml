@@ -101,7 +101,7 @@ response_quality_ranker_v2: ## active Jan 15th 2025 14:00 UTC to Feb 14th 2025 1
     - groundtruth_ranking
   baseline: "vietbeu/response_quality_ranker@sha256:5b468ec48eae57907f1ba91de12bfe78f709351b0421e14a3b105dcb00844103"
 
-response_quality_adversarial_v3:  ## active after Feb 14th 2025 14:00 UTC
+response_quality_adversarial_v3: ## active after Feb 14th 2025 14:00 UTC
   name: "Response Quality Adversarial v3"
   description: "Trick the classifier into rating your response higher, even with limited prompt information"
   challenge_incentive_weight: 0.3
@@ -143,6 +143,7 @@ humanize_behaviour_v1: ## active after Feb 14th 2025 14:00 UTC
   challenge_solve_timeout: 45
   docker_run_timeout: 1200
   privileged: true
+  reset_challenge: true
   protocols:
     challenger: "https"
     challenger_ssl_verify: false
