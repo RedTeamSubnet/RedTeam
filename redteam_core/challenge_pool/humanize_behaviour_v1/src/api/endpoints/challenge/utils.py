@@ -3,6 +3,7 @@
 import os
 import re
 import time
+import shutil
 import random
 import requests
 import subprocess
@@ -15,7 +16,7 @@ from docker.models.networks import Network
 from docker import DockerClient
 from pydantic import validate_call
 
-from api.core.constants import ErrorCodeEnum
+from api.core.constants import ErrorCodeEnum, ENV_PREFIX
 from api.core import utils
 from api.core.exceptions import BaseHTTPException
 from api.helpers.crypto import asymmetric as asymmetric_helper
@@ -154,12 +155,29 @@ def check_pip_requirements(pip_requirements: List[str], target_dt: datetime) -> 
 
 
 @validate_call
-def copy_bot_files(miner_output: MinerOutput, src_dir: str) -> None:
+def _copy_all_files(src_dir: str, dst_dir: str) -> None:
+    try:
+        utils.create_dir(dst_dir)
+        for _file_name in os.listdir(src_dir):
+            _src_path = os.path.join(src_dir, _file_name)
+            _dst_path = os.path.join(dst_dir, _file_name)
+            if os.path.isdir(_src_path):
+                _copy_all_files(_src_path, _dst_path)
+            else:
+                shutil.copy2(_src_path, _dst_path)
+    except Exception as err:
+        logger.error(f"Failed to copy all files: {err}!")
+        raise
+    return
+
+
+@validate_call
+def copy_bot_files(miner_output: MinerOutput, src_dir: str, dst_dir: str) -> None:
 
     logger.info("Copying bot files...")
     try:
-        _bot_dir = os.path.join(src_dir, "bot")
-        _bot_core_dir = os.path.join(_bot_dir, "src", "core")
+        _copy_all_files(src_dir=src_dir, dst_dir=dst_dir)
+        _bot_core_dir = os.path.join(dst_dir, "src", "core")
 
         # if miner_output.extra_files:
         #     for _extra_file_pm in miner_output.extra_files:
@@ -168,7 +186,7 @@ def copy_bot_files(miner_output: MinerOutput, src_dir: str) -> None:
         #             _extra_file.write(_extra_file_pm.content)
 
         if miner_output.pip_requirements:
-            _requirements_txt_path = os.path.join(_bot_dir, "requirements.txt")
+            _requirements_txt_path = os.path.join(dst_dir, "requirements.txt")
             with open(_requirements_txt_path, "w") as _requirements_txt_file:
                 for _package_name in miner_output.pip_requirements:
                     _requirements_txt_file.write(f"{_package_name}\n")
@@ -264,7 +282,7 @@ def run_bot_container(
             ulimits=[_ulimit_nofile],
             environment={
                 "TZ": "UTC",
-                "HBC_ACTION_LIST": action_list,
+                f"{ENV_PREFIX}ACTION_LIST": action_list,
             },
             network=network_name,
             detach=True,
