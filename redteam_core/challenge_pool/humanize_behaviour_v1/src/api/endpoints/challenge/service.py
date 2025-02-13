@@ -82,14 +82,12 @@ def score(miner_output: MinerOutput, reset: bool) -> float:
     global _CUR_SCORE
 
     if reset:
-        _KEY_PAIRS: List[KeyPairPM] = ch_utils.gen_key_pairs(
+        _KEY_PAIRS = ch_utils.gen_key_pairs(
             n_challenge=config.challenge.n_ch_per_epoch,
             key_size=config.api.security.asymmetric.key_size,
         )
 
-        _CHALLENGES_ACTION_LIST: List[
-            List[Dict[str, Union[int, str, Dict[str, Dict[str, int]]]]]
-        ] = ch_utils.gen_cb_actions(
+        _CHALLENGES_ACTION_LIST = ch_utils.gen_cb_actions(
             n_challenge=config.challenge.n_ch_per_epoch,
             window_width=config.challenge.window_width,
             window_height=config.challenge.window_height,
