@@ -93,13 +93,14 @@ class Validator(BaseValidator):
         from copy import deepcopy
         # avoid mutating the original ACTIVE_CHALLENGES
         all_challenges = deepcopy(challenge_pool.ACTIVE_CHALLENGES)
-        if datetime.datetime.now(datetime.timezone.utc) <= datetime.datetime(2025, 1, 15, 14, 0, 0, 0, datetime.timezone.utc):
+        if datetime.datetime.now(datetime.timezone.utc) <= datetime.datetime(2025, 2, 14, 14, 0, 0, 0, datetime.timezone.utc):
+            all_challenges.pop("response_quality_adversarial_v3", None)
+            all_challenges.pop("response_quality_ranker_v3", None)
+            all_challenges.pop("humanize_behaviour_v1", None)
+        else:
             all_challenges.pop("response_quality_adversarial_v2", None)
             all_challenges.pop("response_quality_ranker_v2", None)
             all_challenges.pop("webui_auto", None)
-        else:
-            all_challenges.pop("response_quality_adversarial", None)
-            all_challenges.pop("response_quality_ranker", None)
 
         self.active_challenges = all_challenges
         for challenge in self.active_challenges.keys():

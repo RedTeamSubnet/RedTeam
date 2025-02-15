@@ -236,7 +236,7 @@ class StorageManager:
 
         if async_update:
             self.storage_queue.put(data)
-            bt.logging.info(f"Record with encrypted_commit={data['encrypted_commit']} queued for storage.")
+            bt.logging.debug(f"Record with encrypted_commit={data['encrypted_commit']} queued for storage.")
             return
 
         # Process the record immediately
@@ -251,9 +251,9 @@ class StorageManager:
         if self._compare_record_to_cache(challenge_name, hashed_cache_key, cache_data):
             # 10% chance to update anyway
             if random.random() < 0.1:
-                bt.logging.info(f"Record {hashed_cache_key} already exists in local cache for challenge {challenge_name}, but updating anyway.")
+                bt.logging.debug(f"Record {hashed_cache_key} already exists in local cache for challenge {challenge_name}, but updating anyway.")
             else:
-                bt.logging.info(f"Record {hashed_cache_key} already exists in local cache for challenge {challenge_name}, skipping update.")
+                bt.logging.debug(f"Record {hashed_cache_key} already exists in local cache for challenge {challenge_name}, skipping update.")
                 return
 
         # Track success for all storage operations

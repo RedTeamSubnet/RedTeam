@@ -151,8 +151,7 @@
 	},
 	"python.languageServer": "Pylance",
 	"python.analysis.extraPaths": [
-		"${workspaceFolder}/redteam_core/challenge_pool/webui_auto/src",
-		// "${workspaceFolder}/redteam_core/miner/commits/webui_auto/src",
+		"${workspaceFolder}/redteam_core/challenge_pool/humanize_behaviour_v1/src",
 	],
 	"yaml.schemas": {
 		"https://squidfunk.github.io/mkdocs-material/schema.json": "mkdocs.yml"

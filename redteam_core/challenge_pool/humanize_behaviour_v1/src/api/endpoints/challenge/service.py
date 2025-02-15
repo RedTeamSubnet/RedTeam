@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import os
 import time
 import pathlib
 from typing import List, Union, Dict, Tuple
@@ -16,6 +17,7 @@ except ImportError:
     from rt_hb_score import MetricsProcessor  # type: ignore
 
 from api.core.constants import ErrorCodeEnum
+from api.core import utils
 from api.config import config
 from api.core.exceptions import BaseHTTPException
 from api.helpers.crypto import asymmetric as asymmetric_helper
@@ -25,8 +27,20 @@ from api.logger import logger
 
 
 _src_dir = pathlib.Path(__file__).parent.parent.parent.parent.resolve()
-_bot_dir = _src_dir / "bot"
 
+
+_TMP_ACTION_LIST: List[Dict[str, Union[int, str, Dict[str, Dict[str, int]]]]] = (
+    ch_utils.gen_cb_actions(
+        n_challenge=1,
+        window_width=config.challenge.window_width,
+        window_height=config.challenge.window_height,
+        n_checkboxes=config.challenge.n_checkboxes,
+        min_distance=config.challenge.cb_min_distance,
+        max_factor=config.challenge.cb_gen_max_factor,
+        checkbox_size=config.challenge.cb_size,
+        exclude_areas=config.challenge.cb_exclude_areas,
+    )[0]
+)
 
 _KEY_PAIRS: List[KeyPairPM] = ch_utils.gen_key_pairs(
     n_challenge=config.challenge.n_ch_per_epoch,
@@ -47,7 +61,9 @@ _CHALLENGES_ACTION_LIST: List[
     exclude_areas=config.challenge.cb_exclude_areas,
     pre_action_list=config.challenge.cb_pre_action_list,
 )
-_CUR_ACTION_LIST: Union[List[Dict], None] = None
+_CUR_ACTION_LIST: Union[
+    List[Dict[str, Union[int, str, Dict[str, Dict[str, int]]]]], None
+] = None
 
 
 def get_task() -> MinerInput:
@@ -57,7 +73,7 @@ def get_task() -> MinerInput:
 
 
 @validate_call
-def score(miner_output: MinerOutput) -> float:
+def score(miner_output: MinerOutput, reset: bool) -> float:
 
     global _KEY_PAIRS
     global _CHALLENGES_ACTION_LIST
@@ -65,16 +81,34 @@ def score(miner_output: MinerOutput) -> float:
     global _CUR_ACTION_LIST
     global _CUR_SCORE
 
+    if reset:
+        _KEY_PAIRS = ch_utils.gen_key_pairs(
+            n_challenge=config.challenge.n_ch_per_epoch,
+            key_size=config.api.security.asymmetric.key_size,
+        )
+
+        _CHALLENGES_ACTION_LIST = ch_utils.gen_cb_actions(
+            n_challenge=config.challenge.n_ch_per_epoch,
+            window_width=config.challenge.window_width,
+            window_height=config.challenge.window_height,
+            n_checkboxes=config.challenge.n_checkboxes,
+            min_distance=config.challenge.cb_min_distance,
+            max_factor=config.challenge.cb_gen_max_factor,
+            checkbox_size=config.challenge.cb_size,
+            exclude_areas=config.challenge.cb_exclude_areas,
+            pre_action_list=config.challenge.cb_pre_action_list,
+        )
+
     if not _KEY_PAIRS:
         raise BaseHTTPException(
             error_enum=ErrorCodeEnum.TOO_MANY_REQUESTS,
-            message=f"No more web pages available for this epoch!",
+            message=f"No initialized key pairs or out of key pairs, this endpoint is shouldn't be called directly!",
         )
 
     if not _CHALLENGES_ACTION_LIST:
         raise BaseHTTPException(
             error_enum=ErrorCodeEnum.TOO_MANY_REQUESTS,
-            message=f"No more actions available for this epoch!",
+            message=f"No initialized action lists or out of action lists, this endpoint is shouldn't be called directly!",
         )
 
     _CUR_KEY_PAIR = _KEY_PAIRS.pop(0)
@@ -93,14 +127,17 @@ def score(miner_output: MinerOutput) -> float:
                 target_dt=config.challenge.allowed_pip_pkg_dt,
             )
 
-        ch_utils.copy_bot_files(miner_output=miner_output, src_dir=str(_src_dir))
+        _build_dir = os.path.join(config.api.paths.tmp_dir, "bot")
+        ch_utils.copy_bot_files(
+            miner_output=miner_output, src_dir=str(_src_dir / "bot"), dst_dir=_build_dir
+        )
 
         _docker_client = docker.from_env()
         _image_name = "bot:latest"
         _container_name = "bot_container"
         ch_utils.build_bot_image(
             docker_client=_docker_client,
-            build_dir=str(_bot_dir),
+            build_dir=_build_dir,
             system_deps=miner_output.system_deps,
             image_name=_image_name,
         )
@@ -143,20 +180,23 @@ def score(miner_output: MinerOutput) -> float:
 @validate_call(config={"arbitrary_types_allowed": True})
 def get_web(request: Request) -> HTMLResponse:
 
-    if not _CUR_KEY_PAIR:
-        raise BaseHTTPException(
-            error_enum=ErrorCodeEnum.BAD_REQUEST,
-            message=f"You should get the task first!",
+    _nonce = None
+    if _CUR_KEY_PAIR:
+        _nonce = _CUR_KEY_PAIR.nonce
+    else:
+        _nonce = utils.gen_random_string()
+        logger.warning(
+            "Not initialized key pair, this endpoint is shouldn't be called directly!"
         )
 
-    if not _CUR_ACTION_LIST:
-        raise BaseHTTPException(
-            error_enum=ErrorCodeEnum.BAD_REQUEST,
-            message=f"You should get the task first!",
+    _action_list = []
+    if _CUR_ACTION_LIST:
+        _action_list = _CUR_ACTION_LIST
+    else:
+        _action_list = _TMP_ACTION_LIST
+        logger.warning(
+            "Not initialized action list, this endpoint is shouldn't be called directly!"
         )
-
-    _nonce = _CUR_KEY_PAIR.nonce
-    _action_list = _CUR_ACTION_LIST
 
     _key_pair: Tuple[str, str] = asymmetric_helper.gen_key_pair(
         key_size=config.api.security.asymmetric.key_size, as_str=True
@@ -183,7 +223,7 @@ def get_random_val(nonce: str) -> str:
     if not _CUR_KEY_PAIR:
         raise BaseHTTPException(
             error_enum=ErrorCodeEnum.BAD_REQUEST,
-            message=f"You should get the task first!",
+            message=f"Not initialized key pair or out of key pair, this endpoint is shouldn't be called directly!",
         )
 
     if _CUR_KEY_PAIR.nonce != nonce:
@@ -215,13 +255,13 @@ def eval_bot(data: str) -> None:
     if not _CUR_KEY_PAIR:
         raise BaseHTTPException(
             error_enum=ErrorCodeEnum.BAD_REQUEST,
-            message=f"You should get the task first!",
+            message=f"Not initialized key pair or out of key pair, this endpoint is shouldn't be called directly!",
         )
 
     if not _CUR_ACTION_LIST:
         raise BaseHTTPException(
             error_enum=ErrorCodeEnum.BAD_REQUEST,
-            message=f"You should get the task first!",
+            message=f"Not initialized action list or out of action list, this endpoint is shouldn't be called directly!",
         )
 
     _private_key: str = _CUR_KEY_PAIR.private_key
@@ -233,10 +273,10 @@ def eval_bot(data: str) -> None:
 
         _metrics_processor = MetricsProcessor(config={"actions": _CUR_ACTION_LIST})
         _result = _metrics_processor(raw_data=_plaintext)
+        _CUR_ACTION_LIST = None
         logger.info(f"Bot evaluation result: {_result}")
         _CUR_SCORE = _result["analysis"]["score"]
-        _CUR_ACTION_LIST = None
-        logger.info(_CUR_SCORE)
+        logger.info(f"Bot score: {_CUR_SCORE}")
 
         logger.debug("Successfully evaluated the bot.")
     except Exception as err:
