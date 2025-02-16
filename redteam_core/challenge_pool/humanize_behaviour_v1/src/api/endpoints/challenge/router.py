@@ -50,9 +50,6 @@ def get_task(request: Request):
     response_class=JSONResponse,
     responses={400: {}, 422: {}},
 )
-<<<<<<< HEAD
-def post_score(request: Request, miner_input: MinerInput, miner_output: MinerOutput):
-=======
 def post_score(
     request: Request,
     miner_input: MinerInput,
@@ -64,18 +61,13 @@ def post_score(
         examples=[False],
     ),
 ):
->>>>>>> d89c49b1d1572c6a905e577f57ad65914109404d
 
     _request_id = request.state.request_id
     logger.info(f"[{_request_id}] - Evaluating the miner output...")
 
     _score: float = 0.0
     try:
-<<<<<<< HEAD
-        _score = service.score(miner_output=miner_output)
-=======
         _score = service.score(miner_output=miner_output, reset=reset)
->>>>>>> d89c49b1d1572c6a905e577f57ad65914109404d
 
         logger.success(f"[{_request_id}] - Successfully evaluated the miner output.")
     except Exception as err:
