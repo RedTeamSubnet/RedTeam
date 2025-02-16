@@ -142,7 +142,7 @@ Return only the modified question without any explanation."
         response = self.client.chat.completions.create(
             model=self.model_name,
             messages=messages,
-            max_tokens=1024,
+            max_tokens=2048,
         )
         content = response.choices[0].message.content
         return content

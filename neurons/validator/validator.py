@@ -44,13 +44,11 @@ class Validator(BaseValidator):
             sync_on_init=True
         )
 
-        # Start a thread to periodically commit the repo_id
-        commit_thread = Thread(
-            target=self.commit_repo_id_to_chain,
-            kwargs={"hf_repo_id": self.config.validator.hf_repo_id, "max_retries": 5},
-            daemon=True
+        # Commit the repo_id
+        self.commit_repo_id_to_chain(
+            hf_repo_id=self.config.validator.hf_repo_id,
+            max_retries=5
         )
-        commit_thread.start()
 
         # Initialize validator state
         self.miner_submit = {}

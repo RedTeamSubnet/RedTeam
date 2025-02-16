@@ -3,6 +3,7 @@ import time
 import json
 import random
 import requests
+import traceback
 import threading
 import hashlib
 from shutil import rmtree
@@ -34,7 +35,7 @@ class StorageManager:
         # Decentralized storage on Hugging Face Hub
         self.hf_repo_id = hf_repo_id
         self.hf_api = HfApi()
-        bt.logging.info(f"Authenticated as {self.hf_api.whoami()['name']}")
+        bt.logging.info(f"[STORAGE] Authenticated as {self.hf_api.whoami()['name']}")
         self._validate_hf_repo()
 
         # Local cache with disk cache
@@ -52,6 +53,7 @@ class StorageManager:
         self.storage_queue = Queue()
         self.storage_thread = threading.Thread(target=self._process_storage_queue, daemon=True)
         self.storage_thread.start()
+        bt.logging.info("[STORAGE] Started storage thread in the background")
 
         os.makedirs(self.cache_dir, exist_ok=True)
         # Sync data from Hugging Face Hub to local cache if required
@@ -80,7 +82,7 @@ class StorageManager:
         repo_snapshot_path = self._snapshot_repo(erase_cache=False, allow_patterns=allow_patterns)
 
         if not os.path.isdir(repo_snapshot_path):
-            bt.logging.info(f"No data on the Hub for the last 14 days, skip sync.")
+            bt.logging.info(f"[STORAGE] No data on the Hub for the last 14 days, skip sync.")
             return
 
         # Build a temporary dict
@@ -115,7 +117,7 @@ class StorageManager:
             for key, data in records.items():
                 cache[key] = data
 
-        bt.logging.info(f"Local cache successfully built from the last 14 days of the Hugging Face Hub.")
+        bt.logging.info(f"[STORAGE] Local cache successfully built from the last 14 days of the Hugging Face Hub.")
 
     def sync_cache_to_hub(self):
         """
@@ -134,7 +136,7 @@ class StorageManager:
         Returns:
             None
         """
-        bt.logging.warning("This operation may alter the Hub repository significantly!")
+        bt.logging.warning("[STORAGE] This operation may alter the Hub repository significantly!")
 
         # Take a snapshot of the Hugging Face Hub repository
         today = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d")
@@ -196,11 +198,11 @@ class StorageManager:
             for future in as_completed(upload_futures):
                 try:
                     result = future.result()
-                    bt.logging.info(f"Uploaded to Hub successfully: {result}")
+                    bt.logging.info(f"[STORAGE] Uploaded to Hub successfully: {result}")
                 except Exception as e:
-                    bt.logging.error(f"Failed to upload file to Hub: {e}")
+                    bt.logging.error(f"[STORAGE] Failed to upload file to Hub: {e}")
         else:
-            bt.logging.info("No updates required. Hub is already in sync with the local cache.")
+            bt.logging.info("[STORAGE] No updates required. Hub is already in sync with the local cache.")
 
     def _sync_cache_to_hub_periodically(self, interval: int):
         """
@@ -214,9 +216,9 @@ class StorageManager:
 
             try:
                 self.sync_cache_to_hub()
-                bt.logging.info("Periodic sync to Hugging Face Hub completed successfully.")
+                bt.logging.info("[STORAGE] Periodic sync to Hugging Face Hub completed successfully.")
             except Exception as e:
-                bt.logging.error(f"Error during periodic cache sync: {e}")
+                bt.logging.error(f"[STORAGE] Error during periodic cache sync: {e}")
 
     # MARK: Update Methods
     def update_record(self, data: dict, async_update=True, retry_config=None):
@@ -231,12 +233,12 @@ class StorageManager:
         # Validate required fields
         required_fields = ["miner_ss58_address", "encrypted_commit", "challenge_name"]
         if not all(field in data for field in required_fields):
-            bt.logging.error(f"Data must include all required fields: {required_fields} in update_record()")
+            bt.logging.error(f"[STORAGE] Data must include all required fields: {required_fields} in update_record()")
             return
 
         if async_update:
             self.storage_queue.put(data)
-            bt.logging.info(f"Record with encrypted_commit={data['encrypted_commit']} queued for storage.")
+            bt.logging.debug(f"[STORAGE] Record with encrypted_commit={data['encrypted_commit']} queued for storage.")
             return
 
         # Process the record immediately
@@ -250,10 +252,10 @@ class StorageManager:
         # Check if update is needed
         if self._compare_record_to_cache(challenge_name, hashed_cache_key, cache_data):
             # 10% chance to update anyway
-            if random.random() < 0.1:
-                bt.logging.info(f"Record {hashed_cache_key} already exists in local cache for challenge {challenge_name}, but updating anyway.")
+            if random.random() < 0.2:
+                bt.logging.debug(f"[STORAGE] Record {hashed_cache_key} already exists in local cache for challenge {challenge_name}, but updating anyway.")
             else:
-                bt.logging.info(f"Record {hashed_cache_key} already exists in local cache for challenge {challenge_name}, skipping update.")
+                bt.logging.debug(f"[STORAGE] Record {hashed_cache_key} already exists in local cache for challenge {challenge_name}, skipping update.")
                 return
 
         # Track success for all storage operations
@@ -303,9 +305,11 @@ class StorageManager:
 
         # Final Logging
         if success:
-            bt.logging.success(f"Record successfully updated across all storages: {hashed_cache_key}")
+            bt.logging.success(
+                f"[STORAGE] Record from challege: {challenge_name}, encrypted_commit: {data['encrypted_commit']}, successfully updated across all storages with key: {hashed_cache_key}"
+            )
         else:
-            bt.logging.error(f"Failed to update record {hashed_cache_key}. Errors: {errors}")
+            bt.logging.error(f"[STORAGE] Failed to update record {hashed_cache_key}. Errors: {errors}")
 
     def update_challenge_record(self, data: dict, async_update=True, retry_config=None):
         """
@@ -319,7 +323,7 @@ class StorageManager:
         # Validate required fields
         required_fields = ["challenge_name", "date"]
         if not all(field in data for field in required_fields):
-            bt.logging.error(f"Data must include all required fields: {required_fields} in update_challenge_record()")
+            bt.logging.error(f"[STORAGE] Data must include all required fields: {required_fields} in update_challenge_record()")
             return
 
         if async_update:
@@ -376,9 +380,9 @@ class StorageManager:
 
         # Final Logging
         if success:
-            bt.logging.success(f"Challenge records successfully updated across all storages for validator {data['validator_uid']}")
+            bt.logging.success(f"[STORAGE] Challenge records successfully updated across all storages for validator {data['validator_uid']} on challenge {data['challenge_name']} for date {data['date']}")
         else:
-            bt.logging.error(f"Failed to update challenge records. Errors: {errors}")
+            bt.logging.error(f"[STORAGE] Failed to update challenge records. Errors: {errors}")
 
     def update_batch(self, records: list[dict], process_method: str = "update_record", async_update=True):
         """
@@ -392,7 +396,7 @@ class StorageManager:
         if async_update:
             # Enqueue the entire batch along with the processing method
             self.storage_queue.put((records, process_method))
-            bt.logging.info(f"Batch of size {len(records)} queued for storage using {process_method}")
+            bt.logging.debug(f"[STORAGE] Batch of size {len(records)} queued for storage using {process_method}")
             return
 
         # Get the appropriate processing method
@@ -413,9 +417,9 @@ class StorageManager:
                 timeout=20,
             )
             response.raise_for_status()
-            bt.logging.info(f"Successfully updated repo_id in centralized storage")
+            bt.logging.info(f"[STORAGE] Successfully updated repo_id in centralized storage")
         except Exception as e:
-            bt.logging.error(f"Error updating repo_id to centralized storage: {e}")
+            bt.logging.error(f"[STORAGE] Error updating repo_id to centralized storage: {e}")
             raise
 
     def _update_centralized_storage(self, data: dict, url: str):
@@ -434,7 +438,7 @@ class StorageManager:
             )
             response.raise_for_status()
         except requests.RequestException as e:
-            bt.logging.error(f"Centralized storage update {url} failed: {e}")
+            bt.logging.error(f"[STORAGE] Centralized storage update {url} failed: {e}")
 
     def update_challenge_records(self, data: dict):
         """Updates the challenge records in the centralized storage."""
@@ -511,20 +515,20 @@ class StorageManager:
         else:
             raise PermissionError(f"Token has insufficient permissions. Expected 'write' or 'fineGrained', got '{token_role}'")
 
-        bt.logging.info(f"Token has write permissions for repository '{self.hf_repo_id}'")
+        bt.logging.info(f"[STORAGE] Token has write permissions for repository '{self.hf_repo_id}'")
 
         # Step 2: Validate or create the repository
         try:
             repo_info = self.hf_api.repo_info(repo_id=self.hf_repo_id)
             if repo_info.private or repo_info.disabled:
                 raise ValueError(f"Repository '{self.hf_repo_id}' be public and not disabled.")
-            bt.logging.info(f"Repository '{self.hf_repo_id}' exists and is public.")
+            bt.logging.info(f"[STORAGE] Repository '{self.hf_repo_id}' exists and is public.")
         except requests.exceptions.HTTPError as e:
             if e.response.status_code == 404:  # Repo does not exist
-                bt.logging.warning(f"Repository '{self.hf_repo_id}' does not exist. Attempting to create it.")
+                bt.logging.warning(f"[STORAGE] Repository '{self.hf_repo_id}' does not exist. Attempting to create it.")
                 try:
                     self.hf_api.create_repo(repo_id=self.hf_repo_id, private=False, exist_ok=True)
-                    bt.logging.info(f"Repository '{self.hf_repo_id}' has been successfully created.")
+                    bt.logging.info(f"[STORAGE] Repository '{self.hf_repo_id}' has been successfully created.")
                 except Exception as create_err:
                     raise RuntimeError(f"Failed to create repository '{self.hf_repo_id}': {create_err}")
             else:
@@ -561,16 +565,20 @@ class StorageManager:
             try:
                 data = self.storage_queue.get(timeout=1)  # Wait for a task
 
-                if isinstance(data, tuple) and isinstance(data[0], list):  # Batch update with method
+                if isinstance(data, tuple) and isinstance(data[0], list):
+                    # Batch update with method
                     records, process_method = data
                     self.update_batch(records, process_method=process_method, async_update=False)
                 elif isinstance(data, dict):
                     self.update_record(data, async_update=False)
                 else:
-                    bt.logging.warning(f"Unknown submission type in storage queue: {type(data)} with data: {data}")
+                    bt.logging.warning(f"[STORAGE] Unknown submission type in storage queue: {type(data)} with data: {data}")
                 self.storage_queue.task_done()
             except Empty:
-                pass  # No tasks in the queue, keep looping
+                bt.logging.debug("[STORAGE] No tasks in the queue, keeping the thread alive")
+            except Exception as e:
+                bt.logging.warning(f"[STORAGE] Error processing storage queue: {traceback.format_exc()} when processing data: {data}, abort this one")
+
             time.sleep(1)  # Prevent the thread from consuming too much CPU
 
     def _sanitize_data_for_storage(self, data: dict) -> dict:
@@ -600,24 +608,37 @@ class StorageManager:
         # Non-content fields
         non_content_fields = ["nonce", "signature"]
 
-        cache = self._get_cache(cache_name)
-        existing_record = cache.get(cache_key, None)
-
-        # Construct temp records that exclude non-content fields for comparison
-        temp_existing_record = {field: existing_record[field] for field in existing_record if field not in non_content_fields}
-        temp_record = {field: record[field] for field in record if field not in non_content_fields}
-
-        # Check if data exists in cache
-        if existing_record is None:
-            return False
-
-        # Serialize and compare
         try:
-            existing_record_str = json.dumps(temp_existing_record)
-            record_str = json.dumps(temp_record)
+            # Get cache and existing record
+            cache = self._get_cache(cache_name)
+            existing_record = cache.get(cache_key)
+
+            # Early return if no existing record or wrong type
+            if not isinstance(existing_record, dict) or not isinstance(record, dict):
+                return False
+
+            # Construct temp records excluding non-content fields
+            temp_existing_record = {
+                field: existing_record[field]
+                for field in existing_record
+                if field not in non_content_fields
+            }
+            temp_record = {
+                field: record[field]
+                for field in record
+                if field not in non_content_fields
+            }
+
+            # Compare serialized versions
+            existing_record_str = json.dumps(temp_existing_record, sort_keys=True)
+            record_str = json.dumps(temp_record, sort_keys=True)
             return existing_record_str == record_str
+
+        except (TypeError, KeyError, json.JSONDecodeError) as e:
+            bt.logging.error(f"[STORAGE] Error comparing records: {str(e)}")
+            return False
         except Exception as e:
-            bt.logging.error(f"Error serializing record to compare: {e}")
+            bt.logging.error(f"[STORAGE] Unexpected error comparing records: {str(e)}")
             return False
 
     def _retry_operation(self, operation, max_retries: int, operation_name: str) -> tuple[bool, str]:
@@ -644,7 +665,7 @@ class StorageManager:
                 if attempt == max_retries - 1:
                     break
                 wait_time = min(5 ** attempt, 32)  # Exponential backoff
-                bt.logging.warning(f"{operation_name} attempt {attempt + 1} failed, retrying in {wait_time}s: {last_error}")
+                bt.logging.warning(f"[STORAGE] {operation_name} attempt {attempt + 1} failed, retrying in {wait_time}s: {last_error}")
                 time.sleep(wait_time)
 
         error_msg = f"{operation_name} failed after {max_retries} attempts. Last error: {last_error}"
