@@ -81,6 +81,9 @@ def score(miner_output: MinerOutput, reset: bool) -> float:
     global _CUR_ACTION_LIST
     global _CUR_SCORE
 
+    _container_name = "bot_container"
+    ch_utils.stop_container(container_name=_container_name)
+
     if reset:
         _KEY_PAIRS = ch_utils.gen_key_pairs(
             n_challenge=config.challenge.n_ch_per_epoch,
@@ -134,7 +137,6 @@ def score(miner_output: MinerOutput, reset: bool) -> float:
 
         _docker_client = docker.from_env()
         _image_name = "bot:latest"
-        _container_name = "bot_container"
         ch_utils.build_bot_image(
             docker_client=_docker_client,
             build_dir=_build_dir,

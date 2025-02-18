@@ -203,6 +203,20 @@ def copy_bot_files(miner_output: MinerOutput, src_dir: str, dst_dir: str) -> Non
     return
 
 
+@validate_call
+def stop_container(container_name: str = "bot_container") -> None:
+
+    logger.info(f"Stopping container '{container_name}' ...")
+    try:
+        subprocess.run(["sudo", "docker", "rm", "-f", container_name])
+        logger.success(f"Successfully stopped container '{container_name}'.")
+    except Exception:
+        logger.debug(f"Failed to stop container '{container_name}'!")
+        pass
+
+    return
+
+
 @validate_call(config={"arbitrary_types_allowed": True})
 def build_bot_image(
     docker_client: DockerClient,
@@ -264,14 +278,15 @@ def run_bot_container(
         subprocess.run(["sudo", "iptables", "-t", "nat", "-I", "POSTROUTING", "-s", _subnet, "-j", "RETURN"])
         # fmt: on
 
-        try:
-            _containers = docker_client.containers.list(all=True)
-            if _containers:
-                for _container in _containers:
-                    _container.stop()
-                    _container.remove(force=True)
-        except Exception:
-            pass
+        stop_container(container_name=container_name)
+        # try:
+        #     _containers = docker_client.containers.list(all=True)
+        #     if _containers:
+        #         for _container in _containers:
+        #             _container.stop()
+        #             _container.remove(force=True)
+        # except Exception:
+        #     pass
 
         time.sleep(1)
 

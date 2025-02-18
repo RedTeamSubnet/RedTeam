@@ -25,6 +25,12 @@ if os.path.exists(_bot_py_path):
     with open(_bot_py_path, "r") as _bot_py_file:
         _bot_py_content = _bot_py_file.read()
 
+_requirements_txt_path = str(_src_dir / "bot" / "requirements.txt")
+_pip_requirements: Union[List[str], None] = None
+if os.path.exists(_requirements_txt_path):
+    with open(_requirements_txt_path, "r") as _requirements_txt_file:
+        _pip_requirements = [_line.strip() for _line in _requirements_txt_file]
+
 
 class KeyPairPM(BaseModel):
     private_key: str = Field(
@@ -146,9 +152,7 @@ class MinerOutput(BaseModel):
         default=None,
         title="Pip Requirements",
         description="Dependencies required for the bot.py as a list of strings.",
-        examples=[
-            ["pydantic[email,timezone]>=2.0.0,<3.0.0", "selenium>=4.16.0,<5.0.0"]
-        ],
+        examples=[_pip_requirements],
     )
     # extra_files: Optional[List[MinerFilePM]] = Field(
     #     default=None,
