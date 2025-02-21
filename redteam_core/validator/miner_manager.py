@@ -1,10 +1,13 @@
 import datetime
+from typing import Dict, List, Optional, Union
+
+import bittensor as bt
 import numpy as np
 import pandas as pd
-
-from typing import List, Dict, Optional, Union
-from pydantic import BaseModel
+import requests
 from cryptography.fernet import Fernet
+from pydantic import BaseModel
+
 from ..constants import constants
 
 
@@ -58,7 +61,7 @@ class ScoringLog(BaseModel):
 
 
 class MinerManager:
-    def __init__(self, challenge_name: str, challenge_incentive_weight: float):
+    def __init__(self, challenge_name: str, challenge_incentive_weight: float, metagraph: bt.metagraph):
         """
         Initializes the MinerManager to track scores and challenges.
         """
@@ -66,6 +69,7 @@ class MinerManager:
         self.uids_to_commits: Dict[int, MinerCommit] = {}
         self.challenge_records: Dict[str, ChallengeRecord] = {}
         self.challenge_incentive_weight = challenge_incentive_weight
+        self.metagraph = metagraph
 
     def update_uid_to_commit(self, uids: List[int], commits: List[MinerCommit]) -> None:
         for uid, commit in zip(uids, commits):
@@ -122,11 +126,11 @@ class MinerManager:
             )
             self.challenge_records[today] = today_record
 
-    def get_onchain_scores(self, n_uids: int) -> np.ndarray:
+    def _get_challenge_scores(self) -> np.ndarray:
         """
-        Returns a numpy array of scores, applying decay for older records.
+        Returns a numpy array of scores based on challenge records (solution performance), applying decay for older records.
         """
-        scores = np.zeros(n_uids)  # Should this be configurable?
+        scores = np.zeros(self.metagraph.n)  # Should this be configurable?
         today = datetime.datetime.now(datetime.timezone.utc)
 
         total_points = 0
@@ -144,3 +148,91 @@ class MinerManager:
             scores /= total_points
 
         return scores
+    def _get_newly_registration_scores(self, n_uids: int) -> np.ndarray:
+        """
+        Returns a numpy array of scores based on newly registration, high for more recent registrations.
+        Only considers UIDs registered within the immunity period (defined in blocks).
+        Scores range from 1.0 (just registered) to 0.0 (older than immunity period).
+        """
+        scores = np.zeros(n_uids)
+        current_time = datetime.datetime.now(datetime.timezone.utc)
+        endpoint = constants.STORAGE_URL + "/fetch-uids-registration-time"
+
+        try:
+            response = requests.get(endpoint)
+            response.raise_for_status()
+            uids_registration_time = response.json()["data"]
+
+            # Process uids_registration_time to get the scores
+            for uid, registration_time in uids_registration_time.items():
+                uid = int(uid)
+                if uid >= n_uids:
+                    continue
+
+                # Parse the UTC datetime string
+                reg_time = datetime.datetime.strptime(
+                    registration_time,
+                    "%Y-%m-%dT%H:%M:%S"
+                ).replace(tzinfo=datetime.timezone.utc)
+
+                seconds_since_registration = (current_time - reg_time).total_seconds()
+                blocks_since_registration = seconds_since_registration / 12
+
+                # Only consider UIDs registered within immunity period
+                if blocks_since_registration <= constants.SUBNET_IMMUNITY_PERIOD:
+                    # Score decreases linearly from 1.0 (just registered) to 0.0 (immunity period old)
+                    scores[uid] = max(0, 1.0 - (blocks_since_registration / constants.SUBNET_IMMUNITY_PERIOD))
+
+            # Normalize scores if any registrations exist
+            if np.sum(scores) > 0:
+                scores = scores / np.sum(scores)
+
+        except Exception as e:
+            bt.logging.error(f"Error fetching uids registration time: {e}")
+            return np.zeros(n_uids)
+
+        return scores
+
+    def _get_alpha_stake_scores(self) -> np.ndarray:
+        """
+        Returns a numpy array of scores based on alpha stake, high for more stake.
+        Uses square root transformation to reduce the impact of very high stakes, encourage small holders.
+        """
+        scores = np.zeros(self.metagraph.n)
+        # Apply square root transformation to reduce the impact of high stakes
+        sqrt_alpha_stakes = np.sqrt(self.metagraph.alpha_stake)
+        total_sqrt_alpha_stakes = np.sum(sqrt_alpha_stakes)
+        if total_sqrt_alpha_stakes > 0:
+            # Normalize stakes to get scores between 0 and 1
+            scores = sqrt_alpha_stakes / total_sqrt_alpha_stakes
+        return scores
+
+    def get_onchain_scores(self, n_uids: int) -> np.ndarray:
+        """
+        Returns a numpy array of weighted scores combining:
+        1. Challenge scores (based on performance improvements)
+        2. Newly registration scores (favoring recently registered UIDs)
+        3. Alpha stake scores (based on stake amount)
+
+        Weights are defined in constants:
+        - CHALLENGE_SCORES_WEIGHT (85%)
+        - NEWLY_REGISTRATION_WEIGHT (10%)
+        - ALPHA_STAKE_WEIGHT (5%)
+        """
+        # Get challenge performance scores
+        challenge_scores = self._get_challenge_scores()
+
+        # Get newly registration scores
+        registration_scores = self._get_newly_registration_scores(n_uids)
+
+        # Get alpha stake scores
+        alpha_stake_scores = self._get_alpha_stake_scores()
+
+        # Combine scores using weights from constants
+        final_scores = (
+            challenge_scores * constants.CHALLENGE_SCORES_WEIGHT +
+            registration_scores * constants.NEWLY_REGISTRATION_WEIGHT +
+            alpha_stake_scores * constants.ALPHA_STAKE_WEIGHT
+        )
+
+        return final_scores
