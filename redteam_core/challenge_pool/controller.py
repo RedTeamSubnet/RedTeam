@@ -264,15 +264,101 @@ class Controller:
     def _remove_challenge_container(self):
         """
         Stops and removes the Docker container running the challenge.
-        This helps in cleaning up the environment after the challenge is done.
+        Catches and handles all possible errors to ensure cleanup completes gracefully.
         """
-        containers = self.docker_client.containers.list(all=True)
-        for container in containers:
-            if container.name == self.challenge_name:
-                res = container.remove(force=True)
-                bt.logging.info(res)
+        try:
+            containers = self.docker_client.containers.list(all=True)
+        except Exception as e:
+            bt.logging.error(f"[Controller] Failed to list containers: {str(e)}")
+            return
 
-        self._clear_container_by_port(constants.CHALLENGE_DOCKER_PORT)
+        for container in containers:
+            try:
+                if container.name != self.challenge_name:
+                    continue
+
+                retries = 0
+                while retries < 5:
+                    try:
+                        # Refresh container state
+                        try:
+                            container.reload()
+                        except docker.errors.NotFound:
+                            bt.logging.info(f"[Controller] Container {container.name} no longer exists")
+                            return
+                        except Exception as e:
+                            bt.logging.warning(f"[Controller] Failed to reload container state: {str(e)}")
+
+                        # Check if container is already stopped
+                        if container.status != "exited":
+                            bt.logging.info(f"[Controller] Attempting to stop container {container.name} (Try {retries+1}/5)...")
+                            try:
+                                container.stop(timeout=30)
+                                try:
+                                    container.wait(condition="not-running", timeout=30)
+                                except docker.errors.NotFound:
+                                    bt.logging.info(f"[Controller] Container {container.name} no longer exists after stop")
+                                    return
+                                except Exception as e:
+                                    bt.logging.warning(f"[Controller] Wait for container stop failed: {str(e)}")
+                            except docker.errors.NotFound:
+                                bt.logging.info(f"[Controller] Container {container.name} already stopped/removed")
+                                return
+                            except docker.errors.APIError as e:
+                                if "is already in progress" in str(e):
+                                    bt.logging.info(f"[Controller] Stop operation already in progress for {container.name}")
+                                    time.sleep(10)  # Wait longer for in-progress operations
+                                    continue
+                                else:
+                                    bt.logging.warning(f"[Controller] Failed to stop container: {str(e)}")
+
+                        bt.logging.info(f"[Controller] Attempting to remove container {container.name} (Try {retries+1}/5)...")
+                        try:
+                            container.remove(force=True, v=True)
+                            bt.logging.info(f"[Controller] Container {container.name} removed successfully")
+                            return
+                        except docker.errors.NotFound:
+                            bt.logging.info(f"[Controller] Container {container.name} already removed")
+                            return
+                        except docker.errors.APIError as e:
+                            if "is already in progress" in str(e):
+                                bt.logging.info(f"[Controller] Remove operation already in progress for {container.name}")
+                                time.sleep(10)  # Wait longer for in-progress operations
+                                # Check if container still exists before continuing
+                                try:
+                                    container.reload()
+                                except docker.errors.NotFound:
+                                    bt.logging.info(f"[Controller] Container {container.name} was removed successfully")
+                                    return
+                                continue
+                            bt.logging.warning(f"[Controller] Failed to remove container: {str(e)}")
+
+                    except requests.exceptions.ReadTimeout:
+                        bt.logging.warning("[Controller] Timeout while communicating with Docker daemon")
+                        time.sleep(5)
+                    except Exception as e:
+                        bt.logging.warning(f"[Controller] Unexpected error in removal loop: {str(e)}")
+
+                    retries += 1
+                    if retries < 5:  # Don't wait if this was the last try
+                        try:
+                            wait_time = min(5 * (2 ** (retries - 1)), 30)  # Reduced max wait time
+                            bt.logging.info(f"[Controller] Retrying in {wait_time} seconds...")
+                            time.sleep(wait_time)
+                        except Exception as e:
+                            bt.logging.warning(f"[Controller] Error during retry wait: {str(e)}")
+                            time.sleep(5)
+
+                bt.logging.error(f"[Controller] Failed to remove container {container.name} after 5 attempts")
+
+            except Exception as e:
+                bt.logging.error(f"[Controller] Unexpected error handling container: {str(e)}")
+                continue
+
+        try:
+            self._clear_container_by_port(constants.CHALLENGE_DOCKER_PORT)
+        except Exception as e:
+            bt.logging.error(f"[Controller] Failed to clear containers by port: {str(e)}")
 
     def _submit_challenge_to_miner(self, challenge) -> dict:
         """
