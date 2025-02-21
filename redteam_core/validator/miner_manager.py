@@ -126,11 +126,11 @@ class MinerManager:
             )
             self.challenge_records[today] = today_record
 
-    def _get_challenge_scores(self) -> np.ndarray:
+    def _get_challenge_scores(self, n_uids: int) -> np.ndarray:
         """
         Returns a numpy array of scores based on challenge records (solution performance), applying decay for older records.
         """
-        scores = np.zeros(self.metagraph.n)  # Should this be configurable?
+        scores = np.zeros(n_uids)  # Should this be configurable?
         today = datetime.datetime.now(datetime.timezone.utc)
 
         total_points = 0
@@ -180,7 +180,7 @@ class MinerManager:
 
                 # Only consider UIDs registered within immunity period
                 if blocks_since_registration <= constants.SUBNET_IMMUNITY_PERIOD:
-                    # Score decreases linearly from 1.0 (just registered) to 0.0 (immunity period old)
+                    # Score decreases linearly from 1.0 (just registered) to 0.0 (immunity period ended)
                     scores[uid] = max(0, 1.0 - (blocks_since_registration / constants.SUBNET_IMMUNITY_PERIOD))
 
             # Normalize scores if any registrations exist
@@ -193,12 +193,12 @@ class MinerManager:
 
         return scores
 
-    def _get_alpha_stake_scores(self) -> np.ndarray:
+    def _get_alpha_stake_scores(self, n_uids: int) -> np.ndarray:
         """
         Returns a numpy array of scores based on alpha stake, high for more stake.
         Uses square root transformation to reduce the impact of very high stakes, encourage small holders.
         """
-        scores = np.zeros(self.metagraph.n)
+        scores = np.zeros(n_uids)
         # Apply square root transformation to reduce the impact of high stakes
         sqrt_alpha_stakes = np.sqrt(self.metagraph.alpha_stake)
         total_sqrt_alpha_stakes = np.sum(sqrt_alpha_stakes)
@@ -220,13 +220,13 @@ class MinerManager:
         - ALPHA_STAKE_WEIGHT (5%)
         """
         # Get challenge performance scores
-        challenge_scores = self._get_challenge_scores()
+        challenge_scores = self._get_challenge_scores(n_uids)
 
         # Get newly registration scores
         registration_scores = self._get_newly_registration_scores(n_uids)
 
         # Get alpha stake scores
-        alpha_stake_scores = self._get_alpha_stake_scores()
+        alpha_stake_scores = self._get_alpha_stake_scores(n_uids)
 
         # Combine scores using weights from constants
         final_scores = (
