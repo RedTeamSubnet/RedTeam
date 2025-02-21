@@ -103,7 +103,11 @@ class Validator(BaseValidator):
         self.active_challenges = all_challenges
         for challenge in self.active_challenges.keys():
             if challenge not in self.miner_managers:
-                self.miner_managers[challenge] = MinerManager(challenge_name=challenge, challenge_incentive_weight=self.active_challenges[challenge]["challenge_incentive_weight"])
+                self.miner_managers[challenge] = MinerManager(
+                    challenge_name=challenge,
+                    challenge_incentive_weight=self.active_challenges[challenge]["challenge_incentive_weight"],
+                    metagraph=self.metagraph
+                )
 
     def _init_miner_submit_from_cache(self):
         """
@@ -272,7 +276,7 @@ class Validator(BaseValidator):
 
             self.scoring_dates.append(today_key)
             self._update_miner_scoring_logs(all_challenge_logs=all_challenge_logs) # Update logs to miner_submit for storing
-            self.store_challenge_records() # TODO: REMOVE AFTER TWO WEEKS WHEN ALL VALIDATORS HAVE UPDATED TO NEW VERSION
+            self.store_challenge_records() # n_uidsTODO: REMOVE AFTER TWO WEEKS WHEN ALL VALIDATORS HAVE UPDATED TO NEW VERSION
             self.store_challenge_records_new(dates=today_key) # Store challenge records for today
         else:
             bt.logging.warning(f"[FORWARD CENTRALIZED SCORING] Skipping scoring for {today_key}")
@@ -321,7 +325,10 @@ class Validator(BaseValidator):
 
                 bt.logging.info(f"[FORWARD LOCAL SCORING] Running challenge: {challenge}")
                 controller = self.active_challenges[challenge]["controller"](
-                    challenge_name=challenge, miner_docker_images=commits, uids=uids, challenge_info=self.active_challenges[challenge]
+                    challenge_name=challenge,
+                    miner_docker_images=commits,
+                    uids=uids,
+                    challenge_info=self.active_challenges[challenge]
                 )
                 logs = controller.start_challenge()
                 logs = [ScoringLog(**log) for log in logs]
@@ -332,7 +339,7 @@ class Validator(BaseValidator):
             bt.logging.info(f"[FORWARD LOCAL SCORING] All tasks: Scoring completed for {today_key}")
             self.scoring_dates.append(today_key)
             self._update_miner_scoring_logs(all_challenge_logs=all_challenge_logs) # Update logs to miner_submit for storing
-            self.store_challenge_records() # TODO: REMOVE AFTER TWO WEEKS WHEN ALL VALIDATORS HAVE UPDATED TO NEW VERSION
+            self.store_challenge_records() # TODO: REMOVE AFTER TWO WEEKS WHEN ALL VALIDATORS HAVE UPDATED TO NEW VERSION (STILL USEFUL, DO NOT REMOVE)
             self.store_challenge_records_new(dates=today_key) # Store challenge records for today
         else:
             bt.logging.warning(f"[FORWARD LOCAL SCORING] Skipping scoring for {today_key}")
