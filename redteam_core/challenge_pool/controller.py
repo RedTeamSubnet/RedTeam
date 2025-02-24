@@ -22,7 +22,7 @@ class Controller:
         self,
         challenge_name: str,
         miner_docker_images: List[str],
-        uids: List[int],
+        uid_ss58_address_pairs: List[Tuple[int, str]],
         challenge_info: Dict,
     ):
         """
@@ -36,7 +36,7 @@ class Controller:
         self.docker_client = docker.from_env()
         self.challenge_name = challenge_name
         self.miner_docker_images = miner_docker_images
-        self.uids = uids
+        self.uid_ss58_address_pairs = uid_ss58_address_pairs
         self.challenge_info = challenge_info
         self.resource_limits = challenge_info["resource_limits"]
         self.local_network = "redteam_local"
@@ -48,7 +48,7 @@ class Controller:
         self.uid_baseline = -1
         if self.baseline_image:
             self.miner_docker_images.insert(0, self.baseline_image)
-            self.uids.insert(0, self.uid_baseline)
+            self.uid_ss58_address_pairs.insert(0, (self.uid_baseline, "baseline"))
 
     def _clear_all_container(self):
         """
@@ -87,7 +87,8 @@ class Controller:
         challenges = [self._get_challenge_from_container() for _ in range(num_task)]
         logs = []  # Logs for miners
         baseline_logs = []  # Logs for baseline
-        for miner_docker_image, uid in zip(self.miner_docker_images, self.uids):
+        for miner_docker_image, uid_ss58_address_pair in zip(self.miner_docker_images, self.uid_ss58_address_pairs):
+            uid, ss58_address = uid_ss58_address_pair
             try:
                 is_image_valid = self._validate_image_with_digest(miner_docker_image)
                 if not is_image_valid:
@@ -98,12 +99,13 @@ class Controller:
                             "score": 0,
                             "miner_docker_image": miner_docker_image,
                             "uid": uid,
+                            "ss58_address": ss58_address,
                             "error": f"Invalid image format: {miner_docker_image}. Must include a SHA256 digest. Skip evaluation!",
                         }
                     )
                     continue
                 bt.logging.info(
-                    f"[Controller] Running miner {uid}: {miner_docker_image}"
+                    f"[Controller] Running miner {uid_ss58_address_pair[0]}: {uid_ss58_address_pair[1]} - {miner_docker_image}"
                 )
                 self._clear_container_by_port(constants.MINER_DOCKER_PORT)
 
@@ -164,6 +166,7 @@ class Controller:
                         "score": score,
                         "miner_docker_image": miner_docker_image,
                         "uid": uid,
+                        "ss58_address": ss58_address,
                     }
 
                     if uid != self.uid_baseline and len(baseline_logs) > i:
@@ -187,6 +190,7 @@ class Controller:
                             "score": 0,
                             "miner_docker_image": miner_docker_image,
                             "uid": uid,
+                            "ss58_address": ss58_address,
                             "error": str(e),
                         }
                     )

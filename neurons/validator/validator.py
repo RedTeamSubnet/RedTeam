@@ -2,7 +2,7 @@ import time
 import json
 import datetime
 import requests
-from typing import Optional, Union
+from typing import Optional, Union, Tuple
 
 import numpy as np
 import bittensor as bt
@@ -51,7 +51,7 @@ class Validator(BaseValidator):
         )
 
         # Initialize validator state
-        self.miner_submit = {}
+        self.miner_submit = {} # {(uid, ss58_address): {challenge_name: {commit_timestamp: int, encrypted_commit: str, key: str, commit: str, log: dict}}}
         self._init_validator_state()
 
         self.scoring_dates: list[str] = []
@@ -118,18 +118,19 @@ class Validator(BaseValidator):
             for key in cache:
                 submission = cache[key]
                 miner_uid = submission["miner_uid"]
+                miner_ss58_address = submission["miner_ss58_address"]
                 challenge_name = submission["challenge_name"]
-                current_submission = miner_submit.setdefault(miner_uid, {}).get(challenge_name)
+                current_submission = miner_submit.setdefault((miner_uid, miner_ss58_address), {}).get(challenge_name)
                 if current_submission:
                     current_commit_timestamp = current_submission["commit_timestamp"]
                     # Update submission if it is newer and encrypted commit is different
                     if current_commit_timestamp < submission["commit_timestamp"] and current_submission["encrypted_commit"] != submission["encrypted_commit"]:
-                        miner_submit[miner_uid][challenge_name] = submission
+                        miner_submit[(miner_uid, miner_ss58_address)][challenge_name] = submission
                     # Update submission if it is older and encrypted commit is the same
                     elif current_commit_timestamp > submission["commit_timestamp"] and current_submission["encrypted_commit"] == submission["encrypted_commit"]:
-                        miner_submit[miner_uid][challenge_name] = submission
+                        miner_submit[(miner_uid, miner_ss58_address)][challenge_name] = submission
                 else:
-                    miner_submit[miner_uid][challenge_name] = submission
+                    miner_submit[(miner_uid, miner_ss58_address)][challenge_name] = submission
 
         self.miner_submit = miner_submit
 
@@ -159,7 +160,7 @@ class Validator(BaseValidator):
                         # Skip if miner hotkey no longer in metagraph
                         continue
                     for challenge_name, commit_data in challenges.items():
-                        self.miner_submit.setdefault(miner_uid, {})[challenge_name] = {
+                        self.miner_submit.setdefault((miner_uid, miner_ss58_address), {})[challenge_name] = {
                             "commit_timestamp": commit_data["commit_timestamp"],
                             "encrypted_commit": commit_data["encrypted_commit"],
                             "key": commit_data["key"],
@@ -217,10 +218,10 @@ class Validator(BaseValidator):
         bt.logging.success(f"[FORWARD] Forwarding for {datetime.datetime.now(datetime.timezone.utc)}")
         revealed_commits = self.get_revealed_commits()
 
-        for challenge, (commits, uids) in revealed_commits.items():
+        for challenge, (commits, uid_ss58_address_pairs) in revealed_commits.items():
             if challenge not in self.active_challenges:
                 continue
-            self.miner_managers[challenge].update_uid_to_commit(uids=uids, commits=commits)
+            self.miner_managers[challenge].update_identity_to_commit(uid_ss58_address_pairs=uid_ss58_address_pairs, commits=commits)
 
         if self.config.validator.use_centralized_scoring:
             self.forward_centralized_scoring(revealed_commits)
@@ -229,12 +230,18 @@ class Validator(BaseValidator):
 
         self.store_miner_commits()
 
-    def forward_centralized_scoring(self, revealed_commits: dict[str, tuple[list[str], list[int]]]):
+    def forward_centralized_scoring(self, revealed_commits: dict[str, tuple[list[str], list[Tuple[int, str]]]]):
         """
         Forward pass for centralized scoring.
         1. Save revealed commits to storage
         2. Get scoring logs from centralized scoring endpoint
         3. Update scores if scoring for all submissions of a challenge is done
+
+        Args:
+            revealed_commits (dict): Mapping of challenge names to their commit data
+                Format: {
+                    "challenge_name": ([docker_hub_ids], [(miner_uid, miner_ss58_address) pairs])
+                }
         """
         bt.logging.info(f"[FORWARD CENTRALIZED SCORING] Saving Revealed commits to storage ...")
         self.store_miner_commits()
@@ -284,7 +291,7 @@ class Validator(BaseValidator):
             bt.logging.info(f"[FORWARD CENTRALIZED SCORING] Scoring dates: {self.scoring_dates}")
             bt.logging.info(f"[FORWARD CENTRALIZED SCORING] Revealed commits: {str(revealed_commits)[:100]}...")
 
-    def forward_local_scoring(self, revealed_commits: dict[str, tuple[list[str], list[int]]]):
+    def forward_local_scoring(self, revealed_commits: dict[str, tuple[list[str], list[Tuple[int, str]]]]):
         """
         Execute local scoring for revealed miner commits.
 
@@ -298,7 +305,7 @@ class Validator(BaseValidator):
         Args:
             revealed_commits (dict): Mapping of challenge names to their commit data
                 Format: {
-                    "challenge_name": ([docker_hub_ids], [miner_uids])
+                    "challenge_name": ([docker_hub_ids], [(miner_uid, miner_ss58_address) pairs])
                 }
 
         Time Conditions:
@@ -319,7 +326,7 @@ class Validator(BaseValidator):
             # Store logs for all submissions from all challenges
             all_challenge_logs: dict[str, list[ScoringLog]] = {}
 
-            for challenge, (commits, uids) in revealed_commits.items():
+            for challenge, (commits, miner_uid_ss58_address_pairs) in revealed_commits.items():
                 if challenge not in self.active_challenges:
                     continue
 
@@ -327,7 +334,7 @@ class Validator(BaseValidator):
                 controller = self.active_challenges[challenge]["controller"](
                     challenge_name=challenge,
                     miner_docker_images=commits,
-                    uids=uids,
+                    uid_ss58_address_pairs=miner_uid_ss58_address_pairs,
                     challenge_info=self.active_challenges[challenge]
                 )
                 logs = controller.start_challenge()
@@ -407,8 +414,8 @@ class Validator(BaseValidator):
                                         miner_docker_image=docker_hub_id,
                                         error=log.get("error"),
                                         baseline_score=log.get("baseline_score")
-                                        )
                                     )
+                                )
                     except Exception as e:
                         bt.logging.error(f"[GET CENTRALIZED SCORING LOGS] Get scoring logs for{docker_hub_id} failed: {e}")
             except (requests.RequestException, KeyError):
@@ -511,6 +518,7 @@ class Validator(BaseValidator):
         uids = self.metagraph.uids
 
         axons = [self.metagraph.axons[i] for i in uids]
+        ss58_addresses = [self.metagraph.hotkeys[i] for i in uids]
         dendrite = bt.dendrite(wallet=self.wallet)
         synapse = Commit()
 
@@ -518,8 +526,9 @@ class Validator(BaseValidator):
             axons, synapse, timeout=constants.QUERY_TIMEOUT
         )
 
-        for uid, response in zip(uids, responses):
-            this_miner_submit = self.miner_submit.setdefault(uid, {})
+        # Update new miner commits to self.miner_submit
+        for uid, ss58_address, response in zip(uids, ss58_addresses, responses):
+            this_miner_submit = self.miner_submit.setdefault((uid, ss58_address), {})
             encrypted_commit_dockers = response.encrypted_commit_dockers
             keys = response.public_keys
 
@@ -554,25 +563,30 @@ class Validator(BaseValidator):
                     except Exception as e:
                         bt.logging.error(f"Failed to decrypt commit: {e}")
 
+        # Cutoff miners not in metagraph
+        for (uid, ss58_address), _ in self.miner_submit.items():
+            if ss58_address not in self.metagraph.hotkeys:
+                del self.miner_submit[(uid, ss58_address)]
+
     def get_revealed_commits(self) -> dict:
         """
         Collects all revealed commits from miners.
 
         Returns:
             A dictionary where the key is the challenge name and the value is a tuple:
-            (list of docker_hub_ids, list of uids).
+            (list of docker_hub_ids, list of (uid, hotkey) pairs).
         """
         revealed_commits = {}
-        for uid, commits in self.miner_submit.items():
+        for (uid, ss58_address), commits in self.miner_submit.items():
             for challenge_name, commit in commits.items():
-                bt.logging.info(f"- {uid} - {challenge_name} - {commit.get('encrypted_commit')}")
+                bt.logging.info(f"- {uid} - {ss58_address} - {challenge_name} - {commit.get('encrypted_commit')}")
                 if commit.get("commit"):
                     this_challenge_revealed_commits = revealed_commits.setdefault(
                         challenge_name, ([], [])
                     )
                     docker_hub_id = commit["commit"].split("---")[1]
                     this_challenge_revealed_commits[0].append(docker_hub_id)
-                    this_challenge_revealed_commits[1].append(uid)
+                    this_challenge_revealed_commits[1].append((uid, ss58_address))
                     commit["docker_hub_id"] = docker_hub_id
         return revealed_commits
 
@@ -593,8 +607,8 @@ class Validator(BaseValidator):
 
         for challenge_name, logs in all_challenge_logs.items():
             for log in logs:
-                miner_uid = log.uid
-                current_logs = self.miner_submit[miner_uid][challenge_name]["log"]
+                miner_uid, miner_ss58_address = log.uid, log.ss58_address
+                current_logs = self.miner_submit[(miner_uid, miner_ss58_address)][challenge_name]["log"]
 
                 # Cutoff old scoring and update latest score
                 for log_date in list(current_logs.keys()):
@@ -603,7 +617,7 @@ class Validator(BaseValidator):
                 if today not in current_logs:
                     current_logs[today] = []
                 current_logs[today].append(log.model_dump())
-                self.miner_submit[miner_uid][challenge_name]["log"] = current_logs
+                self.miner_submit[(miner_uid, miner_ss58_address)][challenge_name]["log"] = current_logs
 
     # MARK: Storage
     def store_miner_commits(self):
@@ -612,10 +626,10 @@ class Validator(BaseValidator):
         """
         data_to_store: list[dict] = []
 
-        for uid, commits in self.miner_submit.items():
+        for (uid, ss58_address), commits in self.miner_submit.items():
             for challenge_name, commit in commits.items():
-                miner_uid, validator_uid = uid, self.uid
-                miner_ss58_address, validator_ss58_address = self.metagraph.hotkeys[miner_uid], self.metagraph.hotkeys[validator_uid]
+                miner_uid, miner_ss58_address = uid, ss58_address
+                validator_uid, validator_ss58_address = self.uid, self.metagraph.hotkeys[self.uid]
                 # Construct data
                 data = {
                     "miner_uid": int(miner_uid),
