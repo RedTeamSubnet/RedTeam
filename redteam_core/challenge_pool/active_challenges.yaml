@@ -145,7 +145,7 @@ humanize_behaviour_v1: ## active after Feb 14th 2025 14:00 UTC
   privileged: true
   reset_challenge: true
   protocols:
-    challenger: "https"
+    challenger: "http"
     challenger_ssl_verify: false
     miner: "http"
     miner_ssl_verify: false

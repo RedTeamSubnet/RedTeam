@@ -18,6 +18,6 @@ docker run \
 	--rm \
 	-it \
 	--name bot_container \
-	-e HBC_WEB_URL="${HBC_WEB_URL:-https://172.17.0.1:10001/_web}" \
+	-e HBC_WEB_URL="${HBC_WEB_URL:-http://172.17.0.1:10001/_web}" \
 	-e HBC_ACTION_LIST="${HBC_ACTION_LIST}" \
 	bot:latest
