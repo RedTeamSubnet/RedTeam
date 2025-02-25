@@ -266,14 +266,20 @@ class Validator(BaseValidator):
                     if is_scoring_done[challenge_name]:
                         continue
 
-                    bt.logging.info(f"[FORWARD CENTRALIZED SCORING] Getting scoring logs from centralized scoring endpoint for challenge: {challenge_name} ...")
-                    logs, is_done = self.get_centralized_scoring_logs(challenge_name, revealed_commits)
-                    is_scoring_done[challenge_name] = is_done
+                    try:
+                        bt.logging.info(f"[FORWARD CENTRALIZED SCORING] Getting scoring logs from centralized scoring endpoint for challenge: {challenge_name} ...")
+                        logs, is_done = self.get_centralized_scoring_logs(challenge_name, revealed_commits)
+                        is_scoring_done[challenge_name] = is_done
 
-                    if is_done:
-                        bt.logging.info(f"[FORWARD CENTRALIZED SCORING] Scoring done for challenge: {challenge_name} ...")
-                        all_challenge_logs[challenge_name] = logs
-                        self.miner_managers[challenge_name].update_scores(logs)
+                        if is_done:
+                            bt.logging.info(f"[FORWARD CENTRALIZED SCORING] Scoring done for challenge: {challenge_name} ...")
+                            all_challenge_logs[challenge_name] = logs
+                            self.miner_managers[challenge_name].update_scores(logs)
+                    except Exception as e:
+                        # Continue to next challenge if error occurs
+                        bt.logging.error(f"[FORWARD CENTRALIZED SCORING] Error getting scoring logs and update scores for challenge: {challenge_name}: {e}")
+                        continue
+
                 # Break if all challenges have finished scoring
                 if all(is_scoring_done.values()):
                     break

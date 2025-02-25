@@ -87,6 +87,10 @@ class MinerManager:
             # No need to update if today's record already exists
             return
 
+        if len(logs) == 0:
+            # No logs, so we raise an error
+            raise ValueError(f"[MINER MANAGER] No logs provided, challenge {self.challenge_name} scores cannot be updated for {today}.")
+
         prev_day = (datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
         prev_day_record = self.challenge_records.get(prev_day)
 
