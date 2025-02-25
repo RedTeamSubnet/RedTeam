@@ -1,6 +1,7 @@
 import time
 import json
 import datetime
+import traceback
 import requests
 from typing import Optional, Union, Tuple
 
@@ -277,7 +278,7 @@ class Validator(BaseValidator):
                             self.miner_managers[challenge_name].update_scores(logs)
                     except Exception as e:
                         # Continue to next challenge if error occurs
-                        bt.logging.error(f"[FORWARD CENTRALIZED SCORING] Error getting scoring logs and update scores for challenge: {challenge_name}: {e}")
+                        bt.logging.error(f"[FORWARD CENTRALIZED SCORING] Error getting scoring logs and update scores for challenge: {challenge_name}: {traceback.format_exc()}")
                         continue
 
                 # Break if all challenges have finished scoring
