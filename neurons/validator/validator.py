@@ -18,6 +18,7 @@ from redteam_core import (
     constants,
     MinerManager,
     StorageManager,
+    ValidatorLogHandler,
     ScoringLog,
 )
 from redteam_core.validator.miner_manager import ChallengeRecord
@@ -38,18 +39,26 @@ class Validator(BaseValidator):
         #     for challenge in self.active_challenges.keys()
         # }
 
+        # Get storage API KEY
+        storage_api_key = self._get_storage_api_key()
         # Setup storage manager and publish public hf_repo_id for storage
         self.storage_manager = StorageManager(
             cache_dir=self.config.validator.cache_dir,
             hf_repo_id=self.config.validator.hf_repo_id,
             sync_on_init=True
         )
-
         # Commit the repo_id
         self.commit_repo_id_to_chain(
             hf_repo_id=self.config.validator.hf_repo_id,
             max_retries=5
         )
+        # Initialize log handler
+        self.log_handler = ValidatorLogHandler(
+            api_key=storage_api_key,
+            buffer_size=50,
+
+        )
+
 
         # Initialize validator state
         self.miner_submit = {} # {(uid, ss58_address): {challenge_name: {commit_timestamp: int, encrypted_commit: str, key: str, commit: str, log: dict}}}
