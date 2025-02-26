@@ -86,6 +86,14 @@ class MinerManager:
             # No need to update if today's record already exists
             return
 
+        if len(logs) == 0:
+            # No logs, so we raise an error
+            raise ValueError(f"[MINER MANAGER] No logs provided, challenge {self.challenge_name} scores cannot be updated for {today}.")
+
+        # Find the most recent record by looking through all past dates
+        most_recent_record = None
+        most_recent_date = None
+
         for date_str, record in self.challenge_records.items():
             if most_recent_date is None or date_str > most_recent_date:
                 most_recent_date = date_str
