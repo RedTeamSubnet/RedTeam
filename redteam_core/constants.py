@@ -1,5 +1,6 @@
 import os
 import datetime
+import math
 
 from pydantic import BaseModel, Field, field_validator, model_validator, AnyUrl
 
@@ -16,6 +17,11 @@ class Constants(BaseModel):
         default_factory=lambda: os.getenv("TESTNET", "0").strip().lower()
         in ("1", "true", "yes"),
         description="Flag to indicate if running in testnet mode.",
+    )
+
+    # Subnet settings
+    SUBNET_IMMUNITY_PERIOD: int = Field(
+        default=14400, description="Subnet immunity period in blocks (12 seconds per block)."
     )
 
     # Versioning
@@ -37,6 +43,17 @@ class Constants(BaseModel):
     )
     POINT_DECAY_RATE: float = Field(
         default=1 / 14, description="Daily point decay rate."
+    )
+
+    # Weighting settings
+    CHALLENGE_SCORES_WEIGHT: float = Field(
+        default=0.85, description="Weight of challenge scores."
+    )
+    NEWLY_REGISTRATION_WEIGHT: float = Field(
+        default=0.1, description="Weight of newly registration scores."
+    )
+    ALPHA_STAKE_WEIGHT: float = Field(
+        default=0.05, description="Weight of alpha stake scores."
     )
 
     # Network settings
@@ -115,6 +132,7 @@ class Constants(BaseModel):
     def decay_points(self, point: float, days_passed: int) -> float:
         """
         Applies decay to the given points based on the number of days passed.
+        Uses square root decay pattern for faster initial decay.
 
         Args:
             point (float): The original point value.
@@ -123,8 +141,17 @@ class Constants(BaseModel):
         Returns:
             float: The decayed point value.
         """
-        decay_factor = 1 - min(self.POINT_DECAY_RATE * days_passed, 1)
-        return point * decay_factor
+        # Ensure days_passed is not negative
+        days_passed = max(0, days_passed)
+
+        # Calculate decay progress and clamp between 0 and 1
+        decay_progress = min(max(self.POINT_DECAY_RATE * days_passed, 0.0), 1.0)
+
+        # Calculate decay factor using square root, ensuring it's between 0 and 1
+        decay_factor = 1.0 - math.sqrt(decay_progress)
+        decay_factor = min(max(decay_factor, 0.0), 1.0)
+
+        return float(point * decay_factor)
 
     def is_commit_on_time(self, commit_timestamp: float) -> bool:
         """

@@ -596,7 +596,8 @@ class StorageManager:
                     **{key: value for key, value in log_value.items() if key not in ["miner_input", "miner_output"]},
                     **{"miner_input": {} if "miner_input" in log_value else None},  # Only add placeholder if exists
                     **{"miner_output": {} if "miner_output" in log_value else None}  # Only add placeholder if exists
-                } for log_value in logs_value] for date, logs_value in data["log"].items()
+                } for log_value in logs_value]
+                for date, logs_value in data["log"].items()
             }
 
         return cache_data

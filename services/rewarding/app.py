@@ -88,7 +88,11 @@ class RewardApp:
 
         for challenge in self.active_challenges.keys():
             if challenge not in self.miner_managers:
-                self.miner_managers[challenge] = MinerManager(challenge_name=challenge, challenge_incentive_weight=self.active_challenges[challenge]["challenge_incentive_weight"])
+                self.miner_managers[challenge] = MinerManager(
+                    challenge_name=challenge,
+                    challenge_incentive_weight=self.active_challenges[challenge]["challenge_incentive_weight"],
+                    metagraph=self.metagraph
+                )
 
     def reward_submission(self):
         """Background thread to reward submission.
@@ -342,8 +346,17 @@ class RewardApp:
         return True
 
     def get_scoring_logs(self, challenge_name: str):
+        challenge_logs = self.submission_scoring_logs.get(challenge_name, {})
+
+        # Filter logs to only include docker IDs that are in mapping_docker_id_miner_id
+        filtered_logs = {
+            docker_id: logs
+            for docker_id, logs in challenge_logs.items()
+            if docker_id in self.mapping_docker_id_miner_id
+        }
+
         return {
-            "submission_scoring_logs": self.submission_scoring_logs.get(challenge_name, {}),
+            "submission_scoring_logs": filtered_logs,
             "is_scoring_done": self.is_scoring_done.get(challenge_name, False)
         }
 

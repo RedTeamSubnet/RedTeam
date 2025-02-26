@@ -59,7 +59,11 @@ class RewardApp(Validator):
 
         self.active_challenges = challenge_pool.ACTIVE_CHALLENGES
         self.miner_managers = {
-            challenge: MinerManager(challenge_name=challenge, challenge_incentive_weight=self.active_challenges[challenge]["challenge_incentive_weight"])
+            challenge: MinerManager(
+                challenge_name=challenge,
+                challenge_incentive_weight=self.active_challenges[challenge]["challenge_incentive_weight"],
+                metagraph=self.metagraph
+            )
             for challenge in self.active_challenges.keys()
         }
 
