@@ -3,7 +3,10 @@ services:
     image: humanize_behaviour_v1:latest
     build:
       context: .
+      platforms:
+        - linux/amd64
     restart: unless-stopped
+    platform: linux/amd64
     privileged: true
     ulimits:
       nofile: 32768
