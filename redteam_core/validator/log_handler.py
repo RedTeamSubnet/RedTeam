@@ -1,41 +1,10 @@
 import logging
-import time
 from logging.handlers import QueueListener
-import json
 import requests
 import traceback
 
 import bittensor as bt
 from redteam_core.constants import constants
-
-class JSONLogFormatter(logging.Formatter):
-    """
-    A log formatter optimized for structured logging, ensuring UTC timestamps.
-    """
-
-    def __init__(self):
-        super().__init__()
-        self.converter = time.gmtime  # Force UTC timestamps
-
-    def format(self, record: logging.LogRecord) -> str:
-        """Convert a log record into a structured JSON format with UTC time."""
-
-        log_entry = {
-            "timestamp": self.formatTime(record, "%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z",  # ISO 8601 UTC format
-            "level": record.levelname,
-            "message": record.getMessage(),
-            "module": record.module,
-            "function": record.funcName,
-            "line": record.lineno,
-            "trace": record.exc_info is not None,  # True if exception exists
-        }
-
-        # Include exception details if any
-        if record.exc_info:
-            log_entry["exception"] = self.formatException(record.exc_info)
-
-        return json.dumps(log_entry)  # Convert dictionary to JSON string
-
 
 class BittensorLogHandler(logging.Handler):
     def __init__(self, api_key, buffer_size=10, level=logging.INFO):
@@ -45,7 +14,7 @@ class BittensorLogHandler(logging.Handler):
         self.buffer = []
 
         # Use the optimized JSON formatter for network logs
-        self.setFormatter(JSONLogFormatter())
+        self.setFormatter(bt.logging._file_formatter)
 
     def emit(self, record):
         """Capture log, convert to JSON, and flush when buffer is full."""
