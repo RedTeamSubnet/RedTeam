@@ -1,5 +1,5 @@
 import datetime
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union, Tuple
 
 import bittensor as bt
 import numpy as np
@@ -48,10 +48,11 @@ class ChallengeRecord(BaseModel):
     scored_date: Optional[str] = None
     docker_hub_id: Optional[str] = None
     uid: Optional[int] = None
-
+    ss58_address: Optional[str] = None
 
 class ScoringLog(BaseModel):
     uid: int
+    ss58_address: str
     score: float
     miner_input: Optional[dict] = None
     miner_output: Optional[dict] = None
@@ -67,14 +68,14 @@ class MinerManager:
         Initializes the MinerManager to track scores and challenges.
         """
         self.challenge_name = challenge_name
-        self.uids_to_commits: Dict[int, MinerCommit] = {}
+        self.uid_ss58_address_pairs_to_commits: Dict[Tuple[int, str], MinerCommit] = {}
         self.challenge_records: Dict[str, ChallengeRecord] = {}
         self.challenge_incentive_weight = challenge_incentive_weight
         self.metagraph = metagraph
 
-    def update_uid_to_commit(self, uids: List[int], commits: List[MinerCommit]) -> None:
-        for uid, commit in zip(uids, commits):
-            self.uids_to_commits[uid] = commit
+    def update_identity_to_commit(self, uid_ss58_address_pairs: List[Tuple[int, str]], commits: List[MinerCommit]) -> None:
+        for (uid, ss58_address), commit in zip(uid_ss58_address_pairs, commits):
+            self.uid_ss58_address_pairs_to_commits[(uid, ss58_address)] = commit
 
     def update_scores(self, logs: List[ScoringLog]) -> None:
         """
@@ -87,6 +88,10 @@ class MinerManager:
             # No need to update if today's record already exists
             return
 
+        if len(logs) == 0:
+            # No logs, so we raise an error
+            raise ValueError(f"[MINER MANAGER] No logs provided, challenge {self.challenge_name} scores cannot be updated for {today}.")
+
         prev_day = (datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
         prev_day_record = self.challenge_records.get(prev_day)
 
@@ -98,11 +103,11 @@ class MinerManager:
         logs_df = pd.DataFrame([log.model_dump() for log in logs])
 
         # Group by uid and mean the scores
-        scores = logs_df.groupby("uid")["score"].mean().sort_values(ascending=False)
+        scores = logs_df.groupby(["uid", "ss58_address"])["score"].mean().sort_values(ascending=False)
 
-        best_uid = scores.index[0]
+        best_uid, best_ss58_address = scores.index[0]
         best_score = scores.iloc[0]
-        best_docker_hub_id = logs_df[logs_df["uid"] == best_uid]["miner_docker_image"].iloc[0]
+        best_docker_hub_id = logs_df[(logs_df["uid"] == best_uid) & (logs_df["ss58_address"] == best_ss58_address)]["miner_docker_image"].iloc[0]
 
         if best_score > prev_day_record.score:
             # Miner made improvement
@@ -114,6 +119,7 @@ class MinerManager:
                 scored_date=today,
                 docker_hub_id=best_docker_hub_id,
                 uid=best_uid,
+                ss58_address=best_ss58_address
             )
             self.challenge_records[today] = today_record
         else:
@@ -123,7 +129,8 @@ class MinerManager:
                 date=today,
                 scored_date=prev_day_record.scored_date,
                 docker_hub_id=prev_day_record.docker_hub_id,
-                uid=prev_day_record.uid
+                uid=prev_day_record.uid,
+                ss58_address=prev_day_record.ss58_address
             )
             self.challenge_records[today] = today_record
 
@@ -136,6 +143,9 @@ class MinerManager:
 
         total_points = 0
         for date_str, record in self.challenge_records.items():
+            # Check if the miner still in metagraph
+            if record.ss58_address not in self.metagraph.hotkeys:
+                continue
             # Only add points for the records that have scored date equal to recorded date (recorded by making improvement)
             if record.scored_date == record.date:
                 # Calculate decayed points
@@ -149,6 +159,7 @@ class MinerManager:
             scores /= total_points
 
         return scores
+
     def _get_newly_registration_scores(self, n_uids: int) -> np.ndarray:
         """
         Returns a numpy array of scores based on newly registration, high for more recent registrations.
