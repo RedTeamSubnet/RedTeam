@@ -2,13 +2,15 @@ import re
 import time
 import copy
 import subprocess
-from typing import List, Dict, Tuple, Union, Any
+from typing import List, Dict, Tuple, Union
 
 import docker
 import docker.types
 import requests
 import bittensor as bt
 
+
+from cfg_analyser import CFGAnalyser, CFGComparer
 from ..constants import constants
 
 
@@ -22,7 +24,7 @@ class Controller:
         self,
         challenge_name: str,
         miner_docker_images: List[str],
-        uids: List[int],
+        uid_ss58_address_pairs: List[Tuple[int, str]],
         challenge_info: Dict,
     ):
         """
@@ -36,11 +38,10 @@ class Controller:
         self.docker_client = docker.from_env()
         self.challenge_name = challenge_name
         self.miner_docker_images = miner_docker_images
-        self.uids = uids
+        self.uid_ss58_address_pairs = uid_ss58_address_pairs
         self.challenge_info = challenge_info
         self.resource_limits = challenge_info["resource_limits"]
         self.local_network = "redteam_local"
-
 
         """
         Add baseline image to compare with miners
@@ -49,7 +50,7 @@ class Controller:
         self.uid_baseline = -1
         if self.baseline_image:
             self.miner_docker_images.insert(0, self.baseline_image)
-            self.uids.insert(0, self.uid_baseline)
+            self.uid_ss58_address_pairs.insert(0, (self.uid_baseline, "baseline"))
 
     def _clear_all_container(self):
         """
@@ -88,7 +89,10 @@ class Controller:
         challenges = [self._get_challenge_from_container() for _ in range(num_task)]
         logs = []  # Logs for miners
         baseline_logs = []  # Logs for baseline
-        for miner_docker_image, uid in zip(self.miner_docker_images, self.uids):
+        for miner_docker_image, uid_ss58_address_pair in zip(
+            self.miner_docker_images, self.uid_ss58_address_pairs
+        ):
+            uid, ss58_address = uid_ss58_address_pair
             try:
                 is_image_valid = self._validate_image_with_digest(miner_docker_image)
                 if not is_image_valid:
@@ -99,12 +103,13 @@ class Controller:
                             "score": 0,
                             "miner_docker_image": miner_docker_image,
                             "uid": uid,
+                            "ss58_address": ss58_address,
                             "error": f"Invalid image format: {miner_docker_image}. Must include a SHA256 digest. Skip evaluation!",
                         }
                     )
                     continue
                 bt.logging.info(
-                    f"[Controller] Running miner {uid}: {miner_docker_image}"
+                    f"[Controller] Running miner {uid_ss58_address_pair[0]}: {uid_ss58_address_pair[1]} - {miner_docker_image}"
                 )
                 self._clear_container_by_port(constants.MINER_DOCKER_PORT)
 
@@ -159,12 +164,22 @@ class Controller:
                         score = float(score)
                     elif not type(score) == float:
                         score = 0.0
+
+                    _bot_py = ""
+                    if miner_output:
+                        _bot_py = miner_output.get("bot_py", "")
+
+                    _cfg_analyser = CFGAnalyser(data=_bot_py)
+                    _cfg_result = _cfg_analyser.run()
+
                     log = {
                         "miner_input": miner_input,
                         "miner_output": miner_output,
                         "score": score,
                         "miner_docker_image": miner_docker_image,
                         "uid": uid,
+                        "ss58_address": ss58_address,
+                        "meta": {"cfg_result": _cfg_result},
                     }
 
                     if uid != self.uid_baseline and len(baseline_logs) > i:
@@ -188,11 +203,14 @@ class Controller:
                             "score": 0,
                             "miner_docker_image": miner_docker_image,
                             "uid": uid,
+                            "ss58_address": ss58_address,
                             "error": str(e),
                         }
                     )
+
             self._clear_container_by_port(constants.MINER_DOCKER_PORT)
             self._clean_up_docker_resources()
+
         self._remove_challenge_container()
         self._clean_up_docker_resources()
         return logs
@@ -285,81 +303,127 @@ class Controller:
                         try:
                             container.reload()
                         except docker.errors.NotFound:
-                            bt.logging.info(f"[Controller] Container {container.name} no longer exists")
+                            bt.logging.info(
+                                f"[Controller] Container {container.name} no longer exists"
+                            )
                             return
                         except Exception as e:
-                            bt.logging.warning(f"[Controller] Failed to reload container state: {str(e)}")
+                            bt.logging.warning(
+                                f"[Controller] Failed to reload container state: {str(e)}"
+                            )
 
                         # Check if container is already stopped
                         if container.status != "exited":
-                            bt.logging.info(f"[Controller] Attempting to stop container {container.name} (Try {retries+1}/5)...")
+                            bt.logging.info(
+                                f"[Controller] Attempting to stop container {container.name} (Try {retries+1}/5)..."
+                            )
                             try:
                                 container.stop(timeout=30)
                                 try:
                                     container.wait(condition="not-running", timeout=30)
                                 except docker.errors.NotFound:
-                                    bt.logging.info(f"[Controller] Container {container.name} no longer exists after stop")
+                                    bt.logging.info(
+                                        f"[Controller] Container {container.name} no longer exists after stop"
+                                    )
                                     return
                                 except Exception as e:
-                                    bt.logging.warning(f"[Controller] Wait for container stop failed: {str(e)}")
+                                    bt.logging.warning(
+                                        f"[Controller] Wait for container stop failed: {str(e)}"
+                                    )
                             except docker.errors.NotFound:
-                                bt.logging.info(f"[Controller] Container {container.name} already stopped/removed")
+                                bt.logging.info(
+                                    f"[Controller] Container {container.name} already stopped/removed"
+                                )
                                 return
                             except docker.errors.APIError as e:
                                 if "is already in progress" in str(e):
-                                    bt.logging.info(f"[Controller] Stop operation already in progress for {container.name}")
-                                    time.sleep(10)  # Wait longer for in-progress operations
+                                    bt.logging.info(
+                                        f"[Controller] Stop operation already in progress for {container.name}"
+                                    )
+                                    time.sleep(
+                                        10
+                                    )  # Wait longer for in-progress operations
                                     continue
                                 else:
-                                    bt.logging.warning(f"[Controller] Failed to stop container: {str(e)}")
+                                    bt.logging.warning(
+                                        f"[Controller] Failed to stop container: {str(e)}"
+                                    )
 
-                        bt.logging.info(f"[Controller] Attempting to remove container {container.name} (Try {retries+1}/5)...")
+                        bt.logging.info(
+                            f"[Controller] Attempting to remove container {container.name} (Try {retries+1}/5)..."
+                        )
                         try:
                             container.remove(force=True, v=True)
-                            bt.logging.info(f"[Controller] Container {container.name} removed successfully")
+                            bt.logging.info(
+                                f"[Controller] Container {container.name} removed successfully"
+                            )
                             return
                         except docker.errors.NotFound:
-                            bt.logging.info(f"[Controller] Container {container.name} already removed")
+                            bt.logging.info(
+                                f"[Controller] Container {container.name} already removed"
+                            )
                             return
                         except docker.errors.APIError as e:
                             if "is already in progress" in str(e):
-                                bt.logging.info(f"[Controller] Remove operation already in progress for {container.name}")
+                                bt.logging.info(
+                                    f"[Controller] Remove operation already in progress for {container.name}"
+                                )
                                 time.sleep(10)  # Wait longer for in-progress operations
                                 # Check if container still exists before continuing
                                 try:
                                     container.reload()
                                 except docker.errors.NotFound:
-                                    bt.logging.info(f"[Controller] Container {container.name} was removed successfully")
+                                    bt.logging.info(
+                                        f"[Controller] Container {container.name} was removed successfully"
+                                    )
                                     return
                                 continue
-                            bt.logging.warning(f"[Controller] Failed to remove container: {str(e)}")
+                            bt.logging.warning(
+                                f"[Controller] Failed to remove container: {str(e)}"
+                            )
 
                     except requests.exceptions.ReadTimeout:
-                        bt.logging.warning("[Controller] Timeout while communicating with Docker daemon")
+                        bt.logging.warning(
+                            "[Controller] Timeout while communicating with Docker daemon"
+                        )
                         time.sleep(5)
                     except Exception as e:
-                        bt.logging.warning(f"[Controller] Unexpected error in removal loop: {str(e)}")
+                        bt.logging.warning(
+                            f"[Controller] Unexpected error in removal loop: {str(e)}"
+                        )
 
                     retries += 1
                     if retries < 5:  # Don't wait if this was the last try
                         try:
-                            wait_time = min(5 * (2 ** (retries - 1)), 30)  # Reduced max wait time
-                            bt.logging.info(f"[Controller] Retrying in {wait_time} seconds...")
+                            wait_time = min(
+                                5 * (2 ** (retries - 1)), 30
+                            )  # Reduced max wait time
+                            bt.logging.info(
+                                f"[Controller] Retrying in {wait_time} seconds..."
+                            )
                             time.sleep(wait_time)
                         except Exception as e:
-                            bt.logging.warning(f"[Controller] Error during retry wait: {str(e)}")
+                            bt.logging.warning(
+                                f"[Controller] Error during retry wait: {str(e)}"
+                            )
                             time.sleep(5)
 
-                bt.logging.error(f"[Controller] Failed to remove container {container.name} after 5 attempts")
+                bt.logging.error(
+                    f"[Controller] Failed to remove container {container.name} after 5 attempts"
+                )
 
             except Exception as e:
-                bt.logging.error(f"[Controller] Unexpected error handling container: {str(e)}")
+                bt.logging.error(
+                    f"[Controller] Unexpected error handling container: {str(e)}"
+                )
                 continue
 
         try:
             self._clear_container_by_port(constants.CHALLENGE_DOCKER_PORT)
         except Exception as e:
-            bt.logging.error(f"[Controller] Failed to clear containers by port: {str(e)}")
+            bt.logging.error(
+                f"[Controller] Failed to clear containers by port: {str(e)}"
+            )
 
     def _submit_challenge_to_miner(self, challenge) -> dict:
         """
@@ -619,56 +683,3 @@ class Controller:
                     f"[Controller] Waiting for  container to start. {container.status}"
                 )
                 time.sleep(5)
-
-    def fetch_miner_submissions(uid: int, challenge_name: str) -> List[Dict[str, Any]]:
-        """
-        Fetch previous submissions for a given miner UID and challenge name.
-
-        Args:
-            uid (int): The UID of the miner.
-            challenge_name (str): The name of the challenge.
-
-        Returns:
-            List[Dict[str, Any]]: A list of submissions with relevant details.
-        """
-        params = {"miner_uid": uid, "challenge_name": challenge_name}
-        try:
-            response = requests.get(constants.STORAGE_URL, params=params)
-            response.raise_for_status()
-            return response.json()
-        except requests.RequestException as e:
-            print(f"Error fetching miner submissions: {e}")
-            return []
-
-    def fetch_all_miner_submissions() -> List[Dict[str, Any]]:
-        """
-        Fetch all previous submissions from the database.
-
-        Returns:
-            List[Dict[str, Any]]: A list of all submissions with relevant details.
-        """
-        # mock_miner_submissions = [
-        #     {
-        #         "_id": "6ee18b33492d189aec96c99f9e7a517366573691e614725969098201e7aae3fa",
-        #         "commit_timestamp": 1739811195.4085772,
-        #         "docker_hub_id": None,
-        #         "last_updated": "2025-02-17T16:53:22.728071+00:00",
-        #         "log": {
-        #             "miner_output": "",
-        #             "score": 1.0,
-        #             "similarity_ratio": 0.9
-        #         },
-        #         "miner_ss58_address": "5DUYqZR1ZSx4H5JL2BGborem9zpH75RqJBW855xs5a5kWQCG",
-        #         "miner_uid": 156,
-        #     }
-        # ]
-
-        try:
-            response = requests.get(constants.STORAGE_URL)
-            response.raise_for_status()
-            return response.json()
-        except requests.RequestException as e:
-            print(f"Error fetching all submissions: {e}")
-            return []
-
-

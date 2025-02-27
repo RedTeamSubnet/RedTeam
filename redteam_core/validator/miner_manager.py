@@ -50,6 +50,7 @@ class ChallengeRecord(BaseModel):
     uid: Optional[int] = None
     ss58_address: Optional[str] = None
 
+
 class ScoringLog(BaseModel):
     uid: int
     ss58_address: str
@@ -59,11 +60,16 @@ class ScoringLog(BaseModel):
     miner_docker_image: str
     error: Optional[str] = None
     baseline_score: Optional[float] = None
-    metadata: Optional[dict] = None
+    meta: Optional[dict] = None
 
 
 class MinerManager:
-    def __init__(self, challenge_name: str, challenge_incentive_weight: float, metagraph: bt.metagraph):
+    def __init__(
+        self,
+        challenge_name: str,
+        challenge_incentive_weight: float,
+        metagraph: bt.metagraph,
+    ):
         """
         Initializes the MinerManager to track scores and challenges.
         """
@@ -73,7 +79,9 @@ class MinerManager:
         self.challenge_incentive_weight = challenge_incentive_weight
         self.metagraph = metagraph
 
-    def update_identity_to_commit(self, uid_ss58_address_pairs: List[Tuple[int, str]], commits: List[MinerCommit]) -> None:
+    def update_identity_to_commit(
+        self, uid_ss58_address_pairs: List[Tuple[int, str]], commits: List[MinerCommit]
+    ) -> None:
         for (uid, ss58_address), commit in zip(uid_ss58_address_pairs, commits):
             self.uid_ss58_address_pairs_to_commits[(uid, ss58_address)] = commit
 
@@ -90,9 +98,13 @@ class MinerManager:
 
         if len(logs) == 0:
             # No logs, so we raise an error
-            raise ValueError(f"[MINER MANAGER] No logs provided, challenge {self.challenge_name} scores cannot be updated for {today}.")
+            raise ValueError(
+                f"[MINER MANAGER] No logs provided, challenge {self.challenge_name} scores cannot be updated for {today}."
+            )
 
-        prev_day = (datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
+        prev_day = (
+            datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=1)
+        ).strftime("%Y-%m-%d")
         prev_day_record = self.challenge_records.get(prev_day)
 
         if prev_day_record is None:
@@ -103,11 +115,18 @@ class MinerManager:
         logs_df = pd.DataFrame([log.model_dump() for log in logs])
 
         # Group by uid and mean the scores
-        scores = logs_df.groupby(["uid", "ss58_address"])["score"].mean().sort_values(ascending=False)
+        scores = (
+            logs_df.groupby(["uid", "ss58_address"])["score"]
+            .mean()
+            .sort_values(ascending=False)
+        )
 
         best_uid, best_ss58_address = scores.index[0]
         best_score = scores.iloc[0]
-        best_docker_hub_id = logs_df[(logs_df["uid"] == best_uid) & (logs_df["ss58_address"] == best_ss58_address)]["miner_docker_image"].iloc[0]
+        best_docker_hub_id = logs_df[
+            (logs_df["uid"] == best_uid)
+            & (logs_df["ss58_address"] == best_ss58_address)
+        ]["miner_docker_image"].iloc[0]
 
         if best_score > prev_day_record.score:
             # Miner made improvement
@@ -119,7 +138,7 @@ class MinerManager:
                 scored_date=today,
                 docker_hub_id=best_docker_hub_id,
                 uid=best_uid,
-                ss58_address=best_ss58_address
+                ss58_address=best_ss58_address,
             )
             self.challenge_records[today] = today_record
         else:
@@ -130,7 +149,7 @@ class MinerManager:
                 scored_date=prev_day_record.scored_date,
                 docker_hub_id=prev_day_record.docker_hub_id,
                 uid=prev_day_record.uid,
-                ss58_address=prev_day_record.ss58_address
+                ss58_address=prev_day_record.ss58_address,
             )
             self.challenge_records[today] = today_record
 
@@ -149,7 +168,9 @@ class MinerManager:
             # Only add points for the records that have scored date equal to recorded date (recorded by making improvement)
             if record.scored_date == record.date:
                 # Calculate decayed points
-                record_date = datetime.datetime.strptime(date_str, "%Y-%m-%d").replace(tzinfo=datetime.timezone.utc)
+                record_date = datetime.datetime.strptime(date_str, "%Y-%m-%d").replace(
+                    tzinfo=datetime.timezone.utc
+                )
                 days_passed = (today - record_date).days
                 point = constants.decay_points(record.point, days_passed)
                 scores[record.uid] += point
@@ -183,8 +204,7 @@ class MinerManager:
 
                 # Parse the UTC datetime string
                 reg_time = datetime.datetime.strptime(
-                    registration_time,
-                    "%Y-%m-%dT%H:%M:%S"
+                    registration_time, "%Y-%m-%dT%H:%M:%S"
                 ).replace(tzinfo=datetime.timezone.utc)
 
                 seconds_since_registration = (current_time - reg_time).total_seconds()
@@ -193,7 +213,13 @@ class MinerManager:
                 # Only consider UIDs registered within immunity period
                 if blocks_since_registration <= constants.SUBNET_IMMUNITY_PERIOD:
                     # Score decreases linearly from 1.0 (just registered) to 0.0 (immunity period ended)
-                    scores[uid] = max(0, 1.0 - (blocks_since_registration / constants.SUBNET_IMMUNITY_PERIOD))
+                    scores[uid] = max(
+                        0,
+                        1.0
+                        - (
+                            blocks_since_registration / constants.SUBNET_IMMUNITY_PERIOD
+                        ),
+                    )
 
             # Normalize scores if any registrations exist
             if np.sum(scores) > 0:
@@ -242,9 +268,9 @@ class MinerManager:
 
         # Combine scores using weights from constants
         final_scores = (
-            challenge_scores * constants.CHALLENGE_SCORES_WEIGHT +
-            registration_scores * constants.NEWLY_REGISTRATION_WEIGHT +
-            alpha_stake_scores * constants.ALPHA_STAKE_WEIGHT
+            challenge_scores * constants.CHALLENGE_SCORES_WEIGHT
+            + registration_scores * constants.NEWLY_REGISTRATION_WEIGHT
+            + alpha_stake_scores * constants.ALPHA_STAKE_WEIGHT
         )
 
         return final_scores
