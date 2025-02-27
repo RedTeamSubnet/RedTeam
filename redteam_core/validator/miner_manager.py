@@ -58,6 +58,7 @@ class ScoringLog(BaseModel):
     miner_docker_image: str
     error: Optional[str] = None
     baseline_score: Optional[float] = None
+    metadata: Optional[dict] = None
 
 
 class MinerManager:
