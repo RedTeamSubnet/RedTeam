@@ -2,6 +2,8 @@ import logging
 from logging.handlers import QueueListener
 import requests
 import traceback
+import threading
+import queue
 
 import bittensor as bt
 from redteam_core.constants import constants
@@ -11,31 +13,50 @@ class BittensorLogHandler(logging.Handler):
         super().__init__(level)
         self.api_key = api_key
         self.buffer_size = buffer_size
-        self.buffer = []
+        self.log_queue = queue.Queue()
+        self.stop_event = threading.Event()  # Used to stop the thread gracefully
 
         # Use the optimized JSON formatter for network logs
         self.setFormatter(bt.logging._file_formatter)
 
+        # Start the daemon thread for sending logs
+        self.sender_thread = threading.Thread(target=self.process_logs, daemon=True)
+        self.sender_thread.start()
+
     def emit(self, record):
-        """Capture log, convert to JSON, and flush when buffer is full."""
+        """Capture log and enqueue it for asynchronous sending."""
         if record.levelno < self.level:
             return
 
         log_entry = self.format(record)  # Now JSON-formatted
+        self.log_queue.put(log_entry)
 
-        self.buffer.append(log_entry)
+    def process_logs(self):
+        """Daemon thread function: Collect logs and send in batches."""
+        buffer = []
 
-        if len(self.buffer) >= self.buffer_size:
-            self.flush_logs()
+        while not self.stop_event.is_set() or not self.log_queue.empty():
+            try:
+                log_entry = self.log_queue.get(timeout=3)  # Wait for logs
+                buffer.append(log_entry)
 
-    def flush_logs(self):
-        """Send buffered logs as a batch to the log storage server."""
-        logging_endpoint = f"{constants.STORAGE_URL}/upload-log"
+                if len(buffer) >= self.buffer_size:
+                    self.flush_logs(buffer)
+                    buffer.clear()
 
-        if not self.buffer:
+            except queue.Empty:
+                # If queue is empty, periodically flush remaining logs
+                if buffer:
+                    self.flush_logs(buffer)
+                    buffer.clear()
+
+    def flush_logs(self, logs):
+        """Send logs to the logging server."""
+        if not logs:
             return
 
-        payload = {"logs": self.buffer}
+        logging_endpoint = f"{constants.STORAGE_URL}/upload-log"
+        payload = {"logs": logs}
         headers = {
             "Authorization": self.api_key,
             "Content-Type": "application/json"
@@ -44,10 +65,14 @@ class BittensorLogHandler(logging.Handler):
         try:
             response = requests.post(logging_endpoint, json=payload, headers=headers)
             response.raise_for_status()
-        except requests.RequestException as e:
+        except requests.RequestException:
             bt.logging.error(f"[LOG HANDLER] Failed to send logs: {traceback.format_exc()}")
 
-        self.buffer.clear()
+    def close(self):
+        """Stop the daemon thread and flush remaining logs."""
+        self.stop_event.set()
+        self.sender_thread.join(timeout=2)  # Allow time to finish processing
+        super().close()
 
 
 def start_bittensor_log_listener(api_key, buffer_size=50):
