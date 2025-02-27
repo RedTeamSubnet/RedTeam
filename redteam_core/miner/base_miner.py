@@ -89,8 +89,6 @@ class BaseMiner(ABC):
             except Exception as e:
                 bt.logging.error(f"Miner exception: {e}")
 
-
-
     def run_in_background_thread(self):
         """
         Starts the miner's operations in a separate background thread.
