@@ -86,13 +86,22 @@ class MinerManager:
             # No need to update if today's record already exists
             return
 
-        prev_day = (datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
-        prev_day_record = self.challenge_records.get(prev_day)
+        if len(logs) == 0:
+            # No logs, so we raise an error
+            raise ValueError(f"[MINER MANAGER] No logs provided, challenge {self.challenge_name} scores cannot be updated for {today}.")
 
-        if prev_day_record is None:
-            prev_day_record = (
-                ChallengeRecord()
-            )  # Default record for the previous day if not found
+        # Find the most recent record by looking through all past dates
+        most_recent_record = None
+        most_recent_date = None
+
+        for date_str, record in self.challenge_records.items():
+            if most_recent_date is None or date_str > most_recent_date:
+                most_recent_date = date_str
+                most_recent_record = record
+
+        # If no record found, create a blank one (first day of scoring)
+        if most_recent_record is None:
+            most_recent_record = ChallengeRecord()
 
         logs_df = pd.DataFrame([log.model_dump() for log in logs])
 
@@ -103,9 +112,9 @@ class MinerManager:
         best_score = scores.iloc[0]
         best_docker_hub_id = logs_df[logs_df["uid"] == best_uid]["miner_docker_image"].iloc[0]
 
-        if best_score > prev_day_record.score:
+        if best_score > most_recent_record.score:
             # Miner made improvement
-            point = max(best_score - prev_day_record.score, 0) * 100
+            point = max(best_score - most_recent_record.score, 0) * 100
             today_record = ChallengeRecord(
                 point=point,
                 score=best_score,
@@ -118,11 +127,11 @@ class MinerManager:
         else:
             # Miner did not make improvement, so we use the decayed points from the previous day
             today_record = ChallengeRecord(
-                score=prev_day_record.score,
+                score=most_recent_record.score,
                 date=today,
-                scored_date=prev_day_record.scored_date,
-                docker_hub_id=prev_day_record.docker_hub_id,
-                uid=prev_day_record.uid
+                scored_date=most_recent_record.scored_date,
+                docker_hub_id=most_recent_record.docker_hub_id,
+                uid=most_recent_record.uid
             )
             self.challenge_records[today] = today_record
 
