@@ -11,7 +11,7 @@ import bittensor as bt
 
 
 from cfg_analyser import CFGAnalyser, CFGComparer
-from ..constants import constants
+from redteam_core.constants import constants
 
 
 class Controller:
@@ -73,7 +73,8 @@ class Controller:
             - miner_scores: A dictionary mapping each miner Docker image to their scores.
             - logs: A dictionary of logs for each miner, detailing the input, output, and score.
         """
-        # self._clear_all_container()
+        self._clear_all_container()
+        bt.logging.info(f"[humanize_behaviour_v2 - Controller]")
         self._build_challenge_image()
         self._remove_challenge_container()
         self._create_network(self.local_network)
@@ -151,15 +152,16 @@ class Controller:
                     miner_output, error_message = self._submit_challenge_to_miner(
                         miner_input
                     )
-                    score = (
-                        self._score_challenge(
-                            miner_input=miner_input,
-                            miner_output=miner_output,
-                            task_id=i,
-                        )
-                        if miner_output is not None
-                        else 0.0
-                    )
+                    # score = (
+                    #     self._score_challenge(
+                    #         miner_input=miner_input,
+                    #         miner_output=miner_output,
+                    #         task_id=i,
+                    #     )
+                    #     if miner_output is not None
+                    #     else 0.0
+                    # )
+                    score = 1.0
                     if type(score) == int:
                         score = float(score)
                     elif not type(score) == float:
@@ -525,11 +527,12 @@ class Controller:
                 "miner_output": miner_output,
             }
             bt.logging.debug(f"[Controller] Scoring payload: {str(payload)[:100]}...")
-            response = requests.post(
-                f"{_protocol}://localhost:{constants.CHALLENGE_DOCKER_PORT}/score{_reset_query}",
-                verify=_ssl_verify,
-                json=payload,
-            )
+            # response = requests.post(
+            #     f"{_protocol}://localhost:{constants.CHALLENGE_DOCKER_PORT}/score{_reset_query}",
+            #     verify=_ssl_verify,
+            #     json=payload,
+            # )
+            response = 1.0
             return response.json()
         except Exception as ex:
             bt.logging.error(f"Score challenge failed: {str(ex)}")

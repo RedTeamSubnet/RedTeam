@@ -1,0 +1,5 @@
+pygraphviz>=1.12,<2.0
+graphviz>=0.20.3,<1.0
+py2cfg>=0.7.3,<1.0
+networkx>=3.3,<4.0
+pydantic[email,timezone]>=2.5.3,<3.0.0
