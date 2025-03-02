@@ -1,12 +1,14 @@
-# Humanize Behaviour v1 Challenge
+# Humanize Behaviour v2 Challenge
 
-The **Humanize Behaviour v1** is designed to test the ability of a bot script to mimic human interaction with a Web UI form. The challenge measures how well the bot script can interact with the form and submit the required information.
+The **Humanize Behaviour v2** is designed to test the ability of a bot script to mimic human interaction with a Web UI form. The challenge measures how well the bot script can interact with the form and submit the required information.
 
 ## ✨ Features
 
 - Basic mode: Simple checkbox form submission
 - Validator mode: Includes hidden UI metrics collection
 - Scoring based on interaction patterns
+- Enhanced mouse movement analysis
+- Keyboard interaction analysis
 - API server for challenge interaction
 - Health check endpoint
 - Dockerfile for deployment
@@ -50,28 +52,34 @@ cd ~/workspaces/projects
 
 ```sh
 git clone https://github.com/RedTeamSubnet/RedTeam.git && \
-    cd RedTeam/redteam_core/challenge_pool/humanize_behaviour_v1
+    cd RedTeam/redteam_core/challenge_pool/humanize_behaviour_v2
 ```
 
 **OPTION B.** Clone the repository (for **DEVELOPMENT**: git + ssh key):
 
 ```sh
 git clone --recursive git@github.com:RedTeamSubnet/RedTeam.git && \
-    cd RedTeam/redteam_core/challenge_pool/humanize_behaviour_v1 && \
+    cd RedTeam/redteam_core/challenge_pool/humanize_behaviour_v2 && \
     git submodule update --init --recursive && \
     git submodule foreach --recursive git checkout main
 ```
 
-### 3. 📦 Install dependencies
+### 3. ⛰︎ Create and use a virtual environment
 
 > [!TIP]
 > Skip this step, if you're going to use **docker** runtime
 
 ```sh
+python -m venv .venv && source .venv/bin/activate
+```
+
+### 4. 📦 Install dependencies
+
+```sh
 pip install -r ./requirements.txt
 ```
 
-### 4. 🏁 Start the server
+### 5. 🏁 Start the server
 
 #### Standalone runtime (Python)
 
@@ -139,7 +147,7 @@ docker compose up -d --remove-orphans --force-recreate && \
     docker compose logs -f --tail 100
 ```
 
-### 5. ✅ Check server is running
+### 6. ✅ Check server is running
 
 Check with CLI (curl):
 
@@ -155,7 +163,7 @@ Check with web browser:
 - Redoc: <https://localhost:10001/redoc>
 - OpenAPI JSON: <https://localhost:10001/openapi.json>
 
-### 6. 🛑 Stop the server
+### 7. 🛑 Stop the server
 
 Docker runtime:
 
@@ -166,15 +174,13 @@ Docker runtime:
 docker compose down --remove-orphans
 ```
 
-👍
-
 ---
 
 ## ⚙️ Configuration
 
 ### 🌎 Environment Variables
 
-[**`.env.example`**](https://github.com/RedTeamSubnet/RedTeam/blob/feat/webui-auto-challenge/redteam_core/challenge_pool/webui_auto/.env.example):
+[**`.env.example`**](https://github.com/RedTeamSubnet/RedTeam/blob/main/redteam_core/challenge_pool/humanize_behaviour_v2/.env.example):
 
 ```sh
 ## --- Environment variable --- ##
