@@ -1,6 +1,6 @@
-# Humanize Behaviour v1 Challenge
+# Humanize Behaviour v2 Challenge
 
-The **Humanize Behaviour v1** is designed to test the ability of a bot script to mimic human interaction with a Web UI form. The challenge measures how well the bot script can interact with the form and submit the required information.
+The **Humanize Behaviour v2** is designed to test the ability of a bot script to mimic human interaction with a Web UI form. The challenge measures how well the bot script can interact with the form and submit the required information.
 
 ## ✨ Features
 
@@ -31,8 +31,7 @@ The **Humanize Behaviour v1** is designed to test the ability of a bot script to
 
 ### 2. 📥 Download or clone the repository
 
-> [!TIP]
-> Skip this step, if you have already downloaded the source code.
+[TIP] Skip this step, if you have already downloaded the source code.
 
 **2.1.** Prepare projects directory (if not exists):
 
@@ -50,22 +49,21 @@ cd ~/workspaces/projects
 
 ```sh
 git clone https://github.com/RedTeamSubnet/RedTeam.git && \
-    cd RedTeam/redteam_core/challenge_pool/humanize_behaviour_v1
+    cd RedTeam/redteam_core/challenge_pool/humanize_behaviour_v2
 ```
 
 **OPTION B.** Clone the repository (for **DEVELOPMENT**: git + ssh key):
 
 ```sh
 git clone --recursive git@github.com:RedTeamSubnet/RedTeam.git && \
-    cd RedTeam/redteam_core/challenge_pool/humanize_behaviour_v1 && \
+    cd RedTeam/redteam_core/challenge_pool/humanize_behaviour_v2 && \
     git submodule update --init --recursive && \
     git submodule foreach --recursive git checkout main
 ```
 
 ### 3. 📦 Install dependencies
 
-> [!TIP]
-> Skip this step, if you're going to use **docker** runtime
+[TIP] Skip this step, if you're going to use **docker** runtime
 
 ```sh
 pip install -r ./requirements.txt
@@ -184,8 +182,8 @@ DEBUG=false
 
 ## -- API configs -- ##
 HBC_API_PORT=10001
-HBC_API_LOGS_DIR="/var/log/rest.rt-hb-challenger"
-HBC_API_DATA_DIR="/var/lib/rest.rt-hb-challenger"
+# HBC_API_LOGS_DIR="/var/log/rest.rt-hb-challenger"
+# HBC_API_DATA_DIR="/var/lib/rest.rt-hb-challenger"
 
 # HBC_API_VERSION="1"
 # HBC_API_PREFIX=""

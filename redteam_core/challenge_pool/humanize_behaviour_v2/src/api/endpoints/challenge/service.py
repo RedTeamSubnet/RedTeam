@@ -2,6 +2,7 @@
 
 import os
 import time
+import json
 import pathlib
 from typing import List, Union, Dict, Tuple
 
@@ -274,7 +275,8 @@ def eval_bot(data: str) -> None:
         _plaintext = ch_utils.decrypt(ciphertext=data, private_key=_private_key)
 
         _metrics_processor = MetricsProcessor(config={"actions": _CUR_ACTION_LIST})
-        _result = _metrics_processor(raw_data=_plaintext)
+        _plain_data = json.loads(_plaintext)
+        _result = _metrics_processor(data=_plain_data)
         _CUR_ACTION_LIST = None
         logger.info(f"Bot evaluation result: {_result}")
         _CUR_SCORE = _result["analysis"]["score"]
