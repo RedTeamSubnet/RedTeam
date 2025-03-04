@@ -12,8 +12,8 @@ api:
       expose_headers: []
       max_age: 600 # Seconds (10 minutes)
     ssl:
-      enabled: true
-      generate: true
+      enabled: false
+      generate: false
       key_size: 2048
       key_fname: "key.pem"
       cert_fname: "cert.pem"
