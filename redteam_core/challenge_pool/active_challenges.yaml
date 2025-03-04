@@ -154,3 +154,23 @@ humanize_behaviour_v1: ## active after Feb 14th 2025 14:00 UTC
     mem_limit: "12g"
   environment:
     ENV: "PRODUCTION"
+
+humanize_behaviour_v2:
+  name: "Humanize Behaviour v2"
+  description: "Imitate human-like behaviour for given UI tasks"
+  challenge_incentive_weight: 0
+  target: redteam_core.challenge_pool.humanize_behaviour_v2.controller.Controller
+  challenge_solve_timeout: 60
+  docker_run_timeout: 900
+  privileged: true
+  reset_challenge: true
+  protocols:
+    challenger: "http"
+    challenger_ssl_verify: false
+    miner: "http"
+    miner_ssl_verify: false
+  resource_limits:
+    num_cpus: 4
+    mem_limit: "12g"
+  environment:
+    ENV: "PRODUCTION"
