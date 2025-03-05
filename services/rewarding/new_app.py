@@ -139,7 +139,7 @@ class RewardApp(Validator):
                 all_challenge_logs=all_challenge_logs,
                 unscored_submissions=unscored_submissions
             )
-            self.store_miner_commits(updated_submissions)
+            self._store_miner_commits(updated_submissions)
 
         # Check if it's time to create daily challenge records
         # Get current time info
@@ -444,7 +444,7 @@ class RewardApp(Validator):
         self.daily_miner_submissions = new_daily_submissions
 
     # MARK: Storage
-    def store_miner_commits(self, miner_submissions: dict[int, dict[str, list[dict]]]):
+    def _store_miner_commits(self, miner_submissions: dict[int, dict[str, list[dict]]]):
         """
         Store updated miner submissions to storage.
 

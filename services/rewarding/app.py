@@ -40,11 +40,11 @@ class RewardApp:
         self.REWARD_APP_SERVER_SS58_ADDRESS = args.reward_app_ss58
         self.REWARD_APP_SERVER_UID = -1
         # self.active_challenges = challenge_pool.ACTIVE_CHALLENGES
+        self.subtensor = bt.subtensor(network=args.network)
+        self.metagraph = self.subtensor.metagraph(args.netuid, lite=True)
         self.miner_managers = {}
         self.smooth_transition_challenge()
         self._init_challenge_records_from_subnet()
-        self.subtensor = bt.subtensor(network=args.network)
-        self.metagraph = self.subtensor.metagraph(args.netuid, lite=True)
         self.submission_scoring_logs = self.fetch_submission_scoring_logs(list(self.active_challenges.keys()))
         self.previous_submission_scoring_logs = copy.deepcopy(self.submission_scoring_logs)
 
@@ -134,6 +134,7 @@ class RewardApp:
                                     scoring_logs.append(
                                         ScoringLog(
                                             uid=self.mapping_docker_id_miner_id[docker_hub_id]["uid"], # TODO: Change to log["uid"] in next update
+                                            ss58_address=self.mapping_docker_id_miner_id[docker_hub_id]["ss58_address"], # TODO: Change to log["ss58_address"] in next update
                                             score=log["score"],
                                             miner_input=log.get("miner_input"),
                                             miner_output=log.get("miner_output"),
@@ -152,7 +153,6 @@ class RewardApp:
 
             time.sleep(100)
 
-
     def run_challenges(self, docker_images_by_challenge: dict):
         new_submission_scoring_logs = {}
         for challenge_name, challenge_info in self.active_challenges.items():
@@ -163,7 +163,7 @@ class RewardApp:
                     new_submission_scoring_logs[challenge_name] = {}
                 not_scored_submissions = [docker_hub_id for docker_hub_id in docker_images_by_challenge.get(challenge_name, []) if docker_hub_id not in self.submission_scoring_logs.get(challenge_name)]
                 not_scored_submissions = list(set(not_scored_submissions))
-                not_scored_uids = [self.mapping_docker_id_miner_id[docker_hub_id]["uid"] for docker_hub_id in not_scored_submissions]
+                not_scored_uid_ss58_address_pairs = [(self.mapping_docker_id_miner_id[docker_hub_id]["uid"], self.mapping_docker_id_miner_id[docker_hub_id]["ss58_address"]) for docker_hub_id in not_scored_submissions]
                 if len(not_scored_submissions) == 0:
                     self.is_scoring_done[challenge_name] = True
                     continue
@@ -172,7 +172,7 @@ class RewardApp:
                 controller = challenge_info["controller"](
                     challenge_name=challenge_name,
                     miner_docker_images=not_scored_submissions,
-                    uids=not_scored_uids,
+                    uid_ss58_address_pairs=not_scored_uid_ss58_address_pairs,
                     challenge_info=challenge_info
                 )
                 print(f"[CHALLENGE] Challenge {challenge_name} has been started")
@@ -191,6 +191,7 @@ class RewardApp:
                 print(f"[ERROR] Error running challenge {challenge_name}: {e}")
                 # self.is_scoring_done[challenge_name] = True
         return new_submission_scoring_logs
+
     def group_miner_submit_by_challenge(self, miner_submit: dict):
         docker_images_by_challenge = {}
         mapping_docker_id_miner_id = {}
@@ -215,6 +216,7 @@ class RewardApp:
                     if not current_submit or (current_submit and current_submit["commit_timestamp"] > commit_data["commit_timestamp"]):
                         mapping_docker_id_miner_id[docker_hub_id] = {
                             "uid": commit_data["uid"],
+                            "ss58_address": commit_data["ss58_address"],
                             "commit_timestamp": commit_data["commit_timestamp"]
                         }
                     docker_images_by_challenge[challenge_name].append(docker_hub_id)
@@ -249,9 +251,9 @@ class RewardApp:
 
                     for miner_ss58_address, challenges in data["miner_submit"].items():
                         if miner_ss58_address in self.metagraph.hotkeys:
-                            uid = self.metagraph.hotkeys.index(miner_ss58_address)
+                            miner_uid = self.metagraph.hotkeys.index(miner_ss58_address)
                         else:
-                            # Skip if miner hotkey no longer in metagraph
+                            # Skip if miner ss58_address no longer in metagraph
                             continue
                         for challenge_name, commit_data in challenges.items():
                             validator_miner_submit.setdefault(validator_uid, {}).setdefault(miner_ss58_address, {})[challenge_name] = {
@@ -259,7 +261,8 @@ class RewardApp:
                                 "encrypted_commit": commit_data["encrypted_commit"],
                                 "key": commit_data["key"],
                                 "commit": commit_data["commit"],
-                                "uid": uid
+                                "uid": miner_uid,
+                                "ss58_address": miner_ss58_address
                             }
 
                     print(f"[SUCCESS] Fetched miner submit data from storage for validator {validator_uid}.")

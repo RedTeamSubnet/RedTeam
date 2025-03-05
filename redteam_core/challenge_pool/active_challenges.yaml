@@ -155,6 +155,38 @@ humanize_behaviour_v1: ## active after Feb 14th 2025 14:00 UTC
   environment:
     ENV: "PRODUCTION"
 
+response_quality_adversarial_v4:
+  name: "Response Quality Adversarial v4"
+  description: "Trick the classifier into rating your response higher, even with limited prompt information"
+  challenge_incentive_weight: 0.03
+  target: redteam_core.challenge_pool.response_quality_adversarial_v4.Controller
+  challenge_solve_timeout: 30
+  docker_run_timeout: 600
+  num_tasks: 30 # Num of tasks for each miner
+
+  # Miner container network
+  local_network: "redteam_local"
+
+  challenge_container_run_kwargs:
+    name: "response_quality_adversarial_v4"
+
+  miner_container_run_kwargs:
+    cpu_count: 4
+    mem_limit: "20g"
+    device_requests:
+      - device_ids: ["0"]
+        capabilities: ["gpu"]
+    enviroment:
+      CHALLENGE_NAME: "response_quality_adversarial_v4" # Name of the challenge
+      TF_FORCE_GPU_ALLOW_GROWTH": "true" # Allow memory to grow as needed
+      CUDA_DEVICE_ORDER": "PCI_BUS_ID" # Ensure consistent device ordering
+      NVIDIA_VISIBLE_DEVICES": "all" # Set to "all" or restrict devices
+      NVIDIA_MEMORY_LIMIT_MB": "20480" # Limit GPU memory usage to 4GB (optional)
+
+  exclude_miner_input_key: # Hidden from miner; only visible to validator for evaluation purposes
+    - original_prompt
+  baseline: "bangbang123/response_quality_adversarial@sha256:a5fff733d574ae0c9c93d9029a7fc2aaaeeac07793fb6ef4683236579f1bf857"
+
 humanize_behaviour_v2:
   name: "Humanize Behaviour v2"
   description: "Imitate human-like behaviour for given UI tasks"
