@@ -99,118 +99,36 @@ class Validator(BaseValidator):
 
     def _init_validator_state(self):
         """
-        Initialize validator state based on scoring configuration.
+        Initialize validator state by loading from storage/cache.
+        Uses centralized storage when centralized scoring is enabled,
+        otherwise uses local cache.
 
-        This method handles initialization of two key components:
-        1. Challenge Records: Always initialized from subnet to ensure network consistency
-        2. Miner Submissions: Source depends on scoring configuration
-            - Centralized scoring: Initialize from subnet
-            - Local scoring: Initialize from local cache
-
-        Note: This method should be called during validator initialization
-        to ensure proper state setup before processing any challenges.
+        If no state is found, keeps the default empty state.
         """
         bt.logging.info("[INIT] Starting validator state initialization...")
 
-        # Always init challenge records from subnet for network consistency
-        self._init_challenge_records_from_subnet()
+        state = None
 
-        # Initialize miner submissions based on scoring mode
+        # Try to load state based on scoring configuration
         if self.config.validator.use_centralized_scoring:
-            self._init_miner_submit_from_subnet()
+            state = self.storage_manager.get_latest_validator_state_from_storage(
+                validator_uid=self.uid,
+                validator_hotkey=self.wallet.hotkey.ss58_address,
+            )
         else:
-            self._init_miner_submit_from_cache()
+            state = self.storage_manager.get_latest_validator_state_from_cache(
+                validator_uid=self.uid,
+                validator_hotkey=self.wallet.hotkey.ss58_address,
+            )
+
+        if state:
+            # Load the state into the current instance
+            self.load_state(state)
+            bt.logging.success("[INIT] Successfully loaded existing validator state")
+        else:
+            bt.logging.info("[INIT] No existing state found, using empty state")
 
         bt.logging.success("[INIT] Validator state initialization completed")
-
-    def _init_miner_submit_from_cache(self):
-        """
-        Initializes miner_submit data from local cache.
-        """
-        miner_submit = {}
-        for challenge_name, cache in self.storage_manager.local_caches.items():
-            for key in cache:
-                submission = cache[key]
-                miner_uid = submission["miner_uid"]
-                miner_ss58_address = submission["miner_ss58_address"]
-                challenge_name = submission["challenge_name"]
-                current_submission = miner_submit.setdefault(
-                    (miner_uid, miner_ss58_address), {}
-                ).get(challenge_name)
-                if current_submission:
-                    current_commit_timestamp = current_submission["commit_timestamp"]
-                    # Update submission if it is newer and encrypted commit is different
-                    if (
-                        current_commit_timestamp < submission["commit_timestamp"]
-                        and current_submission["encrypted_commit"]
-                        != submission["encrypted_commit"]
-                    ):
-                        miner_submit[(miner_uid, miner_ss58_address)][
-                            challenge_name
-                        ] = submission
-                    # Update submission if it is older and encrypted commit is the same
-                    elif (
-                        current_commit_timestamp > submission["commit_timestamp"]
-                        and current_submission["encrypted_commit"]
-                        == submission["encrypted_commit"]
-                    ):
-                        miner_submit[(miner_uid, miner_ss58_address)][
-                            challenge_name
-                        ] = submission
-                else:
-                    miner_submit[(miner_uid, miner_ss58_address)][challenge_name] = (
-                        submission
-                    )
-
-        self.miner_commits = miner_submit
-
-    def _init_miner_submit_from_subnet(self, is_today_scored: bool = False):
-        """
-        Initializes miner_submit data from subnet by fetching the data from the API endpoint
-        and populating the miner_submit dictionary with the response.
-        """
-        try:
-            endpoint = constants.STORAGE_URL + "/fetch-miner-submit"
-            data = {
-                "validator_ss58_address": self.metagraph.hotkeys[self.uid],
-                "is_today_scored": is_today_scored,
-                "challenge_names": list(self.active_challenges.keys()),
-            }
-            self._sign_with_private_key(data)
-
-            response = requests.post(endpoint, json=data)
-
-            if response.status_code == 200:
-                data = response.json()
-
-                for miner_ss58_address, challenges in data["miner_submit"].items():
-                    if miner_ss58_address in self.metagraph.hotkeys:
-                        miner_uid = self.metagraph.hotkeys.index(miner_ss58_address)
-                    else:
-                        # Skip if miner hotkey no longer in metagraph
-                        continue
-                    for challenge_name, commit_data in challenges.items():
-                        self.miner_commits.setdefault(
-                            (miner_uid, miner_ss58_address), {}
-                        )[challenge_name] = {
-                            "commit_timestamp": commit_data["commit_timestamp"],
-                            "encrypted_commit": commit_data["encrypted_commit"],
-                            "key": commit_data["key"],
-                            "commit": commit_data["commit"],
-                            "log": commit_data.get("log", {}),
-                        }
-
-                bt.logging.success(
-                    "[INIT] Miner submit data successfully initialized from storage."
-                )
-            else:
-                bt.logging.error(
-                    f"[INIT] Failed to fetch miner submit data: {response.status_code} - {response.text}"
-                )
-        except Exception as e:
-            bt.logging.error(
-                f"[INIT] Error initializing miner submit data from storage: {e}"
-            )
 
     # MARK: Validation Loop
     def forward(self):
@@ -234,37 +152,44 @@ class Validator(BaseValidator):
         )
         revealed_commits = self.get_revealed_commits()
 
-        for challenge, commits in revealed_commits.items():
-            if challenge not in self.active_challenges:
+        # Update miner infos, this also use challenge_manager to check if docker_hub_id is unique
+        for challenge, challenge_manager in self.challenge_managers.items():
+            if challenge not in revealed_commits:
                 continue
-            self.challenge_managers[challenge].update_miner_infos(miner_commits=commits)
+            updated_miner_commits = challenge_manager.update_miner_infos(
+                miner_commits=revealed_commits.get(challenge, [])
+            )
+            revealed_commits[challenge] = updated_miner_commits
 
         if self.config.validator.use_centralized_scoring:
             self.forward_centralized_scoring(revealed_commits)
         else:
             self.forward_local_scoring(revealed_commits)
 
-        self.store_miner_commits()
+        self._store_miner_commits()
+        self._store_validator_state()
 
     def forward_centralized_scoring(
-        self, revealed_commits: dict[str, tuple[list[str], list[Tuple[int, str]]]]
+        self, revealed_commits: dict[str, list[MinerChallengeCommit]]
     ):
         """
         Forward pass for centralized scoring.
         1. Save revealed commits to storage
-        2. Get scoring logs from centralized scoring endpoint
+        2. Get scored commits from centralized scoring endpoint
         3. Update scores if scoring for all submissions of a challenge is done
 
         Args:
-            revealed_commits (dict): Mapping of challenge names to their commit data
+            revealed_commits (dict[str, list[MinerChallengeCommit]]): Mapping of challenge names to the revealed miner commits
                 Format: {
-                    "challenge_name": ([docker_hub_ids], [(miner_uid, miner_ss58_address) pairs])
+                    "challenge_name": [MinerChallengeCommit]
                 }
         """
         bt.logging.info(
             "[FORWARD CENTRALIZED SCORING] Saving Revealed commits to storage ..."
         )
-        self.store_miner_commits()
+
+        # Extra storing to make sure centralized scoring server has the latest miner commits
+        self._store_miner_commits()
 
         # Get current time info
         today = datetime.datetime.now(datetime.timezone.utc)
@@ -274,8 +199,6 @@ class Validator(BaseValidator):
         validate_scoring_date = today_key not in self.scoring_dates
         # Validate if scoring is due
         if validate_scoring_hour and validate_scoring_date and revealed_commits:
-            # Store logs for all submissions from all challenges
-            all_challenge_logs: dict[str, list[ScoringLog]] = {}
             # Initialize a dictionary to track if scoring is done for each challenge
             is_scoring_done = {
                 challenge_name: False
@@ -355,7 +278,7 @@ class Validator(BaseValidator):
         3. Updates all scoring logs and store challenge records after validating
 
         Args:
-            revealed_commits (dict): Mapping of challenge names to the revealed miner commits
+            revealed_commits (dict[str, list[MinerChallengeCommit]]): Mapping of challenge names to the revealed miner commits
                 Format: {
                     "challenge_name": [MinerChallengeCommit]
                 }
@@ -371,14 +294,12 @@ class Validator(BaseValidator):
         today_key = today.strftime("%Y-%m-%d")
         validate_scoring_hour = current_hour >= constants.SCORING_HOUR
         validate_scoring_date = today_key not in self.scoring_dates
+
         # Validate if scoring is due
         if validate_scoring_hour and validate_scoring_date and revealed_commits:
             bt.logging.info(f"[FORWARD LOCAL SCORING] Running scoring for {today_key}")
 
-            for challenge, (
-                commits,
-                miner_uid_ss58_address_pairs,
-            ) in revealed_commits.items():
+            for challenge, commits in revealed_commits.items():
                 if challenge not in self.active_challenges:
                     continue
                 # 1. Gather comparision inputs
@@ -389,7 +310,6 @@ class Validator(BaseValidator):
                     self.storage_manager.hash_cache_key(unique_commit)
                     for unique_commit in unique_commits
                 ]
-
                 # Get commit 's cached data from storage
                 unique_commits_cached_data: list[MinerChallengeCommit] = []
                 challenge_local_cache = self.storage_manager.local_caches.get(challenge)
@@ -447,24 +367,24 @@ class Validator(BaseValidator):
                 f"[FORWARD LOCAL SCORING] Revealed commits: {str(revealed_commits)[:100]}..."
             )
 
-    def get_centralized_scoring_logs(
+    def get_centralized_scoring_results(
         self,
         challenge_name: str,
-        revealed_commits: dict[str, tuple[list[str], list[int]]],
-    ) -> tuple[list[ScoringLog], bool]:
+        revealed_commits: list[MinerChallengeCommit],
+    ) -> tuple[list[MinerChallengeCommit], bool]:
         """
-        Get scoring logs from centralized server and determine if scoring is complete for all revealed commits.
+        Get scored commits from centralized server and determine if scoring is complete for all revealed commits in challenge.
 
         Args:
             challenge_name: Name of the challenge
-            revealed_commits: Dictionary mapping challenge names to tuples of (docker_ids, miner_uids)
+            revealed_commits: List of MinerChallengeCommit objects
 
         Returns:
-            tuple: (scoring_logs, is_scoring_done)
-                - scoring_logs: List of ScoringLog objects
+            tuple: (scored_commits, is_scoring_done)
+                - scored_commits: List of MinerChallengeCommit objects
                 - is_scoring_done: True if all revealed commits have scores
         """
-        scoring_logs = []
+        scored_commits = []
 
         try:
             # Get revealed docker IDs for this challenge
@@ -600,7 +520,9 @@ class Validator(BaseValidator):
             uids=processed_weight_uids, weights=processed_weights
         )
 
-        bt.logging.info(f"[SET WEIGHTS] uint_weights: {uint_weights}, processed_weights: {processed_weights}")
+        bt.logging.info(
+            f"[SET WEIGHTS] uint_weights: {uint_weights}, processed_weights: {processed_weights}"
+        )
 
         # Set weights on-chain
         result, log = self.subtensor.set_weights(
@@ -621,7 +543,6 @@ class Validator(BaseValidator):
         """
         Queries the axons for miner commit updates and decrypts them if the reveal interval has passed.
         """
-        # uids = [1]  # Change this to query multiple uids as needed
         uids = self.metagraph.uids
 
         axons = [self.metagraph.axons[i] for i in uids]
@@ -682,16 +603,21 @@ class Validator(BaseValidator):
             if ss58_address in self.metagraph.hotkeys
         }
 
+        # Sort by UID to make sure all next operations are order consistent
+        self.miner_commits = {
+            (uid, ss58_address): commits
+            for (uid, ss58_address), commits in sorted(
+                self.miner_commits.items(), key=lambda item: item[0]
+            )
+        }
+
     def get_revealed_commits(self) -> dict[str, list[MinerChallengeCommit]]:
         """
         Collects all revealed commits from miners.
-        This method make sure docker_hub_id is unique for each challenge, only one commit of same docker_hub_id will be returned for each challenge.
 
         Returns:
-            A dictionary where the key is the challenge name and the value is a tuple:
-            (list of docker_hub_ids, list of (uid, hotkey) pairs).
+            A dictionary where the key is the challenge name and the value is a list of MinerChallengeCommit.
         """
-        docker_hub_ids = {}
         revealed_commits: dict[str, list[MinerChallengeCommit]] = {}
         for (uid, ss58_address), commits in self.miner_commits.items():
             for challenge_name, commit in commits.items():
@@ -704,19 +630,12 @@ class Validator(BaseValidator):
                     )
                     docker_hub_id = commit.commit.split("---")[1]
                     commit.docker_hub_id = docker_hub_id
-
-                    # Make sure docker_hub_id is unique for each challenge
-                    this_challenge_docker_hub_ids = docker_hub_ids.setdefault(
-                        challenge_name, set()
-                    )
-                    if docker_hub_id not in this_challenge_docker_hub_ids:
-                        this_challenge_revealed_commits.append(commit)
-                        this_challenge_docker_hub_ids.add(docker_hub_id)
+                    this_challenge_revealed_commits.append(commit)
 
         return revealed_commits
 
     # MARK: Storage
-    def store_miner_commits(self):
+    def _store_miner_commits(self):
         """
         Store miner commita to storage.
         """
@@ -727,11 +646,19 @@ class Validator(BaseValidator):
         ]
 
         try:
-            self.storage_manager.update_batch(
-                records=data_to_store, process_method="update_commit", async_update=True
+            self.storage_manager.update_commit_batch(
+                commits=data_to_store, async_update=True
             )
         except Exception as e:
             bt.logging.error(f"Failed to queue miner commit data for storage: {e}")
+
+    def _store_validator_state(self):
+        """
+        Store validator state to storage.
+        """
+        self.storage_manager.update_validator_state(
+            data=self.export_state(), async_update=True
+        )
 
     def commit_repo_id_to_chain(self, hf_repo_id: str, max_retries: int = 5) -> None:
         """
@@ -774,13 +701,13 @@ class Validator(BaseValidator):
         """
         Retrieves the storage API key from the config.
         """
-        endpoint = f"{constants.STORAGE_URL}/api-key"
+        endpoint = f"{constants.STORAGE_URL}/get-api-key"
         data = {
             "validator_uid": self.uid,
             "validator_ss58_address": self.metagraph.hotkeys[self.uid],
         }
-        self._sign_with_private_key(data)
-        response = requests.post(endpoint, json=data)
+        header = self.validator_request_header_fn(data)
+        response = requests.post(endpoint, json=data, headers=header)
         response.raise_for_status()
         return response.json()["api_key"]
 
@@ -804,6 +731,75 @@ class Validator(BaseValidator):
                     f"Error in periodic commit for repo ID '{self.config.validator.hf_repo_id}': {e}"
                 )
             time.sleep(interval)
+
+    # MARK: State
+    def export_state(self) -> dict:
+        """
+        Exports the current state of the Validator to a serializable dictionary.
+        Only exports dynamic state that needs to be preserved between sessions.
+
+        Returns:
+            dict: A dictionary containing the serialized state
+        """
+        miner_commits: list[dict] = []
+        for (uid, ss58), commits in self.miner_commits.items():
+            miner_commits.append(
+                {
+                    "uid": uid,
+                    "ss58": ss58,
+                    "commits": {
+                        challenge_name: commit.model_dump()
+                        for challenge_name, commit in commits.items()
+                    },
+                }
+            )
+
+        challenge_managers: dict[str, dict] = {
+            challenge_name: manager.export_state()
+            for challenge_name, manager in self.challenge_managers.items()
+        }
+
+        state = {
+            "validator_uid": self.uid,
+            "validator_hotkey": self.wallet.hotkey.ss58_address,
+            "miner_commits": miner_commits,
+            "challenge_managers": challenge_managers,
+            "scoring_dates": self.scoring_dates,
+        }
+        return state
+
+    def load_state(self, state: dict) -> None:
+        """
+        Loads state into the current Validator instance.
+        This method modifies the existing instance.
+
+        Args:
+            state (dict): The serialized state dictionary
+        """
+        # Load scoring dates
+        self.scoring_dates = state["scoring_dates"]
+
+        # Load miner commits
+        self.miner_commits = {}
+        for miner_data in state["miner_commits"]:
+            uid = miner_data["uid"]
+            ss58 = miner_data["ss58"]
+            self.miner_commits[(uid, ss58)] = {
+                challenge_name: MinerChallengeCommit.model_validate(commit_data)
+                for challenge_name, commit_data in miner_data["commits"].items()
+            }
+
+        # Load challenge managers state using their load_state class method
+        for challenge_name, manager_state in state["challenge_managers"].items():
+            if challenge_name in self.challenge_managers:
+                # Create new challenge manager with loaded state
+                loaded_manager = ChallengeManager.load_state(
+                    state=manager_state,
+                    challenge_info=self.active_challenges[challenge_name],
+                    metagraph=self.metagraph,
+                )
+                # Update the existing challenge manager with the loaded state
+                self.challenge_managers[challenge_name] = loaded_manager
 
 
 if __name__ == "__main__":

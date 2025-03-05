@@ -6,11 +6,9 @@ import random
 import threading
 import time
 import traceback
-from collections import defaultdict
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor
 from queue import Empty, Queue
-from shutil import rmtree
-from typing import Callable, Union
+from typing import Callable, Union, Optional
 
 import bittensor as bt
 import requests
@@ -50,105 +48,95 @@ class StorageManager:
         self.hf_api = HfApi()
         bt.logging.info(f"[STORAGE] Authenticated as {self.hf_api.whoami()['name']}")
         self._validate_hf_repo()
+        self.update_repo_id()
 
         # Local cache with disk cache
+        os.makedirs(self.cache_dir, exist_ok=True)
         self.cache_dir = cache_dir
         self.cache_ttl = int(
             datetime.timedelta(days=14).total_seconds()
         )  # TTL set equal to a decaying period
         self.local_caches: dict[Cache] = {}
 
-        # Centralized storage URLs
-        self.centralized_submission_storage_url = (
-            constants.STORAGE_URL + "/upload-submission"
-        )
-        self.centralized_repo_id_storage_url = (
-            constants.STORAGE_URL + "/upload-hf-repo-id"
-        )
-
         # Queue and background thread for async updates
-        self._storage_queue = Queue()
+        self._storage_queue = Queue()  # Queue of tuples (data, processing_method)
         self.storage_thread = threading.Thread(
             target=self._process_storage_queue, daemon=True
         )
         self.storage_thread.start()
         bt.logging.info("[STORAGE] Started storage thread in the background")
 
-        os.makedirs(self.cache_dir, exist_ok=True)
         # Sync data from Hugging Face Hub to local cache if required
         if sync_on_init:
-            self.sync_hub_to_cache()
+            self.sync_storage_to_cache()
 
     # MARK: Sync Methods
-    def sync_hub_to_cache(self, erase_local_cache=True):
+    def sync_storage_to_cache(self):
         """
-        Syncs data from Hugging Face Hub to the local cache.
-        This method will fetch data from the last 14 days from the Hugging Face Hub and build the cache accordingly.
-        Note: This method only syncs submission records (active challenges), not challenge records.
-
-        Args:
-            erase_local_cache (bool): Whether to erase the local cache before syncing.
+        Syncs data from centralized storage to the local cache.
         """
-        # Erase the existing local cache if needed
-        if erase_local_cache and os.path.exists(self.cache_dir):
-            rmtree(self.cache_dir)
-            os.makedirs(self.cache_dir, exist_ok=True)
+        pass
 
-        # Get the list of the last 14 days' date strings in the format 'YYYY-MM-DD' and create allow patterns
-        date_strings = [
-            (
-                datetime.datetime.now(datetime.timezone.utc)
-                - datetime.timedelta(days=i)
-            ).strftime("%Y-%m-%d")
-            for i in range(14)
-        ]
-        allow_patterns = [f"*{date_str}/*" for date_str in date_strings]
-        # Download the snapshot
-        repo_snapshot_path = self._snapshot_repo(
-            erase_cache=False, allow_patterns=allow_patterns
-        )
+    # MARK: Get Methods
+    def get_latest_validator_state_from_cache(
+        self, validator_uid: int, validator_hotkey: str
+    ) -> Optional[dict]:
+        """
+        Retrieves the latest validator state from local cache for a specific validator.
+        Uses the most recent date key to find the latest state.
 
-        if not os.path.isdir(repo_snapshot_path):
-            bt.logging.info(
-                "[STORAGE] No data on the Hub for the last 14 days, skip sync."
+        Returns:
+            Optional[dict]: The latest validator state if found, None otherwise
+        """
+        try:
+            cache = self._get_cache("_validator_state")
+            # Get all date keys and sort them in descending order
+            validator_keys = [
+                key
+                for key in cache.iterkeys()
+                if key.startswith(f"{validator_hotkey}_")
+            ]
+            validator_keys.sort(reverse=True)
+            if validator_keys:
+                return cache[validator_keys[0]]
+            return None
+        except Exception as e:
+            bt.logging.error(f"[STORAGE] Error retrieving latest validator state: {e}")
+            return None
+
+    def get_latest_validator_state_from_storage(
+        self, validator_uid: int, validator_hotkey: str
+    ) -> Optional[dict]:
+        """
+        Retrieves the latest validator state from centralized storage.
+        """
+        body = {"validator_uid": validator_uid, "validator_hotkey": validator_hotkey}
+
+        try:
+            response = requests.post(
+                url=f"{constants.STORAGE_URL}/fetch-validator-state",
+                headers=self.validator_request_header_fn(body),
+                json=body,
+                timeout=20,
             )
-            return
+            response.raise_for_status()
+            state = response.json().get("data")
+            if state:
+                bt.logging.success(
+                    f"[STORAGE] Successfully retrieved validator state from centralized storage for validator {validator_uid}, hotkey: {validator_hotkey}"
+                )
+                return state
+            else:
+                bt.logging.error(
+                    f"[STORAGE] Validator state not found in centralized storage for validator {validator_uid}, hotkey: {validator_hotkey}"
+                )
+        except Exception as e:
+            bt.logging.error(
+                f"[STORAGE] Error retrieving validator state from centralized storage: {e}"
+            )
 
-        # Build a temporary dict
-        all_records = defaultdict(dict)
-        for challenge_name in os.listdir(repo_snapshot_path):
-            # Skip non-active challenges and non challenge submissions
-            if challenge_name not in self.active_challenges:
-                continue
+        return None
 
-            challenge_folder_path = os.path.join(repo_snapshot_path, challenge_name)
-
-            if not os.path.isdir(challenge_folder_path):
-                continue
-            for date_str in date_strings:
-                date_folder_path = os.path.join(challenge_folder_path, date_str)
-
-                if not os.path.isdir(date_folder_path):
-                    continue
-                for filename in os.listdir(date_folder_path):
-                    if filename.endswith(".json"):
-                        key = os.path.splitext(filename)[0]
-                        # Add the record to all_records if the key is not already in all_records for this challenge
-                        if key not in all_records[challenge_name]:
-                            file_path = os.path.join(date_folder_path, filename)
-                            with open(file_path, "r") as file:
-                                data = json.load(file)
-                            all_records[challenge_name][key] = data
-
-        # Populate the local cache with the collected records
-        for challenge_name, records in all_records.items():
-            cache = self._get_cache(challenge_name)
-            for key, data in records.items():
-                cache[key] = data
-
-        bt.logging.info(
-            "[STORAGE] Local cache successfully built from the last 14 days of the Hugging Face Hub."
-        )
 
     # MARK: Update Methods
     def update_commit(
@@ -212,7 +200,7 @@ class StorageManager:
         # Step 2: Centralized Storage with retry
         def centralized_operation():
             response = requests.post(
-                self.centralized_submission_storage_url,
+                url=f"{constants.STORAGE_URL}/upload-commit",
                 headers=self.validator_request_header_fn(data_dict),
                 json=data_dict,
                 timeout=20,
@@ -261,34 +249,96 @@ class StorageManager:
                 f"[STORAGE] Failed to update record {hashed_cache_key}. Errors: {errors}"
             )
 
-    def update_batch(
+    def update_commit_batch(
         self,
-        data: list,
-        process_method: str = "update_commit",
+        commits: list[MinerChallengeCommit],
         async_update: bool = True,
     ):
         """
-        Processes a batch of data efficiently across all storages.
+        Update a batch of commits across all storages.
 
         Args:
-            data (list[]): A list of data.
-            process_method (str): The method to use for processing each record ("update_commit")
+            commits (list[MinerChallengeCommit]): A list of commits.
             async_update (bool): Whether to process the batch asynchronously.
         """
         if async_update:
             # Enqueue the entire batch along with the processing method
-            self._storage_queue.put((data, process_method))
+            self._storage_queue.put((commits, "update_commit_batch"))
             bt.logging.debug(
-                f"[STORAGE] Batch of size {len(data)} queued for storage using {process_method}"
+                f"[STORAGE] Batch of size {len(commits)} commits queued for storage"
             )
             return
 
-        # Get the appropriate processing method
-        processor = getattr(self, process_method)
-
         # Process each record synchronously
         with ThreadPoolExecutor(max_workers=5) as executor:
-            executor.map(lambda data: processor(data, async_update=False), data)
+            executor.map(
+                lambda commit: self.update_commit(commit, async_update=False),
+                commits,
+            )
+
+    def update_validator_state(self, data: dict, async_update: bool = True):
+        """
+        Updates validator state in centralized storage and local cache.
+        This method does not store data in the HF repo as it contains sensitive information.
+        States are stored with UTC date-based keys for better organization and recovery.
+
+        Args:
+            data (dict): The validator state data to store
+            async_update (bool): Whether to process the update asynchronously
+        """
+        if async_update:
+            self._storage_queue.put((data, "update_validator_state"))
+            bt.logging.debug("[STORAGE] Validator state queued for storage")
+            return
+
+        # Get current UTC date and time for the key
+        current_utc = datetime.datetime.now(datetime.timezone.utc)
+        date = current_utc.strftime(
+            "%Y-%m-%d_%H-%M-%S"
+        )  # Include time for more granular state tracking
+        validator_state_key = f"{data['validator_hotkey']}_{date}"
+
+        # Process the state immediately
+        retry_config = {"local": 3, "centralized": 3}
+
+        # Step 1: Local Cache with retry
+        def local_operation():
+            cache = self._get_cache("_validator_state")
+            cache[validator_state_key] = data
+
+        local_success, error = self._retry_operation(
+            local_operation, retry_config["local"], "Local validator state update"
+        )
+        if not local_success:
+            bt.logging.error(
+                f"[STORAGE] Failed to update local validator state: {error}"
+            )
+            return
+
+        # Step 2: Centralized Storage with retry
+        def centralized_operation():
+            response = requests.post(
+                url=f"{constants.STORAGE_URL}/upload-validator-state",
+                headers=self.validator_request_header_fn(data),
+                json=data,
+                timeout=20,
+            )
+            response.raise_for_status()
+
+        central_success, error = self._retry_operation(
+            centralized_operation,
+            retry_config["centralized"],
+            "Centralized validator state update",
+        )
+        if not central_success:
+            bt.logging.error(
+                f"[STORAGE] Failed to update centralized validator state: {error}"
+            )
+            return
+
+        bt.logging.success(
+            f"[STORAGE] Validator state successfully updated in all storages with key {validator_state_key}"
+        )
 
     def update_repo_id(self):
         """
@@ -297,7 +347,7 @@ class StorageManager:
         data = {"hf_repo_id": self.config.validator.hf_repo_id}
         try:
             response = requests.post(
-                self.centralized_repo_id_storage_url,
+                url=f"{constants.STORAGE_URL}/upload-hf-repo-id",
                 headers=self.validator_request_header_fn(data),
                 json=data,
                 timeout=20,
@@ -311,24 +361,6 @@ class StorageManager:
                 f"[STORAGE] Error updating repo_id to centralized storage: {e}"
             )
             raise
-
-    def _update_centralized_storage(self, data: dict, url: str):
-        """
-        Generic method to update data in centralized storage.
-
-        Args:
-            data (dict): Data to update
-            url (str): URL endpoint to send data to
-        """
-        try:
-            response = requests.post(
-                url,
-                json=data,
-                timeout=20,
-            )
-            response.raise_for_status()
-        except requests.RequestException as e:
-            bt.logging.error(f"[STORAGE] Centralized storage update {url} failed: {e}")
 
     # MARK: Helper Methods
     def hash_cache_key(self, cache_key: str) -> str:
@@ -470,24 +502,20 @@ class StorageManager:
     def _process_storage_queue(self):
         """
         Background thread function to process storage tasks from the queue.
-        Handles both single records and batches with their processing methods.
+        All tasks are tuples of (data, method) where method is a string identifier.
         """
         while True:
             try:
-                data = self._storage_queue.get(timeout=1)  # Wait for a task
+                data, method = self._storage_queue.get(timeout=1)  # Wait for a task
 
-                if isinstance(data, tuple) and isinstance(data[0], list):
-                    # Batch update with method
-                    records, process_method = data
-                    self.update_batch(
-                        records, process_method=process_method, async_update=False
-                    )
-                elif isinstance(data, dict):
+                if method == "update_commit":
                     self.update_commit(data, async_update=False)
+                elif method == "update_validator_state":
+                    self.update_validator_state(data, async_update=False)
+                elif method == "update_commit_batch":
+                    self.update_commit_batch(data, async_update=False)
                 else:
-                    bt.logging.warning(
-                        f"[STORAGE] Unknown submission type in storage queue: {type(data)} with data: {data}"
-                    )
+                    bt.logging.warning(f"[STORAGE] Unknown processing method: {method}")
                 self._storage_queue.task_done()
             except Empty:
                 bt.logging.debug(
@@ -495,7 +523,7 @@ class StorageManager:
                 )
             except Exception:
                 bt.logging.warning(
-                    f"[STORAGE] Error processing storage queue: {traceback.format_exc()} when processing data: {data}, abort this one"
+                    f"[STORAGE] Error processing storage queue: {traceback.format_exc()} when processing task: {method}, abort this one"
                 )
 
             time.sleep(1)  # Prevent the thread from consuming too much CPU
@@ -506,9 +534,6 @@ class StorageManager:
         """
         Compares a record to the cache and returns True if the record is already in the cache with the same data, False otherwise.
         """
-        # Non-content fields
-        non_content_fields = ["nonce", "signature"]
-
         try:
             # Get cache and existing record
             cache = self._get_cache(cache_name)
@@ -518,21 +543,9 @@ class StorageManager:
             if not isinstance(existing_record, dict) or not isinstance(record, dict):
                 return False
 
-            # Construct temp records excluding non-content fields
-            temp_existing_record = {
-                field: existing_record[field]
-                for field in existing_record
-                if field not in non_content_fields
-            }
-            temp_record = {
-                field: record[field]
-                for field in record
-                if field not in non_content_fields
-            }
-
             # Compare serialized versions
-            existing_record_str = json.dumps(temp_existing_record, sort_keys=True)
-            record_str = json.dumps(temp_record, sort_keys=True)
+            existing_record_str = json.dumps(existing_record, sort_keys=True)
+            record_str = json.dumps(record, sort_keys=True)
             return existing_record_str == record_str
 
         except (TypeError, KeyError, json.JSONDecodeError) as e:

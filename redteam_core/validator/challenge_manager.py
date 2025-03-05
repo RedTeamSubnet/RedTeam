@@ -3,11 +3,12 @@ from typing import Optional
 
 import bittensor as bt
 import numpy as np
+from pydantic import BaseModel
 
-from redteam_core.validator.models import ScoringLog, MinerChallengeCommit
+from redteam_core.validator.models import MinerChallengeCommit
 
 
-class MinerChallengeInfo:
+class MinerChallengeInfo(BaseModel):
     """
     Holds the state of a miner for a specific challenge.
 
@@ -20,13 +21,12 @@ class MinerChallengeInfo:
         daily_scores (dict[str, float]): Daily scores indexed by date
     """
 
-    def __init__(self, miner_uid: int, miner_hotkey: str, challenge_name: str):
-        self.miner_uid = miner_uid
-        self.miner_hotkey = miner_hotkey
-        self.challenge_name = challenge_name
-        self.latest_commit: Optional[MinerChallengeCommit] = None
-        self.best_commit: Optional[MinerChallengeCommit] = None
-        self.daily_scores: dict[str, float] = {}
+    miner_uid: int
+    miner_hotkey: str
+    challenge_name: str
+    latest_commit: Optional[MinerChallengeCommit] = None
+    best_commit: Optional[MinerChallengeCommit] = None
+    daily_scores: dict[str, float] = {}
 
     def update_best_commit(self, miner_commit: MinerChallengeCommit):
         """
@@ -62,17 +62,27 @@ class ChallengeManager:
             set()
         )  # For O(1) lookup of existing commits
 
+        # Track unique docker_hub_ids to avoid redundant commits
+        self._unique_docker_hub_ids: set[str] = set()
+
         # Miner states, mapping from uid to miner state
         self.miner_states: dict[int, MinerChallengeInfo] = {}
 
-    def update_miner_infos(self, miner_commits: list[MinerChallengeCommit]):
+    def update_miner_infos(
+        self, miner_commits: list[MinerChallengeCommit]
+    ) -> list[MinerChallengeCommit]:
         """
         Update miner infos based on new submissions.
         If an UID 's hotkey changes, a new miner info will be created.
+        This method ensure that miner_commits 's docker_hub_id is unique for each challenge.
 
         Args:
             miner_commits (dict): Dictionary of miner submissions with UID and SS58 address as keys.
+
+        Returns:
+            list[MinerChallengeCommit]: A list of miner commits that are updated for the challenge.
         """
+        updated_miner_commits = []
         for miner_commit in miner_commits:
             current_miner_state: MinerChallengeInfo = self.miner_states.get(
                 miner_commit.miner_uid,
@@ -92,8 +102,11 @@ class ChallengeManager:
                 )
                 continue
 
-            # Update miner state with latest submission
-            current_miner_state.latest_commit = miner_commit
+            # Update miner state with latest submission, check if docker_hub_id is unique
+            if miner_commit.docker_hub_id not in self._unique_docker_hub_ids:
+                current_miner_state.latest_commit = miner_commit
+                updated_miner_commits.append(miner_commit)
+                self._unique_docker_hub_ids.add(miner_commit.docker_hub_id)
 
         # Remove miners not in metagraph using dict comprehension
         self.miner_states = {
@@ -101,6 +114,8 @@ class ChallengeManager:
             for miner_uid, miner_state in self.miner_states.items()
             if miner_state.miner_hotkey in self.metagraph.hotkeys
         }
+
+        return updated_miner_commits
 
     def update_miner_scores(self, miner_commits: list[MinerChallengeCommit]):
         """
@@ -164,6 +179,9 @@ class ChallengeManager:
     def get_unique_commits(self) -> set[str]:
         return self._unique_commits_set
 
+    def get_unique_docker_hub_ids(self) -> set[str]:
+        return self._unique_docker_hub_ids
+
     def get_challenge_scores(self):
         n_uids = int(self.metagraph.n)
         uids = list(range(n_uids))
@@ -180,3 +198,64 @@ class ChallengeManager:
         softmax_scores = scores_exp / np.sum(scores_exp)
 
         return softmax_scores
+
+    def export_state(self) -> dict:
+        """
+        Exports the current state of the ChallengeManager to a serializable dictionary.
+        Only exports dynamic state that needs to be preserved between sessions.
+
+        Returns:
+            dict: A dictionary containing the serialized state
+        """
+        state = {
+            "unique_commits": [
+                {
+                    "score": float(score),
+                    "commit": commit,
+                }  # Convert tuple to dict for explicit serialization
+                for score, commit in self._unique_commits_heap
+            ],
+            "unique_docker_hub_ids": list(self._unique_docker_hub_ids),
+            "miner_states": {
+                str(uid): miner_state.model_dump()
+                for uid, miner_state in self.miner_states.items()
+            },
+        }
+
+        return state
+
+    @classmethod
+    def load_state(
+        cls, state: dict, challenge_info: dict, metagraph: bt.metagraph
+    ) -> "ChallengeManager":
+        """
+        Creates a new ChallengeManager instance from a serialized state.
+
+        Args:
+            state (dict): The serialized state dictionary
+            challenge_info (dict): The challenge configuration info
+            metagraph (bt.metagraph): The Bittensor metagraph
+
+        Returns:
+            ChallengeManager: A new instance with the loaded state
+        """
+        instance = cls(challenge_info, metagraph)
+
+        # Restore unique commits
+        instance._unique_commits_heap = [
+            (item["score"], item["commit"])  # Convert back to tuple
+            for item in state["unique_commits"]
+        ]
+        # Reconstruct set from heap
+        instance._unique_commits_set = {
+            commit for _, commit in instance._unique_commits_heap
+        }
+        instance._unique_docker_hub_ids = set(state["unique_docker_hub_ids"])
+
+        # Restore miner states using Pydantic's model_validate
+        instance.miner_states = {
+            int(uid): MinerChallengeInfo.model_validate(miner_state_data)
+            for uid, miner_state_data in state["miner_states"].items()
+        }
+
+        return instance
