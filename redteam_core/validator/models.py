@@ -10,6 +10,15 @@ class ScoringLog(BaseModel):
     error: Optional[str] = None
     baseline_score: Optional[float] = None
 
+    def public_view(self) -> "ScoringLog":
+        return ScoringLog(
+            score=self.score,
+            miner_input=None,
+            miner_output=None,
+            error=self.error,
+            baseline_score=self.baseline_score,
+        )
+
 
 class ComparisonLog(BaseModel):
     similarity_score: Optional[float] = 0.0
@@ -18,6 +27,14 @@ class ComparisonLog(BaseModel):
     reference_output: Optional[dict] = None
     error: Optional[str] = None
 
+    def public_view(self) -> "ComparisonLog":
+        return ComparisonLog(
+            similarity_score=self.similarity_score,
+            miner_input=None,
+            miner_output=None,
+            reference_output=None,
+            error=self.error,
+        )
 
 class MinerChallengeCommit(BaseModel):
     # Basic information
@@ -45,7 +62,7 @@ class MinerChallengeCommit(BaseModel):
 
     def public_view(self) -> "MinerChallengeCommit":
         """Returns a new instance with sensitive fields (scoring logs, comparison logs) removed."""
-        return MinerChallengeCommit(                                                                                  
+        return MinerChallengeCommit(
             miner_uid=self.miner_uid,
             miner_hotkey=self.miner_hotkey,
             challenge_name=self.challenge_name,
@@ -54,6 +71,11 @@ class MinerChallengeCommit(BaseModel):
             encrypted_commit=self.encrypted_commit,
             key=self.key,
             commit=self.commit,
+            scoring_logs=[log.public_view() for log in self.scoring_logs],
+            comparison_logs={
+                ref_commit: [log.public_view() for log in logs]
+                for ref_commit, logs in self.comparison_logs.items()
+            },
             score=self.score,
             penalty=self.penalty,
             accepted=self.accepted,

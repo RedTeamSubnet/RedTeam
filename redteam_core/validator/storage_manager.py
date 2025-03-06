@@ -113,12 +113,29 @@ class StorageManager:
         body = {"validator_uid": validator_uid, "validator_hotkey": validator_hotkey}
 
         try:
+            # First try to fetch state from centralized scoring server with a dummy body
+            dummy_body = {"subnet": "Redteam"}
             response = requests.post(
                 url=f"{constants.STORAGE_URL}/fetch-validator-state",
-                headers=self.validator_request_header_fn(body),
-                json=body,
+                headers=self.validator_request_header_fn(dummy_body),
+                json=dummy_body,
                 timeout=20,
             )
+
+            # If that fails, fall back to fetching the state using our own body
+            if response.status_code != 200:
+                bt.logging.warning(
+                    "[STORAGE] Failed to fetch validator state from centralized scoring server, trying fallback."
+                )
+
+                response = requests.post(
+                    url=f"{constants.STORAGE_URL}/fetch-validator-state",
+                    headers=self.validator_request_header_fn(body),
+                    json=body,
+                    timeout=20,
+                )
+
+            # If successful, return the state
             response.raise_for_status()
             state = response.json().get("data")
             if state:
