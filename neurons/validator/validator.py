@@ -418,7 +418,7 @@ class Validator(BaseValidator):
                 endpoint,
                 json={
                     "challenge_name": challenge_name,
-                    "encrypted_commits": encrypted_commits
+                    "encrypted_commits": encrypted_commits,
                 },
             )
             response.raise_for_status()
@@ -587,7 +587,9 @@ class Validator(BaseValidator):
         return revealed_commits
 
     # MARK: Storage
-    def _store_miner_commits(self, miner_commits: dict[str, list[MinerChallengeCommit]] = {}):
+    def _store_miner_commits(
+        self, miner_commits: dict[str, list[MinerChallengeCommit]] = {}
+    ):
         """
         Store miner commita to storage.
         """
