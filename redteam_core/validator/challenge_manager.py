@@ -147,14 +147,22 @@ class ChallengeManager:
         """
         for miner_commit in miner_commits:
             try:
-                # Mean score
-                miner_commit.score = np.mean(
-                    [scoring_log.score for scoring_log in miner_commit.scoring_logs]
-                ).item()
+                if not miner_commit.scoring_logs:
+                    # Skip if no scoring logs
+                    continue
+                else:
+                    # Mean score
+                    miner_commit.score = np.mean(
+                        [scoring_log.score for scoring_log in miner_commit.scoring_logs]
+                    ).item()
 
-                # Penalty by max of mean similarity with unique solutions
-                miner_commit.penalty = np.max(
-                    [
+                if not miner_commit.comparison_logs:
+                    # Penalty is 0 if no comparison logs
+                    miner_commit.penalty = 0
+                else:
+                    # Penalty by max of mean similarity with unique solutions
+                    miner_commit.penalty = np.max(
+                        [
                         np.mean(
                             [
                                 comparison_log.similarity_score
