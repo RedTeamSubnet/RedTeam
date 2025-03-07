@@ -496,7 +496,7 @@ class Validator(BaseValidator):
         """
         Queries the axons for miner commit updates and decrypts them if the reveal interval has passed.
         """
-        uids = self.metagraph.uids
+        uids = [int(uid) for uid in self.metagraph.uids]
 
         axons = [self.metagraph.axons[i] for i in uids]
         hotkeys = [self.metagraph.hotkeys[i] for i in uids]

@@ -100,7 +100,7 @@ class ChallengeManager:
                 # Only update miner state if docker_hub_id is revealed
                 continue
 
-            current_miner_state: MinerChallengeInfo = self.miner_states.get(
+            current_miner_state: MinerChallengeInfo = self.miner_states.setdefault(
                 miner_commit.miner_uid,
                 MinerChallengeInfo(
                     miner_uid=miner_commit.miner_uid,

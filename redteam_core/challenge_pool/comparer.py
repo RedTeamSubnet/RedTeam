@@ -14,15 +14,21 @@ from redteam_core.constants import constants
 class Comparer(BaseComparer):
     def __init__(
         self,
+        challenge_name: str,
         challenge_info: dict,
         miner_commits: list[MinerChallengeCommit],
         compare_with_each_other: bool,
     ):
         super().__init__(
+            challenge_name=challenge_name,
             challenge_info=challenge_info,
             miner_commits=miner_commits,
             compare_with_each_other=compare_with_each_other,
         )
+
+        self.docker_client = docker_utils.create_docker_client()
+
+        self.local_network = "redteam_local"
 
     def start_comparison(self):
         """
@@ -37,8 +43,6 @@ class Comparer(BaseComparer):
 
             # Process each miner's comparison logs
             for miner_commit in self.miner_commits:
-                if miner_commit.miner_uid == -1:  # Skip baseline
-                    continue
 
                 bt.logging.info(
                     f"Processing comparison logs for miner {miner_commit.miner_hotkey}"
@@ -81,8 +85,8 @@ class Comparer(BaseComparer):
         except Exception as e:
             bt.logging.error(f"Error in comparison process: {str(e)}")
             raise
-        finally:
-            self._cleanup_challenge()
+        # finally:
+        #     self._cleanup_challenge()
 
     def _setup_challenge(self):
         """
@@ -117,6 +121,7 @@ class Comparer(BaseComparer):
         self.challenge_container = docker_utils.run_container(
             client=self.docker_client,
             image=self.challenge_name,
+            detach=True,
             ports={
                 f"{constants.CHALLENGE_DOCKER_PORT}/tcp": constants.CHALLENGE_DOCKER_PORT
             },

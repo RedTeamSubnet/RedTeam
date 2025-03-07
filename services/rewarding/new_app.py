@@ -524,22 +524,32 @@ class RewardApp(Validator):
             ]
         }
 
-        response = requests.post(endpoint, json=data)
+        response = requests.post(
+            endpoint,
+            headers=self.validator_request_header_fn(data),
+            json=data
+        )
         response.raise_for_status()
 
-    def _fetch_centralized_scoring(self, challenge_name: str) -> dict[str, Union[list[ScoringLog], dict[str, ComparisonLog]]]:
+    def _fetch_centralized_scoring(self, challenge_names: list[str] = []) -> dict[str, dict[str, Union[list[ScoringLog], dict[str, ComparisonLog]]]]:
         """
         Fetch the centralized scoring cache from a centralized collection
         """
+        if not challenge_names:
+            # Fetch all challenges
+            challenge_names = list(self.active_challenges.keys())
+
         endpoint = constants.STORAGE_URL + "/fetch-centralized-scoring"
         data = {
-            "challenge_name": challenge_name,
+            "challenge_names": challenge_names,
         }
-        response = requests.post(endpoint, json=data)
+        response = requests.post(
+            endpoint,
+            headers=self.validator_request_header_fn(data),
+            json=data
+        )
         response.raise_for_status()
         return response.json()
-
-
 
     # MARK: Helper Methods
     def get_unscored_miner_submissions(self) -> dict[int, dict[str, list[dict]]]:

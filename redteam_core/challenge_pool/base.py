@@ -8,15 +8,16 @@ class BaseController(abc.ABC):
     """
     def __init__(
             self,
+            challenge_name: str,
             challenge_info: dict,
             miner_commits: list[MinerChallengeCommit],
             reference_comparison_commits: list[MinerChallengeCommit],
         ):
+        self.challenge_name = challenge_name
         self.challenge_info = challenge_info
-        self.miner_commits = miner_commits
-        self.reference_comparison_commits = reference_comparison_commits
+        self.miner_commits = miner_commits.copy()
+        self.reference_comparison_commits = reference_comparison_commits.copy()
 
-        self.challenge_name = challenge_info["name"]
 
     @abc.abstractmethod
     def start_challenge(self):
@@ -32,14 +33,15 @@ class BaseComparer:
     """
     def __init__(
         self,
+        challenge_name: str,
         challenge_info: dict,
         miner_commits: list[MinerChallengeCommit],
         compare_with_each_other: bool = False,
     ):
+        self.challenge_name = challenge_name
         self.challenge_info = challenge_info
-        self.miner_commits = miner_commits
+        self.miner_commits = miner_commits.copy()
         self.compare_with_each_other = compare_with_each_other
-        self.challenge_name = challenge_info["name"]
 
     @abc.abstractmethod
     def start_comparison(self):

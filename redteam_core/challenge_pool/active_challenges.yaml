@@ -20,7 +20,7 @@
 #     num_cpus: 4
 #     mem_limit: "20g"
 #     cuda_device_ids: ["0"] # Use CUDA devices
-#   enviroment:
+#   enviromnent:
 #     TF_FORCE_GPU_ALLOW_GROWTH": "true" # Allow memory to grow as needed
 #     CUDA_DEVICE_ORDER": "PCI_BUS_ID" # Ensure consistent device ordering
 #     NVIDIA_VISIBLE_DEVICES": "all" # Set to "all" or restrict devices
@@ -77,7 +77,7 @@ response_quality_adversarial_v2: ## active Jan 15th 2025 14:00 UTC to Feb 14th 2
     num_cpus: 4
     mem_limit: "20g"
     cuda_device_ids: ["0"] # Use CUDA devices
-  enviroment:
+  environment:
     TF_FORCE_GPU_ALLOW_GROWTH": "true" # Allow memory to grow as needed
     CUDA_DEVICE_ORDER": "PCI_BUS_ID" # Ensure consistent device ordering
     NVIDIA_VISIBLE_DEVICES": "all" # Set to "all" or restrict devices
@@ -113,7 +113,7 @@ response_quality_ranker_v2: ## active Jan 15th 2025 14:00 UTC to Feb 14th 2025 1
 #     num_cpus: 4
 #     mem_limit: "20g"
 #     cuda_device_ids: ["0"] # Use CUDA devices
-#   enviroment:
+#   environment:
 #     TF_FORCE_GPU_ALLOW_GROWTH": "true" # Allow memory to grow as needed
 #     CUDA_DEVICE_ORDER": "PCI_BUS_ID" # Ensure consistent device ordering
 #     NVIDIA_VISIBLE_DEVICES": "all" # Set to "all" or restrict devices
@@ -177,12 +177,13 @@ response_quality_adversarial_v3:
     mem_limit: "20g"
     device_requests:
       - device_ids: ["0"]
-        capabilities: ["gpu"]
-    enviroment:
+        capabilities:
+          - ["gpu"]
+    environment:
       CHALLENGE_NAME: "response_quality_adversarial_v3" # Name of the challenge
-      TF_FORCE_GPU_ALLOW_GROWTH": "true" # Allow memory to grow as needed
-      CUDA_DEVICE_ORDER": "PCI_BUS_ID" # Ensure consistent device ordering
-      NVIDIA_VISIBLE_DEVICES": "all" # Set to "all" or restrict devices
+      TF_FORCE_GPU_ALLOW_GROWTH: "true" # Allow memory to grow as needed
+      CUDA_DEVICE_ORDER: "PCI_BUS_ID" # Ensure consistent device ordering
+      NVIDIA_VISIBLE_DEVICES: "all" # Set to "all" or restrict devices
       NVIDIA_MEMORY_LIMIT_MB": "20480" # Limit GPU memory usage to 4GB (optional)
 
   exclude_miner_input_key: # Hidden from miner; only visible to validator for evaluation purposes
@@ -210,7 +211,7 @@ response_quality_adversarial_v3:
 #     device_requests:
 #       - device_ids: ["0"]
 #         capabilities: ["gpu"]
-#     enviroment:
+#     enviromnent:
 #       CHALLENGE_NAME: "response_quality_adversarial_v4" # Name of the challenge
 #       TF_FORCE_GPU_ALLOW_GROWTH": "true" # Allow memory to grow as needed
 #       CUDA_DEVICE_ORDER": "PCI_BUS_ID" # Ensure consistent device ordering

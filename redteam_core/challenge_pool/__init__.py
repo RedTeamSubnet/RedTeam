@@ -26,13 +26,13 @@ def get_obj_from_str(string, reload=False, invalidate_cache=True):
 
 ACTIVE_CHALLENGES = {
     challenge_name: {
+        **CHALLENGE_CONFIGS[challenge_name],
         "controller": get_obj_from_str(
             CHALLENGE_CONFIGS[challenge_name].get("target", None)
         ),
         "comparer": get_obj_from_str(
             CHALLENGE_CONFIGS[challenge_name].get("comparer", None)
         ),
-        **CHALLENGE_CONFIGS[challenge_name],
     }
     for challenge_name in CHALLENGE_CONFIGS
 }
