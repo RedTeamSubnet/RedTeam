@@ -31,6 +31,12 @@ class Validator(BaseValidator):
         """
         super().__init__(config)
 
+        self.validator_request_header_fn = create_validator_request_header_fn(
+            validator_uid=self.uid,
+            validator_hotkey=self.wallet.hotkey.ss58_address,
+            keypair=self.wallet.hotkey,
+        )
+
         # Get the storage API key
         storage_api_key = self._get_storage_api_key()
 
@@ -38,11 +44,6 @@ class Validator(BaseValidator):
         start_bittensor_log_listener(api_key=storage_api_key)
 
         # Setup storage manager and publish public hf_repo_id for storage
-        self.validator_request_header_fn = create_validator_request_header_fn(
-            uid=self.uid,
-            hotkey=self.wallet.hotkey.ss58_address,
-            keypair=self.wallet.hotkey,
-        )
         self.storage_manager = StorageManager(
             cache_dir=self.config.validator.cache_dir,
             validator_request_header_fn=self.validator_request_header_fn,
@@ -151,14 +152,13 @@ class Validator(BaseValidator):
         )
         revealed_commits = self.get_revealed_commits()
 
-        # Update miner infos, this also use challenge_manager to check if docker_hub_id is unique
+        # Update miner infos
         for challenge, challenge_manager in self.challenge_managers.items():
             if challenge not in revealed_commits:
                 continue
-            updated_miner_commits = challenge_manager.update_miner_infos(
+            challenge_manager.update_miner_infos(
                 miner_commits=revealed_commits.get(challenge, [])
             )
-            revealed_commits[challenge] = updated_miner_commits
 
         if self.config.validator.use_centralized_scoring:
             self.forward_centralized_scoring(revealed_commits)
@@ -277,7 +277,7 @@ class Validator(BaseValidator):
         This method handles the local scoring workflow:
         1. Validates if scoring should be performed based on time conditions
         2. For each eligible challenge:
-            - Check challenge manager and storage manager for comparision inputs
+            - Check challenge manager and storage manager for comparison inputs
             - Runs the challenge controller on miner's submission with new inputs generated for scoring and comparison
             - Compare miner's output with the unique solutions set
             - Updates scores in challenge manager
@@ -317,7 +317,7 @@ class Validator(BaseValidator):
                 bt.logging.info(
                     f"[FORWARD LOCAL SCORING] Running controller for challenge: {challenge}"
                 )
-                # 1. Gather comparision inputs
+                # 1. Gather comparison inputs
                 # Get unique commits for the challenge (the "encrypted_commit"s)
                 unique_commits = self.challenge_managers[challenge].get_unique_commits()
                 # Get unique solutions 's cache key
@@ -360,9 +360,10 @@ class Validator(BaseValidator):
                     challenge_name=challenge,
                     challenge_info=self.active_challenges[challenge],
                     miner_commits=commits,
+                    compare_with_each_other=True,
                 )
-                # Run comparision, the comparer update commit 's penalty and comparison logs directly
-                comparer.start_comparision()
+                # Run comparison, the comparer update commit 's penalty and comparison logs directly
+                comparer.start_comparison()
 
                 # 4. Update scores and penalties to challenge manager
                 self.challenge_managers[challenge].update_miner_scores(commits)
@@ -570,6 +571,8 @@ class Validator(BaseValidator):
         Returns:
             A dictionary where the key is the challenge name and the value is a list of MinerChallengeCommit.
         """
+        seen_docker_hub_ids: set[str] = set()
+
         revealed_commits: dict[str, list[MinerChallengeCommit]] = {}
         for (uid, hotkey), commits in self.miner_commits.items():
             for challenge_name, commit in commits.items():
@@ -581,8 +584,20 @@ class Validator(BaseValidator):
                         challenge_name, []
                     )
                     docker_hub_id = commit.commit.split("---")[1]
-                    commit.docker_hub_id = docker_hub_id
-                    this_challenge_revealed_commits.append(commit)
+
+                    if (
+                        docker_hub_id in seen_docker_hub_ids
+                        or docker_hub_id
+                        in self.challenge_managers[
+                            challenge_name
+                        ].get_unique_scored_docker_hub_ids()
+                    ):
+                        # Only reveal unique docker hub ids in one pass, also ignore if docker_hub_id has been scored
+                        continue
+                    else:
+                        commit.docker_hub_id = docker_hub_id
+                        this_challenge_revealed_commits.append(commit)
+                        seen_docker_hub_ids.add(docker_hub_id)
 
         return revealed_commits
 

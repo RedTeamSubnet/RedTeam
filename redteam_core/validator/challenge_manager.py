@@ -76,9 +76,7 @@ class ChallengeManager:
             set()
         )  # For O(1) lookup of existing commits
 
-        # Track unique docker_hub_ids to avoid redundant commits
-        self._unique_docker_hub_ids: set[str] = set()
-        # Track docker_hub_ids that have been successfully scored
+        # Track docker_hub_ids that have been successfully scored to avoid redundant commits
         self._unique_scored_docker_hub_ids: set[str] = set()
 
         # Miner states, mapping from uid to miner state
@@ -90,7 +88,6 @@ class ChallengeManager:
         """
         Update miner infos based on new commits.
         If an UID 's hotkey changes, a new miner info will be created.
-        This method ensure that miner_commits 's docker_hub_id is unique for each challenge.
 
         Args:
             miner_commits (dict): Dictionary of miner revealed commits with UID and SS58 address as keys.
@@ -98,10 +95,9 @@ class ChallengeManager:
         Returns:
             list[MinerChallengeCommit]: A list of miner commits that are updated for the challenge.
         """
-        updated_miner_commits = []
         for miner_commit in miner_commits:
             if not miner_commit.docker_hub_id:
-                # Only update miner state if commit revealed (docker_hub_id is present)
+                # Only update miner state if docker_hub_id is revealed
                 continue
 
             current_miner_state: MinerChallengeInfo = self.miner_states.get(
@@ -122,11 +118,8 @@ class ChallengeManager:
                 )
                 continue
 
-            # Update miner state with latest submission, check if docker_hub_id is unique
-            if miner_commit.docker_hub_id not in self._unique_docker_hub_ids:
-                current_miner_state.latest_commit = miner_commit
-                updated_miner_commits.append(miner_commit)
-                self._unique_docker_hub_ids.add(miner_commit.docker_hub_id)
+            # Update miner state with latest submission
+            current_miner_state.latest_commit = miner_commit
 
         # Remove miners not in metagraph using dict comprehension
         self.miner_states = {
@@ -134,8 +127,6 @@ class ChallengeManager:
             for miner_uid, miner_state in self.miner_states.items()
             if miner_state.miner_hotkey in self.metagraph.hotkeys
         }
-
-        return updated_miner_commits
 
     def update_miner_scores(self, miner_commits: list[MinerChallengeCommit]):
         """
@@ -146,6 +137,10 @@ class ChallengeManager:
             miner_penalties (dict): Dictionary of miner penalties with UID and SS58 address as keys.
         """
         for miner_commit in miner_commits:
+            if miner_commit.docker_hub_id in self._unique_scored_docker_hub_ids:
+                # Skip if docker_hub_id has been scored
+                continue
+
             try:
                 if not miner_commit.scoring_logs:
                     # Skip if no scoring logs
@@ -163,15 +158,15 @@ class ChallengeManager:
                     # Penalty by max of mean similarity with unique solutions
                     miner_commit.penalty = np.max(
                         [
-                        np.mean(
-                            [
-                                comparison_log.similarity_score
-                                for comparison_log in comparison_logs
-                            ]
-                        )
-                        for _, comparison_logs in miner_commit.comparison_logs.items()
-                    ]
-                ).item()
+                            np.mean(
+                                [
+                                    comparison_log.similarity_score
+                                    for comparison_log in comparison_logs
+                                ]
+                            )
+                            for _, comparison_logs in miner_commit.comparison_logs.items()
+                        ]
+                    ).item()
             except Exception:
                 bt.logging.error(
                     f"[CHALLENGE MANAGER] Challenge {self.challenge_name}, failed to get commit {miner_commit.encrypted_commit} scores and penalties: {traceback.format_exc()}"
@@ -194,8 +189,7 @@ class ChallengeManager:
                 )
 
             # Mark as scored after successful scoring
-            if miner_commit.docker_hub_id:
-                self._unique_scored_docker_hub_ids.add(miner_commit.docker_hub_id)
+            self._unique_scored_docker_hub_ids.add(miner_commit.docker_hub_id)
 
     def _try_add_unique_commit(self, encrypted_commit: str, score: float):
         """
@@ -224,8 +218,8 @@ class ChallengeManager:
     def get_unique_commits(self) -> set[str]:
         return self._unique_commits_set
 
-    def get_unique_docker_hub_ids(self) -> set[str]:
-        return self._unique_docker_hub_ids
+    def get_unique_scored_docker_hub_ids(self) -> set[str]:
+        return self._unique_scored_docker_hub_ids
 
     def get_challenge_scores(self):
         n_uids = int(self.metagraph.n)
@@ -264,7 +258,7 @@ class ChallengeManager:
                 }  # Convert tuple to dict for explicit serialization
                 for score, commit in self._unique_commits_heap
             ],
-            "unique_docker_hub_ids": list(self._unique_docker_hub_ids),
+            "unique_scored_docker_hub_ids": list(self._unique_scored_docker_hub_ids),
             "miner_states": {
                 str(uid): miner_state.public_view().model_dump()
                 if public_view
@@ -305,8 +299,6 @@ class ChallengeManager:
         instance._unique_scored_docker_hub_ids = set(
             state.get("unique_scored_docker_hub_ids", [])
         )
-        # Initialize runtime set with scored IDs from previous session to avoid missed scoring for a docker_hub_id when scoring error occurs and validator restarts
-        instance._unique_docker_hub_ids = instance._unique_scored_docker_hub_ids.copy()
 
         # Restore miner states using Pydantic's model_validate
         instance.miner_states = {

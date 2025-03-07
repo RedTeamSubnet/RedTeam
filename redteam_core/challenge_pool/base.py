@@ -1,6 +1,6 @@
 import abc
 
-from redteam_core.validator.models import MinerChallengeCommit, ScoringLog
+from redteam_core.validator.models import MinerChallengeCommit
 
 class BaseController(abc.ABC):
     """
@@ -34,15 +34,16 @@ class BaseComparer:
         self,
         challenge_info: dict,
         miner_commits: list[MinerChallengeCommit],
+        compare_with_each_other: bool = False,
     ):
         self.challenge_info = challenge_info
         self.miner_commits = miner_commits
-
+        self.compare_with_each_other = compare_with_each_other
         self.challenge_name = challenge_info["name"]
 
     @abc.abstractmethod
-    def start_comparision(self):
+    def start_comparison(self):
         """
-        Start the comparision, update the miner's comparison logs directly. Does not return anything.
+        Start the comparison, update the miner's comparison logs directly. Does not return anything.
         """
         pass

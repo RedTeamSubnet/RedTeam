@@ -252,6 +252,12 @@ class Controller(BaseController):
                 f"[CONTROLLER] Running comparison with reference commit {reference_commit.miner_uid}"
             )
 
+            if reference_commit.docker_hub_id in miner_commit.comparison_logs:
+                # Already run this reference commit, skip
+                continue
+            else:
+                miner_commit.comparison_logs[reference_commit.docker_hub_id] = []
+
             # Process each input from the reference commit's scoring logs
             for i, reference_log in enumerate(reference_commit.scoring_logs):
                 if reference_log.miner_input is None:
@@ -271,7 +277,7 @@ class Controller(BaseController):
                 )
 
                 # Add to comparison logs
-                miner_commit.comparison_logs[reference_commit.encrypted_commit].append(comparison_log)
+                miner_commit.comparison_logs[reference_commit.docker_hub_id].append(comparison_log)
 
     def _submit_challenge_to_miner(self, challenge) -> tuple[dict, str]:
         """

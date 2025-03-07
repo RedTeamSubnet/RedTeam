@@ -10,11 +10,21 @@ from redteam_core.validator.models import MinerChallengeCommit
 from redteam_core.challenge_pool import docker_utils
 from redteam_core.constants import constants
 
-class Comparer(BaseComparer):
-    def __init__(self, challenge_info: dict, miner_commits: list[MinerChallengeCommit]):
-        super().__init__(challenge_info, miner_commits)
 
-    def start_comparision(self):
+class Comparer(BaseComparer):
+    def __init__(
+        self,
+        challenge_info: dict,
+        miner_commits: list[MinerChallengeCommit],
+        compare_with_each_other: bool,
+    ):
+        super().__init__(
+            challenge_info=challenge_info,
+            miner_commits=miner_commits,
+            compare_with_each_other=compare_with_each_other,
+        )
+
+    def start_comparison(self):
         """
         Start the comparison process:
         1. Setup challenge container for comparison
@@ -30,13 +40,26 @@ class Comparer(BaseComparer):
                 if miner_commit.miner_uid == -1:  # Skip baseline
                     continue
 
-                bt.logging.info(f"Processing comparison logs for miner {miner_commit.miner_hotkey}")
+                bt.logging.info(
+                    f"Processing comparison logs for miner {miner_commit.miner_hotkey}"
+                )
 
                 # Process each reference commit's comparison logs
-                for reference_commit, comparison_logs in miner_commit.comparison_logs.items():
+                for (
+                    reference_docker_hub_id,
+                    comparison_logs,
+                ) in miner_commit.comparison_logs.items():
                     for log in comparison_logs:
                         # TODO: Think how to handle errors
-                        if log.error or log.miner_output is None or log.reference_output is None:
+                        if (
+                            log.error
+                            or log.miner_output is None
+                            or log.reference_output is None
+                        ):
+                            continue
+
+                        if log.similarity_score is not None:
+                            # Skip if similarity score is already set, already compared
                             continue
 
                         try:
@@ -44,7 +67,7 @@ class Comparer(BaseComparer):
                             similarity_score = self._compare_outputs(
                                 miner_input=log.miner_input,
                                 miner_output=log.miner_output,
-                                reference_output=log.reference_output
+                                reference_output=log.reference_output,
                             )
                             log.similarity_score = similarity_score
 
@@ -110,7 +133,9 @@ class Comparer(BaseComparer):
             is_challenger=True,
         )
 
-    def _compare_outputs(self, miner_input: dict, miner_output: dict, reference_output: dict) -> float:
+    def _compare_outputs(
+        self, miner_input: dict, miner_output: dict, reference_output: dict
+    ) -> float:
         """
         Send comparison request to challenge container's /compare endpoint.
 
@@ -128,7 +153,7 @@ class Comparer(BaseComparer):
             payload = {
                 "miner_input": miner_input,
                 "miner_output": miner_output,
-                "reference_output": reference_output
+                "reference_output": reference_output,
             }
 
             response = requests.post(

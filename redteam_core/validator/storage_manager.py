@@ -51,7 +51,7 @@ class StorageManager:
         self.update_repo_id()
 
         # Local cache with disk cache
-        os.makedirs(self.cache_dir, exist_ok=True)
+        os.makedirs(cache_dir, exist_ok=True)
         self.cache_dir = cache_dir
         self.cache_ttl = int(
             datetime.timedelta(days=14).total_seconds()
@@ -361,7 +361,7 @@ class StorageManager:
         """
         Updates repository ID to the centralized storage.
         """
-        data = {"hf_repo_id": self.config.validator.hf_repo_id}
+        data = {"hf_repo_id": self.hf_repo_id}
         try:
             response = requests.post(
                 url=f"{constants.STORAGE_URL}/upload-hf-repo-id",

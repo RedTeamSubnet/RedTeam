@@ -164,6 +164,7 @@ response_quality_adversarial_v3:
   challenge_solve_timeout: 30
   docker_run_timeout: 600
   num_tasks: 30 # Num of tasks for each miner
+  max_unique_commits: 5
 
   # Miner container network
   local_network: "redteam_local"
