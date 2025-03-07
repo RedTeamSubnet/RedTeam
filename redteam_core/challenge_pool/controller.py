@@ -22,6 +22,7 @@ class Controller(BaseController):
 
     def __init__(
         self,
+        challenge_name: str,
         challenge_info: dict,
         miner_commits: list[MinerChallengeCommit],
         reference_comparison_commits: list[MinerChallengeCommit],
@@ -35,7 +36,7 @@ class Controller(BaseController):
             miner_docker_images: A list of Docker images to be used for the miners.
         """
         super(Controller, self).__init__(
-            challenge_info, miner_commits, reference_comparison_commits
+            challenge_name, challenge_info, miner_commits, reference_comparison_commits
         )
         self.docker_client = docker_utils.create_docker_client()
 
@@ -43,13 +44,12 @@ class Controller(BaseController):
 
         # Add baseline image to compare with miners
         baseline_image = self.challenge_info.get("baseline", None)
-        if baseline_image:
-            self.baseline_commit = MinerChallengeCommit(
-                uid=-1,
-                ss58_address="baseline",
-                docker_hub_id=baseline_image,
-            )
-            self.miner_commits.insert(0, self.baseline_commit)
+        self.baseline_commit = MinerChallengeCommit(
+            miner_uid=-1,
+            miner_hotkey="baseline",
+            docker_hub_id=baseline_image if baseline_image else None,
+            challenge_name=challenge_name
+        )
 
     def start_challenge(self):
         """
@@ -72,6 +72,24 @@ class Controller(BaseController):
         challenge_inputs = [
             self._get_challenge_from_container() for _ in range(num_task)
         ]
+
+        # Score baseline first if it exists
+        if self.baseline_commit.docker_hub_id:
+            try:
+                self._setup_miner_container(self.baseline_commit)
+                self._score_miner_with_new_inputs(self.baseline_commit, challenge_inputs)
+                docker_utils.remove_container_by_port(
+                    client=self.docker_client,
+                    port=constants.MINER_DOCKER_PORT,
+                )
+                docker_utils.clean_docker_resources(
+                    client=self.docker_client,
+                    remove_containers=True,
+                    remove_images=True,
+                )
+            except Exception as e:
+                bt.logging.error(f"Error scoring baseline: {e}")
+                bt.logging.error(traceback.format_exc())
 
         # Score commits with new input and collect comparison logs
         for miner_commit in self.miner_commits:
@@ -158,6 +176,7 @@ class Controller(BaseController):
         self.challenge_container = docker_utils.run_container(
             client=self.docker_client,
             image=self.challenge_name,
+            detach=True,
             ports={
                 f"{constants.CHALLENGE_DOCKER_PORT}/tcp": constants.CHALLENGE_DOCKER_PORT
             },
@@ -211,7 +230,7 @@ class Controller(BaseController):
             start_time=miner_start_time,
         )
 
-    def _score_miner_with_new_inputs(self, miner_commit, challenge_inputs):
+    def _score_miner_with_new_inputs(self, miner_commit: MinerChallengeCommit, challenge_inputs):
         """Run and score miner with new challenge inputs."""
         for i, miner_input in enumerate(challenge_inputs):
             miner_output, error_message = self._submit_challenge_to_miner(miner_input)
@@ -228,14 +247,16 @@ class Controller(BaseController):
                 error=error_message
             )
 
-            if miner_commit.miner_uid == self.baseline_commit.miner_uid:
+            # Handle baseline scoring separately
+            if miner_commit.miner_hotkey == "baseline":
                 self.baseline_commit.scoring_logs.append(log)
             else:
-                if len(self.baseline_commit.scoring_logs) > i:
+                # Adjust score relative to baseline if baseline exists and has been scored
+                if (self.baseline_commit.docker_hub_id and
+                    len(self.baseline_commit.scoring_logs) > i):
                     log.score -= self.baseline_commit.scoring_logs[i].score
                     log.baseline_score = self.baseline_commit.scoring_logs[i].score
                 miner_commit.scoring_logs.append(log)
-
 
     def _run_reference_comparison_inputs(self, miner_commit: MinerChallengeCommit):
         """
@@ -251,6 +272,12 @@ class Controller(BaseController):
             bt.logging.info(
                 f"[CONTROLLER] Running comparison with reference commit {reference_commit.miner_uid}"
             )
+
+            if reference_commit.docker_hub_id in miner_commit.comparison_logs:
+                # Already run this reference commit, skip
+                continue
+            else:
+                miner_commit.comparison_logs[reference_commit.docker_hub_id] = []
 
             # Process each input from the reference commit's scoring logs
             for i, reference_log in enumerate(reference_commit.scoring_logs):
@@ -271,7 +298,7 @@ class Controller(BaseController):
                 )
 
                 # Add to comparison logs
-                miner_commit.comparison_logs[reference_commit.encrypted_commit].append(comparison_log)
+                miner_commit.comparison_logs[reference_commit.docker_hub_id].append(comparison_log)
 
     def _submit_challenge_to_miner(self, challenge) -> tuple[dict, str]:
         """
@@ -330,18 +357,26 @@ class Controller(BaseController):
         """
         Retrieves a challenge input from the running challenge container by making an HTTP POST request.
         The challenge container returns a task that will be sent to the miners.
+        Will retry up to 3 times if request fails.
 
         Returns:
             A dictionary representing the challenge input.
+
+        Raises:
+            Exception: If all retry attempts fail
         """
-
         _protocol, _ssl_verify = self._check_protocol(is_challenger=True)
+        url = f"{_protocol}://localhost:{constants.CHALLENGE_DOCKER_PORT}/task"
 
-        response = requests.get(
-            f"{_protocol}://localhost:{constants.CHALLENGE_DOCKER_PORT}/task",
-            verify=_ssl_verify,
-        )
-        return response.json()
+        max_retries = 3
+        for attempt in range(max_retries):
+            try:
+                response = requests.get(url, verify=_ssl_verify)
+                response.raise_for_status()
+                return response.json()
+            except Exception as e:
+                if attempt == max_retries - 1:
+                    raise Exception(f"Failed to get challenge after {max_retries} attempts: {str(e)}")
 
     def _score_challenge(self, miner_input, miner_output, task_id: int = 0) -> float:
         """

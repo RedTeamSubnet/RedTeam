@@ -14,7 +14,6 @@ class BaseValidator(ABC):
         self.setup_bittensor_objects()
         self.last_update = 0
         self.current_block = 0
-        self.uid = self.metagraph.hotkeys.index(self.wallet.hotkey.ss58_address)
         self.node = SubstrateInterface(url=self.config.subtensor.chain_endpoint)
         self.is_running = False
 
@@ -48,10 +47,8 @@ class BaseValidator(ABC):
             )
             exit()
         else:
-            self.my_subnet_uid = self.metagraph.hotkeys.index(
-                self.wallet.hotkey.ss58_address
-            )
-            bt.logging.info(f"Running validator on uid: {self.my_subnet_uid}")
+            self.uid = self.metagraph.hotkeys.index(self.wallet.hotkey.ss58_address)
+            bt.logging.info(f"Running validator on uid: {self.uid}")
 
     def node_query(self, module, method, params):
         try:

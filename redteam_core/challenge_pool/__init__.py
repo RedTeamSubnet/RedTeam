@@ -13,6 +13,8 @@ print(CHALLENGE_CONFIGS)
 
 
 def get_obj_from_str(string, reload=False, invalidate_cache=True):
+    if string is None:
+        return None
     module, cls = string.rsplit(".", 1)
     if invalidate_cache:
         importlib.invalidate_caches()
@@ -24,9 +26,13 @@ def get_obj_from_str(string, reload=False, invalidate_cache=True):
 
 ACTIVE_CHALLENGES = {
     challenge_name: {
-        "controller": get_obj_from_str(CHALLENGE_CONFIGS[challenge_name]["target"]),
-        "comparer": get_obj_from_str(CHALLENGE_CONFIGS[challenge_name]["comparer"]),
         **CHALLENGE_CONFIGS[challenge_name],
+        "controller": get_obj_from_str(
+            CHALLENGE_CONFIGS[challenge_name].get("target", None)
+        ),
+        "comparer": get_obj_from_str(
+            CHALLENGE_CONFIGS[challenge_name].get("comparer", None)
+        ),
     }
     for challenge_name in CHALLENGE_CONFIGS
 }
