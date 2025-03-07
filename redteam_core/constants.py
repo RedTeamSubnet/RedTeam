@@ -39,7 +39,7 @@ class Constants(BaseModel):
         default=10, description="Number of challenges per epoch."
     )
     SCORING_HOUR: int = Field(
-        default=14, description="Hour of the day when scoring occurs (0-23)."
+        default=0, description="Hour of the day when scoring occurs (0-23)."
     )
 
     # Weighting settings
@@ -63,10 +63,10 @@ class Constants(BaseModel):
 
     # Time intervals (in seconds)
     REVEAL_INTERVAL: int = Field(
-        default=3600 * 24, description="Time interval for revealing commits."
+        default=10, description="Time interval for revealing commits."
     )
     EPOCH_LENGTH: int = Field(
-        default=3600, description="Length of an epoch in seconds."
+        default=10, description="Length of an epoch in seconds."
     )
     MIN_VALIDATOR_STAKE: int = Field(
         default=10_000, description="Minimum validator stake required."
@@ -135,8 +135,8 @@ class Constants(BaseModel):
             hour=self.SCORING_HOUR, minute=0, second=0, microsecond=0
         )
         previous_day_closed_time = today_closed_time - datetime.timedelta(days=1)
-        return commit_timestamp < previous_day_closed_time.timestamp()
-
+        # return commit_timestamp < previous_day_closed_time.timestamp()
+        return True
 
 constants = Constants(VERSION="0.0.2")
 

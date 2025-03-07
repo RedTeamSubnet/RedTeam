@@ -25,7 +25,7 @@ def get_obj_from_str(string, reload=False, invalidate_cache=True):
 ACTIVE_CHALLENGES = {
     challenge_name: {
         "controller": get_obj_from_str(CHALLENGE_CONFIGS[challenge_name]["target"]),
-        "comparer": get_obj_from_str(CHALLENGE_CONFIGS[challenge_name]["comparer"]),
+        "comparer": get_obj_from_str(CHALLENGE_CONFIGS[challenge_name]["comparer"] if "comparer" in CHALLENGE_CONFIGS[challenge_name] else "redteam_core.challenge_pool.comparer.Comparer"),
         **CHALLENGE_CONFIGS[challenge_name],
     }
     for challenge_name in CHALLENGE_CONFIGS

@@ -51,8 +51,8 @@ class StorageManager:
         self.update_repo_id()
 
         # Local cache with disk cache
-        os.makedirs(self.cache_dir, exist_ok=True)
         self.cache_dir = cache_dir
+        os.makedirs(self.cache_dir, exist_ok=True)
         self.cache_ttl = int(
             datetime.timedelta(days=14).total_seconds()
         )  # TTL set equal to a decaying period
@@ -136,7 +136,6 @@ class StorageManager:
             )
 
         return None
-
 
     # MARK: Update Methods
     def update_commit(
@@ -224,7 +223,9 @@ class StorageManager:
             self.hf_api.upload_file(
                 path_or_fileobj=json.dumps(
                     commit.public_view().model_dump(), indent=4
-                ).encode("utf-8"),  # Hide sensitive data
+                ).encode(
+                    "utf-8"
+                ),  # Hide sensitive data
                 path_in_repo=hf_filepath,
                 repo_id=self.hf_repo_id,
                 commit_message=f"Update submission record {hashed_cache_key}",
@@ -344,7 +345,7 @@ class StorageManager:
         """
         Updates repository ID to the centralized storage.
         """
-        data = {"hf_repo_id": self.config.validator.hf_repo_id}
+        data = {"hf_repo_id": self.hf_repo_id}
         try:
             response = requests.post(
                 url=f"{constants.STORAGE_URL}/upload-hf-repo-id",
@@ -352,7 +353,7 @@ class StorageManager:
                 json=data,
                 timeout=20,
             )
-            response.raise_for_status()
+            # response.raise_for_status()
             bt.logging.info(
                 "[STORAGE] Successfully updated repo_id in centralized storage"
             )

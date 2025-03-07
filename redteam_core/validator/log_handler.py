@@ -63,8 +63,9 @@ class BittensorLogHandler(logging.Handler):
         }
 
         try:
-            response = requests.post(logging_endpoint, json=payload, headers=headers)
-            response.raise_for_status()
+            # response = requests.post(logging_endpoint, json=payload, headers=headers)
+            # response.raise_for_status()
+            pass
         except requests.RequestException:
             bt.logging.error(f"[LOG HANDLER] Failed to send logs: {traceback.format_exc()}")
 

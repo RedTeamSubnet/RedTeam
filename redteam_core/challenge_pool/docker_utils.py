@@ -72,7 +72,8 @@ def run_container(
             docker.types.DeviceRequest(**device_request)
             for device_request in device_requests
         ]
-
+    print("-----------INSIDE RUN CONTAINER----------------")
+    print("Running container with kwargs: ", run_kwargs)
     return client.containers.run(image, **run_kwargs)
 
 

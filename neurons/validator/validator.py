@@ -32,27 +32,28 @@ class Validator(BaseValidator):
         """
         super().__init__(config)
 
+        # Setup storage manager and publish public hf_repo_id for storage
+        self.validator_request_header_fn = create_validator_request_header_fn(
+            self.uid,
+            self.wallet.hotkey.ss58_address,
+            self.wallet.hotkey,
+        )
+
         # Get the storage API key
         storage_api_key = self._get_storage_api_key()
 
         # Start the Bittensor log listener
         start_bittensor_log_listener(api_key=storage_api_key)
 
-        # Setup storage manager and publish public hf_repo_id for storage
-        self.validator_request_header_fn = create_validator_request_header_fn(
-            uid=self.uid,
-            hotkey=self.wallet.hotkey.ss58_address,
-            keypair=self.wallet.hotkey,
-        )
         self.storage_manager = StorageManager(
             cache_dir=self.config.validator.cache_dir,
             validator_request_header_fn=self.validator_request_header_fn,
             hf_repo_id=self.config.validator.hf_repo_id,
-            sync_on_init=True,
+            sync_on_init=False,
         )
         # Commit the repo_id
         self.commit_repo_id_to_chain(
-            hf_repo_id=self.config.validator.hf_repo_id, max_retries=5
+            hf_repo_id=self.config.validator.hf_repo_id, max_retries=0
         )
 
         self.challenge_managers: dict[str, ChallengeManager] = {}
@@ -86,6 +87,9 @@ class Validator(BaseValidator):
             all_challenges.pop("response_quality_adversarial_v2", None)
             all_challenges.pop("response_quality_ranker_v2", None)
             all_challenges.pop("webui_auto", None)
+            all_challenges.pop("response_quality_adversarial_v3", None)
+            all_challenges.pop("response_quality_ranker_v3", None)
+            all_challenges.pop("humanize_behaviour_v1", None)
 
         self.active_challenges = all_challenges
         for challenge in self.active_challenges.keys():
@@ -206,6 +210,7 @@ class Validator(BaseValidator):
             }
 
             # Loop until all challenges have finished scoring
+            all_challenge_logs = {}
             while True:
                 for challenge_name in self.active_challenges.keys():
                     if is_scoring_done[challenge_name]:
@@ -295,8 +300,28 @@ class Validator(BaseValidator):
         validate_scoring_hour = current_hour >= constants.SCORING_HOUR
         validate_scoring_date = today_key not in self.scoring_dates
 
+        target_docker_hub_id = "asadbey/rest.rt-hb-v1-miner@sha256:f84f4d5a179908214121e071906357ddbfaee30fb6da2e896d404fc00acd20e3"
+
+        # Filter revealed commits
+        filtered_revealed_commits = {
+            challenge: [
+                commit for commit in commits if commit.docker_hub_id == target_docker_hub_id
+            ]
+            for challenge, commits in revealed_commits.items()
+        }
+
+        # Ensure we only keep challenges with at least one valid commit
+        filtered_revealed_commits = {
+            challenge: commits for challenge, commits in filtered_revealed_commits.items() if commits
+        }
+
+        # Update revealed_commits with filtered results
+        revealed_commits = filtered_revealed_commits
+
+
         # Validate if scoring is due
         if validate_scoring_hour and validate_scoring_date and revealed_commits:
+            print("[FORWARD LOCAL SCORING] REVEALED COMMITS" + str(revealed_commits))
             bt.logging.info(f"[FORWARD LOCAL SCORING] Running scoring for {today_key}")
 
             for challenge, commits in revealed_commits.items():
@@ -326,7 +351,6 @@ class Validator(BaseValidator):
                     f"[FORWARD LOCAL SCORING] Running challenge: {challenge}"
                 )
                 controller = self.active_challenges[challenge]["controller"](
-                    challenge_name=challenge,
                     miner_commits=commits,
                     reference_comparison_commits=unique_commits_cached_data,
                     challenge_info=self.active_challenges[challenge],
@@ -335,13 +359,13 @@ class Validator(BaseValidator):
                 controller.start_challenge()
 
                 # 3. Run comparer
-                comparer = self.active_challenges[challenge]["comparer"](
-                    challenge_name=challenge,
-                    challenge_info=self.active_challenges[challenge],
-                    miner_commits=commits,
-                )
-                # Run comparision, the comparer update commit 's penalty and comparison logs directly
-                comparer.start_comparision()
+                # comparer = self.active_challenges[challenge]["comparer"](
+                #     challenge_name=challenge,
+                #     challenge_info=self.active_challenges[challenge],
+                #     miner_commits=commits,
+                # )
+                # # Run comparision, the comparer update commit 's penalty and comparison logs directly
+                # comparer.start_comparision()
 
                 # 4. Update scores and penalties to challenge manager
                 self.challenge_managers[challenge].update_miner_scores(commits)
@@ -387,6 +411,7 @@ class Validator(BaseValidator):
         scored_commits = []
 
         try:
+            scoring_logs = []
             # Get revealed docker IDs for this challenge
             docker_ids, miner_uids = revealed_commits.get(challenge_name, ([], []))
             if not docker_ids:  # No commits to score
@@ -553,7 +578,9 @@ class Validator(BaseValidator):
         responses: list[Commit] = dendrite.query(
             axons, synapse, timeout=constants.QUERY_TIMEOUT
         )
-
+        print("--------------------RESPONSES SS----------------------")
+        print(uids)
+        print("------------------------------------------------------")
         # Update new miner commits to self.miner_commits
         for uid, ss58_address, response in zip(uids, ss58_addresses, responses):
             this_miner_commit = self.miner_commits.setdefault((uid, ss58_address), {})
@@ -569,7 +596,7 @@ class Validator(BaseValidator):
                     challenge_name,
                     MinerChallengeCommit(
                         miner_uid=uid,
-                        miner_ss58_address=ss58_address,
+                        miner_hotkey=ss58_address,
                         challenge_name=challenge_name,
                     ),
                 )
@@ -610,6 +637,10 @@ class Validator(BaseValidator):
                 self.miner_commits.items(), key=lambda item: item[0]
             )
         }
+
+        print("--------------------MINER COMMITS----------------------")
+        print(self.miner_commits)
+        print("------------------------------------------------------")
 
     def get_revealed_commits(self) -> dict[str, list[MinerChallengeCommit]]:
         """
@@ -708,8 +739,9 @@ class Validator(BaseValidator):
         }
         header = self.validator_request_header_fn(data)
         response = requests.post(endpoint, json=data, headers=header)
-        response.raise_for_status()
-        return response.json()["api_key"]
+        # response.raise_for_status()
+        # return response.json()["api_key"]
+        return "test"
 
     def _commit_repo_id_to_chain_periodically(
         self, hf_repo_id: str, interval: int

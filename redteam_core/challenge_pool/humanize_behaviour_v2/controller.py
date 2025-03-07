@@ -5,6 +5,9 @@ import bittensor as bt
 import docker
 import docker.types
 import requests
+from typing import Union
+
+from torch import detach
 
 from redteam_core.challenge_pool.base import BaseController
 from redteam_core.challenge_pool import docker_utils
@@ -33,7 +36,10 @@ class Controller(BaseController):
             miner_commits (list[MinerChallengeCommit]): List of miner submissions.
             reference_comparison_commits (list[MinerChallengeCommit]): Top miner submissions for comparison.
         """
-        super(Controller, self).__init__(
+        print("-------INIT CONTROLLER-------")
+        print("MINER COMMIT", miner_commits)
+        print("REF COMMIT", reference_comparison_commits)
+        super().__init__(
             challenge_info, miner_commits, reference_comparison_commits
         )
         self.docker_client = docker_utils.create_docker_client()
@@ -56,7 +62,10 @@ class Controller(BaseController):
         compares script similarity, and adjusts scores accordingly.
         """
         # Setup challenge container
+        print("-------SETUP CHALLENGE-------")
         self._setup_challenge()
+
+        print("-------SETUP CHALLENGE DONE-------")
 
         # Generate new input to score miners
         num_task = self.challenge_info.get(
@@ -66,20 +75,37 @@ class Controller(BaseController):
             self._get_challenge_from_container() for _ in range(num_task)
         ]
 
+        print("-------GET CHALLENGE DONE-------")
         # Process each miner submission
+        # Process each miner submission
+        print("MINER COMMIT", self.miner_commits)
         for miner_commit in self.miner_commits:
-            uid, hotkey = miner_commit.miner_uid, miner_commit.miner_hotkey
+            print(f"-------PROCESS MINER {miner_commit.miner_uid} -------)"  )
+
+            # Extract necessary fields
+            uid = miner_commit.miner_uid
+            hotkey = miner_commit.miner_hotkey
+            # docker_hub_id = miner_commit.docker_hub_id
+            commit_name = miner_commit.challenge_name
+
+            print(f"-------PROCESS MINER {uid} - {hotkey} (Commit: {commit_name})-------)"  )
 
             try:
                 # 1. Setup miner container & retrieve miner_output
+                print(f"-------SETUP MINER {uid} - {hotkey}-------")
                 self._setup_miner_container(miner_commit)
+                print(f"-------SETUP MINER {uid} - {hotkey} DONE-------")
 
                 # 2. Score miner submissions with script similarity analysis
-                self._score_miner_with_new_inputs(miner_commit, challenge_inputs)
+                if challenge_inputs:
+                    self._score_miner_with_new_inputs(miner_commit, challenge_inputs)
+                else:
+                    print(f"WARNING: No challenge inputs available for miner {uid}")
 
             except Exception as e:
                 bt.logging.error(f"Error while processing miner {uid} - {hotkey}: {e}")
                 bt.logging.error(traceback.format_exc())
+
                 if uid != self.baseline_commit.miner_uid:
                     miner_commit.scoring_logs.append(
                         ScoringLog(
@@ -87,13 +113,16 @@ class Controller(BaseController):
                         )
                     )
 
+            print("ERROR   ", miner_commit.scoring_logs)
+
             # Cleanup miner container
             docker_utils.remove_container_by_port(
                 self.docker_client, constants.MINER_DOCKER_PORT
             )
             docker_utils.clean_docker_resources(
-                self.docker_client, remove_containers=True, remove_images=True
+                self.docker_client, remove_containers=True, remove_images=False
             )
+
 
         # Cleanup challenge container
         docker_utils.remove_container(
@@ -104,7 +133,7 @@ class Controller(BaseController):
             remove_volumes=True,
         )
         docker_utils.clean_docker_resources(
-            self.docker_client, remove_containers=True, remove_images=True
+            self.docker_client, remove_containers=True, remove_images=False
         )
 
     def _setup_challenge(self):
@@ -114,6 +143,8 @@ class Controller(BaseController):
         and verifying the container's health status.
         """
         # Build challenge image
+        bt.logging.error(f"Building challenge image: {self.challenge_name}")
+        bt.logging.error(f"Challenge info: {self.challenge_info}")
         docker_utils.build_challenge_image(
             client=self.docker_client,
             challenge_name=self.challenge_name,
@@ -148,6 +179,7 @@ class Controller(BaseController):
         bt.logging.info(
             f"[CONTROLLER] Challenge container started: {self.challenge_container.status}"
         )
+        print("-------CHECK CHALLENGE HEALTH-------")
 
         # Check challenge container health
         self._check_container_alive(
@@ -240,6 +272,8 @@ class Controller(BaseController):
         Uses CFGAnalyser to compare miner_output (Python script) against top miner scripts.
         Returns the highest similarity score.
         """
+        print("-------CALCULATE SCRIPT SIMILARITY-------")
+        print("MINER OUTPUT", miner_output[:200])
         reference_scripts = [
             commit.miner_output
             for commit in self.reference_comparison_commits
@@ -378,6 +412,7 @@ class Controller(BaseController):
                 "miner_input": miner_input,
                 "miner_output": miner_output,
             }
+            print("[SCORE CHALLENGE] Scoring payload: ")
             bt.logging.debug(f"[CONTROLLER] Scoring payload: {str(payload)[:100]}...")
             response = requests.post(
                 f"{_protocol}://localhost:{constants.CHALLENGE_DOCKER_PORT}/score{_reset_query}",
