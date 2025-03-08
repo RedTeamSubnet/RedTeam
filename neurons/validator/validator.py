@@ -66,9 +66,8 @@ class Validator(BaseValidator):
         self.miner_commits: dict[
             tuple[int, str], dict[str, MinerChallengeCommit]
         ] = {}  # {(uid, hotkey): {challenge_name: MinerCommit}}
-        self._init_validator_state()
-
         self.scoring_dates: list[str] = []
+        self._init_validator_state()
 
     # MARK: Initialization and Setup
     def _init_active_challenges(self):
@@ -143,7 +142,7 @@ class Validator(BaseValidator):
             - False: Runs scoring locally on validator 's machine
 
         Note: This method is called periodically as part of the validator's
-        main loop to process new miner submissions and update scores.
+        main loop to process new miner commits and update scores.
         """
         self._init_active_challenges()
         self.update_miner_commits(self.active_challenges)
@@ -532,7 +531,6 @@ class Validator(BaseValidator):
                     current_miner_commit.encrypted_commit = encrypted_commit
                     current_miner_commit.key = keys.get(challenge_name)
                     current_miner_commit.commit = ""
-                    current_miner_commit.scoring_logs = []
 
                 elif keys.get(challenge_name):
                     current_miner_commit.key = keys.get(challenge_name)
@@ -610,12 +608,14 @@ class Validator(BaseValidator):
         """
         if not miner_commits:
             # Default to store all miner commits
-            miner_commits = self.miner_commits
+            for _, miner_challenge_commits in self.miner_commits.items():
+                for challenge_name, commit in miner_challenge_commits.items():
+                    miner_commits.setdefault(challenge_name, []).append(commit)
 
         data_to_store: list[MinerChallengeCommit] = [
             commit
-            for (uid, hotkey), commits in miner_commits.items()
-            for challenge_name, commit in commits.items()
+            for challenge_name, commits in miner_commits.items()
+            for commit in commits
         ]
 
         try:
@@ -752,11 +752,11 @@ class Validator(BaseValidator):
             state (dict): The serialized state dictionary
         """
         # Load scoring dates
-        self.scoring_dates = state["scoring_dates"]
+        self.scoring_dates = state.get("scoring_dates", [])
 
         # Load miner commits
         self.miner_commits = {}
-        for miner_data in state["miner_commits"]:
+        for miner_data in state.get("miner_commits", []):
             uid = miner_data["uid"]
             ss58 = miner_data["ss58"]
             self.miner_commits[(uid, ss58)] = {
@@ -765,7 +765,7 @@ class Validator(BaseValidator):
             }
 
         # Load challenge managers state using their load_state class method
-        for challenge_name, manager_state in state["challenge_managers"].items():
+        for challenge_name, manager_state in state.get("challenge_managers", {}).items():
             if challenge_name in self.challenge_managers:
                 # Create new challenge manager with loaded state
                 loaded_manager = ChallengeManager.load_state(

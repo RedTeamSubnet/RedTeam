@@ -15,8 +15,8 @@ class BaseController(abc.ABC):
         ):
         self.challenge_name = challenge_name
         self.challenge_info = challenge_info
-        self.miner_commits = miner_commits.copy()
-        self.reference_comparison_commits = reference_comparison_commits.copy()
+        self.miner_commits = miner_commits
+        self.reference_comparison_commits = reference_comparison_commits
 
 
     @abc.abstractmethod
@@ -40,7 +40,7 @@ class BaseComparer:
     ):
         self.challenge_name = challenge_name
         self.challenge_info = challenge_info
-        self.miner_commits = miner_commits.copy()
+        self.miner_commits = miner_commits
         self.compare_with_each_other = compare_with_each_other
 
     @abc.abstractmethod
