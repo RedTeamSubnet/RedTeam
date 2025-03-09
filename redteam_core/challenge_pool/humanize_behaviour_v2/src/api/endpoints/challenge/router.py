@@ -189,4 +189,33 @@ def _post_eval_bot(
     return _response
 
 
+@router.post(
+    "/compare",
+    summary="Compare miner outputs",
+    description="This endpoint compares a miner's output to a reference output.",
+    responses={422: {}, 500: {}},
+)
+def post_compare(
+    request: Request,
+    miner_input: MinerInput = Body(...),
+    miner_output: MinerOutput = Body(...),
+    reference_output: MinerOutput = Body(...),
+):
+    _request_id = request.state.request_id
+    logger.info(f"[{_request_id}] - Comparing miner outputs...")
+
+    try:
+        _score = service._compare_outputs(
+            miner_input=miner_input,
+            miner_output=miner_output,
+            reference_output=reference_output,
+        )
+        logger.success(f"[{_request_id}] - Successfully compared miner outputs.")
+    except Exception as err:
+        logger.error(f"[{_request_id}] - Error comparing miner outputs: {str(err)}")
+        raise HTTPException(status_code=500, detail="Error in comparison request")
+
+    return {"similarity_score": _score}
+
+
 __all__ = ["router"]

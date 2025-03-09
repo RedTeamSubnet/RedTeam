@@ -11,6 +11,7 @@ from pydantic import validate_call
 from fastapi import Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
+from cfg_analyser import CFGAnalyser, CFGComparer
 
 try:
     from modules.rt_hb_score import MetricsProcessor  # type: ignore
@@ -291,6 +292,63 @@ def eval_bot(data: str) -> None:
         raise
 
     return
+
+
+@validate_call
+def _compare_outputs(
+    miner_input: MinerInput, miner_output: MinerOutput, reference_output: MinerOutput
+) -> float:
+    """
+    Compare miner's output against a reference output using CFGAnalyser and CFGComparer.
+
+    Args:
+        miner_input (dict): The input used for both miner outputs.
+        miner_output (dict): The output from the current miner (expects "bot_py" key).
+        reference_output (dict): The reference output.
+
+    Returns:
+        float: Similarity score between 0 and 1.
+    """
+    try:
+        logger.info("Analyzing miner output...")
+
+        miner_code = miner_output.bot_py
+        reference_code = reference_output.bot_py
+
+        if not miner_code or not reference_code:
+            logger.error("Missing bot_py in miner_output or reference_output.")
+            return 0.0
+
+        _config = {
+            "preprocessing_config": {
+                "skip_functions": ["__init__", "main"],
+                "skip_classes": ["BaseModel"],
+            }
+        }
+
+        miner_result = CFGAnalyser(config=_config, data=miner_code, auto_run=True).result
+        reference_result = CFGAnalyser(config=_config, data=reference_code, auto_run=True).result
+
+        if miner_result["error"]["occurred"] or reference_result["error"]["occurred"]:
+            logger.error("Error occurred during CFG analysis.")
+            return 0.0
+
+        comparison_result = CFGComparer(
+            source_data=miner_result["data"],
+            target_list=[reference_result["data"]],
+            auto_run=True
+        ).result
+
+        similarity_score = comparison_result.get("maximum_similarity", 0.0)
+        logger.info(f"Computed similarity score: {similarity_score}")
+
+        return max(0.0, min(1.0, similarity_score))
+
+    except Exception as err:
+        logger.error(f"Error in _compare_outputs function: {str(err)}")
+        return 0.0
+
+
 
 
 __all__ = [

@@ -223,12 +223,24 @@ response_quality_adversarial_v3:
 #   baseline: "bangbang123/response_quality_adversarial@sha256:a5fff733d574ae0c9c93d9029a7fc2aaaeeac07793fb6ef4683236579f1bf857"
 
 humanize_behaviour_v2:
-  name: "Humanize Behaviour v2"
+  name: "humanize_behaviour_v2"
   description: "Imitate human-like behaviour for given UI tasks"
-  challenge_incentive_weight: 0
+  challenge_incentive_weight: 0.4
   target: redteam_core.challenge_pool.humanize_behaviour_v2.controller.Controller
+  comparer: redteam_core.challenge_pool.humanize_behaviour_v2.comparer.Comparer
+  # baseline: "asadbey/rest.rt-hb-v1-miner@sha256:f84f4d5a179908214121e071906357ddbfaee30fb6da2e896d404fc00acd20e3"
+  max_unique_commits: 5
   challenge_solve_timeout: 60
   docker_run_timeout: 900
+  challenge_container_run_kwargs:
+    name: "humanize_behaviour_v2"
+    privileged: true
+  miner_container_run_kwargs:
+    cpu_count: 4
+    mem_limit: "12g"
+    network: "redteam_local"
+    environment:
+      CHALLENGE_NAME: "humanize_behaviour_v2"
   privileged: true
   reset_challenge: true
   protocols:
