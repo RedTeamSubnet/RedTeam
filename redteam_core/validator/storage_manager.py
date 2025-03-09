@@ -163,7 +163,7 @@ class StorageManager:
         retry_config: dict = None,
     ):
         """
-        Updates or inserts a submission record across all storages with independent retries.
+        Updates or inserts a commit across all storages with independent retries.
 
         Args:
             commit (MinerChallengeCommit): The commit data to be updated.
@@ -173,11 +173,11 @@ class StorageManager:
         if async_update:
             self._storage_queue.put((commit, "update_commit"))
             bt.logging.debug(
-                f"[STORAGE] Record with encrypted_commit={commit.encrypted_commit} queued for storage."
+                f"[STORAGE] Commit with encrypted_commit={commit.encrypted_commit} queued for storage."
             )
             return
 
-        # Process the record immediately
+        # Process the commit immediately
         if retry_config is None:
             retry_config = {"local": 3, "centralized": 3, "decentralized": 3}
 
@@ -190,11 +190,11 @@ class StorageManager:
             # 15% chance to update anyway
             if random.random() < 0.15:
                 bt.logging.debug(
-                    f"[STORAGE] Record {hashed_cache_key} already exists in local cache for challenge {challenge_name}, but updating anyway."
+                    f"[STORAGE] Commit {hashed_cache_key} already exists in local cache for challenge {challenge_name}, but updating anyway."
                 )
             else:
                 bt.logging.debug(
-                    f"[STORAGE] Record {hashed_cache_key} already exists in local cache for challenge {challenge_name}, skipping update."
+                    f"[STORAGE] Commit {hashed_cache_key} already exists in local cache for challenge {challenge_name}, skipping update."
                 )
                 return
 
@@ -244,7 +244,7 @@ class StorageManager:
                 ).encode("utf-8"),  # Hide sensitive data
                 path_in_repo=hf_filepath,
                 repo_id=self.hf_repo_id,
-                commit_message=f"Update submission record {hashed_cache_key}",
+                commit_message=f"Update commit {hashed_cache_key}",
             )
 
         hf_success, error = self._retry_operation(
@@ -259,11 +259,11 @@ class StorageManager:
         # Final Logging
         if success:
             bt.logging.success(
-                f"[STORAGE] Record from challege: {challenge_name}, encrypted_commit: {commit.encrypted_commit}, successfully updated across all storages with key: {hashed_cache_key}"
+                f"[STORAGE] Commit from challege: {challenge_name}, encrypted_commit: {commit.encrypted_commit}, successfully updated across all storages with key: {hashed_cache_key}"
             )
         else:
             bt.logging.error(
-                f"[STORAGE] Failed to update record {hashed_cache_key}. Errors: {errors}"
+                f"[STORAGE] Failed to update commit {hashed_cache_key}. Errors: {errors}"
             )
 
     def update_commit_batch(
@@ -286,7 +286,7 @@ class StorageManager:
             )
             return
 
-        # Process each record synchronously
+        # Process each commit synchronously
         with ThreadPoolExecutor(max_workers=5) as executor:
             executor.map(
                 lambda commit: self.update_commit(commit, async_update=False),
@@ -500,7 +500,7 @@ class StorageManager:
         Sets TTL only for challenge caches, no expiration for other caches.
 
         Args:
-            cache_name (str): The name of the cache (e.g., challenge name, "_challenge_records", "_repo_ids")
+            cache_name (str): The name of the cache (e.g., challenge name, "_repo_ids", "_validator_state")
 
         Returns:
             Cache: The cache instance
