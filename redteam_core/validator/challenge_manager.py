@@ -70,8 +70,8 @@ class ChallengeManager:
         # Track unique solutions set using cache keys
         self.max_unique_commits = challenge_info["max_unique_commits"]
         self._unique_commits_heap: list[
-            tuple[float, str]
-        ] = []  # [(score, encrypted_commit)]
+            tuple[float, str, str]
+        ] = []  # [(score, encrypted_commit, docker_hub_id)]
         self._unique_commits_set: set[str] = (
             set()
         )  # For O(1) lookup of existing commits
@@ -191,7 +191,7 @@ class ChallengeManager:
             # Mark as scored after successful scoring
             self._unique_scored_docker_hub_ids.add(miner_commit.docker_hub_id)
 
-    def _try_add_unique_commit(self, encrypted_commit: str, score: float):
+    def _try_add_unique_commit(self, encrypted_commit: str, score: float, docker_hub_id: str):
         """
         Adds a new commit to the unique commits collection if it qualifies.
 
@@ -205,12 +205,12 @@ class ChallengeManager:
 
         if len(self._unique_commits_heap) < self.max_unique_commits:
             # Still have room, add directly
-            heapq.heappush(self._unique_commits_heap, (score, encrypted_commit))
+            heapq.heappush(self._unique_commits_heap, (score, encrypted_commit, docker_hub_id))
             self._unique_commits_set.add(encrypted_commit)
         elif score > self._unique_commits_heap[0][0]:
             # Score is better than our worst commit, replace it
-            _, old_commit = heapq.heapreplace(
-                self._unique_commits_heap, (score, encrypted_commit)
+            _, old_commit, _ = heapq.heapreplace(
+                self._unique_commits_heap, (score, encrypted_commit, docker_hub_id)
             )
             self._unique_commits_set.remove(old_commit)
             self._unique_commits_set.add(encrypted_commit)
@@ -255,8 +255,9 @@ class ChallengeManager:
                 {
                     "score": float(score),
                     "commit": commit,
+                    "docker_hub_id": docker_hub_id,
                 }  # Convert tuple to dict for explicit serialization
-                for score, commit in self._unique_commits_heap
+                for score, commit, docker_hub_id in self._unique_commits_heap
             ],
             "unique_scored_docker_hub_ids": list(self._unique_scored_docker_hub_ids),
             "miner_states": {
@@ -288,7 +289,7 @@ class ChallengeManager:
 
         # Restore unique commits
         instance._unique_commits_heap = [
-            (item["score"], item["commit"])  # Convert back to tuple
+            (item["score"], item["commit"], item["docker_hub_id"])  # Convert back to tuple
             for item in state["unique_commits"]
         ]
         # Reconstruct set from heap
