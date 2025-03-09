@@ -792,7 +792,7 @@ class Validator(BaseValidator):
         ).items():
             if challenge_name in self.challenge_managers:
                 # Create new challenge manager with loaded state
-                loaded_manager = ChallengeManager.load_state(
+                loaded_manager = self.challenge_managers[challenge_name].load_state(
                     state=manager_state,
                     challenge_info=self.active_challenges[challenge_name],
                     metagraph=self.metagraph,
