@@ -1,9 +1,7 @@
 import datetime
-import json
 import time
 import traceback
 from copy import deepcopy
-from typing import Optional, Tuple, Union
 
 import bittensor as bt
 import numpy as np
@@ -14,13 +12,15 @@ from redteam_core import BaseValidator, Commit, challenge_pool, constants
 from redteam_core.common import get_config
 from redteam_core.validator import (
     ChallengeManager,
-    # MinerManager,
-    ScoringLog,
     StorageManager,
     start_bittensor_log_listener,
 )
 from redteam_core.validator.miner_manager import MinerManager
-from redteam_core.validator.models import MinerChallengeCommit
+from redteam_core.validator.models import (
+    MinerChallengeCommit,
+    ComparisonLog,
+    ScoringLog,
+)
 from redteam_core.validator.utils import create_validator_request_header_fn
 
 
@@ -87,12 +87,23 @@ class Validator(BaseValidator):
             all_challenges.pop("webui_auto", None)
 
         self.active_challenges = all_challenges
+
+        # Add challenge managers for all active challenges
         for challenge in self.active_challenges.keys():
             if challenge not in self.challenge_managers:
-                self.challenge_managers[challenge] = ChallengeManager(
+                self.challenge_managers[challenge] = self.active_challenges[challenge][
+                    "challenge_manager"
+                ](
                     challenge_info=self.active_challenges[challenge],
                     metagraph=self.metagraph,
                 )
+
+        # Remove challenge managers for inactive challenges with dict comprehension
+        self.challenge_managers = {
+            challenge: self.challenge_managers[challenge]
+            for challenge in self.challenge_managers
+            if challenge in self.active_challenges
+        }
 
         self.miner_managers.update_challenge_managers(self.challenge_managers)
 
@@ -433,8 +444,19 @@ class Validator(BaseValidator):
                 result = data.get("commits", {}).get(commit.encrypted_commit)
                 if result:
                     # Update commit with scoring results
-                    commit.scoring_logs = result.get("scoring_logs", [])
-                    commit.comparison_logs = result.get("comparison_logs", {})
+                    commit.scoring_logs = [
+                        ScoringLog.model_validate(scoring_log)
+                        for scoring_log in result.get("scoring_logs", [])
+                    ]
+                    commit.comparison_logs = {
+                        docker_hub_id: [
+                            ComparisonLog.model_validate(comparison_log)
+                            for comparison_log in _comparison_logs
+                        ]
+                        for docker_hub_id, _comparison_logs in result.get(
+                            "comparison_logs", {}
+                        ).items()
+                    }
                     scored_commits.append(commit)
 
             return scored_commits, data.get("is_done", False)
@@ -765,10 +787,12 @@ class Validator(BaseValidator):
             }
 
         # Load challenge managers state using their load_state class method
-        for challenge_name, manager_state in state.get("challenge_managers", {}).items():
+        for challenge_name, manager_state in state.get(
+            "challenge_managers", {}
+        ).items():
             if challenge_name in self.challenge_managers:
                 # Create new challenge manager with loaded state
-                loaded_manager = ChallengeManager.load_state(
+                loaded_manager = self.challenge_managers[challenge_name].load_state(
                     state=manager_state,
                     challenge_info=self.active_challenges[challenge_name],
                     metagraph=self.metagraph,

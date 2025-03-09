@@ -161,6 +161,7 @@ response_quality_adversarial_v3:
   challenge_incentive_weight: 0.03
   target: redteam_core.challenge_pool.response_quality_adversarial_v3.Controller
   comparer: redteam_core.challenge_pool.response_quality_adversarial_v3.Comparer
+  challenge_manager: redteam_core.challenge_pool.response_quality_adversarial_v3.ChallengeManager
   challenge_solve_timeout: 30
   docker_run_timeout: 600
   num_tasks: 30 # Num of tasks for each miner
