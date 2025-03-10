@@ -1,9 +1,9 @@
 import bittensor as bt
 import requests
 
-from redteam_core.challenge_pool.comparer import Comparer
-from redteam_core.validator.models import MinerChallengeCommit
 from redteam_core.constants import constants
+from redteam_core.challenge_pool.comparer import Comparer
+from redteam_core.validator.models import MinerChallengeCommit, ComparisonLog, ScoringLog
 
 COMPARE_SCORE_THRESHOLD = 0.0
 
@@ -23,76 +23,84 @@ class HBComparer(Comparer):
             compare_with_each_other=compare_with_each_other,
         )
 
-    def start_comparison(self):
+    def _compare_within_batch(self, miner_commit: MinerChallengeCommit):
         """
-        Start the comparison process:
-        1. Setup challenge container for comparison
-        2. For each miner, process their comparison logs by sending to /compare endpoint
-        3. Update comparison logs with results
+        Compare commits within the same batch if compare_with_each_other is True.
+        Only compares with commits that have smaller UIDs.
+        Prioritizes comparing outputs that were generated from the same inputs.
         """
-        try:
-            bt.logging.info("[START COMPARISON - HBComparer] Starting comparison process")
-            # Setup challenge container
-            self._setup_challenge()
+        # Skip if no scoring logs
+        if not miner_commit.scoring_logs:
+            return
 
-            # Process each miner's comparison logs
-            for miner_commit in self.miner_commits:
+        # Group scoring logs by input hash for efficient matching
+        miner_logs_by_hash: dict[str, ScoringLog] = {}
+        for log in miner_commit.scoring_logs:
+            if log.input_hash and log.miner_output:
+                miner_logs_by_hash[log.input_hash] = log
 
+        for other_commit in self.miner_commits:
+            ### Check if we should compare with this commit
+            if (other_commit.commit_timestamp > miner_commit.commit_timestamp or # Newer commit
+                other_commit.docker_hub_id in miner_commit.comparison_logs or  # Already compared
+                not other_commit.scoring_logs or  # No scoring logs
+                miner_commit.miner_hotkey == other_commit.miner_hotkey):  # Same miner
+                continue
+
+
+            # Find matching inputs between the two commits
+            comparison_logs = []
+
+            # Check each scoring log in the other commit to find matching inputs
+            for other_log in other_commit.scoring_logs:
+                if not other_log.input_hash or not other_log.miner_output:
+                    continue
+
+                # If we have a matching input hash, we can compare outputs
+                if other_log.input_hash in miner_logs_by_hash:
+                    miner_log = miner_logs_by_hash[other_log.input_hash]
+
+                    try:
+                        # Use the comparison API to compare outputs
+                        similarity_score = self._compare_outputs(
+                            miner_input=miner_log.miner_input,  # Both used the same input
+                            miner_output=miner_log.miner_output,
+                            reference_output=other_log.miner_output
+                        )
+
+                        # Create a comparison log with the inputs and outputs
+                        comparison_log = ComparisonLog(
+                            similarity_score=similarity_score,
+                            miner_input=miner_log.miner_input,
+                            miner_output=miner_log.miner_output,
+                            reference_output=other_log.miner_output,
+                        )
+                        comparison_logs.append(comparison_log)
+
+                    except Exception as e:
+                        bt.logging.error(
+                            f"Error comparing outputs with matching inputs for miner {miner_commit.miner_hotkey}: {str(e)}"
+                        )
+                        comparison_log = ComparisonLog(
+                            error=str(e),
+                            similarity_score=0.0,
+                            miner_input=miner_log.miner_input,
+                            miner_output=miner_log.miner_output,
+                            reference_output=other_log.miner_output,
+                        )
+                        comparison_logs.append(comparison_log)
+
+            # If we found any matching inputs, add the comparison logs
+            if comparison_logs:
+                miner_commit.comparison_logs[other_commit.docker_hub_id] = comparison_logs
                 bt.logging.info(
-                    f"[START COMPARISON] Processing miner {miner_commit.miner_hotkey}"
+                    f"[COMPARER] Added {len(comparison_logs)} comparison logs for commit {miner_commit.encrypted_commit} against docker_hub_id {other_commit.docker_hub_id}"
+                )
+            else:
+                bt.logging.warning(
+                    f"[COMPARER] No matching inputs found for comparison between commit {miner_commit.encrypted_commit} and docker_hub_id {other_commit.docker_hub_id}"
                 )
 
-                bt.logging.info(f"Miner data: {miner_commit}")
-
-                bt.logging.info(
-                    f"Processing comparison logs for miner {miner_commit.miner_hotkey}"
-                )
-
-                # Process each reference commit's comparison logs
-                for (
-                    reference_docker_hub_id,
-                    comparison_logs,
-                ) in miner_commit.comparison_logs.items():
-                    for log in comparison_logs:
-                        # TODO: Think how to handle errors
-                        if (
-                            log.error
-                            or log.miner_output is None
-                            or log.reference_output is None
-                        ):
-                            continue
-
-                        if log.similarity_score is not None:
-                            # Skip if similarity score is already set, already compared
-                            continue
-
-                        try:
-                            # Send to /compare endpoint
-                            similarity_score = self._compare_outputs(
-                                miner_input=log.miner_input,
-                                miner_output=log.miner_output,
-                                reference_output=log.reference_output,
-                            )
-
-                            print(
-                                "[START COMPARISON] Similarity score: ",
-                                similarity_score,
-                            )
-
-                            log.similarity_score = similarity_score
-
-                        except Exception as e:
-                            bt.logging.error(
-                                f"Error comparing outputs for miner {miner_commit.miner_hotkey}: {str(e)}"
-                            )
-                            log.error = str(e)
-                            log.similarity_score = 0.0
-
-        except Exception as e:
-            bt.logging.error(f"Error in comparison process: {str(e)}")
-            raise
-        # finally:
-        #     self._cleanup_challenge()
 
     def _compare_outputs(
         self, miner_input: dict, miner_output: dict, reference_output: dict
