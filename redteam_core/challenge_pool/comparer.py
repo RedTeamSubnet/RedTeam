@@ -56,6 +56,23 @@ class Comparer(BaseComparer):
                 if self.compare_with_each_other:
                     self._compare_within_batch(miner_commit)
 
+            # Clean up challenge container
+            docker_utils.remove_container(
+                client=self.docker_client,
+                container_name=self.challenge_name,
+                stop_timeout=60,
+                force=True,
+                remove_volumes=True,
+            )
+            docker_utils.clean_docker_resources(
+                client=self.docker_client,
+                remove_containers=True,
+                remove_images=True,
+                remove_networks=True,
+                prune_volumes=True,
+                prune_builds=True
+            )
+
         except Exception as e:
             bt.logging.error(
                 f"[COMPARER] Error in comparison process: {traceback.format_exc()}"
