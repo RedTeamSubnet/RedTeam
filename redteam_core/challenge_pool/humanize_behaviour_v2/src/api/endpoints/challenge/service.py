@@ -11,7 +11,7 @@ from pydantic import validate_call
 from fastapi import Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
-from cfg_analyser import CFGAnalyser, CFGComparer
+from cfg_analyser import CFGManager
 
 try:
     from modules.rt_hb_score import MetricsProcessor  # type: ignore
@@ -319,25 +319,10 @@ def _compare_outputs(
             logger.error("Missing bot_py in miner_output or reference_output.")
             return 0.0
 
-        _config = {
-            "preprocessing_config": {
-                "skip_functions": ["__init__", "main"],
-                "skip_classes": ["BaseModel"],
-            }
-        }
-
-        miner_result = CFGAnalyser(config=_config, data=miner_code, auto_run=True).result
-        reference_result = CFGAnalyser(config=_config, data=reference_code, auto_run=True).result
-
-        if miner_result["error"]["occurred"] or reference_result["error"]["occurred"]:
-            logger.error("Error occurred during CFG analysis.")
-            return 0.0
-
-        comparison_result = CFGComparer(
-            source_data=miner_result["data"],
-            target_list=[reference_result["data"]],
-            auto_run=True
-        ).result
+        comparison_result = CFGManager().run_raw_scripts_comparison(
+            str_script_1=miner_code,
+            str_script_2=reference_code,
+        )
 
         similarity_score = comparison_result.get("maximum_similarity", 0.0)
         logger.info(f"Computed similarity score: {similarity_score}")
@@ -347,8 +332,6 @@ def _compare_outputs(
     except Exception as err:
         logger.error(f"Error in _compare_outputs function: {str(err)}")
         return 0.0
-
-
 
 
 __all__ = [
