@@ -21,6 +21,23 @@ import bittensor as bt
 import os
 from prometheus_fastapi_instrumentator import Instrumentator
 
+class ChallengeRecord(BaseModel):
+    point: float = 0
+    score: float = 0
+    date: str = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d")
+    scored_date: Optional[str] = None
+    docker_hub_id: Optional[str] = None
+    uid: Optional[int] = None
+    ss58_address: Optional[str] = None
+
+
+class ScoringLog(BaseModel):
+    score: float
+    miner_input: Optional[dict] = None
+    miner_output: Optional[dict] = None
+    error: Optional[str] = None
+    baseline_score: Optional[float] = None
+
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--port", type=int, default=10001)

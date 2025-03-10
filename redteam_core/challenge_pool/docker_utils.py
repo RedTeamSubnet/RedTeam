@@ -195,7 +195,7 @@ def create_network(
 def remove_container(
     client: docker.DockerClient,
     container_name: str,
-    stop_timeout: int = 30,
+    stop_timeout: int = 60,
     force: bool = True,
     remove_volumes: bool = True,
     max_retries: int = 3,

@@ -9,7 +9,7 @@ import bittensor as bt
 from redteam_core.constants import constants
 
 class BittensorLogHandler(logging.Handler):
-    def __init__(self, api_key, buffer_size=50, level=logging.INFO):
+    def __init__(self, api_key, buffer_size=100, level=logging.INFO):
         super().__init__(level)
         self.api_key = api_key
         self.buffer_size = buffer_size
@@ -75,7 +75,7 @@ class BittensorLogHandler(logging.Handler):
         super().close()
 
 
-def start_bittensor_log_listener(api_key, buffer_size=50):
+def start_bittensor_log_listener(api_key, buffer_size=100):
     """
     Starts a separate QueueListener that listens to Bittensor's logging queue.
     """

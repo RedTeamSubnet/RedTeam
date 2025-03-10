@@ -1,4 +1,6 @@
-from typing import Optional
+from typing import Optional, Any
+import hashlib
+import json
 
 from pydantic import BaseModel
 
@@ -9,6 +11,15 @@ class ScoringLog(BaseModel):
     miner_output: Optional[dict] = None
     error: Optional[str] = None
     baseline_score: Optional[float] = None
+    input_hash: Optional[str] = None
+
+    def model_post_init(self, __context: Any):
+        if self.miner_input:
+            self.input_hash = hashlib.sha256(
+                json.dumps(self.miner_input).encode("utf-8")
+            ).hexdigest()
+        else:
+            self.input_hash = None
 
     def public_view(self) -> "ScoringLog":
         return ScoringLog(
@@ -17,6 +28,7 @@ class ScoringLog(BaseModel):
             miner_output=None,
             error=self.error,
             baseline_score=self.baseline_score,
+            input_hash=None,
         )
 
 
@@ -26,6 +38,15 @@ class ComparisonLog(BaseModel):
     miner_output: Optional[dict] = None
     reference_output: Optional[dict] = None
     error: Optional[str] = None
+    input_hash: Optional[str] = None
+
+    def model_post_init(self, __context: Any):
+        if self.miner_input:
+            self.input_hash = hashlib.sha256(
+                json.dumps(self.miner_input).encode("utf-8")
+            ).hexdigest()
+        else:
+            self.input_hash = None
 
     def public_view(self) -> "ComparisonLog":
         return ComparisonLog(
@@ -35,6 +56,7 @@ class ComparisonLog(BaseModel):
             reference_output=None,
             error=self.error,
         )
+
 
 class MinerChallengeCommit(BaseModel):
     # Basic information

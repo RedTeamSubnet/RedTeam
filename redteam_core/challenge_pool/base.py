@@ -12,11 +12,13 @@ class BaseController(abc.ABC):
             challenge_info: dict,
             miner_commits: list[MinerChallengeCommit],
             reference_comparison_commits: list[MinerChallengeCommit],
+            seed_inputs: list[dict] = [],
         ):
         self.challenge_name = challenge_name
         self.challenge_info = challenge_info
         self.miner_commits = miner_commits
         self.reference_comparison_commits = reference_comparison_commits
+        self.seed_inputs = seed_inputs
 
 
     @abc.abstractmethod

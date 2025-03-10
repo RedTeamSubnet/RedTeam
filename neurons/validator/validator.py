@@ -27,7 +27,25 @@ from redteam_core.validator.utils import create_validator_request_header_fn
 class Validator(BaseValidator):
     def __init__(self, config: bt.Config):
         """
-        Initializes the Validator by setting up MinerManager instances for all active challenges.
+        A validator node that manages challenge scoring and miner evaluation in the network.
+
+        Core Responsibilities:
+        - Manages active challenges and their scoring processes
+        - Collects and verifies encrypted miner submissions
+        - Executes scoring either locally or via centralized server
+        - Maintains validator state and scoring history
+        - Updates on-chain weights based on miner performance
+
+        Key Components:
+        - storage_manager: Handles persistent storage
+        - challenge_managers: Per-challenge scoring logic
+        - miner_managers: Tracks miner performance
+        - miner_commits: {(uid, hotkey): {challenge_name: MinerCommit}}
+        - scoring_dates: Record of completed scoring dates
+
+        Note:
+        Scoring occurs daily at a configured hour, with support for both
+        local and centralized scoring modes.
         """
         super().__init__(config)
 
@@ -71,6 +89,10 @@ class Validator(BaseValidator):
 
     # MARK: Initialization and Setup
     def _init_active_challenges(self):
+        """
+        Initializes and updates challenge managers based on current active challenges.
+        Filters challenges by date and maintains challenge manager consistency.
+        """
         # Avoid mutating the original ACTIVE_CHALLENGES
         all_challenges = deepcopy(challenge_pool.ACTIVE_CHALLENGES)
 
@@ -155,12 +177,17 @@ class Validator(BaseValidator):
         Note: This method is called periodically as part of the validator's
         main loop to process new miner commits and update scores.
         """
-        self._init_active_challenges()
-        self.update_miner_commits(self.active_challenges)
+        date_time = datetime.datetime.now(datetime.timezone.utc)
         bt.logging.success(
-            f"[FORWARD] Forwarding for {datetime.datetime.now(datetime.timezone.utc)}"
+            f"[FORWARD] Forwarding for {date_time}"
         )
+        self._init_active_challenges()
+
+        self.update_miner_commits(self.active_challenges)
+        bt.logging.info(f"[FORWARD] Miner commits updated for {date_time}")
+
         revealed_commits = self.get_revealed_commits()
+        bt.logging.info(f"[FORWARD] Revealed commits updated for {date_time}")
 
         # Update miner infos
         for challenge, challenge_manager in self.challenge_managers.items():
@@ -170,11 +197,13 @@ class Validator(BaseValidator):
                 miner_commits=revealed_commits.get(challenge, [])
             )
 
+        # Forward the revealed commits to the appropriate scoring method
         if self.config.validator.use_centralized_scoring:
             self.forward_centralized_scoring(revealed_commits)
         else:
             self.forward_local_scoring(revealed_commits)
 
+        # Store results
         self._store_miner_commits()
         self._store_validator_state()
 
@@ -196,7 +225,6 @@ class Validator(BaseValidator):
         bt.logging.info(
             "[FORWARD CENTRALIZED SCORING] Saving Revealed commits to storage ..."
         )
-
         # Extra storing to make sure centralized scoring server has the latest miner commits
         self._store_miner_commits()
 
@@ -291,7 +319,7 @@ class Validator(BaseValidator):
             - Runs the challenge controller on miner's submission with new inputs generated for scoring and comparison
             - Compare miner's output with the unique solutions set
             - Updates scores in challenge manager
-        3. Updates all scoring logs and store challenge records after validating
+        3. Updates all scoring logs after validating
 
         Args:
             revealed_commits (dict[str, list[MinerChallengeCommit]]): Mapping of challenge names to the revealed miner commits
@@ -343,11 +371,17 @@ class Validator(BaseValidator):
                         challenge_local_cache.get(unique_commit_cache_key)
                         for unique_commit_cache_key in unique_commits_cache_keys
                     ]
-                    unique_commits_cached_data = [
-                        MinerChallengeCommit(**commit)
-                        for commit in unique_commits_cached_data_raw
-                        if commit
-                    ]
+
+                    unique_commits_cached_data = []
+                    for commit in unique_commits_cached_data_raw:
+                        if not commit:
+                            continue
+                        try:
+                            validated_commit = MinerChallengeCommit.model_validate(commit)
+                            unique_commits_cached_data.append(validated_commit)
+                        except Exception:
+                            bt.logging.warning(f"[FORWARD LOCAL SCORING] Failed to validate cached commit {commit} for challenge {challenge}: {traceback.format_exc()}")
+                            continue
 
                 # 2. Run challenge controller
                 bt.logging.info(
@@ -424,13 +458,14 @@ class Validator(BaseValidator):
             encrypted_commits = [commit.encrypted_commit for commit in revealed_commits]
 
             # Query centralized scoring server
-            endpoint = constants.REWARDING_URL + "/get_scoring_result"
+            endpoint = f"{constants.REWARDING_URL}/get_scoring_result"
             response = requests.post(
                 endpoint,
                 json={
                     "challenge_name": challenge_name,
                     "encrypted_commits": encrypted_commits,
                 },
+                timeout=60,
             )
             response.raise_for_status()
             data = response.json().get("data", {})
@@ -461,8 +496,8 @@ class Validator(BaseValidator):
 
             return scored_commits, data.get("is_done", False)
 
-        except Exception as e:
-            bt.logging.error(f"Error getting centralized scoring results: {e}")
+        except Exception:
+            bt.logging.error(f"Error getting centralized scoring results: {traceback.format_exc()}")
             return [], False
 
     def set_weights(self) -> None:
@@ -587,6 +622,7 @@ class Validator(BaseValidator):
     def get_revealed_commits(self) -> dict[str, list[MinerChallengeCommit]]:
         """
         Collects all revealed commits from miners.
+        Filters unique docker_hub_ids in one pass and excludes previously scored submissions.
 
         Returns:
             A dictionary where the key is the challenge name and the value is a list of MinerChallengeCommit.
@@ -597,7 +633,7 @@ class Validator(BaseValidator):
         for (uid, hotkey), commits in self.miner_commits.items():
             for challenge_name, commit in commits.items():
                 bt.logging.info(
-                    f"- {uid} - {hotkey} - {challenge_name} - {commit.encrypted_commit}"
+                    f"[GET REVEALED COMMITS] Try to reveal commit: {uid} - {hotkey} - {challenge_name} - {commit.encrypted_commit}"
                 )
                 if commit.commit:
                     this_challenge_revealed_commits = revealed_commits.setdefault(
@@ -618,6 +654,9 @@ class Validator(BaseValidator):
                         commit.docker_hub_id = docker_hub_id
                         this_challenge_revealed_commits.append(commit)
                         seen_docker_hub_ids.add(docker_hub_id)
+                        bt.logging.info(
+                            f"[GET REVEALED COMMITS] Revealed commit: {uid} - {hotkey} - {challenge_name} - {commit.encrypted_commit}"
+                        )
 
         return revealed_commits
 
@@ -626,7 +665,7 @@ class Validator(BaseValidator):
         self, miner_commits: dict[str, list[MinerChallengeCommit]] = {}
     ):
         """
-        Store miner commita to storage.
+        Store miner commits to storage.
         """
         if not miner_commits:
             # Default to store all miner commits

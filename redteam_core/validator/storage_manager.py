@@ -72,9 +72,7 @@ class StorageManager:
 
     # MARK: Sync Methods
     def sync_storage_to_cache(self):
-        """
-        Syncs data from centralized storage to the local cache.
-        """
+        # TODO: Implement sync_storage_to_cache
         pass
 
     # MARK: Get Methods
@@ -113,13 +111,13 @@ class StorageManager:
         body = {"validator_uid": validator_uid, "validator_hotkey": validator_hotkey}
 
         try:
-            # First try to fetch state from centralized scoring server with a dummy body
+            # First try to fetch state from centralized scoring server with a dummy body tp get latest state from centralized scoring server
             dummy_body = {"subnet": "Redteam"}
             response = requests.post(
                 url=f"{constants.STORAGE_URL}/fetch-validator-state",
                 headers=self.validator_request_header_fn(dummy_body),
                 json=dummy_body,
-                timeout=20,
+                timeout=60,
             )
 
             # If that fails, fall back to fetching the state using our own body
@@ -132,7 +130,7 @@ class StorageManager:
                     url=f"{constants.STORAGE_URL}/fetch-validator-state",
                     headers=self.validator_request_header_fn(body),
                     json=body,
-                    timeout=20,
+                    timeout=60,
                 )
 
             # If successful, return the state
@@ -220,7 +218,7 @@ class StorageManager:
                 url=f"{constants.STORAGE_URL}/upload-commit",
                 headers=self.validator_request_header_fn(data_dict),
                 json=data_dict,
-                timeout=20,
+                timeout=60,
             )
             response.raise_for_status()
 
@@ -338,7 +336,7 @@ class StorageManager:
                 url=f"{constants.STORAGE_URL}/upload-validator-state",
                 headers=self.validator_request_header_fn(data),
                 json=data,
-                timeout=20,
+                timeout=60,
             )
             response.raise_for_status()
 
@@ -367,7 +365,7 @@ class StorageManager:
                 url=f"{constants.STORAGE_URL}/upload-hf-repo-id",
                 headers=self.validator_request_header_fn(data),
                 json=data,
-                timeout=20,
+                timeout=60,
             )
             response.raise_for_status()
             bt.logging.info(
