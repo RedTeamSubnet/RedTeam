@@ -1,32 +1,11 @@
 import datetime
-from typing import Optional
 
 import bittensor as bt
 import numpy as np
 import requests
-from cryptography.fernet import Fernet
-from pydantic import BaseModel
 
 from redteam_core.constants import constants
 from redteam_core.validator.challenge_manager import ChallengeManager
-
-
-class ChallengeRecord(BaseModel):
-    point: float = 0
-    score: float = 0
-    date: str = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d")
-    scored_date: Optional[str] = None
-    docker_hub_id: Optional[str] = None
-    uid: Optional[int] = None
-    ss58_address: Optional[str] = None
-
-
-class ScoringLog(BaseModel):
-    score: float
-    miner_input: Optional[dict] = None
-    miner_output: Optional[dict] = None
-    error: Optional[str] = None
-    baseline_score: Optional[float] = None
 
 
 class MinerManager:

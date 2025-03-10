@@ -3,6 +3,8 @@ import os
 
 import yaml
 
+from redteam_core.validator.challenge_manager import ChallengeManager
+
 
 ACTIVE_CHALLENGES_FILE = os.getenv(
     "ACTIVE_CHALLENGES_FILE", "redteam_core/challenge_pool/active_challenges.yaml"
@@ -35,7 +37,7 @@ ACTIVE_CHALLENGES = {
         ),
         "challenge_manager": get_obj_from_str(
             CHALLENGE_CONFIGS[challenge_name].get("challenge_manager", None)
-        ),
+        ) if CHALLENGE_CONFIGS[challenge_name].get("challenge_manager", None) else ChallengeManager,
     }
     for challenge_name in CHALLENGE_CONFIGS
 }

@@ -10,7 +10,11 @@ import requests
 
 from redteam_core.challenge_pool.base import BaseController
 from redteam_core.challenge_pool import docker_utils
-from redteam_core.validator.models import MinerChallengeCommit, ScoringLog, ComparisonLog
+from redteam_core.validator.models import (
+    MinerChallengeCommit,
+    ScoringLog,
+    ComparisonLog,
+)
 from redteam_core.constants import constants
 
 
@@ -26,6 +30,7 @@ class Controller(BaseController):
         challenge_info: dict,
         miner_commits: list[MinerChallengeCommit],
         reference_comparison_commits: list[MinerChallengeCommit],
+        seed_inputs: list[dict] = [],
     ):
         """
         Initializes the Controller with the name of the challenge and the list of miner Docker images.
@@ -36,7 +41,11 @@ class Controller(BaseController):
             miner_docker_images: A list of Docker images to be used for the miners.
         """
         super(Controller, self).__init__(
-            challenge_name, challenge_info, miner_commits, reference_comparison_commits
+            challenge_name,
+            challenge_info,
+            miner_commits,
+            reference_comparison_commits,
+            seed_inputs,
         )
         self.docker_client = docker_utils.create_docker_client()
 
@@ -48,7 +57,7 @@ class Controller(BaseController):
             miner_uid=-1,
             miner_hotkey="baseline",
             docker_hub_id=baseline_image if baseline_image else None,
-            challenge_name=challenge_name
+            challenge_name=challenge_name,
         )
 
     def start_challenge(self):
@@ -69,15 +78,21 @@ class Controller(BaseController):
         num_task = self.challenge_info.get(
             "num_tasks", constants.N_CHALLENGES_PER_EPOCH
         )
-        challenge_inputs = [
-            self._get_challenge_from_container() for _ in range(num_task)
-        ]
+        # Start with seed inputs and generate more if needed to reach num_task
+        challenge_inputs = self.seed_inputs.copy()
+        remaining_tasks = max(0, num_task - len(challenge_inputs))
+        if remaining_tasks > 0:
+            challenge_inputs.extend([
+                self._get_challenge_from_container() for _ in range(remaining_tasks)
+            ])
 
         # Score baseline first if it exists
         if self.baseline_commit.docker_hub_id:
             try:
                 self._setup_miner_container(self.baseline_commit)
-                self._score_miner_with_new_inputs(self.baseline_commit, challenge_inputs)
+                self._score_miner_with_new_inputs(
+                    self.baseline_commit, challenge_inputs
+                )
                 docker_utils.remove_container_by_port(
                     client=self.docker_client,
                     port=constants.MINER_DOCKER_PORT,
@@ -133,7 +148,7 @@ class Controller(BaseController):
         docker_utils.remove_container(
             client=self.docker_client,
             container_name=self.challenge_name,
-            stop_timeout=30,
+            stop_timeout=60,
             force=True,
             remove_volumes=True,
         )
@@ -160,7 +175,7 @@ class Controller(BaseController):
         docker_utils.remove_container(
             client=self.docker_client,
             container_name=self.challenge_name,
-            stop_timeout=30,
+            stop_timeout=60,
             force=True,
             remove_volumes=True,
         )
@@ -212,7 +227,11 @@ class Controller(BaseController):
         )
 
         # Run new container
-        miner_start_time = time.time() if miner_commit.miner_uid != self.baseline_commit.miner_uid else None
+        miner_start_time = (
+            time.time()
+            if miner_commit.miner_uid != self.baseline_commit.miner_uid
+            else None
+        )
         miner_container = docker_utils.run_container(
             client=self.docker_client,
             image=miner_commit.docker_hub_id,
@@ -230,21 +249,27 @@ class Controller(BaseController):
             start_time=miner_start_time,
         )
 
-    def _score_miner_with_new_inputs(self, miner_commit: MinerChallengeCommit, challenge_inputs):
+    def _score_miner_with_new_inputs(
+        self, miner_commit: MinerChallengeCommit, challenge_inputs
+    ):
         """Run and score miner with new challenge inputs."""
         for i, miner_input in enumerate(challenge_inputs):
             miner_output, error_message = self._submit_challenge_to_miner(miner_input)
-            score = self._score_challenge(
-                miner_input=miner_input,
-                miner_output=miner_output,
-                task_id=i,
-            ) if miner_output is not None else 0.0
+            score = (
+                self._score_challenge(
+                    miner_input=miner_input,
+                    miner_output=miner_output,
+                    task_id=i,
+                )
+                if miner_output is not None
+                else 0.0
+            )
 
             log = ScoringLog(
                 miner_input=miner_input,
                 miner_output=miner_output,
                 score=score,
-                error=error_message
+                error=error_message,
             )
 
             # Handle baseline scoring separately
@@ -252,8 +277,10 @@ class Controller(BaseController):
                 self.baseline_commit.scoring_logs.append(log)
             else:
                 # Adjust score relative to baseline if baseline exists and has been scored
-                if (self.baseline_commit.docker_hub_id and
-                    len(self.baseline_commit.scoring_logs) > i):
+                if (
+                    self.baseline_commit.docker_hub_id
+                    and len(self.baseline_commit.scoring_logs) > i
+                ):
                     log.score -= self.baseline_commit.scoring_logs[i].score
                     log.baseline_score = self.baseline_commit.scoring_logs[i].score
                 miner_commit.scoring_logs.append(log)
@@ -294,11 +321,13 @@ class Controller(BaseController):
                     miner_input=reference_log.miner_input,
                     miner_output=miner_output,
                     reference_output=reference_log.miner_output,
-                    error=error_message
+                    error=error_message,
                 )
 
                 # Add to comparison logs
-                miner_commit.comparison_logs[reference_commit.docker_hub_id].append(comparison_log)
+                miner_commit.comparison_logs[reference_commit.docker_hub_id].append(
+                    comparison_log
+                )
 
     def _submit_challenge_to_miner(self, challenge) -> tuple[dict, str]:
         """
@@ -376,7 +405,9 @@ class Controller(BaseController):
                 return response.json()
             except Exception as e:
                 if attempt == max_retries - 1:
-                    raise Exception(f"Failed to get challenge after {max_retries} attempts: {str(e)}")
+                    raise Exception(
+                        f"Failed to get challenge after {max_retries} attempts: {str(e)}"
+                    )
 
     def _score_challenge(self, miner_input, miner_output, task_id: int = 0) -> float:
         """
@@ -480,7 +511,7 @@ class Controller(BaseController):
                 )
                 bt.logging.error(f"[CONTROLLER] Container logs:\n{container_logs}")
                 raise RuntimeError(
-                    f"Container failed to start. Status: {container.status}. Container logs: {container_logs}"
+                    f"[CONTROLLER] Container failed to start. Status: {container.status}. Container logs: {container_logs}"
                 )
             else:
                 bt.logging.info(
