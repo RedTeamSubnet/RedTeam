@@ -5,7 +5,7 @@ The RedTeam subnet by Innerworks is a decentralized platform designed to drive i
 
 #### Dashboard: http://storage.redteam.technology/
 
-![Overview](assets/overview.png)
+![Overview](assets/overview.svg)
 
 ## Subnet Functionality
 RedTeam's subnet now operates with a performance-based approach, encouraging continuous improvement and rewarding miners based on the quality and originality of their solutions. Every time a miner submits a solution, it is evaluated not just by how well it performs, but also by how much new value and innovation it brings to the subnet.
