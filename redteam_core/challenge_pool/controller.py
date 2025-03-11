@@ -111,6 +111,7 @@ class Controller(BaseController):
             uid, hotkey = miner_commit.miner_uid, miner_commit.miner_hotkey
 
             try:
+                bt.logging.info(f"[CONTROLLER] Scoring miner {uid} - {hotkey} with commit {miner_commit.encrypted_commit}")
                 # 1. Validate and setup miner container
                 self._setup_miner_container(miner_commit)
 
@@ -297,7 +298,7 @@ class Controller(BaseController):
 
         for reference_commit in self.reference_comparison_commits:
             bt.logging.info(
-                f"[CONTROLLER] Running comparison with reference commit {reference_commit.miner_uid}"
+                f"[CONTROLLER] Running comparison with reference commit {reference_commit.docker_hub_id}"
             )
 
             if reference_commit.docker_hub_id in miner_commit.comparison_logs:
