@@ -295,7 +295,7 @@ def eval_bot(data: str) -> None:
 
 
 @validate_call
-def _compare_outputs(
+def compare_outputs(
     miner_input: MinerInput, miner_output: MinerOutput, reference_output: MinerOutput
 ) -> float:
     """
@@ -330,7 +330,7 @@ def _compare_outputs(
         return max(0.0, min(1.0, similarity_score))
 
     except Exception as err:
-        logger.error(f"Error in _compare_outputs function: {str(err)}")
+        logger.error(f"Error in compare_outputs function: {str(err)}")
         return 0.0
 
 
@@ -340,4 +340,5 @@ __all__ = [
     "get_random_val",
     "score",
     "eval_bot",
+    "compare_outputs",
 ]

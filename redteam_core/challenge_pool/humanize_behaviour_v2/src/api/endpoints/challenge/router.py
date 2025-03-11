@@ -205,7 +205,7 @@ def post_compare(
     logger.info(f"[{_request_id}] - Comparing miner outputs...")
 
     try:
-        _score = service._compare_outputs(
+        _score = service.compare_outputs(
             miner_input=miner_input,
             miner_output=miner_output,
             reference_output=reference_output,
