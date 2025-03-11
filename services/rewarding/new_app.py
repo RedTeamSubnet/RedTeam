@@ -203,8 +203,18 @@ class RewardApp(Validator):
                 )
                 self.is_scoring_done[challenge] = True
 
-            # Store challenge records and update state
+                # Store commits and scoring cache from this challenge
+                self._store_miner_commits(
+                    miner_commits={challenge: revealed_commits[challenge]}
+                )
+                self._store_centralized_scoring(challenge_name=challenge)
+
             self.scoring_dates.append(today_key)
+
+            # Store reward app state, this can be viewed by other validators, so we need to make it public view
+            self.storage_manager.update_validator_state(
+                data=self.export_state(public_view=True), async_update=True
+            )
         else:
             bt.logging.debug(
                 f"[CENTRALIZED FORWARD] Not time to finalize daily result. Hour: {current_hour}, Date: {today_key}"
@@ -246,7 +256,7 @@ class RewardApp(Validator):
         # Also construct input seeds for new commits, this will be using input from commits that in the same revealed list for comparison
         # We do this since commits being in the same revealed list means that they will be scored in same day
         new_commits: list[MinerChallengeCommit] = []
-        input_seeds: list[dict] = []
+        seed_inputs: list[dict] = []
 
         input_seed_hashes_set: set[str] = set()
         for commit in revealed_commits_list:
@@ -263,7 +273,7 @@ class RewardApp(Validator):
                         and scoring_log.input_hash not in input_seed_hashes_set
                     ):
                         input_seed_hashes_set.add(scoring_log.input_hash)
-                        input_seeds.append(scoring_log.miner_input)
+                        seed_inputs.append(scoring_log.miner_input)
             else:
                 new_commits.append(commit)
 
@@ -288,7 +298,7 @@ class RewardApp(Validator):
         ]
         # Get commit 's cached data from storage
         unique_commits_cached_data: list[MinerChallengeCommit] = []
-        challenge_local_cache = self.storage_manager.local_caches.get(challenge)
+        challenge_local_cache = self.storage_manager._get_cache(challenge)
         if challenge_local_cache:
             unique_commits_cached_data_raw = [
                 challenge_local_cache.get(unique_commit_cache_key)
@@ -320,7 +330,7 @@ class RewardApp(Validator):
             miner_commits=new_commits,
             reference_comparison_commits=unique_commits_cached_data,
             challenge_info=self.active_challenges[challenge],
-            seed_inputs=input_seeds,
+            seed_inputs=seed_inputs,
         )
         # Run challenge controller, the controller update commit 's scoring logs and reference comparison logs directly
         controller.start_challenge()

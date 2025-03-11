@@ -301,7 +301,7 @@ class ChallengeManager:
         ]
         # Reconstruct set from heap
         instance._unique_commits_set = {
-            commit for _, commit in instance._unique_commits_heap
+            commit for _, commit, _ in instance._unique_commits_heap
         }
         # Load scored docker hub IDs
         instance._unique_scored_docker_hub_ids = set(
