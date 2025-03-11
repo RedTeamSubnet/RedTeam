@@ -1,5 +1,6 @@
 import heapq
 from typing import Optional
+import time
 import traceback
 
 import bittensor as bt
@@ -176,6 +177,11 @@ class ChallengeManager:
             miner_commit.accepted = miner_commit.penalty < self.challenge_info.get(
                 "penalty_threshold", 0.5
             )
+
+            if not miner_commit.accepted:
+                continue
+
+            miner_commit.scored_timestamp = time.time()
 
             # Update miner 's best submission if current score is higher
             miner_state = self.miner_states[miner_commit.miner_uid]
