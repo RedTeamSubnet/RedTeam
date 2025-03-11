@@ -242,10 +242,6 @@ class RewardApp(Validator):
             )
             return
 
-        bt.logging.info(
-            f"[CENTRALIZED SCORING] Running controller for challenge: {challenge}"
-        )
-
         # 0. Look up cached results for already scored commits, use cached results for already scored commits
         # Also construct input seeds for new commits, this will be using input from commits that in the same revealed list for comparison
         # We do this since commits being in the same revealed list means that they will be scored in same day
@@ -277,6 +273,10 @@ class RewardApp(Validator):
                 f"[CENTRALIZED SCORING] No new commits to score for challenge: {challenge}, skipping"
             )
             return
+
+        bt.logging.info(
+            f"[CENTRALIZED SCORING] Running controller for challenge: {challenge}"
+        )
 
         # 1. Gather comparison inputs
         # Get unique commits for the challenge (the "encrypted_commit"s)
@@ -351,6 +351,12 @@ class RewardApp(Validator):
         1. During regular scoring: compare_with_each_other=False to compare with reference commits
         2. At scoring hour: compare_with_each_other=True to compare all commits submitted within the same day with each other
         """
+        if not revealed_commits_list:
+            bt.logging.info(
+                f"[CENTRALIZED SCORING] No commits for challenge: {challenge}, skipping"
+            )
+            return
+
         bt.logging.info(
             f"[CENTRALIZED SCORING] Running comparer for challenge: {challenge}"
         )

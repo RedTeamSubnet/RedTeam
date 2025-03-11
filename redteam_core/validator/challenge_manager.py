@@ -192,6 +192,7 @@ class ChallengeManager:
                 self._try_add_unique_commit(
                     encrypted_commit=miner_commit.encrypted_commit,
                     score=miner_commit.score,
+                    docker_hub_id=miner_commit.docker_hub_id,
                 )
 
             # Mark docker_hub_id as scored after successful scoring
