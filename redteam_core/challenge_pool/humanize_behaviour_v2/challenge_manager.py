@@ -13,8 +13,10 @@ class HBChallengeManager(ChallengeManager):
 
     def __init__(self, challenge_info: dict, metagraph: bt.metagraph):
         super().__init__(challenge_info, metagraph)
-        self.min_input = 0.6
-        self.break_input = 0.87
+        self.max_similarity = 0.6
+        self.min_similarity = 0.15
+        self.min_score = 0.1
+        self.break_point = 0.87
         self.max_input = 1.0
         self.min_value = 0
         self.max_value = 1
@@ -65,10 +67,11 @@ class HBChallengeManager(ChallengeManager):
                 )
                 continue
 
-            # miner_commit.accepted = miner_commit.penalty < self.challenge_info.get(
-            #     "penalty_threshold", 0.0
-            # )
-            miner_commit.accepted = True
+            miner_commit.accepted = (
+                miner_commit.penalty >= self.min_similarity
+                and miner_commit.penalty <= self.break_point
+                and miner_commit.score >= self.min_score
+            )
 
             ### UPDATE MINER SCORE BASED ON SIMILARITY SCORE
             miner_commit.score = self._adjust_score_by_similarity(miner_commit.score, miner_commit.penalty)
@@ -95,19 +98,19 @@ class HBChallengeManager(ChallengeManager):
         return 0.5 * (math.sqrt(1 - (2 * x - 2)**2) + 1)
 
     def _scaling_from_similarity(self, x):
-        if x <= self.break_input:
-            t = (x - self.min_input) / (self.break_input - self.min_input)
-            normalized_break = (self.break_input - self.min_input) / (self.max_input - self.min_input)
+        if x <= self.break_point:
+            t = (x - self.max_similarity) / (self.break_point - self.max_similarity)
+            normalized_break = (self.break_point - self.max_similarity) / (self.max_input - self.max_similarity)
             eased_break = self.ease_circle_in_out_shifted(normalized_break)
             value_break = self.min_value + eased_break * (self.max_value - self.min_value)
             return self.min_value + t * (value_break - self.min_value)
-        t = (x - self.min_input) / (self.max_input - self.min_input)
+        t = (x - self.max_similarity) / (self.max_input - self.max_similarity)
         return self.min_value + self.ease_circle_in_out_shifted(t) * (self.max_value - self.min_value)
 
     def _adjust_score_by_similarity(self, raw_score, similarity_score):
-        if similarity_score < 0.2:
+        if similarity_score < self.min_similarity:
             return 0
-        if similarity_score < 0.6:
+        if similarity_score < self.max_similarity:
             return raw_score
         s = self.scaling_from_similarity(similarity_score)
         return raw_score * (1 - s)
