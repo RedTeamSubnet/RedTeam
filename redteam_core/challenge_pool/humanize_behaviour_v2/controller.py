@@ -53,10 +53,7 @@ class HBController(Controller):
         )
 
         # Initialize local storage for this instance
-        self.baseline_reference_comparison_commits = []
-
-        # Check which ones need to be scored vs. which can be loaded from cache
-        self.baseline_ids_to_score = []
+        self.baseline_reference_comparison_commits_to_score: list[MinerChallengeCommit] = []
 
         for docker_hub_id in baseline_reference_comparison_docker_hub_ids:
             # Check if this docker_hub_id is already in the class cache
@@ -64,14 +61,13 @@ class HBController(Controller):
                 cached_commit = HBController._baseline_reference_cache[docker_hub_id]
                 # Verify it has scoring logs (i.e., has been successfully scored)
                 if cached_commit.scoring_logs:
-                    self.baseline_reference_comparison_commits.append(cached_commit)
                     bt.logging.info(
-                        f"[CONTROLLER - HBController] Loaded cached baseline reference commit: {docker_hub_id}"
+                        f"[CONTROLLER - HBController] Reference commit {docker_hub_id} has already been scored, skipping"
                     )
                     continue
 
             # If not in cache or not scored, add to list of commits to score
-            self.baseline_ids_to_score.append(docker_hub_id)
+            self.baseline_reference_comparison_commits_to_score.append(docker_hub_id)
 
             # Create a new commit object
             new_commit = MinerChallengeCommit(
@@ -82,8 +78,7 @@ class HBController(Controller):
             )
 
             # Add to our instance list and to the class cache
-            self.baseline_reference_comparison_commits.append(new_commit)
-            HBController._baseline_reference_cache[docker_hub_id] = new_commit
+            self.baseline_reference_comparison_commits_to_score.append(new_commit)
 
     def start_challenge(self):
         """
@@ -132,14 +127,13 @@ class HBController(Controller):
                 bt.logging.error(traceback.format_exc())
 
         # Score baseline reference comparisons (only those that need scoring)
-        for docker_hub_id in self.baseline_ids_to_score:
-            baseline_commit = HBController._baseline_reference_cache[docker_hub_id]
+        for reference_commit in self.baseline_reference_comparison_commits_to_score:
             try:
                 bt.logging.info(
-                    f"[CONTROLLER - HBController] Scoring baseline reference: {docker_hub_id}"
+                    f"[CONTROLLER - HBController] Scoring baseline reference: {reference_commit.docker_hub_id}"
                 )
-                self._setup_miner_container(baseline_commit)
-                self._score_miner_with_new_inputs(baseline_commit, challenge_inputs)
+                self._setup_miner_container(reference_commit)
+                self._score_miner_with_new_inputs(reference_commit, challenge_inputs)
 
                 docker_utils.remove_container_by_port(
                     client=self.docker_client,
@@ -152,11 +146,11 @@ class HBController(Controller):
                 )
 
                 # Update the class cache with the scored commit
-                HBController._baseline_reference_cache[docker_hub_id] = baseline_commit
+                HBController._baseline_reference_cache[reference_commit.docker_hub_id] = reference_commit
 
             except Exception as e:
                 bt.logging.error(
-                    f"Error scoring baseline reference comparison, docker_hub_id: {docker_hub_id}: {e}"
+                    f"Error scoring baseline reference comparison, docker_hub_id: {reference_commit.docker_hub_id}: {e}"
                 )
                 bt.logging.error(traceback.format_exc())
 
