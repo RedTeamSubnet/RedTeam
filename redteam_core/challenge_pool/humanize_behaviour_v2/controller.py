@@ -67,12 +67,12 @@ class HBController(Controller):
                     continue
 
             # If not in cache or not scored, add to list of commits to score
-            self.baseline_reference_comparison_commits_to_score.append(docker_hub_id)
+            # self.baseline_reference_comparison_commits_to_score.append(docker_hub_id)
 
             # Create a new commit object
             new_commit = MinerChallengeCommit(
                 miner_uid=-1,
-                miner_hotkey="baseline",
+                miner_hotkey="baseline-reference",
                 challenge_name=self.challenge_name,
                 docker_hub_id=docker_hub_id,
             )
@@ -106,9 +106,13 @@ class HBController(Controller):
                 [self._get_challenge_from_container() for _ in range(remaining_tasks)]
             )
 
+        print(f"[CONTROLLER - HBController] baseline_commit: {self.baseline_commit}")
         # Score baseline first if it exists
         if self.baseline_commit.docker_hub_id:
             try:
+                bt.logging.info(
+                    f"[CONTROLLER - HBController] Starting baseline images container: {self.baseline_commit.docker_hub_id}"
+                )
                 self._setup_miner_container(self.baseline_commit)
                 self._score_miner_with_new_inputs(
                     self.baseline_commit, challenge_inputs
@@ -120,11 +124,14 @@ class HBController(Controller):
                 docker_utils.clean_docker_resources(
                     client=self.docker_client,
                     remove_containers=True,
-                    remove_images=True,
+                    remove_images=False,
                 )
             except Exception as e:
                 bt.logging.error(f"Error scoring baseline: {e}")
                 bt.logging.error(traceback.format_exc())
+
+        print("[CONTROLLER - HBController] reference_comparison_commits")
+        print(self.baseline_commit)
 
         # Score baseline reference comparisons (only those that need scoring)
         for reference_commit in self.baseline_reference_comparison_commits_to_score:
@@ -133,7 +140,11 @@ class HBController(Controller):
                     f"[CONTROLLER - HBController] Scoring baseline reference: {reference_commit.docker_hub_id}"
                 )
                 self._setup_miner_container(reference_commit)
+                print(f"reference_commit: {reference_commit}")
                 self._score_miner_with_new_inputs(reference_commit, challenge_inputs)
+
+                print("[CONTROLLER - HBController] Scoring logs:")
+                print(reference_commit.scoring_logs)
 
                 docker_utils.remove_container_by_port(
                     client=self.docker_client,
@@ -142,9 +153,12 @@ class HBController(Controller):
                 docker_utils.clean_docker_resources(
                     client=self.docker_client,
                     remove_containers=True,
-                    remove_images=True,
+                    remove_images=False,
                 )
 
+                print(
+                    f"[CONTROLLER - HBController] Baseline reference scoring logs: {len(reference_commit.scoring_logs)}"
+                )
                 # Update the class cache with the scored commit
                 HBController._baseline_reference_cache[reference_commit.docker_hub_id] = reference_commit
 
@@ -153,6 +167,11 @@ class HBController(Controller):
                     f"Error scoring baseline reference comparison, docker_hub_id: {reference_commit.docker_hub_id}: {e}"
                 )
                 bt.logging.error(traceback.format_exc())
+
+        print("[CACHE] Baseline reference cache:")
+        print(HBController._baseline_reference_cache)
+        print(" as list:")
+        print(list(HBController._baseline_reference_cache.values()))
 
         # Score commits with new input and collect comparison logs
         for miner_commit in self.miner_commits:
@@ -189,7 +208,7 @@ class HBController(Controller):
             docker_utils.clean_docker_resources(
                 client=self.docker_client,
                 remove_containers=True,
-                remove_images=True,
+                remove_images=False,
             )
 
         # Clean up challenge container
@@ -203,7 +222,7 @@ class HBController(Controller):
         docker_utils.clean_docker_resources(
             client=self.docker_client,
             remove_containers=True,
-            remove_images=True,
+            remove_images=False,
         )
 
     def _run_reference_comparison_inputs(self, miner_commit: MinerChallengeCommit):
@@ -229,7 +248,6 @@ class HBController(Controller):
             if (
                 reference_commit.docker_hub_id in miner_commit.comparison_logs
                 or miner_mean_score < self.behavior_scaling_factor
-                or miner_commit.miner_hotkey == reference_commit.miner_hotkey
             ):
                 continue
             else:
@@ -252,6 +270,7 @@ class HBController(Controller):
                     reference_output=reference_log.miner_output,
                     error=error_message,
                     reference_hotkey=reference_commit.miner_hotkey,
+                    reference_similarity_score=reference_commit.penalty,
                 )
 
                 # Add to comparison logs

@@ -23,6 +23,49 @@ class HBComparer(Comparer):
             compare_with_each_other=compare_with_each_other,
         )
 
+    def _process_existing_comparison_logs(self, miner_commit: MinerChallengeCommit):
+        """
+        Process existing comparison logs to fill in missing similarity scores.
+        """
+        for (
+            reference_docker_hub_id,
+            comparison_logs,
+        ) in miner_commit.comparison_logs.items():
+            for log in comparison_logs:
+                if (
+                    log.error
+                    or log.miner_output is None
+                    or log.reference_output is None
+                ):
+                    continue
+
+                if log.similarity_score is not None:
+                    # Skip if similarity score is already set
+                    continue
+
+                try:
+                    # Send to /compare endpoint
+                    similarity_score = self._compare_outputs(
+                        miner_input=log.miner_input,
+                        miner_output=log.miner_output,
+                        reference_output=log.reference_output,
+                    )
+
+                    ### LOGIC when miner_commit.hotkey == log.reference_hotkey
+                    if miner_commit.miner_hotkey == log.reference_hotkey:
+                        if similarity_score > 0.87:
+                            log.similarity_score = log.reference_similarity_score
+                            continue
+
+                    log.similarity_score = similarity_score
+
+                except Exception as e:
+                    bt.logging.error(
+                        f"[COMPARER] Error comparing outputs for miner {miner_commit.miner_hotkey}: {str(e)}"
+                    )
+                    log.error = str(e)
+                    log.similarity_score = 0.0
+
     def _compare_within_batch(self, miner_commit: MinerChallengeCommit):
         """
         Compare commits within the same batch if compare_with_each_other is True.
@@ -43,10 +86,8 @@ class HBComparer(Comparer):
             ### Check if we should compare with this commit
             if (other_commit.commit_timestamp > miner_commit.commit_timestamp or # Newer commit
                 other_commit.docker_hub_id in miner_commit.comparison_logs or  # Already compared
-                not other_commit.scoring_logs or  # No scoring logs
-                miner_commit.miner_hotkey == other_commit.miner_hotkey):  # Same miner
+                not other_commit.scoring_logs): # No scoring logs
                 continue
-
 
             # Find matching inputs between the two commits
             comparison_logs = []
@@ -75,6 +116,7 @@ class HBComparer(Comparer):
                             miner_output=miner_log.miner_output,
                             reference_output=other_log.miner_output,
                             reference_hotkey=other_commit.miner_hotkey,
+                            # reference_similarity_score=other_commit.penalty,
                         )
                         comparison_logs.append(comparison_log)
 
@@ -89,6 +131,7 @@ class HBComparer(Comparer):
                             miner_output=miner_log.miner_output,
                             reference_output=other_log.miner_output,
                             reference_hotkey=other_commit.miner_hotkey,
+                            # reference_similarity_score=other_commit.penalty,
                         )
                         comparison_logs.append(comparison_log)
 

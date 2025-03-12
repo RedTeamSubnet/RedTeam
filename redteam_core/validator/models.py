@@ -41,6 +41,7 @@ class ComparisonLog(BaseModel):
     input_hash: Optional[str] = None
 
     reference_hotkey: Optional[str] = None
+    reference_similarity_score: Optional[float] = None
 
     def model_post_init(self, __context: Any):
         if self.miner_input:
@@ -58,6 +59,7 @@ class ComparisonLog(BaseModel):
             reference_output=None,
             error=self.error,
             reference_hotkey=self.reference_hotkey,
+            reference_similarity_score=self.reference_similarity_score,
         )
 
 
