@@ -76,6 +76,7 @@ class MinerChallengeCommit(BaseModel):
     comparison_logs: dict[str, list[ComparisonLog]] = {}
 
     # Final score and penalty for this miner's commit
+    scored_timestamp: Optional[float] = None
     score: Optional[float] = None
     penalty: Optional[float] = None
 

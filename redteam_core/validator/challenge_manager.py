@@ -1,5 +1,6 @@
 import heapq
 from typing import Optional
+import time
 import traceback
 
 import bittensor as bt
@@ -177,6 +178,11 @@ class ChallengeManager:
                 "penalty_threshold", 0.5
             )
 
+            if not miner_commit.accepted:
+                continue
+
+            miner_commit.scored_timestamp = time.time()
+
             # Update miner 's best submission if current score is higher
             miner_state = self.miner_states[miner_commit.miner_uid]
             miner_state.update_best_commit(miner_commit)
@@ -295,7 +301,7 @@ class ChallengeManager:
         ]
         # Reconstruct set from heap
         instance._unique_commits_set = {
-            commit for _, commit in instance._unique_commits_heap
+            commit for _, commit, _ in instance._unique_commits_heap
         }
         # Load scored docker hub IDs
         instance._unique_scored_docker_hub_ids = set(

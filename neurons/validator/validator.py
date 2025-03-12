@@ -147,6 +147,14 @@ class Validator(BaseValidator):
                 validator_uid=self.uid,
                 validator_hotkey=self.wallet.hotkey.ss58_address,
             )
+            if not state:
+                bt.logging.warning(
+                    f"[INIT] No validator state found in centralized storage for validator {self.uid}, hotkey: {self.wallet.hotkey.ss58_address}, falling back to cache"
+                )
+                state = self.storage_manager.get_latest_validator_state_from_cache(
+                    validator_uid=self.uid,
+                    validator_hotkey=self.wallet.hotkey.ss58_address,
+                )
         else:
             state = self.storage_manager.get_latest_validator_state_from_cache(
                 validator_uid=self.uid,
@@ -365,7 +373,7 @@ class Validator(BaseValidator):
                 ]
                 # Get commit 's cached data from storage
                 unique_commits_cached_data: list[MinerChallengeCommit] = []
-                challenge_local_cache = self.storage_manager.local_caches.get(challenge)
+                challenge_local_cache = self.storage_manager._get_cache(challenge)
                 if challenge_local_cache:
                     unique_commits_cached_data_raw = [
                         challenge_local_cache.get(unique_commit_cache_key)
