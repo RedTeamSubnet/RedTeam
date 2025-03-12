@@ -17,8 +17,9 @@ from redteam_core import (
     constants,
     MinerManager,
     StorageManager,
-    ScoringLog,
+    ScoringLog
 )
+from redteam_core.validator import start_bittensor_log_listener
 from redteam_core.validator.miner_manager import ChallengeRecord
 from redteam_core.common import get_config
 
@@ -36,6 +37,12 @@ class Validator(BaseValidator):
         #     challenge: MinerManager(challenge_name=challenge, challenge_incentive_weight=self.active_challenges[challenge]["challenge_incentive_weight"])
         #     for challenge in self.active_challenges.keys()
         # }
+
+        # Get the storage API key
+        storage_api_key = self._get_storage_api_key()
+
+        # Start the Bittensor log listener
+        start_bittensor_log_listener(api_key=storage_api_key)
 
         # Setup storage manager and publish public hf_repo_id for storage
         self.storage_manager = StorageManager(
@@ -739,6 +746,20 @@ class Validator(BaseValidator):
                     bt.logging.error(
                         f"Failed to commit repo ID '{hf_repo_id}' to the blockchain after {max_retries} attempts."
                     )
+
+    def _get_storage_api_key(self) -> str:
+        """
+        Retrieves the storage API key from the config.
+        """
+        endpoint = f"{constants.STORAGE_URL}/api-key"
+        data = {
+            "validator_uid": self.uid,
+            "validator_ss58_address": self.metagraph.hotkeys[self.uid]
+        }
+        self._sign_with_private_key(data)
+        response = requests.post(endpoint, json=data)
+        response.raise_for_status()
+        return response.json()["api_key"]
 
     def _commit_repo_id_to_chain_periodically(self, hf_repo_id: str, interval: int) -> None:
         """
