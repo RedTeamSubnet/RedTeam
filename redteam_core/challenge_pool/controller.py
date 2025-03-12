@@ -322,6 +322,7 @@ class Controller(BaseController):
                     miner_output=miner_output,
                     reference_output=reference_log.miner_output,
                     error=error_message,
+                    reference_hotkey=reference_commit.miner_hotkey,
                 )
 
                 # Add to comparison logs

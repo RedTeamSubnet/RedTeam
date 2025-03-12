@@ -40,6 +40,8 @@ class ComparisonLog(BaseModel):
     error: Optional[str] = None
     input_hash: Optional[str] = None
 
+    reference_hotkey: Optional[str] = None
+
     def model_post_init(self, __context: Any):
         if self.miner_input:
             self.input_hash = hashlib.sha256(
@@ -55,6 +57,7 @@ class ComparisonLog(BaseModel):
             miner_output=None,
             reference_output=None,
             error=self.error,
+            reference_hotkey=self.reference_hotkey,
         )
 
 
