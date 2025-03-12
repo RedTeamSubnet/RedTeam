@@ -74,6 +74,7 @@ class HBComparer(Comparer):
                             miner_input=miner_log.miner_input,
                             miner_output=miner_log.miner_output,
                             reference_output=other_log.miner_output,
+                            reference_hotkey=other_commit.miner_hotkey,
                         )
                         comparison_logs.append(comparison_log)
 
@@ -87,6 +88,7 @@ class HBComparer(Comparer):
                             miner_input=miner_log.miner_input,
                             miner_output=miner_log.miner_output,
                             reference_output=other_log.miner_output,
+                            reference_hotkey=other_commit.miner_hotkey,
                         )
                         comparison_logs.append(comparison_log)
 
