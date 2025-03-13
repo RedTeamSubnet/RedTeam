@@ -1,5 +1,6 @@
 import math
 import heapq
+import time
 import traceback
 
 import bittensor as bt
@@ -23,13 +24,12 @@ class HBChallengeManager(ChallengeManager):
 
     def update_miner_scores(self, miner_commits: list[MinerChallengeCommit]):
         """
-        Update miners 's latest submission scores and penalties.
+        Update miners' latest submission scores and penalties.
+        Also checks for similarity with existing unique commits from the same miner.
 
         Args:
-            miner_scoring_logs (dict): Dictionary of miner scoring logs with UID and SS58 address as keys.
-            miner_penalties (dict): Dictionary of miner penalties with UID and SS58 address as keys.
+            miner_commits (list): List of miner commit objects
         """
-        print("[HBChallengeManager] Updating miner scores and penalties")
         for miner_commit in miner_commits:
             if miner_commit.docker_hub_id in self._unique_scored_docker_hub_ids:
                 # Skip if docker_hub_id has been scored
@@ -67,30 +67,59 @@ class HBChallengeManager(ChallengeManager):
                 )
                 continue
 
-            miner_commit.accepted = (
-                miner_commit.penalty >= self.min_similarity
-                and miner_commit.penalty <= self.break_point
-                and miner_commit.score >= self.min_score
+            miner_commit.accepted = miner_commit.penalty < self.challenge_info.get(
+                "penalty_threshold", 0.5
             )
 
-            ### UPDATE MINER SCORE BASED ON SIMILARITY SCORE
-            miner_commit.score = self._adjust_score_by_similarity(
-                miner_commit.score, miner_commit.penalty
-            )
+            if not miner_commit.accepted:
+                continue
 
-            # Update miner 's best submission if current score is higher
+            miner_commit.scored_timestamp = time.time()
+
+            # Update miner's best submission if current score is higher
             miner_state = self.miner_states[miner_commit.miner_uid]
             miner_state.update_best_commit(miner_commit)
 
-            # Try to add to unique solutions set if commit is accepted
-            if miner_commit.accepted and miner_commit.encrypted_commit:
+            # Check if we should add this to unique solutions
+            should_add_to_unique_set = True
+
+            # First check if this solution is similar to miner's existing solutions in unique set
+            for _, existing_commit, existing_docker_hub_id in self._unique_commits_heap:
+                # Check if this existing solution in the unique set belongs to the same miner
+                for uid, state in self.miner_states.items():
+                    # Only care about solutions from the same miner
+                    if (state.latest_commit and
+                        # state.latest_commit.docker_hub_id == existing_docker_hub_id and
+                        state.miner_hotkey == miner_commit.miner_hotkey):
+
+                        # This solution in the unique set is from the same miner
+                        # Check if we have comparison logs for it
+                        if existing_docker_hub_id in miner_commit.comparison_logs:
+                            for log in miner_commit.comparison_logs[existing_docker_hub_id]:
+                                if (log.similarity_score is not None and
+                                    log.similarity_score == miner_commit.penalty):
+                                    should_add_to_unique_set = False
+                                    bt.logging.info(
+                                        f"[CHALLENGE MANAGER] Miner {miner_commit.miner_hotkey} solution not added to unique set: " +
+                                        f"similarity {log.similarity_score} with existing solution"
+                                    )
+                                    break
+
+                        if not should_add_to_unique_set:
+                            break
+
+                if not should_add_to_unique_set:
+                    break
+
+            # Try to add to unique solutions set if commit is accepted and passes similarity check
+            if miner_commit.accepted and miner_commit.encrypted_commit and should_add_to_unique_set:
                 self._try_add_unique_commit(
                     encrypted_commit=miner_commit.encrypted_commit,
                     score=miner_commit.score,
                     docker_hub_id=miner_commit.docker_hub_id,
                 )
 
-            # Mark as scored after successful scoring
+            # Mark docker_hub_id as scored after successful scoring
             self._unique_scored_docker_hub_ids.add(miner_commit.docker_hub_id)
 
     def _ease_circle_in_out_shifted(self, x):

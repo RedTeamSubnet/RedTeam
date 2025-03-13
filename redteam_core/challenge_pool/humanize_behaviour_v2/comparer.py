@@ -86,7 +86,8 @@ class HBComparer(Comparer):
             ### Check if we should compare with this commit
             if (other_commit.commit_timestamp > miner_commit.commit_timestamp or # Newer commit
                 other_commit.docker_hub_id in miner_commit.comparison_logs or  # Already compared
-                not other_commit.scoring_logs): # No scoring logs
+                not other_commit.scoring_logs or  # No scoring logs
+                miner_commit.miner_hotkey == other_commit.miner_hotkey): # Same miner
                 continue
 
             # Find matching inputs between the two commits
