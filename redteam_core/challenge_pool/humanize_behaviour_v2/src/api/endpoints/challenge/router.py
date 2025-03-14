@@ -9,6 +9,8 @@ from api.core.responses import BaseResponse
 from api.endpoints.challenge.schemas import MinerInput, MinerOutput
 from api.endpoints.challenge import service
 from api.logger import logger
+from api.config import config
+
 
 
 router = APIRouter(tags=["Challenge"])
@@ -66,18 +68,26 @@ def post_score(
     logger.info(f"[{_request_id}] - Evaluating the miner output...")
 
     _score: float = 0.0
-    try:
-        _score = service.score(miner_output=miner_output, reset=reset)
+    _scores = []
+    for i in range(config.challenge.n_ch_per_epoch):
+        try:
+            _score = service.score(miner_output=miner_output, reset=reset)
+            _scores.append(_score)
 
-        logger.success(f"[{_request_id}] - Successfully evaluated the miner output.")
-    except Exception as err:
-        if isinstance(err, HTTPException):
-            raise
+            logger.success(f"[{_request_id}] - Successfully evaluated the miner output.")
+        except Exception as err:
+            if isinstance(err, HTTPException):
+                # raise
+                logger.error(
+                    f"[{_request_id}] - Failed to evaluate the miner output!",
+                )
 
-        logger.error(
-            f"[{_request_id}] - Failed to evaluate the miner output!",
-        )
-        raise
+            logger.error(
+                f"[{_request_id}] - Failed to evaluate the miner output!",
+            )
+            # raise
+
+    _score = sum(_scores) / len(config.challenge.n_ch_per_epoch)
 
     return _score
 

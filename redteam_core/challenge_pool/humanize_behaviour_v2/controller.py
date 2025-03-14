@@ -106,7 +106,6 @@ class HBController(Controller):
                 [self._get_challenge_from_container() for _ in range(remaining_tasks)]
             )
 
-        print(f"[CONTROLLER - HBController] baseline_commit: {self.baseline_commit}")
         # Score baseline first if it exists
         if self.baseline_commit.docker_hub_id:
             try:
@@ -130,9 +129,6 @@ class HBController(Controller):
                 bt.logging.error(f"Error scoring baseline: {e}")
                 bt.logging.error(traceback.format_exc())
 
-        print("[CONTROLLER - HBController] reference_comparison_commits")
-        print(self.baseline_commit)
-
         # Score baseline reference comparisons (only those that need scoring)
         for reference_commit in self.baseline_reference_comparison_commits_to_score:
             try:
@@ -140,11 +136,8 @@ class HBController(Controller):
                     f"[CONTROLLER - HBController] Scoring baseline reference: {reference_commit.docker_hub_id}"
                 )
                 self._setup_miner_container(reference_commit)
-                print(f"reference_commit: {reference_commit}")
-                self._score_miner_with_new_inputs(reference_commit, challenge_inputs)
 
-                print("[CONTROLLER - HBController] Scoring logs:")
-                print(reference_commit.scoring_logs)
+                self._score_miner_with_new_inputs(reference_commit, challenge_inputs)
 
                 docker_utils.remove_container_by_port(
                     client=self.docker_client,
