@@ -161,11 +161,6 @@ class HBController(Controller):
                 )
                 bt.logging.error(traceback.format_exc())
 
-        print("[CACHE] Baseline reference cache:")
-        print(HBController._baseline_reference_cache)
-        print(" as list:")
-        print(list(HBController._baseline_reference_cache.values()))
-
         # Score commits with new input and collect comparison logs
         for miner_commit in self.miner_commits:
             uid, hotkey = miner_commit.miner_uid, miner_commit.miner_hotkey
