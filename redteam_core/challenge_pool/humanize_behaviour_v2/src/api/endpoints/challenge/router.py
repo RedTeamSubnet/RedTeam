@@ -4,9 +4,9 @@ from pydantic import constr
 from fastapi import APIRouter, Request, HTTPException, Body, Query
 from fastapi.responses import HTMLResponse, JSONResponse
 
-from api.core.constants import ALPHANUM_REGEX, ALPHANUM_CUSTOM_REGEX
+from api.core.constants import ALPHANUM_REGEX
 from api.core.responses import BaseResponse
-from api.endpoints.challenge.schemas import MinerInput, MinerOutput
+from api.endpoints.challenge.schemas import MinerInput, MinerOutput, EvalPayload
 from api.endpoints.challenge import service
 from api.logger import logger
 
@@ -159,20 +159,14 @@ def _post_random_val(
 )
 def _post_eval_bot(
     request: Request,
-    data: str = Body(
-        ...,
-        embed=True,
-        min_length=2,
-        pattern=ALPHANUM_CUSTOM_REGEX,
-        title="Data",
-        description="Bot data to evaluate.",
-        examples=["data"],
-    ),
+    payload: EvalPayload,
 ):
     _request_id = request.state.request_id
     logger.info(f"[{_request_id}] - Evaluating the bot...")
 
     try:
+        # Extract the data from the nested structure
+        data = payload.error.data
         service.eval_bot(data=data)
 
         logger.success(f"[{_request_id}] - Successfully evaluated the bot.")

@@ -11,6 +11,7 @@ from api.core.constants import (
     ALPHANUM_HOST_REGEX,
     ALPHANUM_EXTEND_REGEX,
     REQUIREMENTS_REGEX,
+    ALPHANUM_CUSTOM_REGEX,
 )
 from api.config import config
 from api.core import utils
@@ -169,8 +170,23 @@ class MinerOutput(BaseModel):
     # )
 
 
+class ErrorData(BaseModel):
+    data: str = Field(
+        ...,
+        min_length=2,
+        pattern=ALPHANUM_CUSTOM_REGEX,
+        description="Bot data to evaluate.",
+        examples=["data"],
+    )
+
+
+class EvalPayload(BaseModel):
+    error: ErrorData
+
+
 __all__ = [
     "KeyPairPM",
     "MinerInput",
     "MinerOutput",
+    "EvalPayload",
 ]
