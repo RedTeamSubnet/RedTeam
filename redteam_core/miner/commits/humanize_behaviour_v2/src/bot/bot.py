@@ -23,7 +23,7 @@ def run_bot(
     """Run bot to automate login.
 
     Args:
-        driver   (WebDriver, required): Selenium WebDriver instance.
+        driver   (WebDriver, required): Chrome WebDriver instance.
         config   (Dict[str, Any], required): Configuration dictionary containing actions.
         username (str, optional): Username to login. Defaults to "username".
         password (str, optional): Password to login. Defaults to "password".
