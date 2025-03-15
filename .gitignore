@@ -281,6 +281,7 @@ celerybeat.pid
 # Environments
 .env
 .venv
+venv-*/
 env/
 venv/
 ENV/
@@ -507,7 +508,7 @@ env
 pm2-process.json
 compose.override.yml
 compose.override.yaml
-
+.obsidian/
 # Specific directories:
 volumes/**
 
