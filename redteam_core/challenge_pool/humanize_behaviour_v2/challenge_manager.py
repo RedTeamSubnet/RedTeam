@@ -236,16 +236,15 @@ class HBChallengeManager(ChallengeManager):
 
             # Apply parabolic decay first
             decayed_score = self._calculate_decayed_score(commit_timestamp, evaluation_timestamp, initial_score)
+            decayed_scores.append((miner_state.miner_uid, decayed_score, days_elapsed))
 
         # Step 2: Calculate adjusted scores with time factor saturation
-        for i, (decayed_score, days_elapsed) in enumerate(decayed_scores):
-            miner_uid = list(self.miner_states.keys())[i]
-            miner_state = self.miner_states[miner_uid]
+        for miner_uid, decayed_score, days_elapsed in decayed_scores:
             adjusted_score = self._adjusted_score(decayed_score, days_elapsed)
-            scores[miner_state.miner_uid] = adjusted_score
-            adjusted_score = self._adjusted_score(decayed_score, days_elapsed)
-            scores[miner_state['miner_uid']] = adjusted_score
+            scores[miner_uid] = adjusted_score
 
+print("scores: ", scores)
+        # Step 3: Apply softmax to scores
         final_scores = self._apply_softmax(scores)
         print("=" * 50)
         print("[HBChallengeManager] Final scores:", final_scores)
