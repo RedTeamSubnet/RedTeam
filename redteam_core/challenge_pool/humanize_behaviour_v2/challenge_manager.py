@@ -1,4 +1,5 @@
 import math
+import random
 import traceback
 import time
 
@@ -30,7 +31,6 @@ class HBChallengeManager(ChallengeManager):
         self.max_value = 1
 
 
-
     def update_miner_scores(self, miner_commits: list[MinerChallengeCommit]):
         """
         Update miners' latest submission scores and penalties.
@@ -39,66 +39,62 @@ class HBChallengeManager(ChallengeManager):
             miner_scoring_logs (dict): Dictionary of miner scoring logs with UID and SS58 address as keys.
             miner_penalties (dict): Dictionary of miner penalties with UID and SS58 address as keys.
         """
-        print("[HBChallengeManager] Updating miner scores and penalties")
+
+        bt.logging.info(
+            f"[CHALLENGE MANAGER] Challenge {self.challenge_name}, updating miner scores and penalties"
+        )
+
         for miner_commit in miner_commits:
             if miner_commit.docker_hub_id in self._unique_scored_docker_hub_ids:
-                # Skip if docker_hub_id has been scored
-                continue
+                continue # Skip if already scored
+
+            if not miner_commit.scoring_logs:
+                continue # Skip if no scoring logs
 
             try:
-                if not miner_commit.scoring_logs:
-                    # Skip if no scoring logs
-                    continue
-                else:
-                    # Mean score
-                    miner_commit.score = np.mean(
-                        [scoring_log.score for scoring_log in miner_commit.scoring_logs]
-                    ).item()
+                # Compute mean score
+                miner_commit.score = np.mean(
+                    [scoring_log.score for scoring_log in miner_commit.scoring_logs]
+                ).item()
 
-                if not miner_commit.comparison_logs:
-                    # Penalty is 0 if no comparison logs
-                    miner_commit.penalty = 0
+                # Compute penalty
+                if miner_commit.comparison_logs:
+                    penalty_values = [
+                        np.mean([log.similarity_score for log in logs])
+                        for logs in miner_commit.comparison_logs.values()
+                    ]
+                    miner_commit.penalty = float(np.max(penalty_values)) if penalty_values else 0
+
                 else:
-                    # Penalty by max of mean similarity with unique solutions
-                    miner_commit.penalty = np.max(
-                        [
-                            np.mean(
-                                [
-                                    comparison_log.similarity_score
-                                    for comparison_log in comparison_logs
-                                ]
-                            )
-                            for _, comparison_logs in miner_commit.comparison_logs.items()
-                        ]
-                    ).item()
-            except Exception:
+                    miner_commit.penalty = 0
+
+            except Exception as e:
                 bt.logging.error(
-                    f"[CHALLENGE MANAGER] Challenge {self.challenge_name}, failed to get commit {miner_commit.encrypted_commit} scores and penalties: {traceback.format_exc()}"
+                    f"[CHALLENGE MANAGER] Challenge {self.challenge_name}, "
+                    f"failed to get commit {miner_commit.encrypted_commit} scores and penalties: {traceback.format_exc()}, {e}"
                 )
                 continue
-            miner_commit
+
+            # Acceptance criteria
             miner_commit.accepted = (
                 miner_commit.penalty >= self.min_similarity
                 and miner_commit.penalty <= self.break_point
                 and miner_commit.score >= self.min_score
             )
 
-            ### UPDATE MINER SCORE BASED ON SIMILARITY SCORE
-            miner_commit.score = self._adjust_score_by_similarity(
-                miner_commit.score, miner_commit.penalty
-            )
-
-            ### UPDATE SCORE WITH INVERSE EASE
+            ### Adjust scores
+            miner_commit.score = self._adjust_score_by_similarity(miner_commit.score, miner_commit.penalty)
             miner_commit.score = self._inverse_easePolyOut_exponent(miner_commit.score)
 
-            # Update miner's best submission if current score is higher
-
+            # Update miner's best submission
             miner_commit.scored_timestamp = time.time()
-            print(f"[HBChallengeManager] miner_commit: {miner_commit.scored_timestamp}")
-            miner_state = self.miner_states[miner_commit.miner_uid]
-            miner_state.update_best_commit(miner_commit)
 
-            # Try to add to unique solutions set if commit is accepted
+            miner_state = self.miner_states[miner_commit.miner_uid]
+            if miner_state:
+                miner_state.update_best_commit(miner_commit)
+                bt.logging.debug(f"Updated best commit for miner {miner_commit.miner_uid}")
+
+            # Add to unique solutions if accepted
             if miner_commit.accepted and miner_commit.encrypted_commit:
                 self._try_add_unique_commit(
                     encrypted_commit=miner_commit.encrypted_commit,
@@ -106,8 +102,62 @@ class HBChallengeManager(ChallengeManager):
                     docker_hub_id=miner_commit.docker_hub_id,
                 )
 
-            # Mark docker_hub_id as scored after successful scoring
+            # Mark as scored
             self._unique_scored_docker_hub_ids.add(miner_commit.docker_hub_id)
+
+
+    def get_challenge_scores(self):
+        """Calculate final scores for all miners matching the original implementation."""
+        n_uids = int(self.metagraph.n)
+        scores = np.zeros(n_uids)
+
+
+        evaluation_timestamp = None
+        # Step 1: Determine latest evaluation timestamp & set initial scores
+        for miner_state in self.miner_states.values():
+            best_commit = miner_state.best_commit
+
+            if (
+                best_commit is None
+                or miner_state.miner_uid >= n_uids
+                or miner_state.miner_hotkey not in self.metagraph.hotkeys
+            ):
+                continue
+
+            # Set initial scores
+            scores[miner_state.miner_uid] = best_commit.score
+
+            # Track the latest evaluation timestamp
+            if evaluation_timestamp is None or best_commit.scored_timestamp > evaluation_timestamp:
+                evaluation_timestamp = best_commit.scored_timestamp
+
+        # Step 2: If no valid timestamp found, return unmodified scores
+        if evaluation_timestamp is None:
+            bt.logging.warning("No valid scored_timestamp found, cannot apply time decay")
+            return self._apply_softmax(scores)
+
+        # Step 3: Apply decay and adjustment
+        for miner_state in self.miner_states.values():
+            best_commit = miner_state.best_commit
+            if (
+                best_commit is None
+                or miner_state.miner_uid >= n_uids
+                or miner_state.miner_hotkey not in self.metagraph.hotkeys
+            ):
+                continue  # Skip invalid miners
+
+            commit_timestamp = best_commit.scored_timestamp
+            days_elapsed = (evaluation_timestamp - commit_timestamp) / 86400
+
+            # Apply decay and adjustment
+            decayed_score = self._calculate_decayed_score(commit_timestamp, evaluation_timestamp, best_commit.score)
+            adjusted_score = self._adjusted_score(decayed_score, days_elapsed)
+
+            # Update scores
+            scores[miner_state.miner_uid] = adjusted_score
+
+        # Step 4: Apply softmax to final scores
+        return self._apply_softmax(scores)
 
     def _ease_circle_in_out_shifted(self, x):
         x = x**3
@@ -132,6 +182,7 @@ class HBChallengeManager(ChallengeManager):
         )
 
     def _adjust_score_by_similarity(self, raw_score, similarity_score):
+        """Adjusts the raw score based on the similarity score."""
         if similarity_score < self.min_similarity:
             return 0
         if similarity_score < self.max_similarity:
@@ -171,83 +222,7 @@ class HBChallengeManager(ChallengeManager):
         return scores_exp / np.sum(scores_exp)
 
     def _inverse_easePolyOut_exponent(y: float, exponent: float = 0.600) -> float:
-        """
-        Inverse of the polynomial ease-out function.
-
-        Args:
-            y (float): Eased value between 0 and 1.
-            exponent (float): The same exponent used in the original ease function.
-
-        Returns:
-            float: Original time value t.
-        """
+        """Inverse of the polynomial ease-out function, y must be in the range [0, 1]."""
         if y < 0 or y > 1:
             raise ValueError("y must be in the range [0, 1]")
         return 1 - (1 - y) ** (1 / exponent)
-
-    def get_challenge_scores(self):
-        """Calculate final scores for all miners matching the original implementation."""
-        print("[HBChallengeManager] Running get challenge scores")
-        n_uids = int(self.metagraph.n)
-        uids = list(range(n_uids))
-        scores = np.zeros(len(uids))
-
-
-        evaluation_timestamp = None
-        for _, miner_state in self.miner_states.items():
-            if (
-                miner_state.miner_uid in uids
-                and miner_state.miner_hotkey in self.metagraph.hotkeys
-                and miner_state.best_commit is not None
-                and miner_state.best_commit.scored_timestamp is not None
-            ):
-                if (
-                    evaluation_timestamp is None
-                    or miner_state.best_commit.scored_timestamp > evaluation_timestamp
-                ):
-                    evaluation_timestamp = miner_state.best_commit.scored_timestamp
-
-        # If no valid scored_timestamp found, we can't apply time decay
-        if evaluation_timestamp is None:
-            bt.logging.warning(
-                "No valid scored_timestamp found, cannot apply time decay"
-            )
-
-            # Fall back to regular scoring without time decay
-            for _, miner_state in self.miner_states.items():
-                if (
-                    miner_state.miner_uid in uids
-                    and miner_state.miner_hotkey in self.metagraph.hotkeys
-                    and miner_state.best_commit is not None
-                ):
-                    scores[miner_state.miner_uid] = miner_state.best_commit.score
-
-        # Step 1: Calculate decayed scores
-        decayed_scores = []
-        for _, miner_state in self.miner_states.items():
-            best_commit = miner_state.best_commit
-            if best_commit is None:
-                continue
-
-            initial_score = best_commit.score
-            commit_timestamp = best_commit.scored_timestamp
-            print(f'[commit_timestamp]type is {type(commit_timestamp)}', commit_timestamp)
-            print(f'[evaluation_timestamp]type is {type(evaluation_timestamp)}', evaluation_timestamp)
-            days_elapsed = (evaluation_timestamp - commit_timestamp) / 86400
-
-            # Apply parabolic decay first
-            decayed_score = self._calculate_decayed_score(commit_timestamp, evaluation_timestamp, initial_score)
-            decayed_scores.append((miner_state.miner_uid, decayed_score, days_elapsed))
-
-        # Step 2: Calculate adjusted scores with time factor saturation
-        for miner_uid, decayed_score, days_elapsed in decayed_scores:
-            adjusted_score = self._adjusted_score(decayed_score, days_elapsed)
-            scores[miner_uid] = adjusted_score
-
-print("scores: ", scores)
-        # Step 3: Apply softmax to scores
-        final_scores = self._apply_softmax(scores)
-        print("=" * 50)
-        print("[HBChallengeManager] Final scores:", final_scores)
-
-        return final_scores
