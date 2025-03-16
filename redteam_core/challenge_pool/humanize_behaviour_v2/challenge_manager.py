@@ -83,7 +83,6 @@ class HBChallengeManager(ChallengeManager):
 
             ### Adjust scores
             miner_commit.score = self._adjust_score_by_similarity(miner_commit.score, miner_commit.penalty)
-            miner_commit.score = self._inverse_easePolyOut_exponent(miner_commit.score)
 
             # Update miner's best submission
             miner_commit.scored_timestamp = time.time()

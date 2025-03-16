@@ -155,6 +155,15 @@ class MinerOutput(BaseModel):
         description="Dependencies required for the bot.py as a list of strings.",
         examples=[_pip_requirements],
     )
+
+    @field_validator('bot_py', mode='after')
+    @classmethod
+    def _check_bot_py_lines(cls, val: str) -> str:
+        _lines = val.split("\n")
+        if len(_lines) > 2000:
+            raise ValueError("bot_py content is too long, max 2000 lines are allowed!")
+        return val
+
     # extra_files: Optional[List[MinerFilePM]] = Field(
     #     default=None,
     #     title="Extra Files",

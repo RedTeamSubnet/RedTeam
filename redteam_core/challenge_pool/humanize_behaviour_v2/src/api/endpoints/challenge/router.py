@@ -71,6 +71,11 @@ def post_score(
     _scores = []
     for i in range(config.challenge.n_ch_per_epoch):
         try:
+            reset = False
+
+            if i == 0:
+                reset = True
+
             _score = service.score(miner_output=miner_output, reset=reset)
             _scores.append(_score)
 
@@ -87,7 +92,7 @@ def post_score(
             )
             # raise
 
-    _score = sum(_scores) / len(config.challenge.n_ch_per_epoch)
+    _score = sum(_scores) / config.challenge.n_ch_per_epoch
 
     return _score
 

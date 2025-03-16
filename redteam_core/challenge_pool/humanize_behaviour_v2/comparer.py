@@ -180,13 +180,13 @@ class HBComparer(Comparer):
 
             response_data = response.json()
             data = response_data.get("data", {})
-            similarity_score = data.get("similarity_score", 0.0)
+            similarity_score = data.get("similarity_score", 1.0)
 
             # Normalize score to float between 0 and 1
             if isinstance(similarity_score, int):
                 similarity_score = float(similarity_score)
             elif not isinstance(similarity_score, float):
-                similarity_score = 0.0
+                similarity_score = 1.0
 
             return max(0.0, min(1.0, similarity_score))
 

@@ -137,7 +137,7 @@ class HBController(Controller):
                 )
                 self._setup_miner_container(reference_commit)
 
-                self._score_miner_with_new_inputs(reference_commit, challenge_inputs)
+                self._get_reference_outputs(reference_commit, challenge_inputs)
 
                 docker_utils.remove_container_by_port(
                     client=self.docker_client,
@@ -265,3 +265,29 @@ class HBController(Controller):
                 miner_commit.comparison_logs[reference_commit.docker_hub_id].append(
                     comparison_log
                 )
+    def _get_reference_outputs(
+        self, miner_commit: MinerChallengeCommit, challenge_inputs
+    ):
+        """Run and score miner with new challenge inputs."""
+        for i, miner_input in enumerate(challenge_inputs):
+            miner_output, error_message = self._submit_challenge_to_miner(miner_input)
+
+            log = ScoringLog(
+                miner_input=miner_input,
+                miner_output=miner_output,
+                score=0.0,
+                error=error_message,
+            )
+
+            # Handle baseline scoring separately
+            if miner_commit.miner_hotkey == "baseline":
+                self.baseline_commit.scoring_logs.append(log)
+            else:
+                # Adjust score relative to baseline if baseline exists and has been scored
+                if (
+                    self.baseline_commit.docker_hub_id
+                    and len(self.baseline_commit.scoring_logs) > i
+                ):
+                    log.score -= self.baseline_commit.scoring_logs[i].score
+                    log.baseline_score = self.baseline_commit.scoring_logs[i].score
+                miner_commit.scoring_logs.append(log)
