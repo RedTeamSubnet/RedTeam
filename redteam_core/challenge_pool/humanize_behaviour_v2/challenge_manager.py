@@ -59,23 +59,6 @@ class HBChallengeManager(ChallengeManager):
                     # Penalty is 0 if no comparison logs
                     miner_commit.penalty = 0
                 else:
-
-                    # def inverse_easePolyOut_exponent(y: float, exponent: float = 0.600) -> float:
-                    #     """
-                    #     Inverse of the polynomial ease-out function.
-
-                    #     Args:
-                    #         y (float): Eased value between 0 and 1.
-                    #         exponent (float): The same exponent used in the original ease function.
-
-                    #     Returns:
-                    #         float: Original time value t.
-                    #     """
-                    #     if y < 0 or y > 1:
-                    #         raise ValueError("y must be in the range [0, 1]")
-                    #     return 1 - (1 - y) ** (1 / exponent)
-
-
                     # Penalty by max of mean similarity with unique solutions
                     miner_commit.penalty = np.max(
                         [
@@ -104,6 +87,9 @@ class HBChallengeManager(ChallengeManager):
             miner_commit.score = self._adjust_score_by_similarity(
                 miner_commit.score, miner_commit.penalty
             )
+
+            ### UPDATE SCORE WITH INVERSE EASE
+            miner_commit.score = self._inverse_easePolyOut_exponent(miner_commit.score)
 
             # Update miner's best submission if current score is higher
 
@@ -183,6 +169,21 @@ class HBChallengeManager(ChallengeManager):
         max_score = np.max(scaled_scores)
         scores_exp = np.exp(scaled_scores - max_score)
         return scores_exp / np.sum(scores_exp)
+
+    def _inverse_easePolyOut_exponent(y: float, exponent: float = 0.600) -> float:
+        """
+        Inverse of the polynomial ease-out function.
+
+        Args:
+            y (float): Eased value between 0 and 1.
+            exponent (float): The same exponent used in the original ease function.
+
+        Returns:
+            float: Original time value t.
+        """
+        if y < 0 or y > 1:
+            raise ValueError("y must be in the range [0, 1]")
+        return 1 - (1 - y) ** (1 / exponent)
 
     def get_challenge_scores(self):
         """Calculate final scores for all miners matching the original implementation."""
