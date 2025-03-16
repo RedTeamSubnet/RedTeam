@@ -1,5 +1,4 @@
 import math
-import random
 import traceback
 import time
 
@@ -157,8 +156,8 @@ class HBChallengeManager(ChallengeManager):
             scores[miner_state.miner_uid] = adjusted_score
 
         # Step 4: Apply softmax and return final scores
-        normalized_scores = self._apply_softmax(scores)
-        final_scores = [self._inverse_easePolyOut_exponent(score) for score in normalized_scores]
+        normalized_scores = [self._inverse_easePolyOut_exponent(score) for score in scores]
+        final_scores = self._apply_softmax(normalized_scores)
         return final_scores
 
     def _ease_circle_in_out_shifted(self, x):
@@ -216,8 +215,10 @@ class HBChallengeManager(ChallengeManager):
 
     def _apply_softmax(self, scores):
         """Apply softmax with custom temperature to scores."""
+        scores = np.asarray(scores)  # Convert to NumPy array
         if np.sum(scores) == 0:
             return scores
+        scores = np.clip(scores, 0, None)
         scaled_scores = scores / self.reward_temperature
         max_score = np.max(scaled_scores)
         scores_exp = np.exp(scaled_scores - max_score)
