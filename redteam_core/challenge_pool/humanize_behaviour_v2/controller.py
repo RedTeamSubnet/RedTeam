@@ -48,14 +48,14 @@ class HBController(Controller):
         )
 
         # Get baseline reference comparison docker hub IDs from challenge info
-        baseline_reference_comparison_docker_hub_ids = self.challenge_info.get(
+        self.baseline_reference_comparison_docker_hub_ids = self.challenge_info.get(
             "baseline_reference_comparison_docker_hub_ids", []
         )
 
         # Initialize local storage for this instance
         self.baseline_reference_comparison_commits_to_score: list[MinerChallengeCommit] = []
 
-        for docker_hub_id in baseline_reference_comparison_docker_hub_ids:
+        for docker_hub_id in self.baseline_reference_comparison_docker_hub_ids:
             # Check if this docker_hub_id is already in the class cache
             if docker_hub_id in HBController._baseline_reference_cache:
                 cached_commit = HBController._baseline_reference_cache[docker_hub_id]

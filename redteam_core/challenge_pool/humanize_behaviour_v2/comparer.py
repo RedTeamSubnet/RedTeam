@@ -51,7 +51,7 @@ class HBComparer(Comparer):
                         reference_output=log.reference_output,
                     )
 
-                    ### LOGIC when miner_commit.hotkey == log.reference_hotkey
+                    ###  Assign previous similarity score if the reference hotkey is the same as the miner hotkey
                     if miner_commit.miner_hotkey == log.reference_hotkey:
                         if similarity_score > 0.87:
                             log.similarity_score = log.reference_similarity_score
@@ -72,7 +72,7 @@ class HBComparer(Comparer):
         Only compares with commits that have smaller UIDs.
         Prioritizes comparing outputs that were generated from the same inputs.
         """
-        # Skip if no scoring logs
+
         if not miner_commit.scoring_logs:
             return
 

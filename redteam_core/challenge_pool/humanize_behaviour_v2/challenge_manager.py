@@ -156,8 +156,10 @@ class HBChallengeManager(ChallengeManager):
             # Update scores
             scores[miner_state.miner_uid] = adjusted_score
 
-        # Step 4: Apply softmax to final scores
-        return self._apply_softmax(scores)
+        # Step 4: Apply softmax and return final scores
+        normalized_scores = self._apply_softmax(scores)
+        final_scores = [self._inverse_easePolyOut_exponent(score) for score in normalized_scores]
+        return final_scores
 
     def _ease_circle_in_out_shifted(self, x):
         x = x**3
@@ -221,7 +223,7 @@ class HBChallengeManager(ChallengeManager):
         scores_exp = np.exp(scaled_scores - max_score)
         return scores_exp / np.sum(scores_exp)
 
-    def _inverse_easePolyOut_exponent(y: float, exponent: float = 0.600) -> float:
+    def _inverse_easePolyOut_exponent(self, y: float, exponent: float = 0.600) -> float:
         """Inverse of the polynomial ease-out function, y must be in the range [0, 1]."""
         if y < 0 or y > 1:
             raise ValueError("y must be in the range [0, 1]")
