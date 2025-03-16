@@ -134,8 +134,7 @@ class ChallengeManager:
         Update miners 's latest submission scores and penalties.
 
         Args:
-            miner_scoring_logs (dict): Dictionary of miner scoring logs with UID and SS58 address as keys.
-            miner_penalties (dict): Dictionary of miner penalties with UID and SS58 address as keys.
+            miner_commits (list[MinerChallengeCommit]): List of miner commit objects
         """
         for miner_commit in miner_commits:
             if miner_commit.docker_hub_id in self._unique_scored_docker_hub_ids:

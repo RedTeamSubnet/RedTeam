@@ -3,14 +3,14 @@ import traceback
 import bittensor as bt
 import numpy as np
 
+from redteam_core.challenge_pool import docker_utils
 from redteam_core.challenge_pool.controller import Controller
+from redteam_core.constants import constants
 from redteam_core.validator.models import (
-    MinerChallengeCommit,
     ComparisonLog,
+    MinerChallengeCommit,
     ScoringLog,
 )
-from redteam_core.constants import constants
-from redteam_core.challenge_pool import docker_utils
 
 
 class HBController(Controller):
@@ -67,8 +67,6 @@ class HBController(Controller):
                     continue
 
             # If not in cache or not scored, add to list of commits to score
-            # self.baseline_reference_comparison_commits_to_score.append(docker_hub_id)
-
             # Create a new commit object
             new_commit = MinerChallengeCommit(
                 miner_uid=-1,
@@ -77,7 +75,7 @@ class HBController(Controller):
                 docker_hub_id=docker_hub_id,
             )
 
-            # Add to our instance list and to the class cache
+            # Add to our instance list
             self.baseline_reference_comparison_commits_to_score.append(new_commit)
 
     def start_challenge(self):
