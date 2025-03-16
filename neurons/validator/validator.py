@@ -97,16 +97,14 @@ class Validator(BaseValidator):
         all_challenges = deepcopy(challenge_pool.ACTIVE_CHALLENGES)
 
         # Remove challenges that are not active and setup the active challenges
-        if datetime.datetime.now(datetime.timezone.utc) <= datetime.datetime(
-            2025, 2, 14, 14, 0, 0, 0, datetime.timezone.utc
+        if datetime.datetime.now(datetime.timezone.utc) >= datetime.datetime(
+            2025, 3, 17, 14, 0, 0, 0, datetime.timezone.utc
         ):
+            all_challenges.pop("humanize_behaviour_v2", None)
+        else:
             all_challenges.pop("response_quality_adversarial_v3", None)
             all_challenges.pop("response_quality_ranker_v3", None)
             all_challenges.pop("humanize_behaviour_v1", None)
-        else:
-            all_challenges.pop("response_quality_adversarial_v2", None)
-            all_challenges.pop("response_quality_ranker_v2", None)
-            all_challenges.pop("webui_auto", None)
 
         self.active_challenges = all_challenges
 
