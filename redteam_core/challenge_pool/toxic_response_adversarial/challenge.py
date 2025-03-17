@@ -101,7 +101,7 @@ class Challenge:
                 max_similarity = max(max_similarity, similarity)
             similarity_scores[i] = max_similarity
 
-        overall_similarity = np.mean(similarity_scores)
+        overall_similarity = float(np.mean(similarity_scores).item())
         return overall_similarity
 
     def _get_batch_toxicity_scores(self, responses: list[str]) -> np.ndarray:

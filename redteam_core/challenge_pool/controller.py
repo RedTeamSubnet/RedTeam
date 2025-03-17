@@ -519,3 +519,4 @@ class Controller(BaseController):
                 bt.logging.info(
                     f"[CONTROLLER] Waiting for container to start. {container.status}"
                 )
+                time.sleep(5)

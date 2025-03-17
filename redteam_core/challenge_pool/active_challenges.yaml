@@ -183,6 +183,7 @@ response_quality_adversarial_v4:
   docker_run_timeout: 450
   num_tasks: 50 # Num of tasks for each miner
   max_unique_commits: 15
+  penalty_threshold: 0.9
 
   # Miner container network
   local_network: "redteam_local"
@@ -217,6 +218,8 @@ toxic_response_adversarial:
   challenge_solve_timeout: 30
   docker_run_timeout: 450
   num_tasks: 1 # Num of tasks for each miner, this will be determined in the challenge 's image.
+  max_unique_commits: 50
+  penalty_threshold: 0.85
 
   # Miner container network
   local_network: "redteam_local"

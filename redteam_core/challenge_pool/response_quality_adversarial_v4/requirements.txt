@@ -10,4 +10,3 @@ rouge-score==0.1.2
 uvicorn==0.34.0
 fastapi==0.115.11
 openai==1.66.3
-vllm==0.1.1
