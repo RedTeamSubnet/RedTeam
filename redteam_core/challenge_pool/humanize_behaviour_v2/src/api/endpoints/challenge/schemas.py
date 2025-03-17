@@ -11,6 +11,7 @@ from api.core.constants import (
     ALPHANUM_HOST_REGEX,
     ALPHANUM_EXTEND_REGEX,
     REQUIREMENTS_REGEX,
+    ALPHANUM_CUSTOM_REGEX,
 )
 from api.config import config
 from api.core import utils
@@ -154,6 +155,15 @@ class MinerOutput(BaseModel):
         description="Dependencies required for the bot.py as a list of strings.",
         examples=[_pip_requirements],
     )
+
+    @field_validator('bot_py', mode='after')
+    @classmethod
+    def _check_bot_py_lines(cls, val: str) -> str:
+        _lines = val.split("\n")
+        if len(_lines) > 2000:
+            raise ValueError("bot_py content is too long, max 2000 lines are allowed!")
+        return val
+
     # extra_files: Optional[List[MinerFilePM]] = Field(
     #     default=None,
     #     title="Extra Files",
@@ -169,8 +179,23 @@ class MinerOutput(BaseModel):
     # )
 
 
+class ErrorData(BaseModel):
+    data: str = Field(
+        ...,
+        min_length=2,
+        pattern=ALPHANUM_CUSTOM_REGEX,
+        description="Bot data to evaluate.",
+        examples=["data"],
+    )
+
+
+class EvalPayload(BaseModel):
+    error: ErrorData
+
+
 __all__ = [
     "KeyPairPM",
     "MinerInput",
     "MinerOutput",
+    "EvalPayload",
 ]

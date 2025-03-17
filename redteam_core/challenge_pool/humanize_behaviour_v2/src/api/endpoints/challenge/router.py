@@ -4,11 +4,13 @@ from pydantic import constr
 from fastapi import APIRouter, Request, HTTPException, Body, Query
 from fastapi.responses import HTMLResponse, JSONResponse
 
-from api.core.constants import ALPHANUM_REGEX, ALPHANUM_CUSTOM_REGEX
+from api.core.constants import ALPHANUM_REGEX
 from api.core.responses import BaseResponse
-from api.endpoints.challenge.schemas import MinerInput, MinerOutput
+from api.endpoints.challenge.schemas import MinerInput, MinerOutput, EvalPayload
 from api.endpoints.challenge import service
 from api.logger import logger
+from api.config import config
+
 
 
 router = APIRouter(tags=["Challenge"])
@@ -66,18 +68,31 @@ def post_score(
     logger.info(f"[{_request_id}] - Evaluating the miner output...")
 
     _score: float = 0.0
-    try:
-        _score = service.score(miner_output=miner_output, reset=reset)
+    _scores = []
+    for i in range(config.challenge.n_ch_per_epoch):
+        try:
+            reset = False
 
-        logger.success(f"[{_request_id}] - Successfully evaluated the miner output.")
-    except Exception as err:
-        if isinstance(err, HTTPException):
-            raise
+            if i == 0:
+                reset = True
 
-        logger.error(
-            f"[{_request_id}] - Failed to evaluate the miner output!",
-        )
-        raise
+            _score = service.score(miner_output=miner_output, reset=reset)
+            _scores.append(_score)
+
+            logger.success(f"[{_request_id}] - Successfully evaluated the miner output.")
+        except Exception as err:
+            if isinstance(err, HTTPException):
+                # raise
+                logger.error(
+                    f"[{_request_id}] - Failed to evaluate the miner output!",
+                )
+
+            logger.error(
+                f"[{_request_id}] - Failed to evaluate the miner output!",
+            )
+            # raise
+
+    _score = sum(_scores) / config.challenge.n_ch_per_epoch
 
     return _score
 
@@ -159,20 +174,14 @@ def _post_random_val(
 )
 def _post_eval_bot(
     request: Request,
-    data: str = Body(
-        ...,
-        embed=True,
-        min_length=2,
-        pattern=ALPHANUM_CUSTOM_REGEX,
-        title="Data",
-        description="Bot data to evaluate.",
-        examples=["data"],
-    ),
+    payload: EvalPayload,
 ):
     _request_id = request.state.request_id
     logger.info(f"[{_request_id}] - Evaluating the bot...")
 
     try:
+        # Extract the data from the nested structure
+        data = payload.error.data
         service.eval_bot(data=data)
 
         logger.success(f"[{_request_id}] - Successfully evaluated the bot.")
