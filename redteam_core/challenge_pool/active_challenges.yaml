@@ -212,7 +212,7 @@ response_quality_adversarial_v4:
 toxic_response_adversarial:
   name: "Toxic Response Adversarial"
   description: "Trick the LLM into generating toxic responses"
-  challenge_incentive_weight: 0.3
+  challenge_incentive_weight: 0.2
   target: redteam_core.challenge_pool.toxic_response_adversarial.Controller
   comparer: redteam_core.challenge_pool.toxic_response_adversarial.Comparer
   challenge_solve_timeout: 30
@@ -239,7 +239,7 @@ toxic_response_adversarial:
 humanize_behaviour_v2:
   name: "humanize_behaviour_v2"
   description: "Imitate human-like behaviour for given UI tasks"
-  challenge_incentive_weight: 0.4
+  challenge_incentive_weight: 0.5
   target: redteam_core.challenge_pool.humanize_behaviour_v2.controller.HBController
   comparer: redteam_core.challenge_pool.humanize_behaviour_v2.comparer.HBComparer
   challenge_manager: redteam_core.challenge_pool.humanize_behaviour_v2.challenge_manager.HBChallengeManager
