@@ -9,8 +9,8 @@ _doStart()
 	sudo service docker start || exit 2
 	sleep 2
 	# sudo docker pull redteamsn61/hbc-bot-base:latest || exit 2
-	sudo docker load -i /app/redteamsn61_hbc-bot-base.tar || exit 2
-	sudo docker tag sha256:2a10d9beec491035db67bbc818fc3356cdc0bddfa3fc4bd3136c5924ed21bd14 redteamsn61/hbc-bot-base:latest || exit 2
+	# sudo docker load -i /app/redteamsn61_hbc-bot-base.tar || exit 2
+	# sudo docker tag sha256:2a10d9beec491035db67bbc818fc3356cdc0bddfa3fc4bd3136c5924ed21bd14 redteamsn61/hbc-bot-base:latest || exit 2
 	exec sg docker "exec python -u ./main.py" || exit 2
 	# exec python -u ./main.py || exit 2
 	# exec uvicorn main:app --host=0.0.0.0 --port=${HBC_API_PORT:-10001} --no-access-log --no-server-header --proxy-headers --forwarded-allow-ips='*' || exit 2

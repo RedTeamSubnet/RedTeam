@@ -45,7 +45,8 @@ RUN _BUILD_TARGET_ARCH=$(uname -m) && \
 	fi && \
 	/bin/bash "/root/${_MINICONDA_FILENAME}" -b -u -p /opt/conda && \
 	/opt/conda/condabin/conda update -y conda && \
-	/opt/conda/condabin/conda install -y python=${PYTHON_VERSION} pip && \
+	/opt/conda/condabin/conda install -y python=${PYTHON_VERSION} graphviz pip && \
+	/opt/conda/condabin/conda install -y --channel conda-forge pygraphviz && \
 	/opt/conda/bin/pip install --timeout 60 -U pip
 
 COPY requirements ./requirements
@@ -133,6 +134,7 @@ RUN rm -rfv /var/lib/apt/lists/* /var/cache/apt/archives/* /tmp/* /root/.cache/*
 	find "${HBC_API_DIR}" "${HBC_API_DATA_DIR}" -type d -exec chmod -c ug+s {} + && \
 	find "${HBC_API_LOGS_DIR}" "${HBC_API_TMP_DIR}" -type d -exec chmod -c 775 {} + && \
 	find "${HBC_API_LOGS_DIR}" "${HBC_API_TMP_DIR}" -type d -exec chmod -c +s {} +
+
 
 ENV LANG=en_US.UTF-8 \
 	LANGUAGE=en_US.UTF-8 \

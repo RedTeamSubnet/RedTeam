@@ -1,666 +1,296 @@
-import re
-import time
-import copy
-import subprocess
-from typing import List, Dict, Tuple, Union
+import traceback
 
-import docker
-import docker.types
-import requests
 import bittensor as bt
+import numpy as np
 
-from ...constants import constants
+from redteam_core.challenge_pool import docker_utils
+from redteam_core.challenge_pool.controller import Controller
+from redteam_core.constants import constants
+from redteam_core.validator.models import (
+    ComparisonLog,
+    MinerChallengeCommit,
+    ScoringLog,
+)
 
 
-class Controller:
+class HBController(Controller):
+    # Class-level cache for baseline reference comparison commits
+    _baseline_reference_cache: dict[
+        str, MinerChallengeCommit
+    ] = {}  # {docker_hub_id: MinerChallengeCommit}
+
     """
-    A class to manage the lifecycle of a challenge, including the initialization
-    of Docker containers for the challenge and miners, as well as submitting and scoring tasks.
+    A specialized controller for the 'humanize_behaviour_v2' challenge.
+    Inherits from the base Controller and modifies specific logic.
     """
 
     def __init__(
         self,
         challenge_name: str,
-        miner_docker_images: List[str],
-        uids: List[int],
-        challenge_info: Dict,
+        challenge_info: dict,
+        miner_commits: list[MinerChallengeCommit],
+        reference_comparison_commits: list[MinerChallengeCommit],
+        seed_inputs: list[dict] = [],
     ):
         """
-        Initializes the Controller with the name of the challenge and the list of miner Docker images.
-        Also sets up the Docker client for interacting with Docker containers.
+        Initializes the HBController, extending the original Controller.
+        """
+        super().__init__(
+            challenge_name,
+            challenge_info,
+            miner_commits,
+            reference_comparison_commits,
+            seed_inputs,
+        )
 
-        Args:
-            challenge_name: The name of the challenge to be executed.
-            miner_docker_images: A list of Docker images to be used for the miners.
-        """
-        self.docker_client = docker.from_env()
-        self.challenge_name = challenge_name
-        self.miner_docker_images = miner_docker_images
-        self.uids = uids
-        self.challenge_info = challenge_info
-        self.resource_limits = challenge_info["resource_limits"]
-        self.local_network = "redteam_local"
+        self.behavior_scaling_factor = self.challenge_info.get(
+            "behavior_scaling_factor", 0.1
+        )
 
-        """
-        Add baseline image to compare with miners
-        """
-        self.baseline_image = self.challenge_info.get("baseline", None)
-        self.uid_baseline = -1
-        if self.baseline_image:
-            self.miner_docker_images.insert(0, self.baseline_image)
-            self.uids.insert(0, self.uid_baseline)
+        # Get baseline reference comparison docker hub IDs from challenge info
+        self.baseline_reference_comparison_docker_hub_ids = self.challenge_info.get(
+            "baseline_reference_comparison_docker_hub_ids", []
+        )
 
-    def _clear_all_container(self):
-        """
-        Stops and removes all running Docker containers.
-        This is useful for cleaning up the environment before starting a new challenge.
-        """
-        containers = self.docker_client.containers.list(all=True)
-        for container in containers:
-            res = container.remove(force=True)
-            bt.logging.info(res)
+        # Initialize local storage for this instance
+        self.baseline_reference_comparison_commits_to_score: list[MinerChallengeCommit] = []
+
+        for docker_hub_id in self.baseline_reference_comparison_docker_hub_ids:
+            # Check if this docker_hub_id is already in the class cache
+            if docker_hub_id in HBController._baseline_reference_cache:
+                cached_commit = HBController._baseline_reference_cache[docker_hub_id]
+                # Verify it has scoring logs (i.e., has been successfully scored)
+                if cached_commit.scoring_logs:
+                    bt.logging.info(
+                        f"[CONTROLLER - HBController] Reference commit {docker_hub_id} has already been scored, skipping"
+                    )
+                    continue
+
+            # If not in cache or not scored, add to list of commits to score
+            # Create a new commit object
+            new_commit = MinerChallengeCommit(
+                miner_uid=-1,
+                miner_hotkey="baseline-reference",
+                challenge_name=self.challenge_name,
+                docker_hub_id=docker_hub_id,
+            )
+
+            # Add to our instance list
+            self.baseline_reference_comparison_commits_to_score.append(new_commit)
 
     def start_challenge(self):
         """
-        Starts the challenge by building and running the challenge Docker container.
-        Then, for each miner image, it runs the miner in a separate container and submits the challenge.
-        It collects the challenge inputs, outputs, and the scores for each miner.
+        Initiates the challenge lifecycle by setting up and executing the challenge Docker container.
 
-        Returns:
-            A tuple containing:
-            - miner_scores: A dictionary mapping each miner Docker image to their scores.
-            - logs: A dictionary of logs for each miner, detailing the input, output, and score.
+        This process involves:
+        1. Building and running the challenge container within an isolated Docker network.
+        2. Generating or retrieving challenge inputs to evaluate miners.
+        3. Scoring a baseline Docker image, if specified, to establish a reference point.
+        4. Iteratively running each miner's Docker container to submit and score their solutions.
+        5. Collecting and logging the results, including any errors encountered during execution.
+        6. Cleaning up Docker resources to ensure no residual containers or images remain.
+
+        The method ensures that each miner's submission is evaluated against the challenge inputs,
+        and comparison logs are generated to assess performance relative to reference commits.
         """
-        # self._clear_all_container()
-        self._build_challenge_image()
-        self._remove_challenge_container()
-        self._create_network(self.local_network)
+        # Setup challenge, get challenge container and network ready
+        self._setup_challenge()
 
-        container = self._run_challenge_container()
-        bt.logging.info(f"[Controller] Challenge container started: {container.status}")
-        self._check_container_alive(
-            container, health_port=constants.CHALLENGE_DOCKER_PORT, is_challenger=True
-        )
+        # Generate new input to score miners
         num_task = self.challenge_info.get(
             "num_tasks", constants.N_CHALLENGES_PER_EPOCH
         )
-        challenges = [self._get_challenge_from_container() for _ in range(num_task)]
-        logs = []  # Logs for miners
-        baseline_logs = []  # Logs for baseline
-        for miner_docker_image, uid in zip(self.miner_docker_images, self.uids):
+        # Start with seed inputs and generate more if needed to reach num_task
+        challenge_inputs = self.seed_inputs.copy()
+        remaining_tasks = max(0, num_task - len(challenge_inputs))
+        if remaining_tasks > 0:
+            challenge_inputs.extend(
+                [self._get_challenge_from_container() for _ in range(remaining_tasks)]
+            )
+
+        # Score baseline first if it exists
+        if self.baseline_commit.docker_hub_id:
             try:
-                is_image_valid = self._validate_image_with_digest(miner_docker_image)
-                if not is_image_valid:
-                    logs.append(
-                        {
-                            "miner_input": None,
-                            "miner_output": None,
-                            "score": 0,
-                            "miner_docker_image": miner_docker_image,
-                            "uid": uid,
-                            "error": f"Invalid image format: {miner_docker_image}. Must include a SHA256 digest. Skip evaluation!",
-                        }
-                    )
-                    continue
                 bt.logging.info(
-                    f"[Controller] Running miner {uid}: {miner_docker_image}"
+                    f"[CONTROLLER - HBController] Starting baseline images container: {self.baseline_commit.docker_hub_id}"
                 )
-                self._clear_container_by_port(constants.MINER_DOCKER_PORT)
-
-                kwargs = {}
-                if self.resource_limits.get("cuda_device_ids") is not None:
-                    kwargs["device_requests"] = [
-                        docker.types.DeviceRequest(
-                            device_ids=self.resource_limits["cuda_device_ids"],
-                            capabilities=[["gpu"]],
-                        )
-                    ]
-
-                miner_start_time = time.time() if uid != self.uid_baseline else None
-                miner_container = self.docker_client.containers.run(
-                    miner_docker_image,
-                    detach=True,
-                    cpu_count=self.resource_limits.get("num_cpus", 2),
-                    mem_limit=self.resource_limits.get("mem_limit", "1g"),
-                    environment={
-                        "CHALLENGE_NAME": self.challenge_name,
-                        **self.challenge_info.get("enviroment", {}),
-                    },
-                    ports={
-                        f"{constants.MINER_DOCKER_PORT}/tcp": constants.MINER_DOCKER_PORT
-                    },
-                    network=self.local_network,
-                    **kwargs,
+                self._setup_miner_container(self.baseline_commit)
+                self._score_miner_with_new_inputs(
+                    self.baseline_commit, challenge_inputs
                 )
-
-                self._check_container_alive(
-                    miner_container,
-                    health_port=constants.MINER_DOCKER_PORT,
-                    is_challenger=False,
-                    timeout=self.challenge_info.get("docker_run_timeout", 600),
-                    start_time=miner_start_time,
+                docker_utils.remove_container_by_port(
+                    client=self.docker_client,
+                    port=constants.MINER_DOCKER_PORT,
                 )
-
-                for i, miner_input in enumerate(challenges):
-                    miner_output, error_message = self._submit_challenge_to_miner(
-                        miner_input
-                    )
-                    score = (
-                        self._score_challenge(
-                            miner_input=miner_input,
-                            miner_output=miner_output,
-                            task_id=i,
-                        )
-                        if miner_output is not None
-                        else 0.0
-                    )
-                    if type(score) == int:
-                        score = float(score)
-                    elif not type(score) == float:
-                        score = 0.0
-                    log = {
-                        "miner_input": miner_input,
-                        "miner_output": miner_output,
-                        "score": score,
-                        "miner_docker_image": miner_docker_image,
-                        "uid": uid,
-                    }
-
-                    if uid != self.uid_baseline and len(baseline_logs) > i:
-                        log["score"] -= baseline_logs[i]["score"]
-                        log["baseline_score"] = baseline_logs[i]["score"]
-
-                    if error_message:
-                        log["error"] = error_message
-
-                    if uid == self.uid_baseline:
-                        baseline_logs.append(log)
-                    else:
-                        logs.append(log)
+                docker_utils.clean_docker_resources(
+                    client=self.docker_client,
+                    remove_containers=True,
+                    remove_images=False,
+                )
             except Exception as e:
-                bt.logging.error(f"Error while processing miner {uid}: {e}")
-                if uid != self.uid_baseline:
-                    logs.append(
-                        {
-                            "miner_input": None,
-                            "miner_output": None,
-                            "score": 0,
-                            "miner_docker_image": miner_docker_image,
-                            "uid": uid,
-                            "error": str(e),
-                        }
-                    )
-            self._clear_container_by_port(constants.MINER_DOCKER_PORT)
-            self._clean_up_docker_resources()
-        self._remove_challenge_container()
-        self._clean_up_docker_resources()
-        return logs
+                bt.logging.error(f"Error scoring baseline: {e}")
+                bt.logging.error(traceback.format_exc())
 
-    def _clear_container_by_port(self, port):
-        """
-        Stops and removes all running Docker containers by running port.
-        This is useful for cleaning up the environment before starting a new challenge.
-        """
-        containers = self.docker_client.containers.list(all=True)
-
-        for container in containers:
+        # Score baseline reference comparisons (only those that need scoring)
+        for reference_commit in self.baseline_reference_comparison_commits_to_score:
             try:
-                container_ports = container.attrs["NetworkSettings"]["Ports"]
-                if any([str(port) in p for p in container_ports]):
-                    res = container.remove(force=True)
-                    bt.logging.info(f"Removed container {container.name}: {res}")
+                bt.logging.info(
+                    f"[CONTROLLER - HBController] Scoring baseline reference: {reference_commit.docker_hub_id}"
+                )
+                self._setup_miner_container(reference_commit)
+
+                self._get_reference_outputs(reference_commit, challenge_inputs)
+
+                docker_utils.remove_container_by_port(
+                    client=self.docker_client,
+                    port=constants.MINER_DOCKER_PORT,
+                )
+                docker_utils.clean_docker_resources(
+                    client=self.docker_client,
+                    remove_containers=True,
+                    remove_images=False,
+                )
+
+                bt.logging.info(
+                    f"[CONTROLLER - HBController] Baseline reference scoring logs: {len(reference_commit.scoring_logs)}"
+                )
+                # Update the class cache with the scored commit
+                HBController._baseline_reference_cache[reference_commit.docker_hub_id] = reference_commit
+
             except Exception as e:
                 bt.logging.error(
-                    f"Error while processing container {container.name}: {e}"
+                    f"Error scoring baseline reference comparison, docker_hub_id: {reference_commit.docker_hub_id}: {e}"
                 )
+                bt.logging.error(traceback.format_exc())
 
-    def _build_challenge_image(self):
-        """
-        Builds the Docker image for the challenge using the provided challenge name.
-        This step is necessary to create the environment in which the challenge will run.
-        """
-        res = self.docker_client.images.build(
-            path=f"redteam_core/challenge_pool/{self.challenge_name}",
-            tag=self.challenge_name,
-            rm=True,
+        # Score commits with new input and collect comparison logs
+        for miner_commit in self.miner_commits:
+            uid, hotkey = miner_commit.miner_uid, miner_commit.miner_hotkey
+
+            try:
+                # 1. Validate and setup miner container
+                self._setup_miner_container(miner_commit)
+
+                # 2. Score with new inputs
+                self._score_miner_with_new_inputs(miner_commit, challenge_inputs)
+
+                # 3. Run reference comparisons
+                self._run_reference_comparison_inputs(miner_commit)
+
+            except Exception as e:
+                bt.logging.error(f"Error while processing miner {uid} - {hotkey}: {e}")
+                bt.logging.error(traceback.format_exc())
+                if uid != self.baseline_commit.miner_uid:
+                    miner_commit.scoring_logs.append(
+                        ScoringLog(
+                            miner_input=None,
+                            miner_output=None,
+                            score=0,
+                            error=str(e),
+                        )
+                    )
+
+            # Clean up miner container
+            docker_utils.remove_container_by_port(
+                client=self.docker_client,
+                port=constants.MINER_DOCKER_PORT,
+            )
+            docker_utils.clean_docker_resources(
+                client=self.docker_client,
+                remove_containers=True,
+                remove_images=False,
+            )
+
+        # Clean up challenge container
+        docker_utils.remove_container(
+            client=self.docker_client,
+            container_name=self.challenge_name,
+            stop_timeout=60,
+            force=True,
+            remove_volumes=True,
         )
-        bt.logging.info(res)
-
-    def _remove_challenge_image(self):
-        """
-        Removes the Docker image for the challenge, identified by the challenge name.
-        This is useful for cleanup after the challenge has been completed.
-        """
-        self.docker_client.images.remove(self.challenge_name, force=True)
-
-    def _run_challenge_container(self):
-        """
-        Runs the Docker container for the challenge using the built image.
-        The container runs in detached mode and listens on the port defined by constants.
-        """
-
-        kwargs = {}
-        if "same_network" in self.challenge_info:
-            kwargs["network"] = self.local_network
-
-        if "hostname" in self.challenge_info:
-            kwargs["hostname"] = self.challenge_info["hostname"]
-
-        if "privileged" in self.challenge_info:
-            kwargs["privileged"] = self.challenge_info["privileged"]
-
-        container = self.docker_client.containers.run(
-            self.challenge_name,
-            detach=True,
-            ports={
-                f"{constants.CHALLENGE_DOCKER_PORT}/tcp": constants.CHALLENGE_DOCKER_PORT
-            },
-            name=self.challenge_name,
-            **kwargs,
+        docker_utils.clean_docker_resources(
+            client=self.docker_client,
+            remove_containers=True,
+            remove_images=False,
         )
-        bt.logging.info(container)
-        return container
 
-    def _remove_challenge_container(self):
-        """
-        Stops and removes the Docker container running the challenge.
-        Catches and handles all possible errors to ensure cleanup completes gracefully.
-        """
-        try:
-            containers = self.docker_client.containers.list(all=True)
-        except Exception as e:
-            bt.logging.error(f"[Controller] Failed to list containers: {str(e)}")
+    def _run_reference_comparison_inputs(self, miner_commit: MinerChallengeCommit):
+        # Skip for baseline commit since it's used as reference
+        if miner_commit.miner_uid == self.baseline_commit.miner_uid:
             return
 
-        for container in containers:
-            try:
-                if container.name != self.challenge_name:
+        all_reference_comparison_commits = (
+            self.reference_comparison_commits
+            + list(HBController._baseline_reference_cache.values())
+        )
+
+        for reference_commit in all_reference_comparison_commits:
+            bt.logging.info(
+                f"[CONTROLLER - HBController] Running comparison with reference commit {reference_commit.miner_uid}"
+            )
+
+            miner_mean_score = np.mean(
+                [scoring_log.score for scoring_log in miner_commit.scoring_logs]
+            ).item()
+
+            # Skip if already compared, or if mean score is less than behavior scaling factor, or if miner is the same
+            if (
+                reference_commit.docker_hub_id in miner_commit.comparison_logs
+                or miner_mean_score < self.behavior_scaling_factor
+            ):
+                continue
+            else:
+                miner_commit.comparison_logs[reference_commit.docker_hub_id] = []
+
+            # Process each input from the reference commit's scoring logs
+            for i, reference_log in enumerate(reference_commit.scoring_logs):
+                if reference_log.miner_input is None:
                     continue
 
-                retries = 0
-                while retries < 5:
-                    try:
-                        # Refresh container state
-                        try:
-                            container.reload()
-                        except docker.errors.NotFound:
-                            bt.logging.info(
-                                f"[Controller] Container {container.name} no longer exists"
-                            )
-                            return
-                        except Exception as e:
-                            bt.logging.warning(
-                                f"[Controller] Failed to reload container state: {str(e)}"
-                            )
-
-                        # Check if container is already stopped
-                        if container.status != "exited":
-                            bt.logging.info(
-                                f"[Controller] Attempting to stop container {container.name} (Try {retries+1}/5)..."
-                            )
-                            try:
-                                container.stop(timeout=30)
-                                try:
-                                    container.wait(condition="not-running", timeout=30)
-                                except docker.errors.NotFound:
-                                    bt.logging.info(
-                                        f"[Controller] Container {container.name} no longer exists after stop"
-                                    )
-                                    return
-                                except Exception as e:
-                                    bt.logging.warning(
-                                        f"[Controller] Wait for container stop failed: {str(e)}"
-                                    )
-                            except docker.errors.NotFound:
-                                bt.logging.info(
-                                    f"[Controller] Container {container.name} already stopped/removed"
-                                )
-                                return
-                            except docker.errors.APIError as e:
-                                if "is already in progress" in str(e):
-                                    bt.logging.info(
-                                        f"[Controller] Stop operation already in progress for {container.name}"
-                                    )
-                                    time.sleep(
-                                        10
-                                    )  # Wait longer for in-progress operations
-                                    continue
-                                else:
-                                    bt.logging.warning(
-                                        f"[Controller] Failed to stop container: {str(e)}"
-                                    )
-
-                        bt.logging.info(
-                            f"[Controller] Attempting to remove container {container.name} (Try {retries+1}/5)..."
-                        )
-                        try:
-                            container.remove(force=True, v=True)
-                            bt.logging.info(
-                                f"[Controller] Container {container.name} removed successfully"
-                            )
-                            return
-                        except docker.errors.NotFound:
-                            bt.logging.info(
-                                f"[Controller] Container {container.name} already removed"
-                            )
-                            return
-                        except docker.errors.APIError as e:
-                            if "is already in progress" in str(e):
-                                bt.logging.info(
-                                    f"[Controller] Remove operation already in progress for {container.name}"
-                                )
-                                time.sleep(10)  # Wait longer for in-progress operations
-                                # Check if container still exists before continuing
-                                try:
-                                    container.reload()
-                                except docker.errors.NotFound:
-                                    bt.logging.info(
-                                        f"[Controller] Container {container.name} was removed successfully"
-                                    )
-                                    return
-                                continue
-                            bt.logging.warning(
-                                f"[Controller] Failed to remove container: {str(e)}"
-                            )
-
-                    except requests.exceptions.ReadTimeout:
-                        bt.logging.warning(
-                            "[Controller] Timeout while communicating with Docker daemon"
-                        )
-                        time.sleep(5)
-                    except Exception as e:
-                        bt.logging.warning(
-                            f"[Controller] Unexpected error in removal loop: {str(e)}"
-                        )
-
-                    retries += 1
-                    if retries < 5:  # Don't wait if this was the last try
-                        try:
-                            wait_time = min(
-                                5 * (2 ** (retries - 1)), 30
-                            )  # Reduced max wait time
-                            bt.logging.info(
-                                f"[Controller] Retrying in {wait_time} seconds..."
-                            )
-                            time.sleep(wait_time)
-                        except Exception as e:
-                            bt.logging.warning(
-                                f"[Controller] Error during retry wait: {str(e)}"
-                            )
-                            time.sleep(5)
-
-                bt.logging.error(
-                    f"[Controller] Failed to remove container {container.name} after 5 attempts"
+                # Submit the same input to current miner
+                miner_output, error_message = self._submit_challenge_to_miner(
+                    reference_log.miner_input
                 )
 
-            except Exception as e:
-                bt.logging.error(
-                    f"[Controller] Unexpected error handling container: {str(e)}"
+                # Create comparison log
+                comparison_log = ComparisonLog(
+                    miner_input=reference_log.miner_input,
+                    miner_output=miner_output,
+                    reference_output=reference_log.miner_output,
+                    error=error_message,
+                    reference_hotkey=reference_commit.miner_hotkey,
+                    reference_similarity_score=reference_commit.penalty,
                 )
-                continue
 
-        try:
-            self._clear_container_by_port(constants.CHALLENGE_DOCKER_PORT)
-        except Exception as e:
-            bt.logging.error(
-                f"[Controller] Failed to clear containers by port: {str(e)}"
-            )
-
-    def _submit_challenge_to_miner(self, challenge) -> dict:
-        """
-        Sends the challenge input to a miner by making an HTTP POST request to a local endpoint.
-        The request submits the input, and the miner returns the generated output.
-
-        Args:
-            challenge: The input to be solved by the miner.
-
-        Returns:
-            A dictionary representing the miner's output.
-        """
-
-        error_message = ""
-        miner_input = copy.deepcopy(challenge)
-        exclude_miner_input_key = self.challenge_info.get("exclude_miner_input_key", [])
-        for key in exclude_miner_input_key:
-            miner_input[key] = None
-        try:
-            _protocol, _ssl_verify = self._check_protocol(is_challenger=False)
-            response = requests.post(
-                f"{_protocol}://localhost:{constants.MINER_DOCKER_PORT}/solve",
-                timeout=self.challenge_info.get("challenge_solve_timeout", 60),
-                verify=_ssl_verify,
-                json=miner_input,
-            )
-            return response.json(), error_message
-        except requests.exceptions.Timeout:
-            error_message = "Timeout occurred while trying to solve challenge."
-            bt.logging.error(error_message)
-            return None, error_message
-        except Exception as ex:
-            error_message = f"Submit challenge to miner failed: {str(ex)}"
-            bt.logging.error(error_message)
-            return None, error_message
-
-    def _check_alive(self, port=10001, is_challenger=True) -> bool:
-        """
-        Checks if the challenge container is still running.
-        """
-
-        _protocol, _ssl_verify = self._check_protocol(is_challenger=is_challenger)
-
-        try:
-            response = requests.get(
-                f"{_protocol}://localhost:{port}/health",
-                verify=_ssl_verify,
-            )
-            if response.status_code == 200:
-                return True
-        except requests.exceptions.ConnectionError:
-            return False
-        return False
-
-    def _get_challenge_from_container(self) -> dict:
-        """
-        Retrieves a challenge input from the running challenge container by making an HTTP POST request.
-        The challenge container returns a task that will be sent to the miners.
-
-        Returns:
-            A dictionary representing the challenge input.
-        """
-
-        _protocol, _ssl_verify = self._check_protocol(is_challenger=True)
-
-        response = requests.get(
-            f"{_protocol}://localhost:{constants.CHALLENGE_DOCKER_PORT}/task",
-            verify=_ssl_verify,
-        )
-        return response.json()
-
-    def _score_challenge(self, miner_input, miner_output, task_id: int = 0) -> float:
-        """
-        Submits the miner's input and output for scoring by making an HTTP POST request to the challenge container.
-        The challenge container computes a score based on the miner's performance.
-
-        Args:
-            miner_input: The input provided to the miner.
-            miner_output: The output generated by the miner.
-            task_id: The task ID for the challenge. Defaults to 0.
-
-        Returns:
-            A float representing the score for the miner's solution.
-        """
-
-        _protocol, _ssl_verify = self._check_protocol(is_challenger=True)
-
-        _reset_challenge = False
-        if task_id == 0:
-            _reset_challenge = self.challenge_info.get("reset_challenge", False)
-
-        _reset_query = ""
-        if _reset_challenge:
-            _reset_query = "?reset=true"
-
-        try:
-            payload = {
-                "miner_input": miner_input,
-                "miner_output": miner_output,
-            }
-            bt.logging.debug(f"[Controller] Scoring payload: {str(payload)[:100]}...")
-            response = requests.post(
-                f"{_protocol}://localhost:{constants.CHALLENGE_DOCKER_PORT}/score{_reset_query}",
-                verify=_ssl_verify,
-                json=payload,
-            )
-            return response.json()
-        except Exception as ex:
-            bt.logging.error(f"Score challenge failed: {str(ex)}")
-            return 0
-
-    def _create_network(self, network_name):
-        try:
-            networks = self.docker_client.networks.list(names=[network_name])
-            if not networks:
-                network = self.docker_client.networks.create(
-                    name=self.local_network,
-                    driver="bridge",
+                # Add to comparison logs
+                miner_commit.comparison_logs[reference_commit.docker_hub_id].append(
+                    comparison_log
                 )
-                bt.logging.info(f"Network '{network_name}' created successfully.")
-            else:
-                bt.logging.info(f"Network '{network_name}' already exists.")
-                network = self.docker_client.networks.get(network_name)
 
-            network_info = self.docker_client.api.inspect_network(network.id)
-            subnet = network_info["IPAM"]["Config"][0]["Subnet"]
-            iptables_commands = [
-                # fmt: off
-                # Block forwarded traffic to the internet:
-                ["iptables", "-I", "FORWARD", "-s", subnet, "!", "-d", subnet, "-j", "DROP"],
-                # Prevent NAT to the internet:
-                [ "iptables", "-t", "nat", "-I", "POSTROUTING", "-s", subnet, "-j", "RETURN"]
-                # fmt: on
-            ]
-
-            for cmd in iptables_commands:
-                try:
-                    # Try with sudo
-                    subprocess.run(["sudo"] + cmd, check=True)
-                except subprocess.CalledProcessError:
-                    # If running with sudo fails, try without sudo
-                    subprocess.run(cmd, check=True)
-
-        except docker.errors.APIError as e:
-            bt.logging.error(f"Failed to create network: {e}")
-
-    def _validate_image_with_digest(self, image):
-        """Validate that the provided Docker image includes a SHA256 digest."""
-        digest_pattern = r".+@sha256:[a-fA-F0-9]{64}$"  # Regex for SHA256 digest format
-        if not re.match(digest_pattern, image):
-            bt.logging.error(
-                f"Invalid image format: {image}. Must include a SHA256 digest. Skip evaluation!"
-            )
-            return False
-        return True
-
-    def _check_protocol(
-        self, is_challenger: bool = True
-    ) -> Tuple[str, Union[bool, None]]:
-        """Check the protocol scheme and SSL/TLS verification for the challenger or miner.
-
-        Args:
-            is_challenger (bool, optional): Flag to check the protocol for the challenger or miner. Defaults to True.
-
-        Returns:
-            Tuple[str, Union[bool, None]]: A tuple containing the protocol scheme and SSL/TLS verification.
-        """
-
-        _protocol = "http"
-        _ssl_verify: Union[bool, None] = None
-
-        if "protocols" in self.challenge_info:
-            _protocols = self.challenge_info["protocols"]
-
-            if is_challenger:
-                if "challenger" in _protocols:
-                    _protocol = _protocols["challenger"]
-
-                if "challenger_ssl_verify" in _protocols:
-                    _ssl_verify = _protocols["challenger_ssl_verify"]
-
-            if not is_challenger:
-                if "miner" in _protocols:
-                    _protocol = _protocols["miner"]
-
-                if "miner_ssl_verify" in _protocols:
-                    _ssl_verify = _protocols["miner_ssl_verify"]
-
-        return _protocol, _ssl_verify
-
-    def _clean_up_docker_resources(
-        self,
-        remove_containers: bool = True,
-        remove_images: bool = True,
-        remove_networks: bool = False,
+    def _get_reference_outputs(
+        self, miner_commit: MinerChallengeCommit, challenge_inputs
     ):
-        """Clean up docker resources by removing all exited or dead containers, dangling images, and unused networks."""
-        try:
-            if remove_containers:
-                # Delete all containers that have exited or dead
-                bt.logging.info("Removing stopped containers...")
-                for container in self.docker_client.containers.list(all=True):
-                    if container.status in ["exited", "dead"]:
-                        print(
-                            f"Removing container {container.name} ({container.id})..."
-                        )
-                        container.remove(force=True)
+        """Run and score miner with new challenge inputs."""
+        for i, miner_input in enumerate(challenge_inputs):
+            miner_output, error_message = self._submit_challenge_to_miner(miner_input)
 
-            if remove_images:
-                # Delete all dangling images
-                bt.logging.info("Removing dangling images...")
-                for image in self.docker_client.images.list(filters={"dangling": True}):
-                    bt.logging.info(f"Removing image {image.id}...")
-                    self.docker_client.images.remove(
-                        image.id, force=True, noprune=False
-                    )
-
-            # Delete unused resources (volumes, build cache)
-            bt.logging.info("Pruning unused resources (volumes, build cache)...")
-            self.docker_client.api.prune_builds()
-            self.docker_client.volumes.prune()
-            if remove_networks:
-                self.docker_client.networks.prune()
-
-            bt.logging.info("Docker resources cleaned up successfully.")
-        except Exception as e:
-            bt.logging.error(
-                f"An error occurred while cleaning up docker resources: {e}"
+            log = ScoringLog(
+                miner_input=miner_input,
+                miner_output=miner_output,
+                score=0.0,
+                error=error_message,
             )
 
-    def _check_container_alive(
-        self,
-        container: docker.models.containers.Container,
-        health_port,
-        is_challenger=True,
-        timeout=None,
-        start_time=None,
-    ):
-        """Check when the container is running successfully"""
-        if not start_time:
-            start_time = time.time()
-        while not self._check_alive(port=health_port, is_challenger=is_challenger) and (
-            not timeout or time.time() - start_time < timeout
-        ):
-            container.reload()
-            if container.status in ["exited", "dead"]:
-                container_logs = container.logs().decode("utf-8", errors="ignore")
-                bt.logging.error(
-                    f"[Controller] Container {container} failed with status: {container.status}"
-                )
-                bt.logging.error(f"[Controller] Container logs:\n{container_logs}")
-                raise RuntimeError(
-                    f"Container failed to start. Status: {container.status}. Container logs: {container_logs}"
-                )
+            # Handle baseline scoring separately
+            if miner_commit.miner_hotkey == "baseline":
+                self.baseline_commit.scoring_logs.append(log)
             else:
-                bt.logging.info(
-                    f"[Controller] Waiting for  container to start. {container.status}"
-                )
-                time.sleep(5)
+                # Adjust score relative to baseline if baseline exists and has been scored
+                if (
+                    self.baseline_commit.docker_hub_id
+                    and len(self.baseline_commit.scoring_logs) > i
+                ):
+                    log.score -= self.baseline_commit.scoring_logs[i].score
+                    log.baseline_score = self.baseline_commit.scoring_logs[i].score
+                miner_commit.scoring_logs.append(log)

@@ -105,7 +105,29 @@ def gen_cb_actions(
             if _max_attempts <= _n_attempts:
                 logger.warning("Skipped generating positions due to max attempts!")
                 break
-
+        _next_id = len(_action_list)
+        _action_list.extend(
+            [
+                {
+                    "id": _next_id,
+                    "type": "input",
+                    "selector": {
+                        "name": "username",
+                        "id": utils.gen_random_string(length=32),
+                    },
+                    "args": {"text": utils.gen_random_string(length=32)},
+                },
+                {
+                    "id": _next_id + 1,
+                    "type": "input",
+                    "selector": {
+                        "name": "password",
+                        "id": utils.gen_random_string(length=32),
+                    },
+                    "args": {"text": utils.gen_random_string(length=32)},
+                },
+            ]
+        )
         _challenge_list.append(_action_list)
 
     return _challenge_list
