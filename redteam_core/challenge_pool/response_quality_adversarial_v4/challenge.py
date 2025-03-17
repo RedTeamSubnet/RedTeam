@@ -114,21 +114,20 @@ Return only the modified question without any explanation."
     def _generate_modified_prompt(self, original_prompt: str) -> str:
         """
         Generates a modified version of the original prompt by masking a key term.
+        Ensures that random sampling does not exceed the available valid words.
         """
         words = word_tokenize(original_prompt)
-        stop_word_indices = [
-            i for i, word in enumerate(words) if word.lower() in self.stop_words
-        ]
-        total_words = len(words) - len(stop_word_indices)
-        num_to_mask = int(total_words * 0.1)
+        stop_word_indices = [i for i, word in enumerate(words) if word.lower() in self.stop_words]
 
-        mask_indices = random.sample(
-            [i for i in range(total_words) if i not in stop_word_indices],
-            min(num_to_mask, total_words - len(stop_word_indices)),
-        )
-        modified_prompt = " ".join(
-            "BLANK" if i in mask_indices else word for i, word in enumerate(words)
-        )
+        valid_indices = [i for i in range(len(words)) if i not in stop_word_indices]
+        total_words = len(valid_indices)
+
+        num_to_mask = max(1, int(total_words * 0.1))  # Ensure at least 1 word is masked
+        num_to_mask = min(num_to_mask, len(valid_indices))  # Prevent sampling error
+
+        mask_indices = random.sample(valid_indices, num_to_mask)
+
+        modified_prompt = " ".join("BLANK" if i in mask_indices else word for i, word in enumerate(words))
 
         return modified_prompt
 
