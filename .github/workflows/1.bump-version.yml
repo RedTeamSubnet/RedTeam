@@ -10,7 +10,27 @@ on:
         options: ["patch", "minor", "major"]
 
 jobs:
+  # test:
+  #   name: 1.1. Test
+  #   runs-on: ubuntu-22.04
+  #   permissions:
+  #     contents: read
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
+  #     - name: Set up Python
+  #       uses: actions/setup-python@v5
+  #       with:
+  #         python-version: "3.10"
+  #     - name: Install dependencies
+  #       run: |
+  #         python -m pip install -U pip
+  #         python -m pip install -r ./requirements/requirements.test.txt
+  #     - name: Test with pytest
+  #       run: ./scripts/test.sh -l
+
   bump_version:
+    # needs: test
     name: 1.2. Bump Version
     runs-on: ubuntu-22.04
     permissions:
@@ -26,8 +46,4 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          ./scripts/bump-version.sh -b=${{ inputs.bump_type }} -c -p
-      - name: Trigger release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh workflow run 2.create-release.yml
+          ./scripts/bump-version.sh -b=${{ inputs.bump_type }} -c -t -p
