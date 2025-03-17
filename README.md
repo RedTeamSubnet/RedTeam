@@ -3,7 +3,7 @@
 ## Overview
 The RedTeam subnet by Innerworks is a decentralized platform designed to drive innovation in cybersecurity through competitive programming challenges. The subnet incentivizes miners to develop and submit code solutions to various technical challenges, with a focus on enhancing security. These solutions can be integrated into real-world products to improve their security features.
 
-#### Dashboard: http://storage.redteam.technology/
+#### Dashboard: https://dashboard.theredteam.io/
 
 ![Overview](assets/overview.svg)
 
@@ -23,15 +23,15 @@ We’ve introduced an exciting new way to score miners that rewards innovation a
 ### How the Score is Calculated
 When miners participate in challenges, their performance is evaluated based on their solutions. The scoring system has three key components, each designed to reward different aspects of participation:
 
-1. **Challenge Score (85%)**: The majority of the score comes from how well the miner’s solution performs in a challenge. The system compares each miner’s solution with others and awards higher points for more innovative and effective solutions. Better solutions get a larger share of the points, thanks to the use of a softmax function.
+1. **Challenge Score (75%)**: The majority of the score comes from how well the miner’s solution performs in a challenge. The system compares each miner’s solution with others and awards higher points for more innovative and effective solutions. Better solutions get a larger share of the points, thanks to the use of a softmax function.
 
-2. **Holding TAO (5%)**: A small portion of the score is based on how much TAO (our network's token) a participant is holding. This encourages participants to stay invested and engaged in the network, providing extra motivation to keep working on the challenges.
+2. **Holding Alpha (15%)**: A small portion of the score is based on how much Alpha (our network's token) a participant is holding. This encourages participants to stay invested and engaged in the network, providing extra motivation to keep working on the challenges.
 
 3. **New Participant Bonus (10%)**: We want to encourage newcomers to join and get involved, so we offer a bonus for newly registered participants. This bonus gradually decreases over time as the participants become more experienced and integrated into the community.
 
 Each of these components is normalized to ensure fairness, and then combined into one final score using the formula:
 
-**Final Score = (85% * Challenge Score) + (5% * TAO Holding Score) + (10% * New Participant Bonus)**
+**Final Score = (75% * Challenge Score) + (15% * Alpha Holding Score) + (10% * New Participant Bonus)**
 
 This dynamic approach ensures that miners are rewarded for both their immediate contributions and long-term participation.
 
