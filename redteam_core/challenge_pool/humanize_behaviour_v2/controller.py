@@ -3,14 +3,14 @@ import traceback
 import bittensor as bt
 import numpy as np
 
+from redteam_core.challenge_pool import docker_utils
 from redteam_core.challenge_pool.controller import Controller
+from redteam_core.constants import constants
 from redteam_core.validator.models import (
-    MinerChallengeCommit,
     ComparisonLog,
+    MinerChallengeCommit,
     ScoringLog,
 )
-from redteam_core.constants import constants
-from redteam_core.challenge_pool import docker_utils
 
 
 class HBController(Controller):
@@ -67,8 +67,6 @@ class HBController(Controller):
                     continue
 
             # If not in cache or not scored, add to list of commits to score
-            # self.baseline_reference_comparison_commits_to_score.append(docker_hub_id)
-
             # Create a new commit object
             new_commit = MinerChallengeCommit(
                 miner_uid=-1,
@@ -77,19 +75,23 @@ class HBController(Controller):
                 docker_hub_id=docker_hub_id,
             )
 
-            # Add to our instance list and to the class cache
+            # Add to our instance list
             self.baseline_reference_comparison_commits_to_score.append(new_commit)
 
     def start_challenge(self):
         """
-        Starts the challenge by building and running the challenge Docker container.
-        Then, for each miner image, it runs the miner in a separate container and submits the challenge.
-        It collects the challenge inputs, outputs, and the scores for each miner.
+        Initiates the challenge lifecycle by setting up and executing the challenge Docker container.
 
-        Returns:
-            A tuple containing:
-            - miner_scores: A dictionary mapping each miner Docker image to their scores.
-            - logs: A dictionary of logs for each miner, detailing the input, output, and score.
+        This process involves:
+        1. Building and running the challenge container within an isolated Docker network.
+        2. Generating or retrieving challenge inputs to evaluate miners.
+        3. Scoring a baseline Docker image, if specified, to establish a reference point.
+        4. Iteratively running each miner's Docker container to submit and score their solutions.
+        5. Collecting and logging the results, including any errors encountered during execution.
+        6. Cleaning up Docker resources to ensure no residual containers or images remain.
+
+        The method ensures that each miner's submission is evaluated against the challenge inputs,
+        and comparison logs are generated to assess performance relative to reference commits.
         """
         # Setup challenge, get challenge container and network ready
         self._setup_challenge()
@@ -149,7 +151,7 @@ class HBController(Controller):
                     remove_images=False,
                 )
 
-                print(
+                bt.logging.info(
                     f"[CONTROLLER - HBController] Baseline reference scoring logs: {len(reference_commit.scoring_logs)}"
                 )
                 # Update the class cache with the scored commit
@@ -265,6 +267,7 @@ class HBController(Controller):
                 miner_commit.comparison_logs[reference_commit.docker_hub_id].append(
                     comparison_log
                 )
+
     def _get_reference_outputs(
         self, miner_commit: MinerChallengeCommit, challenge_inputs
     ):

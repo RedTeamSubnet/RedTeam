@@ -517,7 +517,7 @@ class Validator(BaseValidator):
 
         scores = self.miner_managers.get_onchain_scores(n_uids)
         bt.logging.debug(f"[SET WEIGHTS] scores: {scores}")
-
+        weights = scores
         (
             processed_weight_uids,
             processed_weights,

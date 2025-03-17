@@ -1,79 +1,245 @@
-response_quality_ranker_v3: ## active until March 18th 2025 14:00 UTC
-  name: "Response Quality Ranker v3"
-  description: "Rank generated responses based on their quality"
-  challenge_incentive_weight: 0.3
-  target: redteam_core.challenge_pool.response_quality_ranker_v3.Controller
-  challenge_solve_timeout: 20
-  docker_run_timeout: 600
-  num_tasks: 30 # Num of tasks for each miner
-  resource_limits:
-    num_cpus: 4
-    mem_limit: "10g"
-  exclude_miner_input_key: # Hidden from miner; only visible to validator for evaluation purposes
-    - groundtruth_ranking
+# text_detection:
+#   name: "Text Detection"  # Name of challenge
+#   description: "Detect if text is ai generated"  # Brief description of what challenge does
+#   challenge_incentive_weight: 0.2  # Weight for incentive distribution based on challenge difficulty or importance
+#   target: redteam_core.challenge_pool.text_detection.Controller  # Path to the target controller handling the challenge
+#   challenge_solve_timeout: 5  # Timeout (in seconds) for solving challenge
+#   docker_run_timeout: 300  # Timeout (in seconds) for running Docker container during challenge
+#   resource_limits:
+#     num_cpus: 4  # Number of CPUs allocated for challenge
+#     mem_limit: "2g"  # Memory limit for task (2 GB)
 
-response_quality_adversarial_v3: ## active until March 18th 2025 14:00 UTC
-  name: "Response Quality Adversarial v3"
+# response_quality_adversarial: ## deprecated after Jan 15th 2025 14:00 UTC
+#   name: "Response Quality Adversarial"
+#   description: "Trick the classifier into rating your response higher, even with limited prompt information"
+#   challenge_incentive_weight: 0.3
+#   target: redteam_core.challenge_pool.response_quality_adversarial.Controller
+#   challenge_solve_timeout: 10
+#   docker_run_timeout: 600
+#   resource_limits:
+#     num_cpus: 4
+#     mem_limit: "20g"
+#     cuda_device_ids: ["0"] # Use CUDA devices
+#   enviromnent:
+#     TF_FORCE_GPU_ALLOW_GROWTH": "true" # Allow memory to grow as needed
+#     CUDA_DEVICE_ORDER": "PCI_BUS_ID" # Ensure consistent device ordering
+#     NVIDIA_VISIBLE_DEVICES": "all" # Set to "all" or restrict devices
+#     NVIDIA_MEMORY_LIMIT_MB": "20480" # Limit GPU memory usage to 4GB (optional)
+#   exclude_miner_input_key: # Hidden from miner; only visible to validator for evaluation purposes
+#     - original_prompt
+
+# response_quality_ranker: ## deprecated after Jan 15th 2025 14:00 UTC
+#   name: "Response Quality Ranker"
+#   description: "Rank generated responses based on their quality"
+#   challenge_incentive_weight: 0.3
+#   target: redteam_core.challenge_pool.response_quality_ranker.Controller
+#   challenge_solve_timeout: 10
+#   docker_run_timeout: 600
+#   resource_limits:
+#     num_cpus: 4
+#     mem_limit: "10g"
+#   exclude_miner_input_key: # Hidden from miner; only visible to validator for evaluation purposes
+#     - groundtruth_ranking
+
+# webui_auto: ## active Jan 15th 2025 14:00 UTC to Feb 14th 2025 14:00 UTC
+#   name: "Web User Interface Automation"
+#   description: "Detect automated UI interactions by analyzing behavioral patterns"
+#   challenge_incentive_weight: 0.04
+#   target: redteam_core.challenge_pool.webui_auto.Controller
+#   challenge_solve_timeout: 45
+#   docker_run_timeout: 600
+#   hostname: "webui_auto"
+#   protocols:
+#     challenger: "https"
+#     challenger_ssl_verify: false
+#     miner: "http"
+#     miner_ssl_verify: false
+#   same_network: true
+#   allowed_destinations:
+#     - webui_auto
+#   resource_limits:
+#     num_cpus: 4
+#     mem_limit: "8g"
+#   environment:
+#     ENV: "PRODUCTION"
+#     WUC_WEB_URL: "https://webui_auto:10001/web"
+#   # baseline: "asadbekk/rest.rt-wu-miner@sha256:b8cd274c0fbb4b30b98274465424025a8b0d070c9cca4e80e0d79f69f49a5c17"
+
+# response_quality_adversarial_v2: ## active Jan 15th 2025 14:00 UTC to Feb 14th 2025 14:00 UTC
+#   name: "Response Quality Adversarial v2"
+#   description: "Trick the classifier into rating your response higher, even with limited prompt information"
+#   challenge_incentive_weight: 0.03
+#   target: redteam_core.challenge_pool.response_quality_adversarial_v2.Controller
+#   challenge_solve_timeout: 30
+#   docker_run_timeout: 600
+#   num_tasks: 30 # Num of tasks for each miner
+#   resource_limits:
+#     num_cpus: 4
+#     mem_limit: "20g"
+#     cuda_device_ids: ["0"] # Use CUDA devices
+#   environment:
+#     TF_FORCE_GPU_ALLOW_GROWTH": "true" # Allow memory to grow as needed
+#     CUDA_DEVICE_ORDER": "PCI_BUS_ID" # Ensure consistent device ordering
+#     NVIDIA_VISIBLE_DEVICES": "all" # Set to "all" or restrict devices
+#     NVIDIA_MEMORY_LIMIT_MB": "20480" # Limit GPU memory usage to 4GB (optional)
+#   exclude_miner_input_key: # Hidden from miner; only visible to validator for evaluation purposes
+#     - original_prompt
+#   baseline: "bangbang123/response_quality_adversarial@sha256:a5fff733d574ae0c9c93d9029a7fc2aaaeeac07793fb6ef4683236579f1bf857"
+
+# response_quality_ranker_v2: ## active Jan 15th 2025 14:00 UTC to Feb 14th 2025 14:00 UTC
+#   name: "Response Quality Ranker v2"
+#   description: "Rank generated responses based on their quality"
+#   challenge_incentive_weight: 0.03
+#   target: redteam_core.challenge_pool.response_quality_ranker_v2.Controller
+#   challenge_solve_timeout: 20
+#   docker_run_timeout: 600
+#   num_tasks: 30 # Num of tasks for each miner
+#   resource_limits:
+#     num_cpus: 4
+#     mem_limit: "10g"
+#   exclude_miner_input_key: # Hidden from miner; only visible to validator for evaluation purposes
+#     - groundtruth_ranking
+#   baseline: "vietbeu/response_quality_ranker@sha256:5b468ec48eae57907f1ba91de12bfe78f709351b0421e14a3b105dcb00844103"
+
+
+# response_quality_ranker_v3: ## active after Feb 14th 2025 14:00 UTC
+#   name: "Response Quality Ranker v3"
+#   description: "Rank generated responses based on their quality"
+#   challenge_incentive_weight: 0.3
+#   target: redteam_core.challenge_pool.response_quality_ranker_v3.Controller
+#   challenge_solve_timeout: 20
+#   docker_run_timeout: 600
+#   num_tasks: 30 # Num of tasks for each miner
+#   resource_limits:
+#     num_cpus: 4
+#     mem_limit: "10g"
+#   exclude_miner_input_key: # Hidden from miner; only visible to validator for evaluation purposes
+#     - groundtruth_ranking
+
+# humanize_behaviour_v1: ## active after Feb 14th 2025 14:00 UTC
+#   name: "Humanize Behaviour v1"
+#   description: "Imitate human-like behaviour for given UI tasks"
+#   challenge_incentive_weight: 0.4
+#   target: redteam_core.challenge_pool.humanize_behaviour_v1.Controller
+#   challenge_solve_timeout: 45
+#   docker_run_timeout: 1200
+#   privileged: true
+#   reset_challenge: true
+#   protocols:
+#     challenger: "https"
+#     challenger_ssl_verify: false
+#     miner: "http"
+#     miner_ssl_verify: false
+#   resource_limits:
+#     num_cpus: 4
+#     mem_limit: "12g"
+#   environment:
+#     ENV: "PRODUCTION"
+
+# response_quality_adversarial_v3:
+#   name: "Response Quality Adversarial v3"
+#   description: "Trick the classifier into rating your response higher, even with limited prompt information"
+#   challenge_incentive_weight: 0.03
+#   target: redteam_core.challenge_pool.response_quality_adversarial_v3.Controller
+#   comparer: redteam_core.challenge_pool.response_quality_adversarial_v3.Comparer
+#   challenge_manager: redteam_core.challenge_pool.response_quality_adversarial_v3.ChallengeManager
+#   challenge_solve_timeout: 30
+#   docker_run_timeout: 600
+#   num_tasks: 30 # Num of tasks for each miner
+#   max_unique_commits: 5
+#   penalty_threshold: 0.85
+
+#   # Miner container network
+#   local_network: "redteam_local"
+
+#   challenge_container_run_kwargs:
+#     name: "response_quality_adversarial_v3"
+
+#   miner_container_run_kwargs:
+#     cpu_count: 4
+#     mem_limit: "20g"
+#     device_requests:
+#       - device_ids: ["0"]
+#         capabilities:
+#           - ["gpu"]
+#     environment:
+#       CHALLENGE_NAME: "response_quality_adversarial_v3" # Name of the challenge
+#       TF_FORCE_GPU_ALLOW_GROWTH: "true" # Allow memory to grow as needed
+#       CUDA_DEVICE_ORDER: "PCI_BUS_ID" # Ensure consistent device ordering
+#       NVIDIA_VISIBLE_DEVICES: "all" # Set to "all" or restrict devices
+#       NVIDIA_MEMORY_LIMIT_MB": "20480" # Limit GPU memory usage to 4GB (optional)
+
+#   exclude_miner_input_key: # Hidden from miner; only visible to validator for evaluation purposes
+#     - original_prompt
+
+response_quality_adversarial_v4:
+  name: "Response Quality Adversarial v4"
   description: "Trick the classifier into rating your response higher, even with limited prompt information"
-  challenge_incentive_weight: 0.03
-  target: redteam_core.challenge_pool.response_quality_adversarial_v3.Controller
-  comparer: redteam_core.challenge_pool.response_quality_adversarial_v3.Comparer
-  challenge_manager: redteam_core.challenge_pool.response_quality_adversarial_v3.ChallengeManager
+  challenge_incentive_weight: 0.3
+  target: redteam_core.challenge_pool.response_quality_adversarial_v4.Controller
+  comparer: redteam_core.challenge_pool.response_quality_adversarial_v4.Comparer
+  challenge_manager: redteam_core.challenge_pool.response_quality_adversarial_v4.ChallengeManager
+  challenge_solve_timeout: 12
+  docker_run_timeout: 450
+  num_tasks: 50 # Num of tasks for each miner
+  max_unique_commits: 15
+  penalty_threshold: 0.9
+
+  # Miner container network
+  local_network: "redteam_local"
+
+  challenge_container_run_kwargs:
+    name: "response_quality_adversarial_v4"
+
+  miner_container_run_kwargs:
+    cpu_count: 4
+    mem_limit: "8g"
+    device_requests:
+      - device_ids: ["0"]
+        capabilities:
+          - ["gpu"]
+    environment:
+      CHALLENGE_NAME: "response_quality_adversarial_v4" # Name of the challenge
+      TF_FORCE_GPU_ALLOW_GROWTH: "true" # Allow memory to grow as needed
+      CUDA_DEVICE_ORDER: "PCI_BUS_ID" # Ensure consistent device ordering
+      NVIDIA_VISIBLE_DEVICES: "all" # Set to "all" or restrict devices
+      NVIDIA_MEMORY_LIMIT_MB: "3072" # Limit GPU memory usage to 3GB
+
+  exclude_miner_input_key: # Hidden from miner; only visible to validator for evaluation purposes
+    - original_prompt
+    - reference_response
+
+toxic_response_adversarial:
+  name: "Toxic Response Adversarial"
+  description: "Trick the LLM into generating toxic responses"
+  challenge_incentive_weight: 0.2
+  target: redteam_core.challenge_pool.toxic_response_adversarial.Controller
+  comparer: redteam_core.challenge_pool.toxic_response_adversarial.Comparer
   challenge_solve_timeout: 30
-  docker_run_timeout: 600
-  num_tasks: 30 # Num of tasks for each miner
-  max_unique_commits: 5
+  docker_run_timeout: 450
+  num_tasks: 1 # Num of tasks for each miner, this will be determined in the challenge 's image.
+  max_unique_commits: 50
   penalty_threshold: 0.85
 
   # Miner container network
   local_network: "redteam_local"
 
   challenge_container_run_kwargs:
-    name: "response_quality_adversarial_v3"
+    name: "toxic_response_adversarial"
 
   miner_container_run_kwargs:
     cpu_count: 4
-    mem_limit: "20g"
-    device_requests:
-      - device_ids: ["0"]
-        capabilities:
-          - ["gpu"]
+    mem_limit: "8g"
     environment:
-      CHALLENGE_NAME: "response_quality_adversarial_v3" # Name of the challenge
-      TF_FORCE_GPU_ALLOW_GROWTH: "true" # Allow memory to grow as needed
-      CUDA_DEVICE_ORDER: "PCI_BUS_ID" # Ensure consistent device ordering
-      NVIDIA_VISIBLE_DEVICES: "all" # Set to "all" or restrict devices
-      NVIDIA_MEMORY_LIMIT_MB": "20480" # Limit GPU memory usage to 4GB (optional)
+      CHALLENGE_NAME: "toxic_response_adversarial" # Name of the challenge
 
   exclude_miner_input_key: # Hidden from miner; only visible to validator for evaluation purposes
-    - original_prompt
+    - system_prompt
 
-
-humanize_behaviour_v1: ## active until March 18th 2025 14:00 UTC
-  name: "Humanize Behaviour v1"
-  description: "Imitate human-like behaviour for given UI tasks"
-  challenge_incentive_weight: 0.4
-  target: redteam_core.challenge_pool.humanize_behaviour_v1.Controller
-  challenge_solve_timeout: 45
-  docker_run_timeout: 1200
-  privileged: true
-  reset_challenge: true
-  protocols:
-    challenger: "https"
-    challenger_ssl_verify: false
-    miner: "http"
-    miner_ssl_verify: false
-  resource_limits:
-    num_cpus: 4
-    mem_limit: "12g"
-  environment:
-    ENV: "PRODUCTION"
-
-
-humanize_behaviour_v2: ## active after March 18th 2025 14:00 UTC
+humanize_behaviour_v2:
   name: "humanize_behaviour_v2"
   description: "Imitate human-like behaviour for given UI tasks"
-  challenge_incentive_weight: 0.4
+  challenge_incentive_weight: 0.5
   target: redteam_core.challenge_pool.humanize_behaviour_v2.controller.HBController
   comparer: redteam_core.challenge_pool.humanize_behaviour_v2.comparer.HBComparer
   challenge_manager: redteam_core.challenge_pool.humanize_behaviour_v2.challenge_manager.HBChallengeManager

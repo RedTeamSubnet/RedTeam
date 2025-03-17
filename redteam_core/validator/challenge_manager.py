@@ -1,7 +1,7 @@
 import heapq
-from typing import Optional
 import time
 import traceback
+from typing import Optional
 
 import bittensor as bt
 import numpy as np
@@ -134,8 +134,7 @@ class ChallengeManager:
         Update miners 's latest submission scores and penalties.
 
         Args:
-            miner_scoring_logs (dict): Dictionary of miner scoring logs with UID and SS58 address as keys.
-            miner_penalties (dict): Dictionary of miner penalties with UID and SS58 address as keys.
+            miner_commits (list[MinerChallengeCommit]): List of miner commit objects
         """
         for miner_commit in miner_commits:
             if miner_commit.docker_hub_id in self._unique_scored_docker_hub_ids:
@@ -157,17 +156,13 @@ class ChallengeManager:
                     miner_commit.penalty = 0
                 else:
                     # Penalty by max of mean similarity with unique solutions
-                    miner_commit.penalty = np.max(
-                        [
-                            np.mean(
-                                [
-                                    comparison_log.similarity_score
-                                    for comparison_log in comparison_logs
-                                ]
-                            )
-                            for _, comparison_logs in miner_commit.comparison_logs.items()
-                        ]
-                    ).item()
+                    penalty_values = [
+                        np.mean([log.similarity_score for log in logs])
+                        for logs in miner_commit.comparison_logs.values()
+                    ]
+                    miner_commit.penalty = (
+                        float(np.max(penalty_values)) if penalty_values else 0
+                    )
             except Exception:
                 bt.logging.error(
                     f"[CHALLENGE MANAGER] Challenge {self.challenge_name}, failed to get commit {miner_commit.encrypted_commit} scores and penalties: {traceback.format_exc()}"
@@ -198,7 +193,9 @@ class ChallengeManager:
             # Mark docker_hub_id as scored after successful scoring
             self._unique_scored_docker_hub_ids.add(miner_commit.docker_hub_id)
 
-    def _try_add_unique_commit(self, encrypted_commit: str, score: float, docker_hub_id: str):
+    def _try_add_unique_commit(
+        self, encrypted_commit: str, score: float, docker_hub_id: str
+    ):
         """
         Adds a new commit to the unique commits collection if it qualifies.
 
@@ -212,7 +209,9 @@ class ChallengeManager:
 
         if len(self._unique_commits_heap) < self.max_unique_commits:
             # Still have room, add directly
-            heapq.heappush(self._unique_commits_heap, (score, encrypted_commit, docker_hub_id))
+            heapq.heappush(
+                self._unique_commits_heap, (score, encrypted_commit, docker_hub_id)
+            )
             self._unique_commits_set.add(encrypted_commit)
         elif score > self._unique_commits_heap[0][0]:
             # Score is better than our worst commit, replace it
@@ -296,7 +295,11 @@ class ChallengeManager:
 
         # Restore unique commits
         instance._unique_commits_heap = [
-            (item["score"], item["commit"], item["docker_hub_id"])  # Convert back to tuple
+            (
+                item["score"],
+                item["commit"],
+                item["docker_hub_id"],
+            )  # Convert back to tuple
             for item in state["unique_commits"]
         ]
         # Reconstruct set from heap
