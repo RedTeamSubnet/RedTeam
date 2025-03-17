@@ -1,162 +1,57 @@
 import datetime
-from typing import Dict, List, Optional, Union
 
 import bittensor as bt
 import numpy as np
-import pandas as pd
 import requests
-from cryptography.fernet import Fernet
-from pydantic import BaseModel
 
-from ..constants import constants
-
-
-class MinerCommit(BaseModel):
-    encrypted_commit: str
-    timestamp: float
-    docker_hub_id: Optional[str] = None
-    key: Optional[str] = None
-
-    def update(self, **kwargs) -> None:
-        """
-        Update the MinerCommit with new key if provided.
-        """
-        self.key = kwargs.get("key", self.key)
-
-    def reveal(self) -> bool:
-        """
-        Decrypts the encrypted commit to reveal the docker_hub_id.
-        Requires a valid encryption key to be set.
-        Returns True if successful, False otherwise.
-        """
-        if not self.key:
-            return False
-        try:
-            f = Fernet(self.key)
-            decrypted_data = f.decrypt(self.encrypted_commit).decode()
-            self.docker_hub_id = decrypted_data.split("---")[1]
-            return True
-        except Exception as e:
-            # Consider logging the error
-            return False
-
-
-class ChallengeRecord(BaseModel):
-    point: float = 0
-    score: float = 0
-    date: str = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d")
-    scored_date: Optional[str] = None
-    docker_hub_id: Optional[str] = None
-    uid: Optional[int] = None
-
-
-class ScoringLog(BaseModel):
-    uid: int
-    score: float
-    miner_input: Optional[dict] = None
-    miner_output: Optional[dict] = None
-    miner_docker_image: str
-    error: Optional[str] = None
-    baseline_score: Optional[float] = None
+from redteam_core.constants import constants
+from redteam_core.validator.challenge_manager import ChallengeManager
 
 
 class MinerManager:
-    def __init__(self, challenge_name: str, challenge_incentive_weight: float, metagraph: bt.metagraph):
+    def __init__(
+        self,
+        metagraph: bt.metagraph,
+        challenge_managers: dict[str, ChallengeManager] = {},
+    ):
         """
         Initializes the MinerManager to track scores and challenges.
         """
-        self.challenge_name = challenge_name
-        self.uids_to_commits: Dict[int, MinerCommit] = {}
-        self.challenge_records: Dict[str, ChallengeRecord] = {}
-        self.challenge_incentive_weight = challenge_incentive_weight
         self.metagraph = metagraph
+        self.challenge_managers = challenge_managers
 
-    def update_uid_to_commit(self, uids: List[int], commits: List[MinerCommit]) -> None:
-        for uid, commit in zip(uids, commits):
-            self.uids_to_commits[uid] = commit
-
-    def update_scores(self, logs: List[ScoringLog]) -> None:
-        """
-        Updates the scores for miners based on new logs.
-        Ensures daily records are maintained.
-        """
-        today = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d")
-
-        if today in self.challenge_records:
-            # No need to update if today's record already exists
-            return
-
-        if len(logs) == 0:
-            # No logs, so we raise an error
-            raise ValueError(f"[MINER MANAGER] No logs provided, challenge {self.challenge_name} scores cannot be updated for {today}.")
-
-        # Find the most recent record by looking through all past dates
-        most_recent_record = None
-        most_recent_date = None
-
-        for date_str, record in self.challenge_records.items():
-            if most_recent_date is None or date_str > most_recent_date:
-                most_recent_date = date_str
-                most_recent_record = record
-
-        # If no record found, create a blank one (first day of scoring)
-        if most_recent_record is None:
-            most_recent_record = ChallengeRecord()
-
-        logs_df = pd.DataFrame([log.model_dump() for log in logs])
-
-        # Group by uid and mean the scores
-        scores = logs_df.groupby("uid")["score"].mean().sort_values(ascending=False)
-
-        best_uid = scores.index[0]
-        best_score = scores.iloc[0]
-        best_docker_hub_id = logs_df[logs_df["uid"] == best_uid]["miner_docker_image"].iloc[0]
-
-        if best_score > most_recent_record.score:
-            # Miner made improvement
-            point = max(best_score - most_recent_record.score, 0) * 100
-            today_record = ChallengeRecord(
-                point=point,
-                score=best_score,
-                date=today,
-                scored_date=today,
-                docker_hub_id=best_docker_hub_id,
-                uid=best_uid,
-            )
-            self.challenge_records[today] = today_record
-        else:
-            # Miner did not make improvement, so we use the decayed points from the previous day
-            today_record = ChallengeRecord(
-                score=most_recent_record.score,
-                date=today,
-                scored_date=most_recent_record.scored_date,
-                docker_hub_id=most_recent_record.docker_hub_id,
-                uid=most_recent_record.uid
-            )
-            self.challenge_records[today] = today_record
+    def update_challenge_managers(
+        self, challenge_managers: dict[str, ChallengeManager]
+    ):
+        self.challenge_managers = challenge_managers
 
     def _get_challenge_scores(self, n_uids: int) -> np.ndarray:
         """
-        Returns a numpy array of scores based on challenge records (solution performance), applying decay for older records.
+        Aggregate challenge scores for all miners from all challenges using challenge managers.
+        Combines scores from each challenge based on their incentive weights and applies
+        time-based decay to historical scores.
+
+        Args:
+            n_uids (int): Number of UIDs in the network
+
+        Returns:
+            np.ndarray: Aggregated and normalized scores for all miners
         """
-        scores = np.zeros(n_uids)  # Should this be configurable?
-        today = datetime.datetime.now(datetime.timezone.utc)
+        aggregated_scores = np.zeros(n_uids)
 
-        total_points = 0
-        for date_str, record in self.challenge_records.items():
-            # Only add points for the records that have scored date equal to recorded date (recorded by making improvement)
-            if record.scored_date == record.date:
-                # Calculate decayed points
-                record_date = datetime.datetime.strptime(date_str, "%Y-%m-%d").replace(tzinfo=datetime.timezone.utc)
-                days_passed = (today - record_date).days
-                point = constants.decay_points(record.point, days_passed)
-                scores[record.uid] += point
-                total_points += point
+        # Process each challenge
+        for _, challenge_manager in self.challenge_managers.items():
+            challenge_weight = challenge_manager.challenge_incentive_weight
+            challenge_scores = challenge_manager.get_challenge_scores()
 
-        if total_points > 0:
-            scores /= total_points
+            # Add weighted scores to aggregate
+            aggregated_scores += challenge_scores * challenge_weight
 
-        return scores
+        if np.sum(aggregated_scores) > 0:
+            aggregated_scores /= np.sum(aggregated_scores)
+
+        return aggregated_scores
+
     def _get_newly_registration_scores(self, n_uids: int) -> np.ndarray:
         """
         Returns a numpy array of scores based on newly registration, high for more recent registrations.
@@ -180,8 +75,7 @@ class MinerManager:
 
                 # Parse the UTC datetime string
                 reg_time = datetime.datetime.strptime(
-                    registration_time,
-                    "%Y-%m-%dT%H:%M:%S"
+                    registration_time, "%Y-%m-%dT%H:%M:%S"
                 ).replace(tzinfo=datetime.timezone.utc)
 
                 seconds_since_registration = (current_time - reg_time).total_seconds()
@@ -190,7 +84,13 @@ class MinerManager:
                 # Only consider UIDs registered within immunity period
                 if blocks_since_registration <= constants.SUBNET_IMMUNITY_PERIOD:
                     # Score decreases linearly from 1.0 (just registered) to 0.0 (immunity period ended)
-                    scores[uid] = max(0, 1.0 - (blocks_since_registration / constants.SUBNET_IMMUNITY_PERIOD))
+                    scores[uid] = max(
+                        0,
+                        1.0
+                        - (
+                            blocks_since_registration / constants.SUBNET_IMMUNITY_PERIOD
+                        ),
+                    )
 
             # Normalize scores if any registrations exist
             if np.sum(scores) > 0:
@@ -239,9 +139,9 @@ class MinerManager:
 
         # Combine scores using weights from constants
         final_scores = (
-            challenge_scores * constants.CHALLENGE_SCORES_WEIGHT +
-            registration_scores * constants.NEWLY_REGISTRATION_WEIGHT +
-            alpha_stake_scores * constants.ALPHA_STAKE_WEIGHT
+            challenge_scores * constants.CHALLENGE_SCORES_WEIGHT
+            + registration_scores * constants.NEWLY_REGISTRATION_WEIGHT
+            + alpha_stake_scores * constants.ALPHA_STAKE_WEIGHT
         )
 
         return final_scores

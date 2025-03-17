@@ -1,8 +1,7 @@
 import os
 import datetime
-import math
 
-from pydantic import BaseModel, Field, field_validator, model_validator, AnyUrl
+from pydantic import BaseModel, Field, model_validator, AnyUrl
 
 from .common import generate_constants_docs
 
@@ -21,7 +20,8 @@ class Constants(BaseModel):
 
     # Subnet settings
     SUBNET_IMMUNITY_PERIOD: int = Field(
-        default=14400, description="Subnet immunity period in blocks (12 seconds per block)."
+        default=14400,
+        description="Subnet immunity period in blocks (12 seconds per block).",
     )
 
     # Versioning
@@ -41,19 +41,16 @@ class Constants(BaseModel):
     SCORING_HOUR: int = Field(
         default=14, description="Hour of the day when scoring occurs (0-23)."
     )
-    POINT_DECAY_RATE: float = Field(
-        default=1 / 14, description="Daily point decay rate."
-    )
 
     # Weighting settings
     CHALLENGE_SCORES_WEIGHT: float = Field(
-        default=0.85, description="Weight of challenge scores."
+        default=0.75, description="Weight of challenge scores."
     )
     NEWLY_REGISTRATION_WEIGHT: float = Field(
         default=0.1, description="Weight of newly registration scores."
     )
     ALPHA_STAKE_WEIGHT: float = Field(
-        default=0.05, description="Weight of alpha stake scores."
+        default=0.15, description="Weight of alpha stake scores."
     )
 
     # Network settings
@@ -128,30 +125,6 @@ class Constants(BaseModel):
             values["EPOCH_LENGTH"] = 30
             values["MIN_VALIDATOR_STAKE"] = -1
         return values
-
-    def decay_points(self, point: float, days_passed: int) -> float:
-        """
-        Applies decay to the given points based on the number of days passed.
-        Uses square root decay pattern for faster initial decay.
-
-        Args:
-            point (float): The original point value.
-            days_passed (int): The number of days since the point was awarded.
-
-        Returns:
-            float: The decayed point value.
-        """
-        # Ensure days_passed is not negative
-        days_passed = max(0, days_passed)
-
-        # Calculate decay progress and clamp between 0 and 1
-        decay_progress = min(max(self.POINT_DECAY_RATE * days_passed, 0.0), 1.0)
-
-        # Calculate decay factor using square root, ensuring it's between 0 and 1
-        decay_factor = 1.0 - math.sqrt(decay_progress)
-        decay_factor = min(max(decay_factor, 0.0), 1.0)
-
-        return float(point * decay_factor)
 
     def is_commit_on_time(self, commit_timestamp: float) -> bool:
         """
