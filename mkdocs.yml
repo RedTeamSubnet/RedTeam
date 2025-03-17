@@ -5,6 +5,7 @@ repo_name: RedTeamSubnet/RedTeam
 repo_url: https://github.com/RedTeamSubnet/RedTeam
 theme:
   name: material
+  language: en
   font:
     text: Roboto
     code: Roboto Mono
@@ -53,9 +54,14 @@ markdown_extensions:
       pygments_lang_class: true
   - pymdownx.inlinehilite
   - pymdownx.snippets
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.emoji:
       emoji_index: !!python/name:material.extensions.emoji.twemoji
       emoji_generator: !!python/name:material.extensions.emoji.to_svg
 plugins:
   - search
+  - mkdocstrings
