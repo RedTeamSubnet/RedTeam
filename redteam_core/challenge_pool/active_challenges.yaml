@@ -215,6 +215,7 @@ toxic_response_adversarial:
   challenge_incentive_weight: 0.2
   target: redteam_core.challenge_pool.toxic_response_adversarial.Controller
   comparer: redteam_core.challenge_pool.toxic_response_adversarial.Comparer
+  challenge_manager: redteam_core.challenge_pool.toxic_response_adversarial.ChallengeManager
   challenge_solve_timeout: 30
   docker_run_timeout: 450
   num_tasks: 1 # Num of tasks for each miner, this will be determined in the challenge 's image.
