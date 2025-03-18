@@ -17,8 +17,6 @@ logger = logging.getLogger(__name__)
 def run_bot(
     driver: WebDriver,
     config: Dict[str, Any],
-    username: str = "username",
-    password: str = "password",
 ) -> bool:
     """Run bot to automate login.
 
@@ -35,20 +33,17 @@ def run_bot(
     try:
         _wait = WebDriverWait(driver, 15)
 
-        # Find and fill username field
-        _username_field = driver.find_element(
-            By.CSS_SELECTOR, 'input[placeholder="Username"]'
-        )
-        _username_field.clear()
-        _username_field.send_keys(username)
-
-        # Find and fill password field
-        _password_field = driver.find_element(
-            By.CSS_SELECTOR, 'input[placeholder="Password"]'
-        )
-        _password_field.clear()
-        _password_field.send_keys(password)
         mouse = PointerInput(kind="mouse", name="mouse")
+
+        # Get config from window.ACTIONS_LIST if config is empty
+        if not config:
+            # Execute JavaScript to get ACTIONS_LIST
+            actions_list = driver.execute_script("return window.ACTIONS_LIST;")
+            if actions_list:
+                logger.info("Retrieved config from window.ACTIONS_LIST")
+            else:
+                logger.error("window.ACTIONS_LIST is empty or doesn't exist")
+                return False
 
         # Perform configured actions
         for i, _action in enumerate(config["actions"]):
@@ -66,6 +61,22 @@ def run_bot(
 
                     time.sleep(0.5)
 
+                except Exception as e:
+                    logger.error(f"Failed to perform action {i+1}: {e}")
+                    continue
+
+            if _action["type"] == "input":
+                _selector = _action["selector"]
+                _args = _action["args"]
+
+                logger.info(
+                    f"Action {i+1}: Inputting '{_args['text']}' to '{_selector}'"
+                )
+
+                try:
+                    _element = driver.find_element(By.ID, _selector["id"])
+                    _element.clear()
+                    _element.send_keys(_args["text"])
                 except Exception as e:
                     logger.error(f"Failed to perform action {i+1}: {e}")
                     continue

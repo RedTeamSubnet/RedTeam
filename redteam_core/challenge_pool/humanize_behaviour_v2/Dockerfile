@@ -103,7 +103,7 @@ RUN rm -rfv /var/lib/apt/lists/* /var/cache/apt/archives/* /tmp/* /root/.cache/*
 		net-tools \
 		curl \
 		iproute2 \
-		skopeo \
+		# skopeo \
 		nano && \
 	curl -fsSL https://get.docker.com/ | sh && \
 	apt-get clean -y && \
@@ -128,7 +128,7 @@ RUN rm -rfv /var/lib/apt/lists/* /var/cache/apt/archives/* /tmp/* /root/.cache/*
 	echo "conda activate base" >> "/home/${USER}/.bashrc" && \
 	rm -rfv /var/lib/apt/lists/* /var/cache/apt/archives/* /tmp/* /root/.cache/* "/home/${USER}/.cache/*" && \
 	mkdir -pv "${HBC_API_DIR}" "${HBC_API_DATA_DIR}" "${HBC_API_LOGS_DIR}" "${HBC_API_TMP_DIR}" && \
-	skopeo copy docker://redteamsn61/hbc-bot-base:latest docker-archive:/app/redteamsn61_hbc-bot-base.tar &&\
+	# skopeo copy docker://redteamsn61/hbc-bot-base:latest docker-archive:/app/redteamsn61_hbc-bot-base.tar &&\
 	chown -Rc "${USER}:${GROUP}" "${HBC_HOME_DIR}" "${HBC_API_DATA_DIR}" "${HBC_API_LOGS_DIR}" "${HBC_API_TMP_DIR}" && \
 	find "${HBC_API_DIR}" "${HBC_API_DATA_DIR}" -type d -exec chmod -c 770 {} + && \
 	find "${HBC_API_DIR}" "${HBC_API_DATA_DIR}" -type d -exec chmod -c ug+s {} + && \

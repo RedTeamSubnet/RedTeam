@@ -1,10 +1,10 @@
-# Humanize Behaviour v2 Submission Guide (Active after March [x]st 2025 14:00 UTC)
+# Humanize Behaviour v2 Submission Guide (Active after March 18th 2025 14:00 UTC)
 
-## Description
+## Overview
 
-**Humanize Behaviour v2** is a challenge designed to test bot scripts' ability to mimic human behavior within a web UI form. It evaluates how effectively a bot can interact with the form, navigate UI elements, engage with form fields, and submit required data accurately and efficiently, with grading based on mouse movement and **keyboard interaction analysis.**
+**Humanize Behaviour v2** tests bot scripts' ability to mimic human interaction with a web UI form. It evaluates how well a bot navigates UI elements, interacts with form fields, and submits data without being caught by the bot detection system, based on  **mouse movement** and **keyboard interaction analysis.**
 
-This challenge assesses the precision and sophistication of bot scripts in performing web-based tasks. Miners participating must demonstrate human-like interaction capabilities through their bot scripts when engaging with the web UI form.
+Miners must demonstrate precise, human-like interactions through their bot scripts when completing the form.
 
 ---
 
@@ -12,44 +12,75 @@ This challenge assesses the precision and sophistication of bot scripts in perfo
 
 Example code for the Humanize Behaviour v2 can be found in the [`redteam_core/miner/commits/humanize_behaviour_v2/src/bot/bot.py`](../../redteam_core/miner/commits/humanize_behaviour_v2/src/bot/bot.py) file.
 
-### Environment
+### Technical Requirements
 
-Your bot script should be compatible with these:
+- Python 3.12
+- Ubuntu 24.04
+- Docker container: selenium/standalone-chrome:4.28.1
 
-- Python: **3.12**
-- Ubuntu: **24.04**
-- Docker image: **selenium/standalone-chrome:4.28.1**
+### Core Requirements
 
-### Before You Begin
+1. Use our template from [`redteam_core/miner/commits/humanize_behaviour_v2/src/bot/bot.py`](../../redteam_core/miner/commits/humanize_behaviour_v2/src/bot/bot.py)
+2. Keep the `run_bot()` function signature unchanged
+3. Your bot must:
+   - Work with the provided Selenium driver
+   - Follow the click sequence specified in `config`
+   - Input text into designated fields
+   - Submit the form without errors
 
-- Use the template bot script provided in the [`redteam_core/miner/commits/humanize_behaviour_v2/src/bot/bot.py`](../../redteam_core/miner/commits/humanize_behaviour_v2/src/bot/bot.py) file.
-- Inside `src/bot` folder, you will find the `bot.py` file, which contains the bot script.
-- Modify only **`run_bot()`** function while keeping the rest of the code if you do not know what you are doing.
-- The bot script must be able to:
-    - Use provided `driver`
-    - Check all click locations provided in `config` (in given order)
-    - Fill in username and password
-    - Submit the form
-- Do not remove or rename `run_bot` function.
+### Key Guidelines
 
-### Things to remember
+- **Driver Usage**: Stick to the provided Selenium driver to ensure proper evaluation
+- **Action Sequence**: Follow the provided `config` order. Clicking it at the start or in the middle will prematurely submit data and result in a zero score due to invalid action flow.
+- **Click Behavior**:
+    - Only click at specified locations
+    - Additional clicks for input fields and submit buttons are allowed
+    - Wrong click order will result in form submission failure.
+- **Text Input**:
+    - Locate fields by their `id`
+    - Use text from the `config`
+    - Maintain the specified input order
+- **Technical Setup**:
+    - Enable headless mode
+    - List dependencies in [`requirements.txt`](../../redteam_core/miner/commits/humanize_behaviour_v2/src/bot/requirements.txt). See the limitations for dependencies
+    - Use amd64 architecture (ARM64 at your own risk)
+    - If your script requires system-level dependencies, add them to  [`system_deps.txt`](../../redteam_core/miner/commits/humanize_behaviour_v2/src/bot/).
+- **Limitations**
+    - Your script must not exceed 2,000 lines. If it does, it will be considered invalid, and you will receive a score of zero.
+    - Your dependencies must be older than January 1, 2025. Any package released on or after this date will not be accepted, and your script will not be processed.
 
-- Use provided `driver` as your main driver. If you don't follow, you may fail to run the challenge or get a low score.
-- Click only in `provided locations`:
-    - Clicking extra for input and submit button is ok
-    - If your script clicks in wrong order or skips some locations, you will not be able to submit the form
-- Make sure the bot scripts run on **`headless browser`**
-- Click `login-button` at the end of session; if you press it before, the session will end automatically
-- Provide dependencies in [`requirements.txt`](../../redteam_core/miner/commits/humanize_behaviour_v2/src/bot/requirements.txt)
-- The miner docker container must be run in **amd64** (x86_64) architecture because the selenium driver (chromedriver) is not compatible with **arm64** architecture. If managed to run in ARM architecture, then it's up to you.
+### Evaluation Criteria
 
-### 1. Navigate to the Humanize Behaviour v2 Commit Directory
+Your bot will be scored on these human-like behaviors:
+
+- Mouse Movement Velocity Variation
+- Mouse Movement Speed
+- Mouse Movement Velocity Profiles between clicks
+- Mouse Movement Granularity (average pixel per movement)
+- Mouse Movement Count within the session
+- Mouse Movement Trajectory Linearity
+- Keypress Behavior Pattern (typing speed and variations)
+
+### Plagiarism Check
+
+We maintain strict originality standards:
+
+- All submissions are compared against other miners' script
+- 100% similarity = zero score
+- Similarity above 60% will result in proportional score penalties based on the **detected similarity percentage**.
+- Note: Comparisons are only made against other miners’ submissions, not your own previous Humanize Behaviour v2 entries.
+
+## Submission Guide
+
+Follow 1~6 steps to submit your script.
+
+1. **Navigate to the Humanize Behaviour v2 Commit Directory**
 
 ```bash
 cd redteam_core/miner/commits/humanize_behaviour_v2
 ```
 
-### 2. Build the Docker Image
+2. **Build the Docker Image**
 
 To build the Docker image for the Humanize Behaviour v2 submission, run:
 
@@ -60,7 +91,7 @@ docker build -t my_hub/humanize_behaviour-miner:0.0.1 .
 DOCKER_BUILDKIT=1 docker build --platform linux/amd64 -t myhub/humanize_behaviour-miner:0.0.1 .
 ```
 
-### 3. Log in to Docker
+3. **Log in to Docker**
 
 Log in to your Docker Hub account using the following command:
 
@@ -70,7 +101,7 @@ docker login
 
 Enter your Docker Hub credentials when prompted.
 
-### 4. Push the Docker Image
+4. **Push the Docker Image**
 
 Push the tagged image to your Docker Hub repository:
 
@@ -78,7 +109,7 @@ Push the tagged image to your Docker Hub repository:
 docker push myhub/humanize_behaviour:0.0.1
 ```
 
-### 5. Retrieve the SHA256 Digest
+5. **Retrieve the SHA256 Digest**
 
 After pushing the image, retrieve the digest by running:
 
@@ -86,7 +117,7 @@ After pushing the image, retrieve the digest by running:
 docker inspect --format='{{index .RepoDigests 0}}' myhub/humanize_behaviour:0.0.1
 ```
 
-### 6. Update active_commit.yaml
+6. **Update active_commit.yaml**
 
 Finally, go to the `neurons/miner/active_commit.yaml` file and update it with the new image tag:
 
