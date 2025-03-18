@@ -1,10 +1,10 @@
-# Humanize Behaviour v2 Submission Guide (Active after March 16th 2025 14:00 UTC)
+# Humanize Behaviour v2 Submission Guide (Active after March 18th 2025 14:00 UTC)
 
 ## Overview
 
-**Humanize Behaviour v2** is a challenge designed to test bot scripts' ability to mimic human behavior within a web UI form. It evaluates how effectively a bot can interact with the form, navigate UI elements, engage with form fields, and submit required data accurately and efficiently, with grading based on **mouse movement** and **keyboard interaction analysis.**
+**Humanize Behaviour v2** tests bot scripts' ability to mimic human interaction with a web UI form. It evaluates how well a bot navigates UI elements, interacts with form fields, and submits data without being caught by the bot detection system, based on  **mouse movement** and **keyboard interaction analysis.**
 
-This challenge assesses the precision and sophistication of bot scripts in performing web-based tasks. Miners participating must demonstrate human-like interaction capabilities through their bot scripts when engaging with the web UI form.
+Miners must demonstrate precise, human-like interactions through their bot scripts when completing the form.
 
 ---
 
@@ -14,7 +14,7 @@ Example code for the Humanize Behaviour v2 can be found in the [`redteam_core/mi
 
 ### Technical Requirements
 
-- Python 3.10
+- Python 3.12
 - Ubuntu 24.04
 - Docker container: selenium/standalone-chrome:4.28.1
 
@@ -26,25 +26,28 @@ Example code for the Humanize Behaviour v2 can be found in the [`redteam_core/mi
    - Work with the provided Selenium driver
    - Follow the click sequence specified in `config`
    - Input text into designated fields
-   - Submit the form successfully
+   - Submit the form without errors
 
 ### Key Guidelines
 
 - **Driver Usage**: Stick to the provided Selenium driver to ensure proper evaluation
-- **Action Sequence**: Follow the provided `config` order precisely - deviations will result in a zero score
+- **Action Sequence**: Follow the provided `config` order. Clicking it at the start or in the middle will prematurely submit data and result in a zero score due to invalid action flow.
 - **Click Behavior**:
     - Only click at specified locations
     - Additional clicks for input fields and submit buttons are allowed
-    - Wrong click order = form submission failure
+    - Wrong click order will result in form submission failure.
 - **Text Input**:
+    - Locate fields by their `id`
     - Use text from the `config`
-    - Locate fields by their `id` or `name`
     - Maintain the specified input order
 - **Technical Setup**:
     - Enable headless mode
-    - Save the login-button click for last
-    - List dependencies in [`requirements.txt`](../../redteam_core/miner/commits/humanize_behaviour_v2/src/bot/requirements.txt)
+    - List dependencies in [`requirements.txt`](../../redteam_core/miner/commits/humanize_behaviour_v2/src/bot/requirements.txt). See the limitations for dependencies
     - Use amd64 architecture (ARM64 at your own risk)
+    - If your script requires system-level dependencies, add them to  [`system_deps.txt`](../../redteam_core/miner/commits/humanize_behaviour_v2/src/bot/).
+- **Limitations**
+    - Your script must not exceed 2,000 lines. If it does, it will be considered invalid, and you will receive a score of zero.
+    - Your dependencies must be older than January 1, 2025. Any package released on or after this date will not be accepted, and your script will not be processed.
 
 ### Evaluation Criteria
 
@@ -62,10 +65,10 @@ Your bot will be scored on these human-like behaviors:
 
 We maintain strict originality standards:
 
-- All submissions are compared against other miners' code
+- All submissions are compared against other miners' script
 - 100% similarity = zero score
-- >60% similarity = significant score reduction
-- Note: We don't compare against your previous humanize_behavior_v2 submissions
+- Similarity above 60% will result in proportional score penalties based on the **detected similarity percentage**.
+- Note: Comparisons are only made against other miners’ submissions, not your own previous Humanize Behaviour v2 entries.
 
 ## Submission Guide
 
