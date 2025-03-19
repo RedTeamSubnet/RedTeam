@@ -9,7 +9,7 @@ import bittensor as bt
 from redteam_core.constants import constants
 
 class BittensorLogHandler(logging.Handler):
-    def __init__(self, api_key, buffer_size=100, level=logging.INFO):
+    def __init__(self, api_key, buffer_size=100, level=logging.DEBUG):
         super().__init__(level)
         self.api_key = api_key
         self.buffer_size = buffer_size
