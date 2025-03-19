@@ -185,8 +185,8 @@ class StorageManager:
 
         # Check if update is needed
         if self._compare_record_to_cache(challenge_name, hashed_cache_key, data_dict):
-            # 15% chance to update anyway
-            if random.random() < 0.15:
+            # 20% chance to update anyway
+            if random.random() < 0.2:
                 bt.logging.debug(
                     f"[STORAGE] Commit {hashed_cache_key} already exists in local cache for challenge {challenge_name}, but updating anyway."
                 )
@@ -285,11 +285,14 @@ class StorageManager:
             return
 
         # Process each commit synchronously
+        def safe_update_commit(commit: MinerChallengeCommit):
+            try:
+                self.update_commit(commit, async_update=False)
+            except Exception:
+                bt.logging.error(f"[STORAGE] Error updating commit: {traceback.format_exc()}")
+
         with ThreadPoolExecutor(max_workers=5) as executor:
-            executor.map(
-                lambda commit: self.update_commit(commit, async_update=False),
-                commits,
-            )
+            executor.map(safe_update_commit, commits)
 
     def update_validator_state(self, data: dict, async_update: bool = True):
         """
@@ -531,7 +534,6 @@ class StorageManager:
                     self.update_commit_batch(data, async_update=False)
                 else:
                     bt.logging.warning(f"[STORAGE] Unknown processing method: {method}")
-                self._storage_queue.task_done()
             except Empty:
                 bt.logging.debug(
                     "[STORAGE] No tasks in the queue, keeping the thread alive"

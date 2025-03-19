@@ -68,6 +68,8 @@ class BittensorLogHandler(logging.Handler):
         except requests.RequestException:
             bt.logging.error(f"[LOG HANDLER] Failed to send logs: {traceback.format_exc()}")
 
+        bt.logging.success(f"[LOG HANDLER] Successfully sent {len(logs)} logs")
+
     def close(self):
         """Stop the daemon thread and flush remaining logs."""
         self.stop_event.set()
