@@ -38,7 +38,7 @@ class Challenge:
     def score_task(self, miner_input: MinerInput, miner_output: MinerOutput) -> float:
         miner_prompts = miner_output.adversarial_prompts
 
-        scale_factor = max(len(miner_prompts) / miner_input.output_num, 1)
+        scale_factor = min(max(len(miner_prompts) / miner_input.output_num, 0), 1)
 
         # Generate response from the miner's prompt
         batch_of_messages = []

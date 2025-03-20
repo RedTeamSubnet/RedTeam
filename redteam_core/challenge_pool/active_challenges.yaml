@@ -104,4 +104,4 @@ humanize_behaviour_v2:
     - redteamsubnet61/base_hbv2_image1@sha256:4247a5bcc3528b2c13e3b8ffe04e2bf557d98ec3d8dd2c814735c538a81438e2
     - redteamsubnet61/base_hbv2_image2@sha256:4ded4313b448cb970cadf62664c7bba28d9d777c9f63c95a51d6fea9b307c0f9
     - redteamsubnet61/base_hbv2_image3@sha256:65110ad3f64a9ee782868348da873399f00730b65fd8feb14b730eaae62d53a4
-    - redteamsubnet61/base_hbv2_image4@sha256:b993793a80090be6aadd685d0c0e004e5d91b5de1406c95207529d064adf7cc7
+    - redteamsubnet61/base_hbv2_image4@sha256:6d2360ed9ff7310dbc31aee5ac61a9ebf60edbd4e85fd3077bfbdd42f7abd3f0
