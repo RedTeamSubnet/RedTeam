@@ -108,6 +108,7 @@ class BaseValidator(ABC):
         bt.logging.info("Starting validator loop.")
         # Try set weights after initial sync
         try:
+            bt.logging.info("Initializing weights")
             self.set_weights()
         except Exception:
             bt.logging.error(f"Initial set weights error: {traceback.format_exc()}")
