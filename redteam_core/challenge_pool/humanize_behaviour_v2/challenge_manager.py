@@ -62,7 +62,7 @@ class HBChallengeManager(ChallengeManager):
                         np.mean([log.similarity_score for log in logs])
                         for logs in miner_commit.comparison_logs.values()
                     ]
-                    miner_commit.penalty = float(np.max(penalty_values)) if penalty_values else 0
+                    miner_commit.penalty = float(np.max(penalty_values).item()) if penalty_values else 0
 
                 else:
                     miner_commit.penalty = 0

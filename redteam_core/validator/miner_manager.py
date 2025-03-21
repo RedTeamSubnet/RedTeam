@@ -45,8 +45,8 @@ class MinerManager:
             challenge_scores = challenge_manager.get_challenge_scores()
 
             bt.logging.debug(
-                f"[MINER_MANAGER] Challenge {challenge_manager.challenge_name} challenge_weight: {challenge_weight}\n "
-                f"Challenge scores: {challenge_scores}\n "
+                f"[MINER MANAGER] Challenge {challenge_manager.challenge_name} challenge_weight: {challenge_weight}\n "
+                f"Challenge scores: {challenge_scores.tolist()}\n "
             )
 
             # Add weighted scores to aggregate
@@ -56,7 +56,7 @@ class MinerManager:
             aggregated_scores /= np.sum(aggregated_scores)
 
         bt.logging.debug(
-            f"[MINER MANAGER] Aggregated challenge scores: {aggregated_scores}"
+            f"[MINER MANAGER] Aggregated challenge scores: {aggregated_scores.tolist()}"
         )
 
         return aggregated_scores
@@ -109,7 +109,7 @@ class MinerManager:
             bt.logging.error(f"Error fetching uids registration time: {e}")
             return np.zeros(n_uids)
 
-        bt.logging.debug(f"[MINER MANAGER] Newly registration scores: {scores}")
+        bt.logging.debug(f"[MINER MANAGER] Newly registration scores: {scores.tolist()}")
 
         return scores
 
@@ -126,7 +126,7 @@ class MinerManager:
             # Normalize stakes to get scores between 0 and 1
             scores = sqrt_alpha_stakes / total_sqrt_alpha_stakes
 
-        bt.logging.debug(f"[MINER MANAGER] Alpha stake scores: {scores}")
+        bt.logging.debug(f"[MINER MANAGER] Alpha stake scores: {scores.tolist()}")
 
         return scores
 
@@ -159,7 +159,7 @@ class MinerManager:
         )
 
         bt.logging.debug(
-            f"[MINER MANAGER] Onchain final scores: {final_scores}\n "
+            f"[MINER MANAGER] Onchain final scores: {final_scores.tolist()}\n "
         )
 
         return final_scores

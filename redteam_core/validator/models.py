@@ -104,6 +104,7 @@ class MinerChallengeCommit(BaseModel):
                 ref_commit: [log.public_view() for log in logs]
                 for ref_commit, logs in self.comparison_logs.items()
             },
+            scored_timestamp=self.scored_timestamp,
             score=self.score,
             penalty=self.penalty,
             accepted=self.accepted,

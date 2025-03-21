@@ -161,7 +161,7 @@ class ChallengeManager:
                         for logs in miner_commit.comparison_logs.values()
                     ]
                     miner_commit.penalty = (
-                        float(np.max(penalty_values)) if penalty_values else 0
+                        float(np.max(penalty_values).item()) if penalty_values else 0
                     )
             except Exception:
                 bt.logging.error(
