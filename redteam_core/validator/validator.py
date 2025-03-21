@@ -1,10 +1,12 @@
-import bittensor as bt
-from ..constants import constants
-import traceback
 import threading
 import time
+import traceback
+from abc import ABC, abstractmethod
+
+import bittensor as bt
 from substrateinterface import SubstrateInterface
-from abc import abstractmethod, ABC
+
+from ..constants import constants
 
 
 class BaseValidator(ABC):
@@ -109,9 +111,8 @@ class BaseValidator(ABC):
 
             try:
                 self.forward()
-            except Exception as e:
-                bt.logging.error(f"Forward error: {e}")
-                traceback.print_exc()
+            except Exception:
+                bt.logging.error(f"Forward error: {traceback.format_exc()}")
 
             end_epoch = time.time()
             elapsed = end_epoch - start_epoch
@@ -121,15 +122,13 @@ class BaseValidator(ABC):
 
             try:
                 self.set_weights()
-            except Exception as e:
-                bt.logging.error(f"Set weights error: {e}")
-                traceback.print_exc()
+            except Exception:
+                bt.logging.error(f"Set weights error: {traceback.format_exc()}")
 
             try:
                 self.resync_metagraph()
-            except Exception as e:
-                bt.logging.error(f"Resync metagraph error: {e}")
-                traceback.print_exc()
+            except Exception:
+                bt.logging.error(f"Resync metagraph error: {traceback.format_exc()}")
 
             except KeyboardInterrupt:
                 bt.logging.success("Keyboard interrupt detected. Exiting validator.")
