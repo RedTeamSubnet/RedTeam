@@ -391,8 +391,7 @@ class RewardApp(Validator):
             try:
                 self.forward()
             except Exception as e:
-                bt.logging.error(f"Forward error: {e}")
-                traceback.print_exc()
+                bt.logging.error(f"Forward error: {traceback.format_exc()}")
 
             end_epoch = time.time()
             elapsed = end_epoch - start_epoch
@@ -402,9 +401,8 @@ class RewardApp(Validator):
 
             try:
                 self.resync_metagraph()
-            except Exception as e:
-                bt.logging.error(f"Resync metagraph error: {e}")
-                traceback.print_exc()
+            except Exception:
+                bt.logging.error(f"Resync metagraph error: {traceback.format_exc()}")
 
             except KeyboardInterrupt:
                 bt.logging.success("Keyboard interrupt detected. Exiting validator.")
@@ -542,15 +540,15 @@ class RewardApp(Validator):
                                     < current_miner_commit.commit_timestamp
                                 ):
                                     # Update to older commit timestamp
-                                    miner_commit.commit_timestamp = (
-                                        current_miner_commit.commit_timestamp
+                                    current_miner_commit.commit_timestamp = (
+                                        miner_commit.commit_timestamp
                                     )
                                 if not current_miner_commit.key:
                                     # Add unknown key if possible
-                                    miner_commit.key = current_miner_commit.key
+                                    current_miner_commit.key = miner_commit.key
                                 if not current_miner_commit.commit:
                                     # Add unknown commit if possible
-                                    miner_commit.commit = current_miner_commit.commit
+                                    current_miner_commit.commit = miner_commit.commit
                             else:
                                 # If encrypted commit is different, we compare commit timestamp
                                 if (
@@ -560,8 +558,8 @@ class RewardApp(Validator):
                                     > current_miner_commit.commit_timestamp
                                 ):
                                     # If newer commit timestamp, update to the latest commit
-                                    miner_commit.commit_timestamp = (
-                                        current_miner_commit.commit_timestamp
+                                    current_miner_commit.commit_timestamp = (
+                                        miner_commit.commit_timestamp
                                     )
                                 else:
                                     # If older commit timestamp, skip

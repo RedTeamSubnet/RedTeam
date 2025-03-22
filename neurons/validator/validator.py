@@ -252,14 +252,19 @@ class Validator(BaseValidator):
             # Loop until all challenges have finished scoring
             while True:
                 for challenge, commits in revealed_commits.items():
+                    # Skip if challenge is not active
                     if challenge not in self.active_challenges:
                         continue
+
+                    # Skip if there are no commits for the challenge
                     if not commits:
                         bt.logging.info(
                             f"[FORWARD LOCAL SCORING] No commits for challenge: {challenge}"
                         )
+                        is_scoring_done[challenge] = True
                         continue
 
+                    # Skip if scoring is already done for the challenge
                     if is_scoring_done[challenge]:
                         continue
 

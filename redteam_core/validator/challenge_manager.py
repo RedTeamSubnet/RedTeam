@@ -153,16 +153,19 @@ class ChallengeManager:
 
                 if not miner_commit.comparison_logs:
                     # Penalty is 0 if no comparison logs
-                    miner_commit.penalty = 0
+                    miner_commit.penalty = 0.0
                 else:
                     # Penalty by max of mean similarity with unique solutions
                     penalty_values = [
                         np.mean([log.similarity_score for log in logs])
                         for logs in miner_commit.comparison_logs.values()
                     ]
-                    miner_commit.penalty = (
-                        float(np.max(penalty_values).item()) if penalty_values else 0
-                    )
+                    penalty = np.max(penalty_values).item() if penalty_values else 0
+                    if np.isnan(penalty):
+                        miner_commit.penalty = 0.0
+                    else:
+                        miner_commit.penalty = float(penalty)
+
             except Exception:
                 bt.logging.error(
                     f"[CHALLENGE MANAGER] Challenge {self.challenge_name}, failed to get commit {miner_commit.encrypted_commit} scores and penalties: {traceback.format_exc()}"
