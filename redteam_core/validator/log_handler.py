@@ -37,7 +37,7 @@ class BittensorLogHandler(logging.Handler):
 
         while not self.stop_event.is_set() or not self.log_queue.empty():
             try:
-                log_entry = self.log_queue.get(timeout=3)  # Wait for logs
+                log_entry = self.log_queue.get(timeout=7)  # Wait for logs
                 buffer.append(log_entry)
 
                 if len(buffer) >= self.buffer_size:

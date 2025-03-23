@@ -143,6 +143,10 @@ class Validator(BaseValidator):
 
         # Try to load state based on scoring configuration
         if self.config.validator.use_centralized_scoring:
+            # Try to get state from centralized storage
+            bt.logging.info(
+                f"[INIT] Trying to get validator state from centralized storage for validator {self.uid}, hotkey: {self.wallet.hotkey.ss58_address}"
+            )
             state = self.storage_manager.get_latest_validator_state_from_storage(
                 validator_uid=self.uid,
                 validator_hotkey=self.wallet.hotkey.ss58_address,
@@ -155,7 +159,14 @@ class Validator(BaseValidator):
                     validator_uid=self.uid,
                     validator_hotkey=self.wallet.hotkey.ss58_address,
                 )
+            else:
+                bt.logging.success(
+                    f"[INIT] Successfully retrieved validator state from centralized storage for validator {self.uid}, hotkey: {self.wallet.hotkey.ss58_address}"
+                )
         else:
+            bt.logging.info(
+                f"[INIT] Trying to get validator state from local cache for validator {self.uid}, hotkey: {self.wallet.hotkey.ss58_address}"
+            )
             state = self.storage_manager.get_latest_validator_state_from_cache(
                 validator_uid=self.uid,
                 validator_hotkey=self.wallet.hotkey.ss58_address,
