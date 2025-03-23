@@ -100,7 +100,7 @@ class RewardApp(Validator):
             daemon=True,  # Ensures the thread stops when the main process exits
         )
         self.server_thread.start()
-        bt.logging.info(f"FastAPI server is running on port {self.config.port}!")
+        bt.logging.info(f"FastAPI server is running on port {self.config.reward_app.port}!")
 
     def setup_bittensor_objects(self):
         bt.logging.info("Setting up Bittensor objects.")
@@ -746,21 +746,28 @@ class RewardApp(Validator):
                     continue
 
                 # Found the commit in self.scoring_results, now we make sure cache have correct scoring_logs
-                # Check for each entries in scoring_logs for miner_input and miner_output, they should not be None
-                scoring_logs_with_none = []
-                for scoring_log in commit.scoring_logs:
-                    if (
-                        scoring_log.miner_input is None
-                        or scoring_log.miner_output is None
-                    ):
-                        scoring_logs_with_none.append(scoring_log)
-
-                # If there are any scoring logs with None, we use the scoring_logs from self.scoring_results and update the cache
-                if any(scoring_logs_with_none):
+                if not commit.scoring_logs:
+                    # If not scoring_logs, we add the scoring_logs from self.scoring_results
                     commit.scoring_logs = self.scoring_results[challenge_name][
                         commit.docker_hub_id
                     ]["scoring_logs"]
                     cache[hashed_cache_key] = commit.model_dump()
+                else:
+                    # Check for each entries in scoring_logs for miner_input and miner_output, they should not be None
+                    scoring_logs_with_none = []
+                    for scoring_log in commit.scoring_logs:
+                        if (
+                            scoring_log.miner_input is None
+                            or scoring_log.miner_output is None
+                        ):
+                            scoring_logs_with_none.append(scoring_log)
+
+                    # If there are any scoring logs with None, we use the scoring_logs from self.scoring_results and update the cache
+                    if any(scoring_logs_with_none):
+                        commit.scoring_logs = self.scoring_results[challenge_name][
+                            commit.docker_hub_id
+                        ]["scoring_logs"]
+                        cache[hashed_cache_key] = commit.model_dump()
 
             # Clean up cache entries that we want to delete
             for hashed_cache_key in cache_keys_to_delete:
