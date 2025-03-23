@@ -392,6 +392,13 @@ class RewardApp(Validator):
 
     def run(self):
         bt.logging.info("Starting RewardApp loop.")
+        # Try set weights after initial sync
+        try:
+            bt.logging.info("Initializing weights")
+            self.set_weights()
+        except Exception:
+            bt.logging.error(f"Initial set weights error: {traceback.format_exc()}")
+
         while True:
             start_epoch = time.time()
 
@@ -404,7 +411,12 @@ class RewardApp(Validator):
             elapsed = end_epoch - start_epoch
             time_to_sleep = max(0, self.config.reward_app.epoch_length - elapsed)
             bt.logging.info(f"Epoch finished. Sleeping for {time_to_sleep} seconds.")
-            time.sleep(time_to_sleep)
+
+
+            try:
+                self.set_weights()
+            except Exception:
+                bt.logging.error(f"Set weights error: {traceback.format_exc()}")
 
             try:
                 self.resync_metagraph()
