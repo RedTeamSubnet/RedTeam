@@ -28,6 +28,8 @@ RUN _BUILD_TARGET_ARCH=$(uname -m) && \
 		ca-certificates \
 		build-essential \
 		git \
+		graphviz \
+		graphviz-dev \
 		wget && \
 	_MINICONDA_VERSION=py310_25.1.1-2 && \
 	if [ "${_BUILD_TARGET_ARCH}" == "x86_64" ]; then \
@@ -45,8 +47,9 @@ RUN _BUILD_TARGET_ARCH=$(uname -m) && \
 	fi && \
 	/bin/bash "/root/${_MINICONDA_FILENAME}" -b -u -p /opt/conda && \
 	/opt/conda/condabin/conda update -y conda && \
-	/opt/conda/condabin/conda install -y python=${PYTHON_VERSION} graphviz pip && \
-	/opt/conda/condabin/conda install -y --channel conda-forge pygraphviz && \
+	/opt/conda/condabin/conda install -y python=${PYTHON_VERSION} pip && \
+	# /opt/conda/condabin/conda install -y python=${PYTHON_VERSION} graphviz pip && \
+	# /opt/conda/condabin/conda install -y --channel conda-forge pygraphviz && \
 	/opt/conda/bin/pip install --timeout 60 -U pip
 
 COPY requirements ./requirements
@@ -103,6 +106,8 @@ RUN rm -rfv /var/lib/apt/lists/* /var/cache/apt/archives/* /tmp/* /root/.cache/*
 		net-tools \
 		curl \
 		iproute2 \
+		graphviz \
+		graphviz-dev \
 		# skopeo \
 		nano && \
 	curl -fsSL https://get.docker.com/ | sh && \
