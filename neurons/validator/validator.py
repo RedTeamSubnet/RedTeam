@@ -259,7 +259,7 @@ class Validator(BaseValidator):
                     # Skip if there are no commits for the challenge
                     if not commits:
                         bt.logging.info(
-                            f"[FORWARD LOCAL SCORING] No commits for challenge: {challenge}"
+                            f"[FORWARD CENTRALIZED SCORING] No commits for challenge: {challenge}"
                         )
                         is_scoring_done[challenge] = True
                         continue

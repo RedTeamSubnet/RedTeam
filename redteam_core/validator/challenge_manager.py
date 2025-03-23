@@ -141,15 +141,19 @@ class ChallengeManager:
                 # Skip if docker_hub_id has been scored
                 continue
 
+            if not miner_commit.scoring_logs:
+                # Skip if no scoring logs
+                continue
+
             try:
-                if not miner_commit.scoring_logs:
-                    # Skip if no scoring logs
-                    continue
+                # Compute mean score
+                score = np.mean(
+                    [scoring_log.score for scoring_log in miner_commit.scoring_logs]
+                ).item()
+                if np.isnan(score):
+                    miner_commit.score = 0.0
                 else:
-                    # Mean score
-                    miner_commit.score = np.mean(
-                        [scoring_log.score for scoring_log in miner_commit.scoring_logs]
-                    ).item()
+                    miner_commit.score = float(score)
 
                 if not miner_commit.comparison_logs:
                     # Penalty is 0 if no comparison logs

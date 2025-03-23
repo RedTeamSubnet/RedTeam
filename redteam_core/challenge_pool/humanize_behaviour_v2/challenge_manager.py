@@ -52,9 +52,13 @@ class HBChallengeManager(ChallengeManager):
 
             try:
                 # Compute mean score
-                miner_commit.score = np.mean(
+                score = np.mean(
                     [scoring_log.score for scoring_log in miner_commit.scoring_logs]
                 ).item()
+                if np.isnan(score):
+                    miner_commit.score = 0.0
+                else:
+                    miner_commit.score = float(score)
 
                 # Compute penalty
                 if miner_commit.comparison_logs:

@@ -232,9 +232,10 @@ class RewardApp(Validator):
             revealed_commits_list (list[MinerChallengeCommit]): List of new commits to score
 
         Process:
-        1. Gather unique commits from challenge manager for comparison
-        2. Retrieve cached data for reference commits
-        3. Run challenge controller with:
+        1. Look up cached results for already scored commits, use cached results for already scored commits
+        2. Gather unique commits from challenge manager for comparison
+        3. Retrieve cached data for reference commits
+        4. Run challenge controller with:
            - New commits to be scored
            - Reference commits for comparison
 
@@ -252,7 +253,7 @@ class RewardApp(Validator):
             )
             return
 
-        # 0. Look up cached results for already scored commits, use cached results for already scored commits
+        # 1. Look up cached results for already scored commits, use cached results for already scored commits
         # Also construct input seeds for new commits, this will be using input from commits that in the same revealed list for comparison
         # We do this since commits being in the same revealed list means that they will be scored in same day
         new_commits: list[MinerChallengeCommit] = []
@@ -261,7 +262,7 @@ class RewardApp(Validator):
         input_seed_hashes_set: set[str] = set()
         for commit in revealed_commits_list:
             if commit.docker_hub_id in self.scoring_results.setdefault(challenge, {}):
-                # Use cached results for already scored commits
+                # Use results for already scored commits
                 cached_result = self.scoring_results[challenge][commit.docker_hub_id]
                 commit.scoring_logs = cached_result["scoring_logs"]
                 commit.comparison_logs = cached_result["comparison_logs"]
@@ -288,7 +289,7 @@ class RewardApp(Validator):
             f"[CENTRALIZED SCORING] Running controller for challenge: {challenge}"
         )
 
-        # 1. Gather comparison inputs
+        # 2. Gather comparison inputs
         # Get unique commits for the challenge (the "encrypted_commit"s)
         unique_commits = self.challenge_managers[challenge].get_unique_commits()
         # Get unique solutions 's cache key
@@ -318,9 +319,12 @@ class RewardApp(Validator):
                     )
                     continue
 
-        # 2. Run challenge controller
+        # 3. Run challenge controller
         bt.logging.info(
             f"[CENTRALIZED SCORING] Running controller for challenge: {challenge}"
+        )
+        bt.logging.info(
+            f"[CENTRALIZED SCORING] Going to score {len(new_commits)} commits for challenge: {challenge}"
         )
         # This challenge controll will run with new inputs and reference commit input
         # Reference commits are collected from yesterday, so if same docker_hub_id commited same day, they can share comparison_logs field, and of course, scoring_logs field
@@ -335,7 +339,7 @@ class RewardApp(Validator):
         # Run challenge controller, the controller update commit 's scoring logs and reference comparison logs directly
         controller.start_challenge()
 
-        # 3. Do comparison for new commits with each other, we only compare with reference commits
+        # 4. Do comparison for new commits with each other, we only compare with reference commits
         self._compare_miner_commits(
             challenge=challenge,
             revealed_commits_list=new_commits,
