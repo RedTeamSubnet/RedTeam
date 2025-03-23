@@ -13,13 +13,13 @@ from fastapi import Body, FastAPI
 from prometheus_fastapi_instrumentator import Instrumentator
 
 from neurons.validator.validator import Validator
-from redteam_core.validator.models import (
-    MinerChallengeCommit,
-    ComparisonLog,
-    ScoringLog,
-)
 from redteam_core import constants
 from redteam_core.common import get_config
+from redteam_core.validator.models import (
+    ComparisonLog,
+    MinerChallengeCommit,
+    ScoringLog,
+)
 
 REWARD_APP_HOTKEY = os.getenv("REWARD_APP_HOTKEY")
 REWARD_APP_UID = -1
@@ -70,6 +70,9 @@ class RewardApp(Validator):
         self.scoring_results: dict[
             str, dict[str, Union[list[ScoringLog], dict[str, ComparisonLog]]]
         ] = self._fetch_centralized_scoring(list(self.active_challenges.keys()))
+        # Sync the cache from scoring results retrieved from storage upon initialization
+        self._sync_scoring_results_from_storage_to_cache()
+
         # Initialize scoring completion flags
         # This is used to check if the scoring for a challenge is done
         # Set to False when new miner commits are retrieved and True when all miner commits are scored and compared at scoring hour
@@ -700,6 +703,56 @@ class RewardApp(Validator):
                 },
             }
         return scoring_results
+
+    def _sync_scoring_results_from_storage_to_cache(self):
+        """
+        Sync scoring results (self.scoring_results) from storage to cache.
+        This method will update the cache with scoring results from storage.
+        It will also delete cache entries that are not in self.scoring_results.
+        """
+        # Iter all the keys in all cache corespond to active challenges
+        for challenge_name in self.active_challenges.keys():
+            cache = self.storage_manager._get_cache(challenge_name)
+            cache_keys_to_delete = []
+
+            for hashed_cache_key in cache.iterkeys():
+                commit = cache.get(hashed_cache_key)
+                try:
+                    commit = MinerChallengeCommit.model_validate(
+                        commit
+                    )  # Model validate the commit
+                except Exception:
+                    # Skip if commit is not valid
+                    # Do this if we want to clean up invalid commits
+                    # cache_keys_to_delete.append(hashed_cache_key)
+                    continue
+
+                # Check if docker_hub_id is in self.scoring_results
+                if commit.docker_hub_id not in self.scoring_results[challenge_name]:
+                    # Do this if we want to clean up commits with no scoring results
+                    # cache_keys_to_delete.append(hashed_cache_key)
+                    continue
+
+                # Found the commit in self.scoring_results, now we make sure cache have correct scoring_logs
+                # Check for each entries in scoring_logs for miner_input and miner_output, they should not be None
+                scoring_logs_with_none = []
+                for scoring_log in commit.scoring_logs:
+                    if (
+                        scoring_log.miner_input is None
+                        or scoring_log.miner_output is None
+                    ):
+                        scoring_logs_with_none.append(scoring_log)
+
+                # If there are any scoring logs with None, we use the scoring_logs from self.scoring_results and update the cache
+                if any(scoring_logs_with_none):
+                    commit.scoring_logs = self.scoring_results[challenge_name][
+                        commit.docker_hub_id
+                    ]["scoring_logs"]
+                    cache[hashed_cache_key] = commit.model_dump()
+
+            # Clean up cache entries that we want to delete
+            for hashed_cache_key in cache_keys_to_delete:
+                cache.delete(hashed_cache_key)
 
     # MARK: Endpoints
     async def get_scoring_result(
