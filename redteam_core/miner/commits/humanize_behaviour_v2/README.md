@@ -1,4 +1,4 @@
-# Humanize Behaviour v1 Challenge - Miner
+# Humanize Behaviour V2 Challenge - Miner
 
 This is miner bot script repo for the Humanize Behaviour v1 Challenge. This is sandboxed sample code for the challenge, you can use this code to test your bot script.
 

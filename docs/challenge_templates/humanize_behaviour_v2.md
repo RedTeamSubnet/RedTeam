@@ -10,17 +10,17 @@ Miners must demonstrate precise, human-like interactions through their bot scrip
 
 ## Example Code and Submission Instructions
 
-Example code for the Humanize Behaviour v2 can be found in the [`redteam_core/miner/commits/humanize_behaviour_v2/src/bot/bot.py`](../../redteam_core/miner/commits/humanize_behaviour_v2/src/bot/bot.py) file.
+Example codes for the Humanize Behaviour v2 can be found in the [`redteam_core/miner/commits/humanize_behaviour_v2/`](https://github.com/RedTeamSubnet/RedTeam/blob/main/redteam_core/miner/commits/humanize_behaviour_v2/) directory.
 
 ### Technical Requirements
 
-- Python 3.12
+- Python 3.10
 - Ubuntu 24.04
 - Docker container: selenium/standalone-chrome:4.28.1
 
 ### Core Requirements
 
-1. Use our template from [`redteam_core/miner/commits/humanize_behaviour_v2/src/bot/bot.py`](../../redteam_core/miner/commits/humanize_behaviour_v2/src/bot/bot.py)
+1. Use our template from [`redteam_core/miner/commits/humanize_behaviour_v2/src/bot/bot.py`](https://github.com/RedTeamSubnet/RedTeam/blob/main/redteam_core/miner/commits/humanize_behaviour_v2/src/bot/bot.py)
 2. Keep the `run_bot()` function signature unchanged
 3. Your bot must:
    - Work with the provided Selenium driver
@@ -42,9 +42,9 @@ Example code for the Humanize Behaviour v2 can be found in the [`redteam_core/mi
     - Maintain the specified input order
 - **Technical Setup**:
     - Enable headless mode
-    - List dependencies in [`requirements.txt`](../../redteam_core/miner/commits/humanize_behaviour_v2/src/bot/requirements.txt). See the limitations for dependencies
+    - List dependencies in [`pip_requirements`](https://github.com/RedTeamSubnet/RedTeam/blob/main/redteam_core/miner/commits/humanize_behaviour_v2/src/bot/requirements.txt). See the limitations for dependencies below.
     - Use amd64 architecture (ARM64 at your own risk)
-    - If your script requires system-level dependencies, add them to  [`system_deps.txt`](../../redteam_core/miner/commits/humanize_behaviour_v2/src/bot/).
+    - If your script requires system-level dependencies, add them to `system_deps` field as ubuntu packages (concatenate with space if multiple packages are needed `"package1 package2"`) in `/solve` endpoint reponse.
 - **Limitations**
     - Your script must not exceed 2,000 lines. If it does, it will be considered invalid, and you will receive a score of zero.
     - Your dependencies must be older than January 1, 2025. Any package released on or after this date will not be accepted, and your script will not be processed.
@@ -68,7 +68,7 @@ We maintain strict originality standards:
 - All submissions are compared against other miners' script
 - 100% similarity = zero score
 - Similarity above 60% will result in proportional score penalties based on the **detected similarity percentage**.
-- Note: Comparisons are only made against other miners’ submissions, not your own previous Humanize Behaviour v2 entries.
+- Note: Comparisons are only made against other miners submissions, not your own previous Humanize Behaviour v2 entries.
 
 ## Submission Guide
 
@@ -76,54 +76,54 @@ Follow 1~6 steps to submit your script.
 
 1. **Navigate to the Humanize Behaviour v2 Commit Directory**
 
-```bash
-cd redteam_core/miner/commits/humanize_behaviour_v2
-```
+    ```bash
+    cd redteam_core/miner/commits/humanize_behaviour_v2
+    ```
 
 2. **Build the Docker Image**
 
-To build the Docker image for the Humanize Behaviour v2 submission, run:
+    To build the Docker image for the Humanize Behaviour v2 submission, run:
 
-```bash
-docker build -t my_hub/humanize_behaviour-miner:0.0.1 .
+    ```bash
+    docker build -t my_hub/humanize_behaviour-miner:0.0.1 .
 
-# For MacOS (Apple Silicon) to build AMD64:
-DOCKER_BUILDKIT=1 docker build --platform linux/amd64 -t myhub/humanize_behaviour-miner:0.0.1 .
-```
+    # For MacOS (Apple Silicon) to build AMD64:
+    DOCKER_BUILDKIT=1 docker build --platform linux/amd64 -t myhub/humanize_behaviour-miner:0.0.1 .
+    ```
 
 3. **Log in to Docker**
 
-Log in to your Docker Hub account using the following command:
+    Log in to your Docker Hub account using the following command:
 
-```bash
-docker login
-```
+    ```bash
+    docker login
+    ```
 
-Enter your Docker Hub credentials when prompted.
+    Enter your Docker Hub credentials when prompted.
 
 4. **Push the Docker Image**
 
-Push the tagged image to your Docker Hub repository:
+    Push the tagged image to your Docker Hub repository:
 
-```bash
-docker push myhub/humanize_behaviour:0.0.1
-```
+    ```bash
+    docker push myhub/humanize_behaviour:0.0.1
+    ```
 
 5. **Retrieve the SHA256 Digest**
 
-After pushing the image, retrieve the digest by running:
+    After pushing the image, retrieve the digest by running:
 
-```bash
-docker inspect --format='{{index .RepoDigests 0}}' myhub/humanize_behaviour:0.0.1
-```
+    ```bash
+    docker inspect --format='{{index .RepoDigests 0}}' myhub/humanize_behaviour:0.0.1
+    ```
 
 6. **Update active_commit.yaml**
 
-Finally, go to the `neurons/miner/active_commit.yaml` file and update it with the new image tag:
+    Finally, go to the `neurons/miner/active_commit.yaml` file and update it with the new image tag:
 
-```yaml
-- humanize_behaviour---myhub/humanize_behaviour@<sha256:digest>
-```
+    ```yaml
+    - humanize_behaviour---myhub/humanize_behaviour@<sha256:digest>
+    ```
 
 ---
 
