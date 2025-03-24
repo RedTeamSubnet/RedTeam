@@ -6,7 +6,7 @@ The RedTeam subnet by Innerworks is a decentralized platform designed to drive i
 
 ### Dashboard: <https://dashboard.theredteam.io>
 
-![Overview](./docs/assets/overview.svg)
+![Overview](./docs/assets/images/diagrams/overview.svg)
 
 ## Subnet Functionality
 
@@ -45,3 +45,9 @@ This dynamic approach ensures that miners are rewarded for both their immediate 
 ## Miner Setup
 
 [Read the full documentation](./docs/2.miner.md)
+
+---
+
+## Documentation
+
+- **<https://docs.theredteam.io>**
