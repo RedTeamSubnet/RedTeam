@@ -28,15 +28,11 @@ theme:
     - content.code.annotate
   palette:
     - media: "(prefers-color-scheme)"
-      primary: red
-      accent: red
       toggle:
         icon: material/brightness-auto
         name: Switch to light mode
     - media: "(prefers-color-scheme: light)"
-      scheme: default
-      primary: red
-      accent: red
+      scheme: redteam
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
@@ -47,6 +43,8 @@ theme:
       toggle:
         icon: material/brightness-4
         name: Switch to light mode
+extra_css:
+  - assets/css/extra.css
 markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true
