@@ -44,4 +44,4 @@ This dynamic approach ensures that miners are rewarded for both their immediate 
 
 ## Miner Setup
 
-[Read the full documentation](./docs/miner.md)
+[Read the full documentation](./docs/2.miner.md)
