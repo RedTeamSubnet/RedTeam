@@ -52,9 +52,13 @@ class HBChallengeManager(ChallengeManager):
 
             try:
                 # Compute mean score
-                miner_commit.score = np.mean(
+                score = np.mean(
                     [scoring_log.score for scoring_log in miner_commit.scoring_logs]
                 ).item()
+                if np.isnan(score):
+                    miner_commit.score = 0.0
+                else:
+                    miner_commit.score = float(score)
 
                 # Compute penalty
                 if miner_commit.comparison_logs:
@@ -62,10 +66,13 @@ class HBChallengeManager(ChallengeManager):
                         np.mean([log.similarity_score for log in logs])
                         for logs in miner_commit.comparison_logs.values()
                     ]
-                    miner_commit.penalty = float(np.max(penalty_values).item()) if penalty_values else 0
-
+                    penalty = np.max(penalty_values).item() if penalty_values else 0
+                    if np.isnan(penalty):
+                        miner_commit.penalty = 0.0
+                    else:
+                        miner_commit.penalty = float(penalty)
                 else:
-                    miner_commit.penalty = 0
+                    miner_commit.penalty = 0.0
 
             except Exception as e:
                 bt.logging.error(

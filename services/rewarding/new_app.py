@@ -13,13 +13,13 @@ from fastapi import Body, FastAPI
 from prometheus_fastapi_instrumentator import Instrumentator
 
 from neurons.validator.validator import Validator
-from redteam_core.validator.models import (
-    MinerChallengeCommit,
-    ComparisonLog,
-    ScoringLog,
-)
 from redteam_core import constants
 from redteam_core.common import get_config
+from redteam_core.validator.models import (
+    ComparisonLog,
+    MinerChallengeCommit,
+    ScoringLog,
+)
 
 REWARD_APP_HOTKEY = os.getenv("REWARD_APP_HOTKEY")
 REWARD_APP_UID = -1
@@ -70,6 +70,9 @@ class RewardApp(Validator):
         self.scoring_results: dict[
             str, dict[str, Union[list[ScoringLog], dict[str, ComparisonLog]]]
         ] = self._fetch_centralized_scoring(list(self.active_challenges.keys()))
+        # Sync the cache from scoring results retrieved from storage upon initialization
+        self._sync_scoring_results_from_storage_to_cache()
+
         # Initialize scoring completion flags
         # This is used to check if the scoring for a challenge is done
         # Set to False when new miner commits are retrieved and True when all miner commits are scored and compared at scoring hour
@@ -97,7 +100,7 @@ class RewardApp(Validator):
             daemon=True,  # Ensures the thread stops when the main process exits
         )
         self.server_thread.start()
-        bt.logging.info(f"FastAPI server is running on port {self.config.port}!")
+        bt.logging.info(f"FastAPI server is running on port {self.config.reward_app.port}!")
 
     def setup_bittensor_objects(self):
         bt.logging.info("Setting up Bittensor objects.")
@@ -232,9 +235,10 @@ class RewardApp(Validator):
             revealed_commits_list (list[MinerChallengeCommit]): List of new commits to score
 
         Process:
-        1. Gather unique commits from challenge manager for comparison
-        2. Retrieve cached data for reference commits
-        3. Run challenge controller with:
+        1. Look up cached results for already scored commits, use cached results for already scored commits
+        2. Gather unique commits from challenge manager for comparison
+        3. Retrieve cached data for reference commits
+        4. Run challenge controller with:
            - New commits to be scored
            - Reference commits for comparison
 
@@ -252,7 +256,7 @@ class RewardApp(Validator):
             )
             return
 
-        # 0. Look up cached results for already scored commits, use cached results for already scored commits
+        # 1. Look up cached results for already scored commits, use cached results for already scored commits
         # Also construct input seeds for new commits, this will be using input from commits that in the same revealed list for comparison
         # We do this since commits being in the same revealed list means that they will be scored in same day
         new_commits: list[MinerChallengeCommit] = []
@@ -261,7 +265,7 @@ class RewardApp(Validator):
         input_seed_hashes_set: set[str] = set()
         for commit in revealed_commits_list:
             if commit.docker_hub_id in self.scoring_results.setdefault(challenge, {}):
-                # Use cached results for already scored commits
+                # Use results for already scored commits
                 cached_result = self.scoring_results[challenge][commit.docker_hub_id]
                 commit.scoring_logs = cached_result["scoring_logs"]
                 commit.comparison_logs = cached_result["comparison_logs"]
@@ -288,7 +292,7 @@ class RewardApp(Validator):
             f"[CENTRALIZED SCORING] Running controller for challenge: {challenge}"
         )
 
-        # 1. Gather comparison inputs
+        # 2. Gather comparison inputs
         # Get unique commits for the challenge (the "encrypted_commit"s)
         unique_commits = self.challenge_managers[challenge].get_unique_commits()
         # Get unique solutions 's cache key
@@ -318,9 +322,12 @@ class RewardApp(Validator):
                     )
                     continue
 
-        # 2. Run challenge controller
+        # 3. Run challenge controller
         bt.logging.info(
             f"[CENTRALIZED SCORING] Running controller for challenge: {challenge}"
+        )
+        bt.logging.info(
+            f"[CENTRALIZED SCORING] Going to score {len(new_commits)} commits for challenge: {challenge}"
         )
         # This challenge controll will run with new inputs and reference commit input
         # Reference commits are collected from yesterday, so if same docker_hub_id commited same day, they can share comparison_logs field, and of course, scoring_logs field
@@ -335,7 +342,7 @@ class RewardApp(Validator):
         # Run challenge controller, the controller update commit 's scoring logs and reference comparison logs directly
         controller.start_challenge()
 
-        # 3. Do comparison for new commits with each other, we only compare with reference commits
+        # 4. Do comparison for new commits with each other, we only compare with reference commits
         self._compare_miner_commits(
             challenge=challenge,
             revealed_commits_list=new_commits,
@@ -385,26 +392,36 @@ class RewardApp(Validator):
 
     def run(self):
         bt.logging.info("Starting RewardApp loop.")
+        # Try set weights after initial sync
+        try:
+            bt.logging.info("Initializing weights")
+            self.set_weights()
+        except Exception:
+            bt.logging.error(f"Initial set weights error: {traceback.format_exc()}")
+
         while True:
             start_epoch = time.time()
 
             try:
                 self.forward()
             except Exception as e:
-                bt.logging.error(f"Forward error: {e}")
-                traceback.print_exc()
+                bt.logging.error(f"Forward error: {traceback.format_exc()}")
 
             end_epoch = time.time()
             elapsed = end_epoch - start_epoch
             time_to_sleep = max(0, self.config.reward_app.epoch_length - elapsed)
             bt.logging.info(f"Epoch finished. Sleeping for {time_to_sleep} seconds.")
-            time.sleep(time_to_sleep)
+
+
+            try:
+                self.set_weights()
+            except Exception:
+                bt.logging.error(f"Set weights error: {traceback.format_exc()}")
 
             try:
                 self.resync_metagraph()
-            except Exception as e:
-                bt.logging.error(f"Resync metagraph error: {e}")
-                traceback.print_exc()
+            except Exception:
+                bt.logging.error(f"Resync metagraph error: {traceback.format_exc()}")
 
             except KeyboardInterrupt:
                 bt.logging.success("Keyboard interrupt detected. Exiting validator.")
@@ -542,15 +559,15 @@ class RewardApp(Validator):
                                     < current_miner_commit.commit_timestamp
                                 ):
                                     # Update to older commit timestamp
-                                    miner_commit.commit_timestamp = (
-                                        current_miner_commit.commit_timestamp
+                                    current_miner_commit.commit_timestamp = (
+                                        miner_commit.commit_timestamp
                                     )
                                 if not current_miner_commit.key:
                                     # Add unknown key if possible
-                                    miner_commit.key = current_miner_commit.key
+                                    current_miner_commit.key = miner_commit.key
                                 if not current_miner_commit.commit:
                                     # Add unknown commit if possible
-                                    miner_commit.commit = current_miner_commit.commit
+                                    current_miner_commit.commit = miner_commit.commit
                             else:
                                 # If encrypted commit is different, we compare commit timestamp
                                 if (
@@ -560,8 +577,8 @@ class RewardApp(Validator):
                                     > current_miner_commit.commit_timestamp
                                 ):
                                     # If newer commit timestamp, update to the latest commit
-                                    miner_commit.commit_timestamp = (
-                                        current_miner_commit.commit_timestamp
+                                    current_miner_commit.commit_timestamp = (
+                                        miner_commit.commit_timestamp
                                     )
                                 else:
                                     # If older commit timestamp, skip
@@ -698,6 +715,63 @@ class RewardApp(Validator):
                 },
             }
         return scoring_results
+
+    def _sync_scoring_results_from_storage_to_cache(self):
+        """
+        Sync scoring results (self.scoring_results) from storage to cache.
+        This method will update the cache with scoring results from storage.
+        It will also delete cache entries that are not in self.scoring_results.
+        """
+        # Iter all the keys in all cache corespond to active challenges
+        for challenge_name in self.active_challenges.keys():
+            cache = self.storage_manager._get_cache(challenge_name)
+            cache_keys_to_delete = []
+
+            for hashed_cache_key in cache.iterkeys():
+                commit = cache.get(hashed_cache_key)
+                try:
+                    commit = MinerChallengeCommit.model_validate(
+                        commit
+                    )  # Model validate the commit
+                except Exception:
+                    # Skip if commit is not valid
+                    # Do this if we want to clean up invalid commits
+                    # cache_keys_to_delete.append(hashed_cache_key)
+                    continue
+
+                # Check if docker_hub_id is in self.scoring_results
+                if commit.docker_hub_id not in self.scoring_results[challenge_name]:
+                    # Do this if we want to clean up commits with no scoring results
+                    # cache_keys_to_delete.append(hashed_cache_key)
+                    continue
+
+                # Found the commit in self.scoring_results, now we make sure cache have correct scoring_logs
+                if not commit.scoring_logs:
+                    # If not scoring_logs, we add the scoring_logs from self.scoring_results
+                    commit.scoring_logs = self.scoring_results[challenge_name][
+                        commit.docker_hub_id
+                    ]["scoring_logs"]
+                    cache[hashed_cache_key] = commit.model_dump()
+                else:
+                    # Check for each entries in scoring_logs for miner_input and miner_output, they should not be None
+                    scoring_logs_with_none = []
+                    for scoring_log in commit.scoring_logs:
+                        if (
+                            scoring_log.miner_input is None
+                            or scoring_log.miner_output is None
+                        ):
+                            scoring_logs_with_none.append(scoring_log)
+
+                    # If there are any scoring logs with None, we use the scoring_logs from self.scoring_results and update the cache
+                    if any(scoring_logs_with_none):
+                        commit.scoring_logs = self.scoring_results[challenge_name][
+                            commit.docker_hub_id
+                        ]["scoring_logs"]
+                        cache[hashed_cache_key] = commit.model_dump()
+
+            # Clean up cache entries that we want to delete
+            for hashed_cache_key in cache_keys_to_delete:
+                cache.delete(hashed_cache_key)
 
     # MARK: Endpoints
     async def get_scoring_result(

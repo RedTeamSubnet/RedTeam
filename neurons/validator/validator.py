@@ -143,6 +143,10 @@ class Validator(BaseValidator):
 
         # Try to load state based on scoring configuration
         if self.config.validator.use_centralized_scoring:
+            # Try to get state from centralized storage
+            bt.logging.info(
+                f"[INIT] Trying to get validator state from centralized storage for validator {self.uid}, hotkey: {self.wallet.hotkey.ss58_address}"
+            )
             state = self.storage_manager.get_latest_validator_state_from_storage(
                 validator_uid=self.uid,
                 validator_hotkey=self.wallet.hotkey.ss58_address,
@@ -155,7 +159,14 @@ class Validator(BaseValidator):
                     validator_uid=self.uid,
                     validator_hotkey=self.wallet.hotkey.ss58_address,
                 )
+            else:
+                bt.logging.success(
+                    f"[INIT] Successfully retrieved validator state from centralized storage for validator {self.uid}, hotkey: {self.wallet.hotkey.ss58_address}"
+                )
         else:
+            bt.logging.info(
+                f"[INIT] Trying to get validator state from local cache for validator {self.uid}, hotkey: {self.wallet.hotkey.ss58_address}"
+            )
             state = self.storage_manager.get_latest_validator_state_from_cache(
                 validator_uid=self.uid,
                 validator_hotkey=self.wallet.hotkey.ss58_address,
@@ -252,14 +263,19 @@ class Validator(BaseValidator):
             # Loop until all challenges have finished scoring
             while True:
                 for challenge, commits in revealed_commits.items():
+                    # Skip if challenge is not active
                     if challenge not in self.active_challenges:
                         continue
+
+                    # Skip if there are no commits for the challenge
                     if not commits:
                         bt.logging.info(
-                            f"[FORWARD LOCAL SCORING] No commits for challenge: {challenge}"
+                            f"[FORWARD CENTRALIZED SCORING] No commits for challenge: {challenge}"
                         )
+                        is_scoring_done[challenge] = True
                         continue
 
+                    # Skip if scoring is already done for the challenge
                     if is_scoring_done[challenge]:
                         continue
 

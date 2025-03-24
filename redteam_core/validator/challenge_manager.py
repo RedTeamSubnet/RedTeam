@@ -141,28 +141,35 @@ class ChallengeManager:
                 # Skip if docker_hub_id has been scored
                 continue
 
+            if not miner_commit.scoring_logs:
+                # Skip if no scoring logs
+                continue
+
             try:
-                if not miner_commit.scoring_logs:
-                    # Skip if no scoring logs
-                    continue
+                # Compute mean score
+                score = np.mean(
+                    [scoring_log.score for scoring_log in miner_commit.scoring_logs]
+                ).item()
+                if np.isnan(score):
+                    miner_commit.score = 0.0
                 else:
-                    # Mean score
-                    miner_commit.score = np.mean(
-                        [scoring_log.score for scoring_log in miner_commit.scoring_logs]
-                    ).item()
+                    miner_commit.score = float(score)
 
                 if not miner_commit.comparison_logs:
                     # Penalty is 0 if no comparison logs
-                    miner_commit.penalty = 0
+                    miner_commit.penalty = 0.0
                 else:
                     # Penalty by max of mean similarity with unique solutions
                     penalty_values = [
                         np.mean([log.similarity_score for log in logs])
                         for logs in miner_commit.comparison_logs.values()
                     ]
-                    miner_commit.penalty = (
-                        float(np.max(penalty_values).item()) if penalty_values else 0
-                    )
+                    penalty = np.max(penalty_values).item() if penalty_values else 0
+                    if np.isnan(penalty):
+                        miner_commit.penalty = 0.0
+                    else:
+                        miner_commit.penalty = float(penalty)
+
             except Exception:
                 bt.logging.error(
                     f"[CHALLENGE MANAGER] Challenge {self.challenge_name}, failed to get commit {miner_commit.encrypted_commit} scores and penalties: {traceback.format_exc()}"

@@ -53,9 +53,6 @@ class StorageManager:
         # Local cache with disk cache
         os.makedirs(cache_dir, exist_ok=True)
         self.cache_dir = cache_dir
-        self.cache_ttl = int(
-            datetime.timedelta(days=14).total_seconds()
-        )  # TTL set equal to a decaying period
         self.local_caches: dict[Cache] = {}
 
         # Queue and background thread for async updates
@@ -509,11 +506,6 @@ class StorageManager:
         if cache_name not in self.local_caches:
             cache_path = os.path.join(self.cache_dir, cache_name)
             cache = Cache(cache_path, eviction_policy="none")
-
-            # Set TTL only if it's an active challenge
-            if cache_name in self.active_challenges:
-                cache.expire = self.cache_ttl
-
             self.local_caches[cache_name] = cache
         return self.local_caches[cache_name]
 
