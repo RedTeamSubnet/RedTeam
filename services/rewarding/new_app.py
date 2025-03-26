@@ -219,7 +219,7 @@ class RewardApp(Validator):
                 data=self.export_state(public_view=True), async_update=True
             )
         else:
-            bt.logging.debug(
+            bt.logging.info(
                 f"[CENTRALIZED FORWARD] Not time to finalize daily result. Hour: {current_hour}, Date: {today_key}"
             )
 
@@ -287,6 +287,10 @@ class RewardApp(Validator):
                 f"[CENTRALIZED SCORING] No new commits to score for challenge: {challenge}, skipping"
             )
             return
+        else:
+            bt.logging.info(
+                f"[CENTRALIZED SCORING] {len(new_commits)} new commits to score for challenge: {challenge}"
+            )
 
         bt.logging.info(
             f"[CENTRALIZED SCORING] Running controller for challenge: {challenge}"
@@ -637,9 +641,12 @@ class RewardApp(Validator):
             [challenge_name] if challenge_name else list(self.scoring_results.keys())
         )
         endpoint = f"{constants.STORAGE_URL}/upload-centralized-score"
-        data = {
-            "scoring_results": [
-                {
+
+        for challenge_name in challenge_names:
+            scoring_results_to_send: list[dict] = []
+            # Send batch of maximum 5 results at a time to avoid huge payload
+            for docker_hub_id, result in self.scoring_results.get(challenge_name, {}).items():
+                scoring_result = {
                     "challenge_name": challenge_name,
                     "docker_hub_id": docker_hub_id,
                     "scoring_logs": [
@@ -654,19 +661,35 @@ class RewardApp(Validator):
                         for docker_hub_id, _comparison_logs in result.get(
                             "comparison_logs", {}
                         ).items()
-                    },
+                    }
                 }
-                for challenge_name in challenge_names
-                for docker_hub_id, result in self.scoring_results.get(
-                    challenge_name, {}
-                ).items()
-            ]
-        }
+                scoring_results_to_send.append(scoring_result)
 
-        response = requests.post(
-            endpoint, headers=self.validator_request_header_fn(data), json=data
-        )
-        response.raise_for_status()
+                if len(scoring_results_to_send) >= 5:
+                    try:
+                        data = {
+                            "scoring_results": scoring_results_to_send
+                        }
+                        response = requests.post(
+                            endpoint, headers=self.validator_request_header_fn(data), json=data
+                        )
+                        response.raise_for_status()
+                        scoring_results_to_send = []
+                    except Exception:
+                        bt.logging.error(f"Failed to send scoring results to storage: {traceback.format_exc()}")
+                        scoring_results_to_send = []
+
+            if scoring_results_to_send:
+                try:
+                    data = {
+                        "scoring_results": scoring_results_to_send
+                    }
+                    response = requests.post(
+                        endpoint, headers=self.validator_request_header_fn(data), json=data
+                    )
+                    response.raise_for_status()
+                except Exception:
+                    bt.logging.error(f"Failed to send scoring results to storage: {traceback.format_exc()}")
 
     def _fetch_centralized_scoring(
         self, challenge_names: list[str] = []

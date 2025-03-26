@@ -118,6 +118,7 @@ class BaseValidator(ABC):
 
             try:
                 self.forward()
+                bt.logging.success("Forward completed")
             except Exception:
                 bt.logging.error(f"Forward error: {traceback.format_exc()}")
 
@@ -129,11 +130,13 @@ class BaseValidator(ABC):
 
             try:
                 self.set_weights()
+                bt.logging.success("Set weights completed")
             except Exception:
                 bt.logging.error(f"Set weights error: {traceback.format_exc()}")
 
             try:
                 self.resync_metagraph()
+                bt.logging.success("Resync metagraph completed")
             except Exception:
                 bt.logging.error(f"Resync metagraph error: {traceback.format_exc()}")
 

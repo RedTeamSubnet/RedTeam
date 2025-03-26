@@ -258,7 +258,7 @@ class StorageManager:
             )
         else:
             bt.logging.error(
-                f"[STORAGE] Failed to update commit {hashed_cache_key}. Errors: {errors}"
+                f"[STORAGE] Failed to update commit from challenge: {challenge_name}, encrypted_commit: {commit.encrypted_commit}, key: {hashed_cache_key}. Errors: {errors}"
             )
 
     def update_commit_batch(
