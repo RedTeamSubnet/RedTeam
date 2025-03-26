@@ -155,13 +155,10 @@ class ChallengeManager:
                 else:
                     miner_commit.score = float(score)
 
-                if not miner_commit.comparison_logs:
-                    # Penalty is 0 if no comparison logs
-                    miner_commit.penalty = 0.0
-                else:
-                    # Penalty by max of mean similarity with unique solutions
+                # Compute penalty
+                if miner_commit.comparison_logs:
                     penalty_values = [
-                        np.nanmean([log.similarity_score for log in logs] or [0.0])
+                        np.nanmax([log.similarity_score for log in logs] or [0.0])
                         for logs in miner_commit.comparison_logs.values()
                     ]
                     penalty = np.max(penalty_values).item() if penalty_values else 0
@@ -169,6 +166,8 @@ class ChallengeManager:
                         miner_commit.penalty = 0.0
                     else:
                         miner_commit.penalty = float(penalty)
+                else:
+                    miner_commit.penalty = 0.0
 
             except Exception:
                 bt.logging.error(
