@@ -287,6 +287,10 @@ class RewardApp(Validator):
                 f"[CENTRALIZED SCORING] No new commits to score for challenge: {challenge}, skipping"
             )
             return
+        else:
+            bt.logging.info(
+                f"[CENTRALIZED SCORING] {len(new_commits)} new commits to score for challenge: {challenge}"
+            )
 
         bt.logging.info(
             f"[CENTRALIZED SCORING] Running controller for challenge: {challenge}"
