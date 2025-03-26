@@ -1,0 +1,2 @@
+mkdocs-material>=9.5.42,<10.0.0
+mkdocs-render-swagger-plugin>=0.1.2,<1.0.0
