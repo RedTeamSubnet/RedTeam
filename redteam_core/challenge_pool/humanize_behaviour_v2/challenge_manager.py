@@ -62,7 +62,7 @@ class HBChallengeManager(ChallengeManager):
                 # Compute penalty
                 if miner_commit.comparison_logs:
                     penalty_values = [
-                        np.mean([log.similarity_score for log in logs])
+                        np.nanmax([log.similarity_score for log in logs] or [0.0])
                         for logs in miner_commit.comparison_logs.values()
                     ]
                     penalty = np.max(penalty_values).item() if penalty_values else 0
@@ -104,6 +104,9 @@ class HBChallengeManager(ChallengeManager):
 
             # Add to unique solutions if accepted
             if miner_commit.accepted and miner_commit.encrypted_commit:
+                bt.logging.info(
+                    f"[CHALLENGE MANAGER - HBChallengeManager] Adding miner commit `{miner_commit.miner_uid}` to unique commit set"
+                )
                 self._try_add_unique_commit(
                     encrypted_commit=miner_commit.encrypted_commit,
                     score=miner_commit.score,
