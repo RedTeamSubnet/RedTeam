@@ -1,5 +1,13 @@
 # Humanize behavior challenge (General)
 
+## Overview
+
+![Overview](../../assets/images/diagrams/humanize_behaviour/overview.svg)
+
+## Mermaid flowchart
+
+![Flowchart](../../assets/images/diagrams/humanize_behaviour/flow.general.light.png)
+
 ```mermaid
 flowchart TD
  subgraph validator["Validator"]

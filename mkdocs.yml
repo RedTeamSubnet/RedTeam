@@ -1,14 +1,18 @@
 site_name: RedTeam Subnet
-site_description: "The RedTeam subnet by Innerworks is a decentralized platform designed to drive innovation in cybersecurity through competitive programming challenges. The subnet incentivizes miners to develop and submit code solutions to various technical challenges, with a focus on enhancing security. These solutions can be integrated into real-world products to improve their security features."
-site_url: https://RedTeamSubnet.github.io/RedTeam
+site_description: "The RedTeam subnet by Innerworks is a decentralized platform designed to drive innovation in cybersecurity through competitive programming challenges."
+site_url: https://docs.theredteam.io
 repo_name: RedTeamSubnet/RedTeam
 repo_url: https://github.com/RedTeamSubnet/RedTeam
+extra_css:
+  - assets/css/extra.css
 theme:
   name: material
   language: en
   font:
     text: Roboto
     code: Roboto Mono
+  logo: assets/images/logo.light.svg
+  favicon: assets/images/logo.dark.svg
   icon:
     repo: fontawesome/brands/github
   features:
@@ -28,15 +32,11 @@ theme:
     - content.code.annotate
   palette:
     - media: "(prefers-color-scheme)"
-      primary: red
-      accent: red
       toggle:
         icon: material/brightness-auto
         name: Switch to light mode
     - media: "(prefers-color-scheme: light)"
-      scheme: default
-      primary: red
-      accent: red
+      scheme: redteam
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode

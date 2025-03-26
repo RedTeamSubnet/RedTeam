@@ -21,14 +21,13 @@ class HBChallengeManager(ChallengeManager):
         self.t_max = emission_config.get("t_max", 10)
         self.reward_temperature = emission_config.get("reward_temperature", 0.2)
 
-        self.max_similarity = 0.6
+        self.max_similarity = 0.4
         self.min_similarity = 0
         self.min_score = 0.1
-        self.break_point = 0.87
+        self.break_point = 0.6
         self.max_input = 1.0
         self.min_value = 0
         self.max_value = 1
-
 
     def update_miner_scores(self, miner_commits: list[MinerChallengeCommit]):
         """
@@ -45,10 +44,10 @@ class HBChallengeManager(ChallengeManager):
 
         for miner_commit in miner_commits:
             if miner_commit.docker_hub_id in self._unique_scored_docker_hub_ids:
-                continue # Skip if already scored
+                continue  # Skip if already scored
 
             if not miner_commit.scoring_logs:
-                continue # Skip if no scoring logs
+                continue  # Skip if no scoring logs
 
             try:
                 # Compute mean score
@@ -89,7 +88,9 @@ class HBChallengeManager(ChallengeManager):
             )
 
             ### Adjust scores
-            miner_commit.score = self._adjust_score_by_similarity(miner_commit.score, miner_commit.penalty)
+            miner_commit.score = self._adjust_score_by_similarity(
+                miner_commit.score, miner_commit.penalty
+            )
 
             # Update miner's best submission
             miner_commit.scored_timestamp = time.time()
@@ -97,7 +98,9 @@ class HBChallengeManager(ChallengeManager):
             miner_state = self.miner_states[miner_commit.miner_uid]
             if miner_state:
                 miner_state.update_best_commit(miner_commit)
-                bt.logging.debug(f"Updated best commit for miner {miner_commit.miner_uid}")
+                bt.logging.debug(
+                    f"Updated best commit for miner {miner_commit.miner_uid}"
+                )
 
             # Add to unique solutions if accepted
             if miner_commit.accepted and miner_commit.encrypted_commit:
@@ -110,12 +113,10 @@ class HBChallengeManager(ChallengeManager):
             # Mark as scored
             self._unique_scored_docker_hub_ids.add(miner_commit.docker_hub_id)
 
-
     def get_challenge_scores(self):
         """Calculate final scores for all miners matching the original implementation."""
         n_uids = int(self.metagraph.n)
         scores = np.zeros(n_uids)
-
 
         evaluation_timestamp = None
         # Step 1: Determine latest evaluation timestamp & set initial scores
@@ -133,12 +134,17 @@ class HBChallengeManager(ChallengeManager):
             scores[miner_state.miner_uid] = best_commit.score
 
             # Track the latest evaluation timestamp
-            if evaluation_timestamp is None or best_commit.scored_timestamp > evaluation_timestamp:
+            if (
+                evaluation_timestamp is None
+                or best_commit.scored_timestamp > evaluation_timestamp
+            ):
                 evaluation_timestamp = best_commit.scored_timestamp
 
         # Step 2: If no valid timestamp found, return unmodified scores
         if evaluation_timestamp is None:
-            bt.logging.warning("No valid scored_timestamp found, cannot apply time decay")
+            bt.logging.warning(
+                "No valid scored_timestamp found, cannot apply time decay"
+            )
             return self._apply_softmax(scores)
 
         # Step 3: Apply decay and adjustment
@@ -155,19 +161,23 @@ class HBChallengeManager(ChallengeManager):
             days_elapsed = (evaluation_timestamp - commit_timestamp) / 86400
 
             # Apply decay and adjustment
-            decayed_score = self._calculate_decayed_score(commit_timestamp, evaluation_timestamp, best_commit.score)
+            decayed_score = self._calculate_decayed_score(
+                commit_timestamp, evaluation_timestamp, best_commit.score
+            )
             adjusted_score = self._adjusted_score(decayed_score, days_elapsed)
 
             # Update scores
             scores[miner_state.miner_uid] = adjusted_score
 
         # Step 4: Apply softmax and return final scores
-        normalized_scores = [self._inverse_easePolyOut_exponent(score) for score in scores]
+        normalized_scores = [
+            self._inverse_easePolyOut_exponent(score) for score in scores
+        ]
         final_scores = self._apply_softmax(normalized_scores)
         return final_scores
 
     def _ease_circle_in_out_shifted(self, x):
-        x = x**3
+        x = x**1.5
         if x < 0.5:
             return 0.5 * (1 - math.sqrt(1 - (2 * x) ** 2))
         return 0.5 * (math.sqrt(1 - (2 * x - 2) ** 2) + 1)
@@ -206,14 +216,18 @@ class HBChallengeManager(ChallengeManager):
         """Computes the adjusted score considering time factor saturation."""
         return raw_accuracy * self._time_factor_saturating(t)
 
-    def _calculate_decayed_score(self, submission_timestamp, evaluation_timestamp, initial_score):
+    def _calculate_decayed_score(
+        self, submission_timestamp, evaluation_timestamp, initial_score
+    ):
         """Calculate the final score with parabolic decay."""
         days_elapsed = (evaluation_timestamp - submission_timestamp) / 86400
 
         if days_elapsed <= self.stable_period_days:
             return initial_score
         elif days_elapsed <= self.expiration_days:
-            decay_progress = (days_elapsed - self.stable_period_days) / (self.expiration_days - self.stable_period_days)
+            decay_progress = (days_elapsed - self.stable_period_days) / (
+                self.expiration_days - self.stable_period_days
+            )
             decay_factor = 1 - decay_progress**2
             return initial_score * decay_factor
         else:

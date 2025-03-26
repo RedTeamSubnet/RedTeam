@@ -1,5 +1,9 @@
 # Humanize behavior challenge (Small)
 
+## Mermaid flowchart
+
+![Flowchart](../../assets/images/diagrams/humanize_behaviour/flow.small.light.png)
+
 ```mermaid
 flowchart TD
   subgraph validator["Validator"]

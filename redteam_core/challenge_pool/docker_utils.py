@@ -78,6 +78,7 @@ def run_container(
 
 # MARK: SETUP
 
+
 def create_docker_client() -> docker.DockerClient:
     """Creates and returns a Docker client instance."""
     return docker.from_env()
@@ -135,31 +136,12 @@ def create_network(
             subnet = network_info["IPAM"]["Config"][0]["Subnet"]
 
             # Define iptables rules for network isolation
+            # fmt: off
             iptables_commands = [
-                [
-                    "iptables",
-                    "-I",
-                    "FORWARD",
-                    "-s",
-                    subnet,
-                    "!",
-                    "-d",
-                    subnet,
-                    "-j",
-                    "DROP",
-                ],
-                [
-                    "iptables",
-                    "-t",
-                    "nat",
-                    "-I",
-                    "POSTROUTING",
-                    "-s",
-                    subnet,
-                    "-j",
-                    "RETURN",
-                ],
+                ["iptables", "-I", "FORWARD", "-s", subnet, "!", "-d", subnet, "-j", "DROP"],
+                ["iptables", "-t", "nat", "-I", "POSTROUTING", "-s", subnet, "-j", "RETURN"]
             ]
+            # fmt: on
 
             # Apply iptables rules
             for cmd in iptables_commands:
@@ -245,6 +227,7 @@ def remove_container(
     # Attempt removal with retries
     for attempt in range(max_retries):
         try:
+            # target_container.kill()
             target_container.remove(force=force, v=remove_volumes)
             bt.logging.info(f"Container '{container_name}' removed successfully")
             return True

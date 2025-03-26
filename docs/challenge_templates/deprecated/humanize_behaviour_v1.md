@@ -12,19 +12,19 @@ Miners participating in this challenge should be capable of simulating human-lik
 
 ## Example Code and Submission Instructions
 
-Example code for the Humanize Behaviour v1 can be found in the [`redteam_core/miner/commits/humanize_behaviour_v1/src/bot/bot.py`](../../redteam_core/miner/commits/humanize_behaviour_v1/src/bot/bot.py) file.
+Example code for the Humanize Behaviour v1 can be found in the [`redteam_core/miner/commits/humanize_behaviour_v1/`](https://github.com/RedTeamSubnet/RedTeam/blob/main/redteam_core/miner/commits/deprecated/humanize_behaviour_v1/) directory.
 
 ### Environment
 
 Your bot script should be compatible with these:
 
-- Python: **3.12**
+- Python: **3.10**
 - Ubuntu: **24.04**
 - Docker image: **selenium/standalone-chrome:4.28.1**
 
 ### Before You Begin
 
-- Use the template bot script provided in the [`redteam_core/miner/commits/humanize_behaviour_v1/src/bot/bot.py`](../../redteam_core/miner/commits/humanize_behaviour_v1/src/bot/bot.py) file.
+- Use the template bot script provided in the [`redteam_core/miner/commits/humanize_behaviour_v1/src/bot/bot.py`](https://github.com/RedTeamSubnet/RedTeam/blob/main/redteam_core/miner/commits/deprecated/humanize_behaviour_v1/src/bot/bot.py) file.
 - Inside `src/bot` folder, you will find the `bot.py` file, which contains the bot script.
 - Modify only **`run_bot()`** function while keeping the rest of the code if you do not know what you are doing.
 - The bot script must be able to:
@@ -42,7 +42,7 @@ Your bot script should be compatible with these:
     - If your script clicks in wrong order or skips some locations, you will not be able to submit the form
 - Make sure the bot scripts run on **`headless browser`**
 - Click `login-button` at the end of session; if you press it before, the session will end automatically
-- Provide dependencies in [`requirements.txt`](../../redteam_core/miner/commits/humanize_behaviour_v1/src/bot/requirements.txt)
+- Provide dependencies in [`requirements.txt`](https://github.com/RedTeamSubnet/RedTeam/blob/main/redteam_core/miner/commits/deprecated/humanize_behaviour_v1/src/bot/requirements.txt)
 - The miner docker container must be run in **amd64** (x86_64) architecture because the selenium driver (chromedriver) is not compatible with **arm64** architecture. If managed to run in ARM architecture, then it's up to you.
 
 ### 1. Navigate to the Humanize Behaviour v1 Commit Directory
