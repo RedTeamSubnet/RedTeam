@@ -52,9 +52,6 @@ def gen_cb_actions(
     max_factor: int = 10,
     checkbox_size: int = 20,  # Assuming checkbox size ~20px
     exclude_areas: Union[List[Dict[str, int]], None] = None,
-    pre_action_list: Union[
-        List[List[Dict[str, Union[int, str, Dict[str, Dict[str, int]]]]]], None
-    ] = None,
 ) -> List[List[Dict[str, Union[int, str, Dict[str, Dict[str, int]]]]]]:
 
     _max_attempts = n_checkboxes * max_factor  # Avoid infinite loops
@@ -64,9 +61,6 @@ def gen_cb_actions(
         _n_attempts = 0
         _i = 0
         _action_list = []
-
-        if pre_action_list:
-            _action_list = pre_action_list.pop(0)
 
         while len(_action_list) < n_checkboxes:
             _x = random.randint(checkbox_size, window_width - checkbox_size)

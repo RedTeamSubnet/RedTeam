@@ -129,7 +129,7 @@ class WebUIAutomate:
             if not _data:
                 return None
 
-            return _data
+            return
 
         except Exception as err:
             logger.error(f"Automation failed: {err}")

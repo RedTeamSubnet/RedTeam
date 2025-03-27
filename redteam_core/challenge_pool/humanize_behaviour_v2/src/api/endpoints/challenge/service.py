@@ -75,7 +75,7 @@ def get_task() -> MinerInput:
 
 
 @validate_call
-def score(miner_output: MinerOutput) -> float:
+def score(miner_output: MinerOutput, reset: bool) -> float:
 
     global _KEY_PAIRS
     global _CHALLENGES_ACTION_LIST
@@ -83,93 +83,101 @@ def score(miner_output: MinerOutput) -> float:
     global _CUR_ACTION_LIST
     global _CUR_SCORE
 
-    _num_tasks = config.challenge.n_ch_per_epoch
     _container_name = "bot_container"
     ch_utils.stop_container(container_name=_container_name)
 
+    if reset:
+        _KEY_PAIRS = ch_utils.gen_key_pairs(
+            n_challenge=config.challenge.n_ch_per_epoch,
+            key_size=config.api.security.asymmetric.key_size,
+        )
+
+        _CHALLENGES_ACTION_LIST = ch_utils.gen_cb_actions(
+            n_challenge=config.challenge.n_ch_per_epoch,
+            window_width=config.challenge.window_width,
+            window_height=config.challenge.window_height,
+            n_checkboxes=config.challenge.n_checkboxes,
+            min_distance=config.challenge.cb_min_distance,
+            max_factor=config.challenge.cb_gen_max_factor,
+            checkbox_size=config.challenge.cb_size,
+            exclude_areas=config.challenge.cb_exclude_areas,
+            pre_action_list=config.challenge.cb_pre_action_list,
+        )
+
+    if not _KEY_PAIRS:
+        raise BaseHTTPException(
+            error_enum=ErrorCodeEnum.TOO_MANY_REQUESTS,
+            message=f"No initialized key pairs or out of key pairs, this endpoint is shouldn't be called directly!",
+        )
+
+    if not _CHALLENGES_ACTION_LIST:
+        raise BaseHTTPException(
+            error_enum=ErrorCodeEnum.TOO_MANY_REQUESTS,
+            message=f"No initialized action lists or out of action lists, this endpoint is shouldn't be called directly!",
+        )
+
+    _CUR_KEY_PAIR = _KEY_PAIRS.pop(0)
+    _CUR_ACTION_LIST = _CHALLENGES_ACTION_LIST.pop(0)
+    _CUR_SCORE = None
+
+    logger.debug(f"Current action list: {_CUR_ACTION_LIST}")
+
     _score = 0.0
-    _scores = []
 
-    for i in range(_num_tasks):
-        if not _KEY_PAIRS:
-            raise BaseHTTPException(
-                error_enum=ErrorCodeEnum.TOO_MANY_REQUESTS,
-                message=f"No initialized key pairs or out of key pairs, this endpoint is shouldn't be called directly!",
+    logger.debug("Scoring the miner output...")
+    try:
+        if miner_output.pip_requirements:
+            ch_utils.check_pip_requirements(
+                pip_requirements=miner_output.pip_requirements,
+                target_dt=config.challenge.allowed_pip_pkg_dt,
             )
 
-        if not _CHALLENGES_ACTION_LIST:
-            raise BaseHTTPException(
-                error_enum=ErrorCodeEnum.TOO_MANY_REQUESTS,
-                message=f"No initialized action lists or out of action lists, this endpoint is shouldn't be called directly!",
-            )
+        _build_dir = os.path.join(config.api.paths.tmp_dir, "bot")
+        ch_utils.copy_bot_files(
+            miner_output=miner_output, src_dir=str(_src_dir / "bot"), dst_dir=_build_dir
+        )
 
-        _CUR_KEY_PAIR = _KEY_PAIRS.pop(0)
-        _CUR_ACTION_LIST = _CHALLENGES_ACTION_LIST.pop(0)
-        _CUR_SCORE = None
+        _docker_client = docker.from_env()
+        _image_name = "bot:latest"
+        ch_utils.build_bot_image(
+            docker_client=_docker_client,
+            build_dir=_build_dir,
+            system_deps=miner_output.system_deps,
+            image_name=_image_name,
+        )
+        ch_utils.run_bot_container(
+            docker_client=_docker_client,
+            action_list=_CUR_ACTION_LIST,
+            image_name=_image_name,
+            container_name=_container_name,
+            ulimit=config.challenge.docker_ulimit,
+        )
 
-        logger.debug(f"Current action list: {_CUR_ACTION_LIST}")
+        _i = 0
+        while True:
+            if _CUR_SCORE is not None:
+                _score = _CUR_SCORE
+                _CUR_SCORE = None
+                break
 
-        logger.debug("Scoring the miner output...")
-        try:
-            if miner_output.pip_requirements:
-                ch_utils.check_pip_requirements(
-                    pip_requirements=miner_output.pip_requirements,
-                    target_dt=config.challenge.allowed_pip_pkg_dt,
+            logger.debug("Waiting for the bot to finish...")
+            time.sleep(1)
+            _i += 1
+
+            if config.challenge.bot_timeout < _i:
+                raise BaseHTTPException(
+                    error_enum=ErrorCodeEnum.BAD_REQUEST,
+                    message=f"Timeout error: Bot running too long or failed to finish!",
                 )
 
-            _build_dir = os.path.join(config.api.paths.tmp_dir, "bot")
-            ch_utils.copy_bot_files(
-                miner_output=miner_output,
-                src_dir=str(_src_dir / "bot"),
-                dst_dir=_build_dir,
-            )
-
-            _docker_client = docker.from_env()
-            _image_name = "bot:latest"
-            ch_utils.build_bot_image(
-                docker_client=_docker_client,
-                build_dir=_build_dir,
-                system_deps=miner_output.system_deps,
-                image_name=_image_name,
-            )
-            ch_utils.run_bot_container(
-                docker_client=_docker_client,
-                action_list=_CUR_ACTION_LIST,
-                image_name=_image_name,
-                container_name=_container_name,
-                ulimit=config.challenge.docker_ulimit,
-            )
-
-            _i = 0
-            while True:
-                if _CUR_SCORE is not None:
-                    _score = _CUR_SCORE
-                    _scores.append(_score)
-                    _CUR_SCORE = None
-                    break
-
-                logger.debug("Waiting for the bot to finish...")
-                time.sleep(1)
-                _i += 1
-
-                if config.challenge.bot_timeout < _i:
-                    logger.error(
-                        "Timeout error: Bot running too long or failed to finish!"
-                    )
-                    raise BaseHTTPException(
-                        error_enum=ErrorCodeEnum.BAD_REQUEST,
-                        message=f"Timeout error: Bot running too long or failed to finish!",
-                    )
-
-            logger.debug("Successfully scored the miner output.")
-        except Exception as err:
-            if isinstance(err, BaseHTTPException):
-                raise
-
-            logger.error(f"Failed to score the miner output: {str(err)}!")
+        logger.debug("Successfully scored the miner output.")
+    except Exception as err:
+        if isinstance(err, BaseHTTPException):
             raise
 
-    _score = sum(_scores) / _num_tasks
+        logger.error(f"Failed to score the miner output: {str(err)}!")
+        raise
+
     return _score
 
 

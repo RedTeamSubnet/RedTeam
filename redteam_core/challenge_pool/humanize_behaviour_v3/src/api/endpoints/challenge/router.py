@@ -61,11 +61,9 @@ def post_score(
     logger.info(f"[{_request_id}] - Evaluating the miner output...")
 
     _score: float = 0.0
-    _scores = []
     try:
 
         _score = service.score(miner_output=miner_output)
-        _scores.append(_score)
 
         logger.success(f"[{_request_id}] - Successfully evaluated the miner output.")
     except Exception as err:

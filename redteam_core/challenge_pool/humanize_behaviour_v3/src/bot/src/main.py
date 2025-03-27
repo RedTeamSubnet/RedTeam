@@ -40,8 +40,11 @@ def main() -> None:
     if not isinstance(_action_list, list):
         raise ValueError(f"{ENV_PREFIX}ACTION_LIST must be a list!")
 
-    _webui_automate = WebUIAutomate(web_url=_web_url, config={"actions": _action_list})
-    _webui_automate()
+    for i in range(3):
+        _webui_automate = WebUIAutomate(
+            web_url=_web_url, config={"actions": _action_list}
+        )
+        _webui_automate()
 
     logger.info("Done!\n")
     return

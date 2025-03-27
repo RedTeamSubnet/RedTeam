@@ -17,8 +17,6 @@ logger = logging.getLogger(__name__)
 def run_bot(
     driver: WebDriver,
     config: Dict[str, Any],
-    username: str = "username",
-    password: str = "password",
 ) -> bool:
     """Run bot to automate login.
 
