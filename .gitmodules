@@ -1,6 +1,0 @@
-[submodule "redteam_core/challenge_pool/humanize_behaviour_v2/volumes/src/web.rt-hb-login-page"]
-	path = redteam_core/challenge_pool/humanize_behaviour_v2/volumes/src/web.rt-hb-login-page
-	url = ../web.rt-hb-login-page.git
-[submodule "redteam_core/challenge_pool/humanize_behaviour_v2/src/modules/rt_hb_score"]
-	path = redteam_core/challenge_pool/humanize_behaviour_v2/src/modules/rt_hb_score
-	url = ../module.rt-hb-score-v2.git
