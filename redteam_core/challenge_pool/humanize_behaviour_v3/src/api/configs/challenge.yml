@@ -1,5 +1,5 @@
 challenge:
-  n_ch_per_epoch: 10
+  n_ch_per_epoch: 5
   docker_ulimit: 32768
   allowed_pip_pkg_dt: "2025-01-01T00:00:00Z"
   allowed_file_exts: [".py", ".json", ".yaml", ".yml", ".txt", ".pt"]

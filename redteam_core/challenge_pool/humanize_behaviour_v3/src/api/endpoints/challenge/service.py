@@ -83,14 +83,11 @@ def score(miner_output: MinerOutput) -> float:
     global _CUR_KEY_PAIR
     global _CUR_ACTION_LIST
     global _CUR_SCORE
+    global _ACTION_METRIC_PAIR
 
     _num_tasks = config.challenge.n_ch_per_epoch
 
     _score = 0.0
-
-    for _ in range(_num_tasks):
-        _container_name = "bot_container"
-        ch_utils.stop_container(container_name=_container_name)
 
         if not _KEY_PAIRS:
             raise BaseHTTPException(
@@ -103,6 +100,10 @@ def score(miner_output: MinerOutput) -> float:
                 error_enum=ErrorCodeEnum.TOO_MANY_REQUESTS,
                 message=f"No initialized action lists or out of action lists, this endpoint is shouldn't be called directly!",
             )
+
+    for _ in range(_num_tasks):
+        _container_name = "bot_container"
+        ch_utils.stop_container(container_name=_container_name)
 
         _CUR_KEY_PAIR = _KEY_PAIRS.pop(0)
         _CUR_ACTION_LIST = _CHALLENGES_ACTION_LIST.pop(0)
@@ -142,10 +143,9 @@ def score(miner_output: MinerOutput) -> float:
             _i = 0
             while True:
                 if _CUR_SCORE is not None:
-                    _score += _CUR_SCORE / _num_tasks
+                    _score += _CUR_SCORE / _num_tasks if _CUR_SCORE != 0 else 0
                     _CUR_SCORE = None
-                    _CUR_ACTION_LIST = _ACTION_METRIC_PAIR.pop(0)
-                    logger.debug("Successfully scored the miner output.")
+                    logger.info("Successfully scored the miner output.")
                     break
 
                 logger.debug("Waiting for the bot to finish...")
@@ -230,8 +230,6 @@ def get_random_val(nonce: str) -> str:
         )
 
     _nonce_key: str = _CUR_KEY_PAIR.public_key
-    _CUR_KEY_PAIR.public_key = None
-    _CUR_KEY_PAIR.nonce = None
 
     return _nonce_key
 
@@ -241,6 +239,7 @@ def eval_bot(data: str) -> None:
 
     global _CUR_KEY_PAIR
     global _ACTION_METRIC_PAIR
+    global _CUR_SCORE
 
     if not _CUR_KEY_PAIR:
         raise BaseHTTPException(
@@ -249,7 +248,6 @@ def eval_bot(data: str) -> None:
         )
 
     _private_key: str = _CUR_KEY_PAIR.private_key
-    _CUR_KEY_PAIR = None
 
     logger.debug("Evaluating the bot...")
 
@@ -271,6 +269,7 @@ def eval_bot(data: str) -> None:
             logger.info(f"Bot score: {_CUR_SCORE}")
 
             _ACTION_METRIC_PAIR = {}
+            _CUR_KEY_PAIR = None
 
         logger.debug("Successfully evaluated the bot.")
 
