@@ -173,14 +173,13 @@ def create_network(
 
 # MARK: CLEANING
 
-
 def remove_container(
     client: docker.DockerClient,
     container_name: str,
     stop_timeout: int = 60,
     force: bool = True,
     remove_volumes: bool = True,
-    max_retries: int = 3,
+    max_retries: int = 10,
 ) -> bool:
     """
     Safely stops and removes a Docker container with retries and comprehensive error handling.

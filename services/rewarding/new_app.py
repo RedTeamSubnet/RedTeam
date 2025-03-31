@@ -1,5 +1,6 @@
 import argparse
 import datetime
+import json
 import os
 import threading
 import time
@@ -642,6 +643,8 @@ class RewardApp(Validator):
         )
         endpoint = f"{constants.STORAGE_URL}/upload-centralized-score"
 
+        all_scoring_results = []
+
         for challenge_name in challenge_names:
             scoring_results_to_send: list[dict] = []
             # Send batch of maximum 5 results at a time to avoid huge payload
@@ -664,6 +667,7 @@ class RewardApp(Validator):
                     }
                 }
                 scoring_results_to_send.append(scoring_result)
+                all_scoring_results.append(scoring_result)
 
                 if len(scoring_results_to_send) >= 5:
                     try:
@@ -690,6 +694,13 @@ class RewardApp(Validator):
                     response.raise_for_status()
                 except Exception:
                     bt.logging.error(f"Failed to send scoring results to storage: {traceback.format_exc()}")
+
+        if all_scoring_results:
+            try:
+                with open("scoring_results.json", "w") as f:
+                    json.dump(all_scoring_results, f)
+            except Exception:
+                bt.logging.error(f"Failed to save scoring results to file: {traceback.format_exc()}")
 
     def _fetch_centralized_scoring(
         self, challenge_names: list[str] = []
