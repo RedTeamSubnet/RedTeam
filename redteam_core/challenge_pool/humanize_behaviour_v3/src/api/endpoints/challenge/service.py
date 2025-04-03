@@ -89,17 +89,17 @@ def score(miner_output: MinerOutput) -> float:
 
     _score = 0.0
 
-        if not _KEY_PAIRS:
-            raise BaseHTTPException(
-                error_enum=ErrorCodeEnum.TOO_MANY_REQUESTS,
-                message=f"No initialized key pairs or out of key pairs, this endpoint is shouldn't be called directly!",
-            )
+    if not _KEY_PAIRS:
+        raise BaseHTTPException(
+            error_enum=ErrorCodeEnum.TOO_MANY_REQUESTS,
+            message=f"No initialized key pairs or out of key pairs, this endpoint is shouldn't be called directly!",
+        )
 
-        if not _CHALLENGES_ACTION_LIST:
-            raise BaseHTTPException(
-                error_enum=ErrorCodeEnum.TOO_MANY_REQUESTS,
-                message=f"No initialized action lists or out of action lists, this endpoint is shouldn't be called directly!",
-            )
+    if not _CHALLENGES_ACTION_LIST:
+        raise BaseHTTPException(
+            error_enum=ErrorCodeEnum.TOO_MANY_REQUESTS,
+            message=f"No initialized action lists or out of action lists, this endpoint is shouldn't be called directly!",
+        )
 
     for _ in range(_num_tasks):
         _container_name = "bot_container"
@@ -257,8 +257,7 @@ def eval_bot(data: str) -> None:
 
         _plaintext = ch_utils.decrypt(ciphertext=data, private_key=_private_key)
         _plain_data = json.loads(_plaintext)
-
-        _ACTION_METRIC_PAIR[_num_finished_sessions] = _plain_data
+        _ACTION_METRIC_PAIR[f"{_num_finished_sessions}"] = _plain_data
 
         if _num_finished_sessions == _num_session:
             _metrics_processor = MetricsProcessor(config={"actions": _CUR_ACTION_LIST})

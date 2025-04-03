@@ -40,7 +40,8 @@ def main() -> None:
     if not isinstance(_action_list, list):
         raise ValueError(f"{ENV_PREFIX}ACTION_LIST must be a list!")
 
-    for i in range(3):
+    _session_count = os.getenv(f"{ENV_PREFIX}SESSION_COUNT")
+    for _ in range(_session_count):
         _webui_automate = WebUIAutomate(
             web_url=_web_url, config={"actions": _action_list}
         )

@@ -114,7 +114,7 @@ humanize_behaviour_v3:
   comparer: redteam_core.challenge_pool.humanize_behaviour_v3.comparer.HBComparer
   challenge_manager: redteam_core.challenge_pool.humanize_behaviour_v3.challenge_manager.HBChallengeManager
   # baseline: "asadbey/rest.rt-hb-v1-miner@sha256:f84f4d5a179908214121e071906357ddbfaee30fb6da2e896d404fc00acd20e3"
-  max_unique_commits: 50
+  max_unique_commits: 25
   behavior_scaling_factor: 0.1
   challenge_solve_timeout: 60
   docker_run_timeout: 900

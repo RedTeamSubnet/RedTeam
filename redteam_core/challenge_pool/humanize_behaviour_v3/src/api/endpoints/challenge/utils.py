@@ -320,6 +320,7 @@ def run_bot_container(
             environment={
                 "TZ": "UTC",
                 f"{ENV_PREFIX}ACTION_LIST": action_list,
+                f"{ENV_PREFIX}SESSION_COUNT": 2,
             },
             network=network_name,
             detach=True,
