@@ -15,9 +15,9 @@ from redteam_core.validator.models import (
 
 class HBController(Controller):
     # Class-level cache for baseline reference comparison commits
-    _baseline_reference_cache: dict[
-        str, MinerChallengeCommit
-    ] = {}  # {docker_hub_id: MinerChallengeCommit}
+    _baseline_reference_cache: dict[str, MinerChallengeCommit] = (
+        {}
+    )  # {docker_hub_id: MinerChallengeCommit}
 
     """
     A specialized controller for the 'humanize_behaviour_v2' challenge.
@@ -53,7 +53,9 @@ class HBController(Controller):
         )
 
         # Initialize local storage for this instance
-        self.baseline_reference_comparison_commits_to_score: list[MinerChallengeCommit] = []
+        self.baseline_reference_comparison_commits_to_score: list[
+            MinerChallengeCommit
+        ] = []
 
         for docker_hub_id in self.baseline_reference_comparison_docker_hub_ids:
             # Check if this docker_hub_id is already in the class cache
@@ -155,7 +157,9 @@ class HBController(Controller):
                     f"[CONTROLLER - HBController] Baseline reference scoring logs: {len(reference_commit.scoring_logs)}"
                 )
                 # Update the class cache with the scored commit
-                HBController._baseline_reference_cache[reference_commit.docker_hub_id] = reference_commit
+                HBController._baseline_reference_cache[
+                    reference_commit.docker_hub_id
+                ] = reference_commit
 
             except Exception as e:
                 bt.logging.error(
@@ -220,9 +224,8 @@ class HBController(Controller):
         if miner_commit.miner_uid == self.baseline_commit.miner_uid:
             return
 
-        all_reference_comparison_commits = (
-            self.reference_comparison_commits
-            + list(HBController._baseline_reference_cache.values())
+        all_reference_comparison_commits = self.reference_comparison_commits + list(
+            HBController._baseline_reference_cache.values()
         )
 
         for reference_commit in all_reference_comparison_commits:
@@ -239,6 +242,9 @@ class HBController(Controller):
                 reference_commit.docker_hub_id in miner_commit.comparison_logs
                 or miner_mean_score < self.behavior_scaling_factor
             ):
+                bt.logging.info(
+                    f"[CONTROLLER - HBController] Skipping comparison with {reference_commit.docker_hub_id} for miner {miner_commit.miner_hotkey} because the bot has a score of {miner_mean_score}"
+                )
                 continue
             else:
                 miner_commit.comparison_logs[reference_commit.docker_hub_id] = []
