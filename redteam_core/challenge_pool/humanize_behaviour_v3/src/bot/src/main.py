@@ -41,7 +41,7 @@ def main() -> None:
         raise ValueError(f"{ENV_PREFIX}ACTION_LIST must be a list!")
 
     _session_count = os.getenv(f"{ENV_PREFIX}SESSION_COUNT")
-    for _ in range(_session_count):
+    for _ in range(int(_session_count) if _session_count else 2):
         _webui_automate = WebUIAutomate(
             web_url=_web_url, config={"actions": _action_list}
         )

@@ -200,7 +200,7 @@ class HBChallengeManager(ChallengeManager):
 
     def _adjust_score_by_similarity(self, raw_score, similarity_score):
         """Adjusts the raw score based on the similarity score."""
-        if similarity_score < self.min_similarity:
+        if similarity_score <= self.min_similarity:
             return 0
         if similarity_score < self.max_similarity:
             return raw_score

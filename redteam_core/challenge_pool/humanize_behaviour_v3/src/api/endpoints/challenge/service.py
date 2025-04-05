@@ -61,11 +61,12 @@ _CHALLENGES_ACTION_LIST: List[
     max_factor=config.challenge.cb_gen_max_factor,
     checkbox_size=config.challenge.cb_size,
     exclude_areas=config.challenge.cb_exclude_areas,
-    pre_action_list=config.challenge.cb_pre_action_list,
 )
 _CUR_ACTION_LIST: Union[
     List[Dict[str, Union[int, str, Dict[str, Dict[str, int]]]]], None
 ] = None
+
+_ACTION_METRIC_PAIR: Dict = {}
 
 
 def get_task() -> MinerInput:
@@ -75,34 +76,18 @@ def get_task() -> MinerInput:
 
 
 @validate_call
-def score(miner_output: MinerOutput, reset: bool) -> float:
+def score(miner_output: MinerOutput) -> float:
 
     global _KEY_PAIRS
     global _CHALLENGES_ACTION_LIST
     global _CUR_KEY_PAIR
     global _CUR_ACTION_LIST
     global _CUR_SCORE
+    global _ACTION_METRIC_PAIR
 
-    _container_name = "bot_container"
-    ch_utils.stop_container(container_name=_container_name)
+    _num_tasks = config.challenge.n_ch_per_epoch
 
-    if reset:
-        _KEY_PAIRS = ch_utils.gen_key_pairs(
-            n_challenge=config.challenge.n_ch_per_epoch,
-            key_size=config.api.security.asymmetric.key_size,
-        )
-
-        _CHALLENGES_ACTION_LIST = ch_utils.gen_cb_actions(
-            n_challenge=config.challenge.n_ch_per_epoch,
-            window_width=config.challenge.window_width,
-            window_height=config.challenge.window_height,
-            n_checkboxes=config.challenge.n_checkboxes,
-            min_distance=config.challenge.cb_min_distance,
-            max_factor=config.challenge.cb_gen_max_factor,
-            checkbox_size=config.challenge.cb_size,
-            exclude_areas=config.challenge.cb_exclude_areas,
-            pre_action_list=config.challenge.cb_pre_action_list,
-        )
+    _score = 0.0
 
     if not _KEY_PAIRS:
         raise BaseHTTPException(
@@ -116,67 +101,69 @@ def score(miner_output: MinerOutput, reset: bool) -> float:
             message=f"No initialized action lists or out of action lists, this endpoint is shouldn't be called directly!",
         )
 
-    _CUR_KEY_PAIR = _KEY_PAIRS.pop(0)
-    _CUR_ACTION_LIST = _CHALLENGES_ACTION_LIST.pop(0)
-    _CUR_SCORE = None
+    for _ in range(_num_tasks):
+        _container_name = "bot_container"
+        ch_utils.stop_container(container_name=_container_name)
 
-    logger.debug(f"Current action list: {_CUR_ACTION_LIST}")
+        _CUR_KEY_PAIR = _KEY_PAIRS.pop(0)
+        _CUR_ACTION_LIST = _CHALLENGES_ACTION_LIST.pop(0)
+        _CUR_SCORE = None
 
-    _score = 0.0
-
-    logger.debug("Scoring the miner output...")
-    try:
-        if miner_output.pip_requirements:
-            ch_utils.check_pip_requirements(
-                pip_requirements=miner_output.pip_requirements,
-                target_dt=config.challenge.allowed_pip_pkg_dt,
-            )
-
-        _build_dir = os.path.join(config.api.paths.tmp_dir, "bot")
-        ch_utils.copy_bot_files(
-            miner_output=miner_output, src_dir=str(_src_dir / "bot"), dst_dir=_build_dir
-        )
-
-        _docker_client = docker.from_env()
-        _image_name = "bot:latest"
-        ch_utils.build_bot_image(
-            docker_client=_docker_client,
-            build_dir=_build_dir,
-            system_deps=miner_output.system_deps,
-            image_name=_image_name,
-        )
-        ch_utils.run_bot_container(
-            docker_client=_docker_client,
-            action_list=_CUR_ACTION_LIST,
-            image_name=_image_name,
-            container_name=_container_name,
-            ulimit=config.challenge.docker_ulimit,
-        )
-
-        _i = 0
-        while True:
-            if _CUR_SCORE is not None:
-                _score = _CUR_SCORE
-                _CUR_SCORE = None
-                break
-
-            logger.debug("Waiting for the bot to finish...")
-            time.sleep(1)
-            _i += 1
-
-            if config.challenge.bot_timeout < _i:
-                raise BaseHTTPException(
-                    error_enum=ErrorCodeEnum.BAD_REQUEST,
-                    message=f"Timeout error: Bot running too long or failed to finish!",
+        logger.debug(f"Current action list: {_CUR_ACTION_LIST}")
+        try:
+            if miner_output.pip_requirements:
+                ch_utils.check_pip_requirements(
+                    pip_requirements=miner_output.pip_requirements,
+                    target_dt=config.challenge.allowed_pip_pkg_dt,
                 )
 
-        logger.debug("Successfully scored the miner output.")
-    except Exception as err:
-        if isinstance(err, BaseHTTPException):
-            raise
+            _build_dir = os.path.join(config.api.paths.tmp_dir, "bot")
+            ch_utils.copy_bot_files(
+                miner_output=miner_output,
+                src_dir=str(_src_dir / "bot"),
+                dst_dir=_build_dir,
+            )
 
-        logger.error(f"Failed to score the miner output: {str(err)}!")
-        raise
+            _docker_client = docker.from_env()
+            _image_name = "bot:latest"
+            ch_utils.build_bot_image(
+                docker_client=_docker_client,
+                build_dir=_build_dir,
+                system_deps=miner_output.system_deps,
+                image_name=_image_name,
+            )
+            ch_utils.run_bot_container(
+                docker_client=_docker_client,
+                action_list=_CUR_ACTION_LIST,
+                image_name=_image_name,
+                container_name=_container_name,
+                ulimit=config.challenge.docker_ulimit,
+            )
+
+            _i = 0
+            while True:
+                if _CUR_SCORE is not None:
+                    _score += _CUR_SCORE / _num_tasks if _CUR_SCORE != 0 else 0
+                    _CUR_SCORE = None
+                    logger.info("Successfully scored the miner output.")
+                    break
+
+                logger.debug("Waiting for the bot to finish...")
+                time.sleep(1)
+                _i += 1
+
+                if config.challenge.bot_timeout < _i:
+                    logger.error(
+                        "Timeout error: Bot running too long or failed to finish!"
+                    )
+                    break
+
+        except Exception as err:
+            if isinstance(err, BaseHTTPException):
+                raise
+
+            logger.error(f"Failed to score the miner output: {str(err)}!")
+            raise
 
     return _score
 
@@ -243,8 +230,6 @@ def get_random_val(nonce: str) -> str:
         )
 
     _nonce_key: str = _CUR_KEY_PAIR.public_key
-    _CUR_KEY_PAIR.public_key = None
-    _CUR_KEY_PAIR.nonce = None
 
     return _nonce_key
 
@@ -253,7 +238,7 @@ def get_random_val(nonce: str) -> str:
 def eval_bot(data: str) -> None:
 
     global _CUR_KEY_PAIR
-    global _CUR_ACTION_LIST
+    global _ACTION_METRIC_PAIR
     global _CUR_SCORE
 
     if not _CUR_KEY_PAIR:
@@ -262,26 +247,28 @@ def eval_bot(data: str) -> None:
             message=f"Not initialized key pair or out of key pair, this endpoint is shouldn't be called directly!",
         )
 
-    if not _CUR_ACTION_LIST:
-        raise BaseHTTPException(
-            error_enum=ErrorCodeEnum.BAD_REQUEST,
-            message=f"Not initialized action list or out of action list, this endpoint is shouldn't be called directly!",
-        )
-
     _private_key: str = _CUR_KEY_PAIR.private_key
-    _CUR_KEY_PAIR = None
 
     logger.debug("Evaluating the bot...")
-    try:
-        _plaintext = ch_utils.decrypt(ciphertext=data, private_key=_private_key)
 
-        _metrics_processor = MetricsProcessor(config={"actions": _CUR_ACTION_LIST})
+    try:
+        _num_session = config.challenge.n_ch_per_epoch
+        _num_finished_sessions = len(_ACTION_METRIC_PAIR.keys()) + 1
+
+        _plaintext = ch_utils.decrypt(ciphertext=data, private_key=_private_key)
         _plain_data = json.loads(_plaintext)
-        _result = _metrics_processor(data=_plain_data)
-        _CUR_ACTION_LIST = None
-        logger.info(f"Bot evaluation result: {_result}")
-        _CUR_SCORE = _result["analysis"]["score"]
-        logger.info(f"Bot score: {_CUR_SCORE}")
+        _ACTION_METRIC_PAIR[f"{_num_finished_sessions}"] = _plain_data
+
+        if _num_finished_sessions == _num_session:
+            _metrics_processor = MetricsProcessor(config={"actions": _CUR_ACTION_LIST})
+            _result = _metrics_processor(data=_ACTION_METRIC_PAIR)
+
+            logger.info(f"Bot evaluation result: {_result}")
+            _CUR_SCORE = _result["analysis"]["score"]
+            logger.info(f"Bot score: {_CUR_SCORE}")
+
+            _ACTION_METRIC_PAIR = {}
+            _CUR_KEY_PAIR = None
 
         logger.debug("Successfully evaluated the bot.")
     except Exception as err:
