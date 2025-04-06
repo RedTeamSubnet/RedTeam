@@ -1,4 +1,6 @@
+import base58
 import datetime
+import hashlib
 
 import bittensor as bt
 import numpy as np
@@ -130,6 +132,47 @@ class MinerManager:
 
         return scores
 
+    def _get_alpha_burn_scores(self, n_uids: int) -> np.ndarray:
+        """
+        Returns a numpy array of scores based on alpha burn, high for more burn.
+        """
+        # Find owner 's hotkey
+        scores = np.zeros(n_uids)
+        try:
+            public_key_bytes = self.metagraph.owner_hotkey[0]
+            # Convert to bytes
+            public_key_bytes = bytes(public_key_bytes)
+            # Prefix for Substrate address
+            prefix = 42
+            prefix_bytes = bytes([prefix])
+
+            input_bytes = prefix_bytes + public_key_bytes
+
+            # Calculate checksum (blake2b-512)
+            blake2b = hashlib.blake2b(digest_size=64)
+            blake2b.update(b'SS58PRE' + input_bytes)
+            checksum = blake2b.digest()
+            checksum_bytes = checksum[:2] # Take first two bytes of checksum
+
+            # Final bytes = prefix + public key + checksum
+            final_bytes = input_bytes + checksum_bytes
+
+            # Convert to base58
+            owner_hotkey_base58 = base58.b58encode(final_bytes).decode()
+
+            # Get the index of the owner hotkey
+            owner_hotkey_index = self.metagraph.hotkeys.index(owner_hotkey_base58)
+
+            # Set alpha burn score to 1.0
+            scores[owner_hotkey_index] = 1.0
+        except Exception as e:
+            bt.logging.error(f"Error calculating alpha burn score: {e}")
+            return np.zeros(n_uids)
+
+        bt.logging.debug(f"[MINER MANAGER] Alpha burn scores: {scores.tolist()}")
+
+        return scores
+
     def get_onchain_scores(self, n_uids: int) -> np.ndarray:
         """
         Returns a numpy array of weighted scores combining:
@@ -138,24 +181,28 @@ class MinerManager:
         3. Alpha stake scores (based on stake amount)
 
         Weights are defined in constants:
-        - CHALLENGE_SCORES_WEIGHT (85%)
-        - NEWLY_REGISTRATION_WEIGHT (10%)
+        - CHALLENGE_SCORES_WEIGHT (45%)
         - ALPHA_STAKE_WEIGHT (5%)
+        - ALPHA_BURN_WEIGHT (50%)
         """
         # Get challenge performance scores
         challenge_scores = self._get_challenge_scores(n_uids)
 
-        # Get newly registration scores
-        registration_scores = self._get_newly_registration_scores(n_uids)
+        # Get newly registration scores (disabled)
+        # registration_scores = self._get_newly_registration_scores(n_uids)
 
         # Get alpha stake scores
         alpha_stake_scores = self._get_alpha_stake_scores(n_uids)
 
+        # Get alpha burn scores
+        alpha_burn_scores = self._get_alpha_burn_scores(n_uids)
+
         # Combine scores using weights from constants
         final_scores = (
             challenge_scores * constants.CHALLENGE_SCORES_WEIGHT
-            + registration_scores * constants.NEWLY_REGISTRATION_WEIGHT
+            # + registration_scores * constants.NEWLY_REGISTRATION_WEIGHT
             + alpha_stake_scores * constants.ALPHA_STAKE_WEIGHT
+            + alpha_burn_scores * constants.ALPHA_BURN_WEIGHT
         )
 
         bt.logging.debug(
