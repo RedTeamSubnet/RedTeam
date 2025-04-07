@@ -36,42 +36,32 @@ class HBComparer(Comparer):
             comparison_logs,
         ) in miner_commit.comparison_logs.items():
             for log in comparison_logs:
-                if (
+                if log and (
                     log.error
                     or log.miner_output is None
                     or log.reference_output is None
+                    or log.similarity_score is not None
                 ):
-                    continue
-
-                if log.similarity_score is not None:
-                    # Skip if similarity score is already set
                     continue
 
                 try:
                     # Send to /compare endpoint
-                    _miner_output = None
-                    _scoring_log_index = log.miner_output.get("index", None)
-                    if _scoring_log_index is None:
-                        bt.logging.warning(
-                            f"[COMPARER - HBComparer] Could not get scoring log index using miner_output for miner {miner_commit.miner_uid}"
-                        )
-                        _miner_output = log.miner_output
-                        log.miner_output = None
+                    _sorted_miner_commits = sorted(
+                        [
+                            commit
+                            for commit in miner_commit.scoring_logs
+                            if commit.miner_output["log_time"] is not None
+                        ],
+                        key=lambda x: x.miner_output["log_time"],
+                    )
+                    if _sorted_miner_commits:
+                        _latest_commit = _sorted_miner_commits[-1]
                     else:
-                        _miner_output = miner_commit.scoring_logs[
-                            _scoring_log_index
-                        ].miner_output
-
-                    if not _miner_output:
-                        bt.logging.warning(
-                            f"[COMPARER - HBComparer] miner_output is None for miner {miner_commit.miner_uid}"
-                        )
-                        log.error = "miner_output is None"
-                        log.similarity_score = 0.0
+                        _latest_commit = miner_commit.scoring_logs[-1]
 
                     similarity_score = self._compare_outputs(
                         miner_input=log.miner_input,
-                        miner_output=_miner_output,
+                        miner_output=_latest_commit.miner_output,
                         reference_output=log.reference_output,
                     )
 

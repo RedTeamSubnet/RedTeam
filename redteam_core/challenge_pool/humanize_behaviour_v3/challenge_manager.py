@@ -51,7 +51,7 @@ class HBChallengeManager(ChallengeManager):
 
             try:
                 # Compute mean score
-                score = np.mean(
+                score = np.max(
                     [scoring_log.score for scoring_log in miner_commit.scoring_logs]
                 ).item()
                 if np.isnan(score):
@@ -62,7 +62,7 @@ class HBChallengeManager(ChallengeManager):
                 # Compute penalty
                 if miner_commit.comparison_logs:
                     penalty_values = [
-                        np.mean([log.similarity_score for log in logs])
+                        np.nanmax([log.similarity_score for log in logs])
                         for logs in miner_commit.comparison_logs.values()
                     ]
                     penalty = np.max(penalty_values).item() if penalty_values else 0

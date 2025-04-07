@@ -99,25 +99,6 @@ class MinerFilePM(BaseModel):
         return val
 
 
-class ActionConfig(BaseModel):
-    action_list: Dict[str, Any] = Field(
-        ...,
-        title="Action List",
-        description="List of actions to be performed.",
-        examples=[
-            {
-                "actions": [
-                    {
-                        "id": "1",
-                        "type": "click",
-                        "args": {"location": {"x": 100, "y": 200}},
-                    }
-                ]
-            }
-        ],
-    )
-
-
 class MinerInput(BaseModel):
     random_val: Optional[
         constr(
@@ -156,7 +137,7 @@ class MinerOutput(BaseModel):
         examples=[_pip_requirements],
     )
 
-    @field_validator('bot_py', mode='after')
+    @field_validator("bot_py", mode="after")
     @classmethod
     def _check_bot_py_lines(cls, val: str) -> str:
         _lines = val.split("\n")
