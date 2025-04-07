@@ -22,7 +22,7 @@ fi
 
 ## --- Variables --- ##
 # Load from envrionment variables:
-VERSION_FILE_PATH="${VERSION_FILE_PATH:-./VERSION.txt}"
+VERSION_FILE_PATH="${VERSION_FILE_PATH:-./redteam_core/__version__.py}"
 
 
 _BUMP_TYPE=""
@@ -85,21 +85,21 @@ main()
 	# Split the version string into its components:
 	_major=$(echo "${_current_version}" | cut -d. -f1)
 	_minor=$(echo "${_current_version}" | cut -d. -f2)
-	_patch=$(echo "${_current_version}" | cut -d. -f3 | cut -d- -f1)
+	_patch=$(echo "${_current_version}" | cut -d. -f3)
 
 	_new_version=${_current_version}
 	# Determine the new version based on the type of bump:
 	if [ "${_BUMP_TYPE}" == "major" ]; then
-		_new_version="$((_major + 1)).0.0-$(date -u '+%y%m%d')"
+		_new_version="$((_major + 1)).0.0"
 	elif [ "${_BUMP_TYPE}" == "minor" ]; then
-		_new_version="${_major}.$((_minor + 1)).0-$(date -u '+%y%m%d')"
+		_new_version="${_major}.$((_minor + 1)).0"
 	elif [ "${_BUMP_TYPE}" == "patch" ]; then
-		_new_version="${_major}.${_minor}.$((_patch + 1))-$(date -u '+%y%m%d')"
+		_new_version="${_major}.${_minor}.$((_patch + 1))"
 	fi
 
 	echoInfo "Bumping version to '${_new_version}'..."
 	# Update the version file with the new version:
-	echo "${_new_version}" > "${VERSION_FILE_PATH}" || exit 2
+	echo -e "__version__ = \"${_new_version}\"" > "${VERSION_FILE_PATH}" || exit 2
 	echoOk "New version: '${_new_version}'"
 
 	if [ "${_IS_COMMIT}" == true ]; then
