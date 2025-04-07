@@ -321,6 +321,50 @@ def compare_outputs(
         return 0.0
 
 
+@validate_call
+def analyse_output(miner_output: MinerOutput) -> dict:
+    """
+    Analyzes miner output using CFGAnalyser
+
+    Args:
+        miner_output (dict): The output from the current miner (expects "bot_py" key).
+
+    Returns:
+        dict: CFG hashed output that will be used for comparison.
+
+    Note:
+        returns 0 if an error occurs during analysis.
+    """
+    try:
+        logger.info("Analyzing miner output...")
+
+        miner_code = miner_output.bot_py
+
+        if not miner_code:
+            logger.error("Missing bot_py in miner_output")
+            return {}
+
+        _analyzed_script = CFGManager().analyser.run(data=miner_code)
+
+        _is_error = _analyzed_script["error"]["occurred"]
+
+        logger.info(f"Error state(is error occurred): {_is_error}")
+        if _is_error:
+            if _analyzed_script["error"]["message"] == "Failed to preprocess the data!":
+                logger.error(f"Error message: {_analyzed_script['error']['message']}")
+            else:
+                logger.info(f"Error message: {_analyzed_script['error']['message']}")
+                return {}
+
+        _final_cfg_output = _analyzed_script["data"]
+
+        return _final_cfg_output
+
+    except Exception as err:
+        logger.error(f"Error in analyse_output function: {str(err)}")
+        return {}
+
+
 __all__ = [
     "get_task",
     "get_web",
