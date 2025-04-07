@@ -18,7 +18,7 @@ fi
 
 ## --- Variables --- ##
 # Load from envrionment variables:
-VERSION_FILE_PATH="${VERSION_FILE_PATH:-./src/redteam_core/__version__.py}"
+VERSION_FILE_PATH="${VERSION_FILE_PATH:-./redteam_core/__version__.py}"
 ## --- Variables --- ##
 
 
