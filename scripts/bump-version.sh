@@ -90,11 +90,11 @@ main()
 	_new_version=${_current_version}
 	# Determine the new version based on the type of bump:
 	if [ "${_BUMP_TYPE}" == "major" ]; then
-		_new_version="$((_major + 1)).0.0-$(date -u '+%y%m%d')"
+		_new_version="$((_major + 1)).0.0"
 	elif [ "${_BUMP_TYPE}" == "minor" ]; then
-		_new_version="${_major}.$((_minor + 1)).0-$(date -u '+%y%m%d')"
+		_new_version="${_major}.$((_minor + 1)).0"
 	elif [ "${_BUMP_TYPE}" == "patch" ]; then
-		_new_version="${_major}.${_minor}.$((_patch + 1))-$(date -u '+%y%m%d')"
+		_new_version="${_major}.${_minor}.$((_patch + 1))"
 	fi
 
 	echoInfo "Bumping version to '${_new_version}'..."
