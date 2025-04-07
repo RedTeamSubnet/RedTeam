@@ -22,7 +22,7 @@ fi
 
 ## --- Variables --- ##
 # Load from envrionment variables:
-VERSION_FILE_PATH="${VERSION_FILE_PATH:-./VERSION.txt}"
+VERSION_FILE_PATH="${VERSION_FILE_PATH:-./src/redteam_core/__version__.py}"
 
 
 _BUMP_TYPE=""
@@ -85,7 +85,7 @@ main()
 	# Split the version string into its components:
 	_major=$(echo "${_current_version}" | cut -d. -f1)
 	_minor=$(echo "${_current_version}" | cut -d. -f2)
-	_patch=$(echo "${_current_version}" | cut -d. -f3 | cut -d- -f1)
+	_patch=$(echo "${_current_version}" | cut -d. -f3)
 
 	_new_version=${_current_version}
 	# Determine the new version based on the type of bump:
@@ -99,7 +99,7 @@ main()
 
 	echoInfo "Bumping version to '${_new_version}'..."
 	# Update the version file with the new version:
-	echo "${_new_version}" > "${VERSION_FILE_PATH}" || exit 2
+	echo -e "__version__ = \"${_new_version}\"" > "${VERSION_FILE_PATH}" || exit 2
 	echoOk "New version: '${_new_version}'"
 
 	if [ "${_IS_COMMIT}" == true ]; then
