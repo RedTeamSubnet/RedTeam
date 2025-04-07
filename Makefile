@@ -12,7 +12,7 @@ help:
 	@echo "make all          -- clean, get-version, test, build"
 
 clean:
-	./scripts/clean.sh $(MAKEFLAGS)
+	./scripts/clean.sh -a
 
 get-version:
 	./scripts/get-version.sh
