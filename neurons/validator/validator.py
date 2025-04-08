@@ -755,8 +755,6 @@ class Validator(BaseValidator):
                         f"Failed to commit repo ID '{hf_repo_id}' to the blockchain after {max_retries} attempts."
                     )
 
-    def _commit_repo_id_to_chain_periodically(self, hf_repo_id: str, interval: int) -> None:
-
     def _get_storage_api_key(self) -> str:
         """
         Retrieves the storage API key from the config.
