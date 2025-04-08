@@ -54,10 +54,12 @@ class HBComparer(Comparer):
                         ],
                         key=lambda x: x.miner_output["log_time"],
                     )
-                    if _sorted_miner_commits:
-                        _latest_commit = _sorted_miner_commits[-1]
-                    else:
-                        _latest_commit = miner_commit.scoring_logs[-1]
+
+                    _latest_commit = (
+                        _sorted_miner_commits[-1]
+                        if _sorted_miner_commits
+                        else miner_commit.scoring_logs[-1]
+                    )
 
                     similarity_score = self._compare_outputs(
                         miner_input=log.miner_input,
@@ -145,13 +147,13 @@ class HBComparer(Comparer):
                             reference_output=other_log.miner_output,
                         )
                         # Create a comparison log with the inputs and outputs
+                        _miner_output["bot.py"] = None
                         comparison_log = ComparisonLog(
                             similarity_score=similarity_score,
                             miner_input=miner_log.miner_input,
-                            miner_output=miner_log.miner_output,
+                            miner_output=_miner_output,
                             reference_output=other_log.miner_output,
                             reference_hotkey=other_commit.miner_hotkey,
-                            # reference_similarity_score=other_commit.penalty,
                         )
                         comparison_logs.append(comparison_log)
 
@@ -159,6 +161,7 @@ class HBComparer(Comparer):
                         bt.logging.error(
                             f"Error comparing outputs with matching inputs for miner {miner_commit.miner_hotkey}: {str(e)}"
                         )
+                        miner_log.miner_output["bot.py"] = None
                         comparison_log = ComparisonLog(
                             error=str(e),
                             similarity_score=0.0,
@@ -166,7 +169,6 @@ class HBComparer(Comparer):
                             miner_output=miner_log.miner_output,
                             reference_output=other_log.miner_output,
                             reference_hotkey=other_commit.miner_hotkey,
-                            # reference_similarity_score=other_commit.penalty,
                         )
                         comparison_logs.append(comparison_log)
 
