@@ -1,10 +1,12 @@
-import bittensor as bt
-from ..constants import constants
-import traceback
 import threading
 import time
+import traceback
+from abc import ABC, abstractmethod
+
+import bittensor as bt
 from substrateinterface import SubstrateInterface
-from abc import abstractmethod, ABC
+
+from ..constants import constants
 
 
 class BaseValidator(ABC):
@@ -14,7 +16,6 @@ class BaseValidator(ABC):
         self.setup_bittensor_objects()
         self.last_update = 0
         self.current_block = 0
-        self.uid = self.metagraph.hotkeys.index(self.wallet.hotkey.ss58_address)
         self.node = SubstrateInterface(url=self.config.subtensor.chain_endpoint)
         self.is_running = False
 
@@ -48,10 +49,8 @@ class BaseValidator(ABC):
             )
             exit()
         else:
-            self.my_subnet_uid = self.metagraph.hotkeys.index(
-                self.wallet.hotkey.ss58_address
-            )
-            bt.logging.info(f"Running validator on uid: {self.my_subnet_uid}")
+            self.uid = self.metagraph.hotkeys.index(self.wallet.hotkey.ss58_address)
+            bt.logging.info(f"Running validator on uid: {self.uid}")
 
     def node_query(self, module, method, params):
         try:
@@ -107,14 +106,21 @@ class BaseValidator(ABC):
 
     def run(self):
         bt.logging.info("Starting validator loop.")
+        # Try set weights after initial sync
+        try:
+            bt.logging.info("Initializing weights")
+            self.set_weights()
+        except Exception:
+            bt.logging.error(f"Initial set weights error: {traceback.format_exc()}")
+
         while True:
             start_epoch = time.time()
 
             try:
                 self.forward()
-            except Exception as e:
-                bt.logging.error(f"Forward error: {e}")
-                traceback.print_exc()
+                bt.logging.success("Forward completed")
+            except Exception:
+                bt.logging.error(f"Forward error: {traceback.format_exc()}")
 
             end_epoch = time.time()
             elapsed = end_epoch - start_epoch
@@ -124,15 +130,15 @@ class BaseValidator(ABC):
 
             try:
                 self.set_weights()
-            except Exception as e:
-                bt.logging.error(f"Set weights error: {e}")
-                traceback.print_exc()
+                bt.logging.success("Set weights completed")
+            except Exception:
+                bt.logging.error(f"Set weights error: {traceback.format_exc()}")
 
             try:
                 self.resync_metagraph()
-            except Exception as e:
-                bt.logging.error(f"Resync metagraph error: {e}")
-                traceback.print_exc()
+                bt.logging.success("Resync metagraph completed")
+            except Exception:
+                bt.logging.error(f"Resync metagraph error: {traceback.format_exc()}")
 
             except KeyboardInterrupt:
                 bt.logging.success("Keyboard interrupt detected. Exiting validator.")

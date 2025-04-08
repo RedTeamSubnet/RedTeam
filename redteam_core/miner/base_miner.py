@@ -16,6 +16,8 @@ class BaseMiner(ABC):
         self.is_running = False
 
     def setup_logging(self):
+        bt.logging.enable_default()
+        bt.logging.enable_info()
         if self.config.logging.debug:
             bt.logging.enable_debug()
         if self.config.logging.trace:
@@ -86,8 +88,6 @@ class BaseMiner(ABC):
                 break
             except Exception as e:
                 bt.logging.error(f"Miner exception: {e}")
-
-
 
     def run_in_background_thread(self):
         """

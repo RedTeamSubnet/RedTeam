@@ -1,0 +1,103 @@
+changelog:
+  categories:
+    - title: 💥 Breaking Changes
+      labels:
+        - breaking
+        - breaking-change
+        - breaking-changes
+        - major
+        - semver-major
+    - title: ✨ Features
+      labels:
+        - feature
+        - features
+        - enhancement
+        - minor
+        - semver-minor
+    - title: 🐛 Fixes
+      labels:
+        - fix
+        - bug
+        - bugs
+        - bugfix
+        - patch
+        - semver-patch
+    - title: 📝 Documentation
+      labels:
+        - docs
+        - documentation
+        - readme
+        - changelog
+        - localizations
+    - title: 🧪 Tests
+      labels:
+        - test
+        - tests
+        - testing
+    - title: ⚡️ Performance
+      labels:
+        - perf
+        - performance
+        - speed
+        - fast
+    - title: 👷 CI/CD
+      labels:
+        - ci
+        - cicd
+        - ci/cd
+        - build
+        - deploy
+        - deployment
+        - pipeline
+        - github-actions
+        - automation
+    - title: 🎨 Styles
+      labels:
+        - style
+        - styles
+        - formatting
+        - lint
+        - linter
+        - linting
+        - prettier
+        - eslint
+        - black
+    - title: 🚑️ Critical Hotfix
+      labels:
+        - hotfix
+        - critical
+        - urgent
+        - emergency
+    - title: 🔒️ Security
+      labels:
+        - secure
+        - security
+        - vulnerability
+        - exploit
+        - hacker
+        - bug-bounty
+        - bugbounty
+    - title: 📦 Dependencies
+      labels:
+        - dependencies
+        - dependency
+        - dependabot
+        - dependabot-pr
+    - title: 🔨 Scripts
+      labels:
+        - script
+        - scripts
+        - tool
+        - tools
+    - title: 🗑️ Deprecations
+      labels:
+        - deprecate
+        - deprecated
+        - deprecation
+    - title: 🧹 Chores
+      labels:
+        - chore
+        - maintenance
+    - title: 💬 Other
+      labels:
+        - "*"

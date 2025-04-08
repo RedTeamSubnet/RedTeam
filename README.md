@@ -1,20 +1,53 @@
 # RedTeam Subnet: Improved Security Through Decentralized Innovation
 
 ## Overview
+
 The RedTeam subnet by Innerworks is a decentralized platform designed to drive innovation in cybersecurity through competitive programming challenges. The subnet incentivizes miners to develop and submit code solutions to various technical challenges, with a focus on enhancing security. These solutions can be integrated into real-world products to improve their security features.
 
-![Overview](assets/overview.png)
+### Dashboard: <https://dashboard.theredteam.io>
+
+![Overview](./docs/assets/images/diagrams/overview.svg)
 
 ## Subnet Functionality
-The subnet operates with a flexible, modular structure where new programming challenges can be added or removed based on demand. Miners submit encrypted code solutions to validators, who decrypt and evaluate the submissions after a 24-hour period. This ensures the integrity of the submissions, as the original submission time is preserved, and the solutions cannot be plagiarized. Validators run the submitted code in isolated sandbox environments to ensure accurate and replicable scoring.
 
-Points are awarded based on the quality of each solution, compared to the previous best. The system calculates emissions based on the number of points a miner has, with points decaying linearly over a 14-day period. This incentivizes continuous improvement and active participation in solving challenges.
+RedTeam's subnet now operates with a performance-based approach, encouraging continuous improvement and rewarding miners based on the quality and originality of their solutions. Every time a miner submits a solution, it is evaluated not just by how well it performs, but also by how much new value and innovation it brings to the subnet.
 
-## Example Challenge
-For instance, a programming challenge may involve mimicking human language to bypass ai generated content detection algorithms. Miners develop Python scripts to trick the algorithm into thinking the generated content is human-written. The validators evaluate the submissions based on the accuracy of the generated content and award points accordingly. The best solution is selected as the benchmark for future submissions.
+Miners can submit code solutions to challenges, but there's a key rule to prevent copying or plagiarism: we have a similarity checking system in place. This system compares new submissions with both past solutions and submissions made on the same day. Only unique, innovative contributions will be accepted, ensuring that the focus remains on continuous improvement and fresh ideas.
+
+While the best solutions are still rewarded with higher scores, we use a softmax function to normalize these scores. This ensures that miners who make significant improvements are rewarded more fairly. This system is designed to be open but still motivates active, meaningful participation.
+
+Submissions are scored once a day, based on their quality and innovation. The system checks each new submission for originality by comparing it to previously accepted solutions. Re-submitting the same idea or copying a past solution without adding new value or improvements will result in rejection. This encourages miners to keep innovating and bringing fresh ideas to the table, rather than recycling previous solutions.
+
+## Scoring System: Fair, Dynamic, and Motivating
+
+We've introduced an exciting new way to score miners that rewards innovation and long-term engagement. Here's how the new scoring system works:
+
+### How the Score is Calculated
+
+When miners participate in challenges, their performance is evaluated based on their solutions. The scoring system has three key components, each designed to reward different aspects of participation:
+
+1. **Challenge Score (75%)**: The majority of the score comes from how well the miner's solution performs in a challenge. The system compares each miner's solution with others and awards higher points for more innovative and effective solutions. Better solutions get a larger share of the points, thanks to the use of a softmax function.
+
+2. **Holding Alpha (15%)**: A small portion of the score is based on how much Alpha (our network's token) a participant is holding. This encourages participants to stay invested and engaged in the network, providing extra motivation to keep working on the challenges.
+
+3. **New Participant Bonus (10%)**: We want to encourage newcomers to join and get involved, so we offer a bonus for newly registered participants. This bonus gradually decreases over time as the participants become more experienced and integrated into the community.
+
+Each of these components is normalized to ensure fairness, and then combined into one final score using the formula:
+
+- **Final Score = (75% * Challenge Score) + (15% * Alpha Holding Score) + (10% * New Participant Bonus)**
+
+This dynamic approach ensures that miners are rewarded for both their immediate contributions and long-term participation.
 
 ## Validator Setup
-[Read the full documentation](docs/validator.md)
+
+[Read the full documentation](./docs/1.validator.md)
 
 ## Miner Setup
-[Read the full documentation](docs/miner.md)
+
+[Read the full documentation](./docs/2.miner.md)
+
+---
+
+## Documentation
+
+- **<https://docs.theredteam.io>**
