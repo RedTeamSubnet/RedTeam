@@ -15,6 +15,9 @@ COPY requirements.txt .
 
 # Install the required Python packages
 RUN pip install --no-cache-dir -r requirements.txt
+RUN python -m nltk.downloader punkt
+RUN python -m nltk.downloader words
+RUN python -m nltk.downloader punkt_tab
 
 # Copy the rest of the application code to the container
 COPY . .
