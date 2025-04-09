@@ -1,0 +1,62 @@
+services:
+  # subtensor:
+  #   volumes:
+  #     - "./volumes/storage/server.subtensor/data:/tmp"
+  #   deploy:
+  #     replicas: 0
+  #     resources:
+  #       limits:
+  #         cpus: "1.0"
+  #         memory: 1G
+  #   ports:
+  #     - "${RT_SUBTENSOR_WS_PORT:-9944}:9944"
+  #     - "9945:9945"
+  #     - "30334:30334"
+  #     - "30335:30335"
+
+  sidecar-btcli:
+    image: redteamsubnet61/sidecar.btcli:2.0.0-250408
+    # volumes:
+    #   - "./volumes/storage/sidecar.btcli/data:${RT_BTCLI_DATA_DIR:-/var/lib/sidecar.btcli}"
+    #   - "./volumes/.vscode-server:/home/rt-user/.vscode-server"
+    # deploy:
+    #   replicas: 0
+    #   resources:
+    #     limits:
+    #       cpus: "0.25"
+    #       memory: 256M
+    # command: ["/bin/bash"]
+
+  validator:
+    image: redteamsubnet61/agent.validator:0.0.1-250101
+    # volumes:
+    #   - "./volumes/storage/sidecar.btcli/data:${RT_BTCLI_DATA_DIR:-/var/lib/sidecar.btcli}"
+    #   - "./volumes/storage/agent.validator/data:${RT_VALIDATOR_DATA_DIR:-/var/lib/agent.validator}"
+    #   - "./neurons/validator:/app/agent.validator/neurons/validator"
+    #   - "./neurons/validator/scripts/docker/docker-entrypoint.sh:/usr/local/bin/docker-entrypoint.sh"
+    #   - "./volumes/.vscode-server:/home/rt-user/.vscode-server"
+    # deploy:
+    #   replicas: 0
+    #   resources:
+    #     limits:
+    #       cpus: "8"
+    #       memory: 16G
+    # command: ["/bin/bash"]
+
+  miner:
+    image: redteamsubnet61/agent.miner:0.0.1-250101
+    # volumes:
+    #   - "./volumes/storage/sidecar.btcli/data:${RT_BTCLI_DATA_DIR:-/var/lib/sidecar.btcli}"
+    #   - "./volumes/storage/agent.miner/data:${RT_MINER_DATA_DIR:-/var/lib/agent.miner}"
+    #   - "./neurons/miner:/app/agent.miner/neurons/miner"
+    #   - "./neurons/miner/scripts/docker/docker-entrypoint.sh:/usr/local/bin/docker-entrypoint.sh"
+    #   - "./volumes/.vscode-server:/home/rt-user/.vscode-server"
+    # deploy:
+    #   replicas: 0
+    #   resources:
+    #     limits:
+    #       cpus: "4"
+    #       memory: 8G
+    # ports:
+    #   - "${RT_MINER_PORT:-8088}:${RT_MINER_PORT:-8088}"
+    # command: ["/bin/bash"]

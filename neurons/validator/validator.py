@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import datetime
 import time
 import traceback
@@ -56,7 +59,8 @@ class Validator(BaseValidator):
         )
 
         # Get the storage API key
-        storage_api_key = self._get_storage_api_key()
+        # storage_api_key = self._get_storage_api_key()
+        storage_api_key = "asdas.tgnrjkhrthr"
 
         # Start the Bittensor log listener
         start_bittensor_log_listener(api_key=storage_api_key)
@@ -81,9 +85,9 @@ class Validator(BaseValidator):
         self._init_active_challenges()
 
         # Initialize validator state
-        self.miner_commits: dict[
-            tuple[int, str], dict[str, MinerChallengeCommit]
-        ] = {}  # {(uid, hotkey): {challenge_name: MinerCommit}}
+        self.miner_commits: dict[tuple[int, str], dict[str, MinerChallengeCommit]] = (
+            {}
+        )  # {(uid, hotkey): {challenge_name: MinerCommit}}
         self.scoring_dates: list[str] = []
         self._init_validator_state()
 
@@ -197,9 +201,7 @@ class Validator(BaseValidator):
         main loop to process new miner commits and update scores.
         """
         date_time = datetime.datetime.now(datetime.timezone.utc)
-        bt.logging.success(
-            f"[FORWARD] Forwarding for {date_time}"
-        )
+        bt.logging.success(f"[FORWARD] Forwarding for {date_time}")
         self._init_active_challenges()
 
         self.update_miner_commits(self.active_challenges)
@@ -401,10 +403,14 @@ class Validator(BaseValidator):
                         if not commit:
                             continue
                         try:
-                            validated_commit = MinerChallengeCommit.model_validate(commit)
+                            validated_commit = MinerChallengeCommit.model_validate(
+                                commit
+                            )
                             unique_commits_cached_data.append(validated_commit)
                         except Exception:
-                            bt.logging.warning(f"[FORWARD LOCAL SCORING] Failed to validate cached commit {commit} for challenge {challenge}: {traceback.format_exc()}")
+                            bt.logging.warning(
+                                f"[FORWARD LOCAL SCORING] Failed to validate cached commit {commit} for challenge {challenge}: {traceback.format_exc()}"
+                            )
                             continue
 
                 # 2. Run challenge controller
@@ -521,7 +527,9 @@ class Validator(BaseValidator):
             return scored_commits, data.get("is_done", False)
 
         except Exception:
-            bt.logging.error(f"Error getting centralized scoring results: {traceback.format_exc()}")
+            bt.logging.error(
+                f"Error getting centralized scoring results: {traceback.format_exc()}"
+            )
             return [], False
 
     def set_weights(self) -> None:
@@ -806,9 +814,11 @@ class Validator(BaseValidator):
                     "uid": uid,
                     "ss58": ss58,
                     "commits": {
-                        challenge_name: commit.public_view().model_dump()
-                        if public_view
-                        else commit.model_dump()
+                        challenge_name: (
+                            commit.public_view().model_dump()
+                            if public_view
+                            else commit.model_dump()
+                        )
                         for challenge_name, commit in commits.items()
                     },
                 }
