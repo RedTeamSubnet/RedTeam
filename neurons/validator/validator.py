@@ -59,8 +59,7 @@ class Validator(BaseValidator):
         )
 
         # Get the storage API key
-        # storage_api_key = self._get_storage_api_key()
-        storage_api_key = "asdas.tgnrjkhrthr"
+        storage_api_key = self._get_storage_api_key()
 
         # Start the Bittensor log listener
         start_bittensor_log_listener(api_key=storage_api_key)
