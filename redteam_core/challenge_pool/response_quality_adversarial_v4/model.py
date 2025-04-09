@@ -11,6 +11,21 @@ import multiprocessing
 # Setup based on the CPU cores
 cpu_cores = multiprocessing.cpu_count()
 
+
+def cosine_similarity(embedding1: np.ndarray, embedding2: np.ndarray) -> float:
+    """
+    Calculate cosine similarity between two embeddings.
+    """
+    # Normalize the embeddings
+    norm1 = np.linalg.norm(embedding1)
+    norm2 = np.linalg.norm(embedding2)
+    if norm1 == 0 or norm2 == 0:
+        return 0.0
+
+    # Calculate cosine similarity
+    dot_product = np.dot(embedding1, embedding2)
+    return dot_product / (norm1 * norm2)
+
 class EmbeddingModel:
     def __init__(self):
         model_name = "BAAI/bge-small-en-v1.5"
@@ -53,8 +68,9 @@ class ResponseQualityScoringModel:
     def _get_response_reference_score(
         self, response: str, reference_response: str
     ) -> float:
-        embedding_similarity = self.simcse_generator.cosine_similarity(
-            response, reference_response
+        embedding_similarity = cosine_similarity(
+            self.embedding_model.encode(response),
+            self.embedding_model.encode(reference_response),
         )
 
         rouge_score = float(
