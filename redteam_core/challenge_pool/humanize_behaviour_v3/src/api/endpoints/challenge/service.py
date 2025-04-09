@@ -282,9 +282,7 @@ def eval_bot(data: str) -> None:
 
 
 @validate_call
-def compare_outputs(
-    miner_input: MinerInput, miner_output: MinerOutput, reference_output: MinerOutput
-) -> float:
+def compare_outputs(miner_input: MinerInput, miner_output, reference_output) -> float:
     """
     Compare miner's output against a reference output using CFGAnalyser and CFGComparer.
 
@@ -299,16 +297,15 @@ def compare_outputs(
     try:
         logger.info("Analyzing miner output...")
 
-        miner_code = miner_output.bot_py
-        reference_code = reference_output.bot_py
+        miner_code = json.load(miner_output)["cfg_output"]
+        reference_code = json.load(reference_output)["cfg_output"]
 
         if not miner_code or not reference_code:
             logger.error("Missing bot_py in miner_output or reference_output.")
             return 0.0
-
-        comparison_result = CFGManager().run_raw_scripts_comparison(
-            str_script_1=miner_code,
-            str_script_2=reference_code,
+        comparison_result = CFGManager().comparer.run(
+            source_data=miner_code,
+            target_list=[reference_code],
         )
 
         similarity_score = comparison_result.get("maximum_similarity", 0.0)

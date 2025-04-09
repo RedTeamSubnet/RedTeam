@@ -384,8 +384,7 @@ class HBController(Controller):
                     f"Error message: {analyzed_output['error']['message']}"
                 )
                 return None
-            _final_cfg_output = analyzed_output.get("data", {})
-            return _final_cfg_output
+            return analyzed_output
 
         except Exception as e:
             bt.logging.error(f"Error in comparison request: {str(e)}")

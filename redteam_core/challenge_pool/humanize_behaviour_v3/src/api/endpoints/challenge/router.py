@@ -191,9 +191,9 @@ def _post_eval_bot(
 )
 def post_compare(
     request: Request,
+    miner_output,
+    reference_output,
     miner_input: MinerInput = Body(...),
-    miner_output: MinerOutput = Body(...),
-    reference_output: MinerOutput = Body(...),
 ):
     _request_id = request.state.request_id
     logger.info(f"[{_request_id}] - Comparing miner outputs...")
