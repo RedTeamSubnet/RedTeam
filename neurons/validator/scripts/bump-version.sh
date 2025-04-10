@@ -59,10 +59,6 @@ main()
 		exit 1
 	fi
 
-	if [ "${_IS_COMMIT}" == true ]; then
-		exitIfNoGit
-	fi
-
 
 	echoInfo "Checking current version..."
 	_current_version="$(./scripts/get-version.sh)"
