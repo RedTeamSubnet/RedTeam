@@ -63,3 +63,22 @@ services:
     ports:
       - "${RT_MINER_PORT:-8088}:${RT_MINER_PORT:-8088}"
     # command: ["/bin/bash"]
+
+  rewarding-validator:
+    environment:
+      RT_SUBTENSOR_HOST: subtensor
+    volumes:
+      - "./volumes/storage/sidecar.btcli/data:${RT_BTCLI_DATA_DIR:-/var/lib/sidecar.btcli}"
+      - "./volumes/storage/server.rewarding-validator/data:${RT_REWARDING_VALIDATOR_DATA_DIR:-/var/lib/server.rewarding-validator}"
+      - "./services/rewarding:/app/server.rewarding-validator/services/rewarding"
+      - "./services/rewarding/scripts/docker/docker-entrypoint.sh:/usr/local/bin/docker-entrypoint.sh"
+      - "./volumes/.vscode-server:/home/rt-user/.vscode-server"
+    # deploy:
+    #   replicas: 0
+    #   resources:
+    #     limits:
+    #       cpus: "8"
+    #       memory: 16G
+    ports:
+      - "${RT_REWARDING_VALIDATOR_PORT:-47920}:${RT_REWARDING_VALIDATOR_PORT:-47920}"
+    # command: ["/bin/bash"]

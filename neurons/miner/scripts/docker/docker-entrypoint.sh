@@ -16,7 +16,7 @@ _doStart()
 	while true; do
 		local _checkpoint_file_path="${RT_BTCLI_DATA_DIR:-/var/lib/sidecar.btcli}/${RT_BTCLI_CHECKPOINT_FNAME:-.checkpoint.txt}"
 		if [ -f "${_checkpoint_file_path}" ]; then
-			local _checkpoint_val
+			local _checkpoint_val=0
 			_checkpoint_val=$(cat "${_checkpoint_file_path}")
 			if [ "${_checkpoint_val}" -ge 4 ]; then
 				break

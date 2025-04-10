@@ -16,7 +16,7 @@ _doStart()
 	while true; do
 		local _checkpoint_file_path="${RT_BTCLI_DATA_DIR:-/var/lib/sidecar.btcli}/${RT_BTCLI_CHECKPOINT_FNAME:-.checkpoint.txt}"
 		if [ -f "${_checkpoint_file_path}" ]; then
-			local _checkpoint_val
+			local _checkpoint_val=0
 			_checkpoint_val=$(cat "${_checkpoint_file_path}")
 			if [ "${_checkpoint_val}" -ge 4 ]; then
 				break
@@ -45,9 +45,9 @@ _doStart()
 		--subtensor.network \"${RT_SUBTENSOR_CHAIN_URL:-ws://${RT_SUBTENSOR_HOST:-subtensor}:${RT_SUBTENSOR_WS_PORT:-9944}}\" \
 		--netuid \"${RT_BTCLI_SUBNET_NETUID:-2}\" \
 		--validator.cache_dir \"${RT_VALIDATOR_DATA_DIR:-/var/lib/agent.validator}/.cache\" \
-		--validator.hf_repo_id \"${RT_VALIDATOR_HF_REPO:-redteamsubnet61/agent.validator}\"" \
+		--validator.hf_repo_id \"${RT_VALIDATOR_HF_REPO:-redteamsubnet61/agent.validator}\" \
 		${_use_centralized_param} \
-		${_logging_param} || exit 2
+		${_logging_param}" || exit 2
 
 	exit 0
 }
