@@ -31,6 +31,7 @@ class StorageManager:
         ],
         hf_repo_id: str,
         sync_on_init=True,
+        squash_hf_repo_on_init=True,
     ):
         """
         Manages local cache, Hugging Face Hub storage, and centralized storage.
@@ -58,14 +59,22 @@ class StorageManager:
         # Queue and background thread for async updates
         self._storage_queue = Queue()  # Queue of tuples (data, processing_method)
         self.storage_thread = threading.Thread(
-            target=self._process_storage_queue, daemon=True
+            target=self._process_storage_queue, daemon=True, name="storage_thread"
         )
         self.storage_thread.start()
         bt.logging.info("[STORAGE] Started storage thread in the background")
 
         # Sync data from Hugging Face Hub to local cache if required
         if sync_on_init:
+            bt.logging.info("[STORAGE] Syncing data from Hugging Face Hub to local cache")
             self.sync_storage_to_cache()
+
+        # Squash the HF repo on init if requested to pressure to HF
+        if squash_hf_repo_on_init:
+            bt.logging.info("[STORAGE] Squashing history of Hugging Face repo")
+            self.hf_api.super_squash_history(repo_id=self.hf_repo_id)
+            bt.logging.success("[STORAGE] Successfully squashed commit history of Hugging Face repo")
+
 
     # MARK: Sync Methods
     def sync_storage_to_cache(self):
