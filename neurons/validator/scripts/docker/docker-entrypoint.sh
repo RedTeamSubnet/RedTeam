@@ -7,8 +7,16 @@ echo "INFO: Running '${RT_VALIDATOR_SLUG}' docker-entrypoint.sh..."
 _doStart()
 {
 	while true; do
-		_checkpoint_file_path="${RT_BTCLI_DATA_DIR:-/var/lib/sidecar.btcli}/${RT_BTCLI_CHECKPOINT_FNAME:-.checkpoint.txt}"
+		if [ -d "${RT_BTCLI_WALLET_DIR:-${RT_BTCLI_DATA_DIR:-/var/lib/sidecar.btcli}/wallets}" ]; then
+			break
+		fi
+		sleep 1
+	done
+
+	while true; do
+		local _checkpoint_file_path="${RT_BTCLI_DATA_DIR:-/var/lib/sidecar.btcli}/${RT_BTCLI_CHECKPOINT_FNAME:-.checkpoint.txt}"
 		if [ -f "${_checkpoint_file_path}" ]; then
+			local _checkpoint_val
 			_checkpoint_val=$(cat "${_checkpoint_file_path}")
 			if [ "${_checkpoint_val}" -ge 4 ]; then
 				break
@@ -17,8 +25,19 @@ _doStart()
 		sleep 1
 	done
 
+	local _use_centralized_param=""
+	if [ "${RT_VALIDATOR_USE_CENTRALIZED:-}" = "true" ]; then
+		_use_centralized_param="--validator.use_centralized_scoring"
+	fi
+
+	local _logging_param=""
+	if [ "${RT_VALIDATOR_LOG_LEVEL:-}" = "debug" ]; then
+		_logging_param="--logging.debug"
+	elif [ "${RT_VALIDATOR_LOG_LEVEL:-}" = "trace" ]; then
+		_logging_param="--logging.trace"
+	fi
+
 	echo "INFO: Starting ${RT_VALIDATOR_SLUG}..."
-	# shellcheck disable=SC2086
 	exec sg docker "exec python -m neurons.validator.validator \
 		--wallet.name \"${RT_VALIDATOR_WALLET_NAME:-validator}\" \
 		--wallet.path \"${RT_BTCLI_WALLET_DIR:-${RT_BTCLI_DATA_DIR:-/var/lib/sidecar.btcli}/wallets}\" \
@@ -27,8 +46,8 @@ _doStart()
 		--netuid \"${RT_BTCLI_SUBNET_NETUID:-2}\" \
 		--validator.cache_dir \"${RT_VALIDATOR_DATA_DIR:-/var/lib/agent.validator}/.cache\" \
 		--validator.hf_repo_id \"${RT_VALIDATOR_HF_REPO:-redteamsubnet61/agent.validator}\"" \
-		--logging.trace || exit 2
-		# ${RT_VALIDATOR_USE_CENTRALIZED:-}" || exit 2
+		${_use_centralized_param} \
+		${_logging_param} || exit 2
 
 	exit 0
 }

@@ -7,8 +7,16 @@ echo "INFO: Running '${RT_MINER_SLUG}' docker-entrypoint.sh..."
 _doStart()
 {
 	while true; do
-		_checkpoint_file_path="${RT_BTCLI_DATA_DIR:-/var/lib/sidecar.btcli}/${RT_BTCLI_CHECKPOINT_FNAME:-.checkpoint.txt}"
+		if [ -d "${RT_BTCLI_WALLET_DIR:-${RT_BTCLI_DATA_DIR:-/var/lib/sidecar.btcli}/wallets}" ]; then
+			break
+		fi
+		sleep 1
+	done
+
+	while true; do
+		local _checkpoint_file_path="${RT_BTCLI_DATA_DIR:-/var/lib/sidecar.btcli}/${RT_BTCLI_CHECKPOINT_FNAME:-.checkpoint.txt}"
 		if [ -f "${_checkpoint_file_path}" ]; then
+			local _checkpoint_val
 			_checkpoint_val=$(cat "${_checkpoint_file_path}")
 			if [ "${_checkpoint_val}" -ge 4 ]; then
 				break

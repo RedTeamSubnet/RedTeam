@@ -44,7 +44,6 @@ services:
       environment:
         TERM: ${TERM:-xterm}
         TZ: ${TZ:-UTC}
-        TESTNET: ${TESTNET:-1}
         HF_TOKEN: ${HF_TOKEN}
       env_file:
         - path: .env
@@ -67,7 +66,6 @@ services:
       environment:
         TERM: ${TERM:-xterm}
         TZ: ${TZ:-UTC}
-        TESTNET: ${TESTNET:-1}
       env_file:
         - path: .env
           required: false
