@@ -1,32 +1,190 @@
 import asyncio
-import copy
-
+import traceback
 import aiohttp
 import bittensor as bt
 
 from redteam_core.challenge_pool.controller import Controller
-from redteam_core.validator.models import MinerChallengeCommit, ScoringLog, ComparisonLog
+from redteam_core.validator.models import MinerChallengeCommit, ScoringLog
 from redteam_core.constants import constants
+from redteam_core.challenge_pool import docker_utils
 
 class ResponseQualityAdversarialController(Controller):
+
+    # Override the start_challenge to do async calls
+    def start_challenge(self):
+        """
+        Initiates the challenge lifecycle by setting up and executing the challenge Docker container.
+
+        This process involves:
+        1. Building and running the challenge container within an isolated Docker network.
+        2. Generating or retrieving challenge inputs to evaluate miners.
+        3. Scoring a baseline Docker image, if specified, to establish a reference point.
+        4. Iteratively running each miner's Docker container to submit and score their solutions.
+        5. Collecting and logging the results, including any errors encountered during execution.
+        6. Cleaning up Docker resources to ensure no residual containers or images remain.
+
+        The method ensures that each miner's submission is evaluated against the challenge inputs,
+        and comparison logs are generated to assess performance relative to reference commits.
+        """
+        # Setup challenge, get challenge container and network ready
+        self._setup_challenge()
+
+        # Generate new input to score miners
+        num_task = self.challenge_info.get(
+            "num_tasks", constants.N_CHALLENGES_PER_EPOCH
+        )
+        # Start with seed inputs and generate more if needed to reach num_task
+        challenge_inputs = self.seed_inputs.copy()
+        remaining_tasks = max(0, num_task - len(challenge_inputs))
+        if remaining_tasks > 0:
+            # Asynchronously generate more inputs
+            loop = asyncio.get_event_loop()
+            new_inputs = loop.run_until_complete(
+                self._generate_new_inputs(remaining_tasks)
+            )
+            challenge_inputs.extend(new_inputs)
+
+        # Score baseline first if it exists
+        if self.baseline_commit.docker_hub_id:
+            try:
+                self._setup_miner_container(self.baseline_commit)
+                self._score_miner_with_new_inputs(
+                    self.baseline_commit, challenge_inputs
+                )
+                docker_utils.remove_container_by_port(
+                    client=self.docker_client,
+                    port=constants.MINER_DOCKER_PORT,
+                )
+                docker_utils.clean_docker_resources(
+                    client=self.docker_client,
+                    remove_containers=True,
+                    remove_images=True,
+                )
+            except Exception as e:
+                bt.logging.error(f"Error scoring baseline: {e}")
+                bt.logging.error(traceback.format_exc())
+
+        # Score commits with new input and collect comparison logs
+        for miner_commit in self.miner_commits:
+            uid, hotkey = miner_commit.miner_uid, miner_commit.miner_hotkey
+
+            try:
+                bt.logging.info(f"[CONTROLLER] Scoring miner {uid} - {hotkey} with commit {miner_commit.encrypted_commit}")
+                # 1. Validate and setup miner container
+                self._setup_miner_container(miner_commit)
+
+                # 2. Score with new inputs
+                self._score_miner_with_new_inputs(miner_commit, challenge_inputs)
+
+                # 3. Run reference comparisons
+                self._run_reference_comparison_inputs(miner_commit)
+
+            except Exception as e:
+                bt.logging.error(f"Error while processing miner {uid} - {hotkey}: {e}")
+                bt.logging.error(traceback.format_exc())
+                if uid != self.baseline_commit.miner_uid:
+                    miner_commit.scoring_logs.append(
+                        ScoringLog(
+                            miner_input=None,
+                            miner_output=None,
+                            score=0,
+                            error=str(e),
+                        )
+                    )
+
+            # Clean up miner container
+            docker_utils.remove_container_by_port(
+                client=self.docker_client,
+                port=constants.MINER_DOCKER_PORT,
+            )
+            docker_utils.clean_docker_resources(
+                client=self.docker_client,
+                remove_containers=True,
+                remove_images=True,
+            )
+
+        # Clean up challenge container
+        docker_utils.remove_container(
+            client=self.docker_client,
+            container_name=self.challenge_name,
+            stop_timeout=360,
+            force=True,
+            remove_volumes=True,
+        )
+        docker_utils.clean_docker_resources(
+            client=self.docker_client,
+            remove_containers=True,
+            remove_images=True,
+        )
+
+    async def _generate_new_inputs(self, num_tasks: int) -> list[dict]:
+        """
+        Asynchronously generates new challenge inputs.
+        """
+        async with aiohttp.ClientSession() as session:
+            tasks = [self._async_get_challenge(session) for _ in range(num_tasks)]
+            return await asyncio.gather(*tasks)
+
+    async def _async_get_challenge(self, session: aiohttp.ClientSession) -> dict:
+        """
+        Async version to get a challenge from the container with retry logic.
+        """
+        _protocol, _ssl_verify = self._check_protocol(is_challenger=True)
+        url = f"{_protocol}://localhost:{constants.CHALLENGE_DOCKER_PORT}/task"
+
+        max_retries = 3
+        for attempt in range(max_retries):
+            try:
+                async with session.get(url, ssl=_ssl_verify) as response:
+                    response.raise_for_status()
+                    return await response.json()
+            except Exception as e:
+                if attempt == max_retries - 1:
+                    raise Exception(
+                        f"Failed to get challenge after {max_retries} attempts: {str(e)}"
+                    )
+                # Wait briefly before retrying
+                await asyncio.sleep(1)
 
     # Override the _score_miner_with_new_inputs method
     def _score_miner_with_new_inputs(self, miner_commit: MinerChallengeCommit, challenge_inputs):
         """
         Run and score miner with new challenge inputs.
-        This method try to make async calls to miner to get the responses
-        and async calls to challenge container to get the scores
+        This method:
+        1. Makes synchronous calls to miner to get the responses (one by one)
+        2. Collects all responses
+        3. Then makes async calls to challenge container to get scores (in parallel)
         """
-        # Get async loop
+        # Step 1: Get all miner responses synchronously (one by one)
+        responses = []
+        for miner_input in challenge_inputs:
+            # Get miner output using the synchronous method
+            miner_output, error_message = self._submit_challenge_to_miner(miner_input)
+            responses.append((miner_input, miner_output, error_message))
+
+        # Step 2: Score all valid responses asynchronously (in parallel)
         loop = asyncio.get_event_loop()
+        score_tasks = []
+        for miner_input, miner_output, _ in responses:
+            if miner_output is not None:
+                score_tasks.append((miner_input, miner_output))
 
-        # Get miner responses and scores asynchronously
-        results = loop.run_until_complete(
-            self._gather_async_responses_and_scores(challenge_inputs)
-        )
+        # If we have tasks to score, run them in parallel
+        if score_tasks:
+            scores = loop.run_until_complete(
+                self._score_challenges_async(score_tasks)
+            )
+        else:
+            scores = []
 
-        # Process the results
-        for i, (miner_input, miner_output, score, error_message) in enumerate(results):
+        # Step 3: Create the scoring logs
+        score_index = 0
+        for i, (miner_input, miner_output, error_message) in enumerate(responses):
+            # Get the score if available, otherwise use 0.0
+            score = scores[score_index] if miner_output is not None and score_index < len(scores) else 0.0
+            if miner_output is not None:
+                score_index += 1
+
             log = ScoringLog(
                 miner_input=miner_input,
                 miner_output=miner_output,
@@ -47,68 +205,22 @@ class ResponseQualityAdversarialController(Controller):
                     log.baseline_score = self.baseline_commit.scoring_logs[i].score
                 miner_commit.scoring_logs.append(log)
 
-    async def _gather_async_responses_and_scores(self, challenge_inputs):
+    async def _score_challenges_async(self, score_tasks):
         """
-        Gather all miner responses and scores asynchronously.
-        """
-        async with aiohttp.ClientSession() as session:
-            # First get all responses
-            response_tasks = [self._async_submit_challenge_to_miner(session, challenge) for challenge in challenge_inputs]
-            responses = await asyncio.gather(*response_tasks)
+        Score multiple challenges asynchronously.
 
-            # Then get all scores for valid responses
-            score_tasks = []
-            for i, (miner_input, miner_output, error_message) in enumerate(responses):
-                if miner_output is not None:
-                    score_task = self._async_score_challenge(session, miner_input, miner_output)
-                    score_tasks.append(score_task)
-                else:
-                    score_tasks.append(asyncio.create_task(asyncio.sleep(0, result=0.0)))  # No score for failed response
+        Args:
+            score_tasks: List of (miner_input, miner_output) tuples to score
 
-            scores = await asyncio.gather(*score_tasks)
-
-            # Combine responses with scores
-            results = []
-            for i, (miner_input, miner_output, error_message) in enumerate(responses):
-                score = scores[i] if miner_output is not None else 0.0
-                results.append((miner_input, miner_output, score, error_message))
-
-            return results
-
-    async def _gather_async_miner_responses(self, challenge_inputs):
-        """
-        Gather all miner responses asynchronously.
+        Returns:
+            List of scores in the same order as the inputs
         """
         async with aiohttp.ClientSession() as session:
-            tasks = [self._async_submit_challenge_to_miner(session, challenge) for challenge in challenge_inputs]
+            tasks = [
+                self._async_score_challenge(session, miner_input, miner_output)
+                for miner_input, miner_output in score_tasks
+            ]
             return await asyncio.gather(*tasks)
-
-    async def _async_submit_challenge_to_miner(self, session: aiohttp.ClientSession, challenge):
-        """
-        Async version of _submit_challenge_to_miner
-        """
-        error_message = ""
-        miner_input = copy.deepcopy(challenge)
-        exclude_miner_input_key = self.challenge_info.get("exclude_miner_input_key", [])
-        for key in exclude_miner_input_key:
-            miner_input[key] = None
-        try:
-            _protocol, _ssl_verify = self._check_protocol(is_challenger=False)
-            url = f"{_protocol}://localhost:{constants.MINER_DOCKER_PORT}/solve"
-
-            timeout = aiohttp.ClientTimeout(total=self.challenge_info.get("challenge_solve_timeout", 60))
-            async with session.post(url, json=miner_input, timeout=timeout, ssl=_ssl_verify) as response:
-                miner_output = await response.json()
-                return miner_input, miner_output, error_message
-
-        except asyncio.TimeoutError:
-            error_message = "Timeout occurred while trying to solve challenge."
-            bt.logging.error(error_message)
-            return miner_input, None, error_message
-        except Exception as ex:
-            error_message = f"Submit challenge to miner failed: {str(ex)}"
-            bt.logging.error(error_message)
-            return miner_input, None, error_message
 
     async def _async_score_challenge(self, session: aiohttp.ClientSession, miner_input, miner_output):
         """
@@ -132,79 +244,3 @@ class ResponseQualityAdversarialController(Controller):
         elif not isinstance(score, float):
             score = 0.0
         return score
-
-    # Override the _run_reference_comparison_inputs method
-    def _run_reference_comparison_inputs(self, miner_commit: MinerChallengeCommit):
-        """
-        Run miner with reference comparison commits inputs to compare performance.
-        For each reference commit, we run the current miner against the inputs that were
-        previously used to test that reference commit.
-        """
-        # Skip for baseline commit since it's used as reference
-        if miner_commit.miner_uid == self.baseline_commit.miner_uid:
-            return
-
-        loop = asyncio.get_event_loop()
-        loop.run_until_complete(
-            self._async_run_reference_comparisons(miner_commit)
-        )
-
-    async def _async_run_reference_comparisons(self, miner_commit: MinerChallengeCommit):
-        """
-        Async version of running reference comparisons.
-        """
-        async with aiohttp.ClientSession() as session:
-            # Process each reference commit
-            for reference_commit in self.reference_comparison_commits:
-                bt.logging.info(
-                    f"[CONTROLLER] Running comparison with reference commit {reference_commit.docker_hub_id}"
-                )
-
-                if reference_commit.docker_hub_id in miner_commit.comparison_logs:
-                    # Already run this reference commit, skip
-                    continue
-                else:
-                    miner_commit.comparison_logs[reference_commit.docker_hub_id] = []
-
-                # Create tasks for each input from reference commit
-                tasks = []
-                for i, reference_log in enumerate(reference_commit.scoring_logs):
-                    if reference_log.miner_input is None:
-                        continue
-
-                    task = self._async_process_reference_comparison(
-                        session,
-                        reference_log,
-                        reference_commit.miner_hotkey
-                    )
-                    tasks.append(task)
-
-                # Process all tasks concurrently
-                comparison_results = await asyncio.gather(*tasks)
-
-                # Add results to comparison logs
-                for comparison_log in comparison_results:
-                    if comparison_log:  # Skip None results
-                        miner_commit.comparison_logs[reference_commit.docker_hub_id].append(comparison_log)
-
-    async def _async_process_reference_comparison(self, session: aiohttp.ClientSession, reference_log, reference_hotkey):
-        """
-        Process a single reference comparison asynchronously.
-        """
-        # Submit the same input to current miner
-        miner_input, miner_output, error_message = await self._async_submit_challenge_to_miner(
-            session, reference_log.miner_input
-        )
-
-        if miner_input is None:
-            return None
-
-        # Create comparison log
-        return ComparisonLog(
-            miner_input=reference_log.miner_input,
-            miner_output=miner_output,
-            reference_output=reference_log.miner_output,
-            error=error_message,
-            reference_hotkey=reference_hotkey,
-        )
-
