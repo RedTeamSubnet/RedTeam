@@ -4,19 +4,23 @@ FROM python:3.10-slim
 # Set the working directory inside the container
 WORKDIR /app
 
-# Set the environment variable
-ENV VLLM_URL="http://storage.redteam.technology/v1"
-ENV VLLM_API_KEY="your-api-key"
-ENV VLLM_MODEL="unsloth/Meta-Llama-3.1-8B-Instruct"
-ENV OPENAI_API_KEY="your-api-key"
-
 # Copy the requirements file into the container
 COPY requirements.txt .
 
 # Install the required Python packages
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --extra-index-url https://download.pytorch.org/whl/cpu --no-cache-dir -r requirements.txt
 RUN python -m nltk.downloader punkt
 RUN python -m nltk.downloader stopwords
+
+# Download BGE model for ctranslate2
+RUN ct2-transformers-converter --model BAAI/bge-small-en-v1.5 --output_dir /app/bge-small-en-v1.5 --force
+
+# Set the environment variable
+ENV MODEL_PATH="/app/bge-small-en-v1.5"
+ENV VLLM_URL="http://storage.redteam.technology/v1"
+ENV VLLM_API_KEY="your-api-key"
+ENV VLLM_MODEL="unsloth/Meta-Llama-3.1-8B-Instruct"
+ENV OPENAI_API_KEY="your-api-key"
 
 # Copy the rest of the application code to the container
 COPY . .
