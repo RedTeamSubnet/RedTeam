@@ -74,8 +74,8 @@ services:
         - "miner-data:${RT_MINER_DATA_DIR:-/var/lib/agent.miner}"
       tty: true
 
-  rewarding-validator:
-      image: redteamsubnet61/server.rewarding-validator:latest
+  reward-validator:
+      image: redteamsubnet61/server.reward-validator:latest
       build:
         context: .
         dockerfile: ./services/rewarding/Dockerfile
@@ -93,7 +93,7 @@ services:
       volumes:
         - "/var/run/docker.sock:/var/run/docker.sock"
         - "sidecar-btcli-data:${RT_BTCLI_DATA_DIR:-/var/lib/sidecar.btcli}"
-        - "rewarding-validator-data:${RT_REWARDING_VALIDATOR_DATA_DIR:-/var/lib/server.rewarding-validator}"
+        - "reward-validator-data:${RT_REWARD_VALIDATOR_DATA_DIR:-/var/lib/server.reward-validator}"
       tty: true
 
 volumes:
@@ -101,4 +101,4 @@ volumes:
   sidecar-btcli-data:
   validator-data:
   miner-data:
-  rewarding-validator-data:
+  reward-validator-data:

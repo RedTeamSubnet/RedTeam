@@ -63,11 +63,11 @@ services:
 
 
   rewarding-validator:
-    image: redteamsubnet61/server.rewarding-validator:0.0.1-250410
+    image: redteamsubnet61/server.reward-validator:0.0.1-250410
     # volumes:
     #   - "./volumes/storage/sidecar.btcli/data:${RT_BTCLI_DATA_DIR:-/var/lib/sidecar.btcli}"
-    #   - "./volumes/storage/server.rewarding-validator/data:${RT_REWARDING_VALIDATOR_DATA_DIR:-/var/lib/server.rewarding-validator}"
-    #   - "./services/rewarding:/app/server.rewarding-validator/services/rewarding"
+    #   - "./volumes/storage/server.reward-validator/data:${RT_REWARD_VALIDATOR_DATA_DIR:-/var/lib/server.reward-validator}"
+    #   - "./services/rewarding:/app/server.reward-validator/services/rewarding"
     #   - "./services/rewarding/scripts/docker/docker-entrypoint.sh:/usr/local/bin/docker-entrypoint.sh"
     #   - "./volumes/.vscode-server:/home/rt-user/.vscode-server"
     # deploy:
@@ -77,5 +77,5 @@ services:
     #       cpus: "8"
     #       memory: 16G
     # ports:
-    #   - "${RT_REWARDING_VALIDATOR_PORT:-47920}:${RT_REWARDING_VALIDATOR_PORT:-47920}"
+    #   - "${RT_REWARD_VALIDATOR_PORT:-47920}:${RT_REWARD_VALIDATOR_PORT:-47920}"
     # command: ["/bin/bash"]

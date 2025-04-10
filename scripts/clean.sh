@@ -89,7 +89,7 @@ main()
 		rm -rfv "./volumes/storage/sidecar.btcli/data" || exit 2
 		rm -rfv "./volumes/storage/agent.validator/data" || exit 2
 		rm -rfv "./volumes/storage/agent.miner/data" || exit 2
-		rm -rfv "./volumes/storage/rest.rewarding/data" || exit 2
+		rm -rfv "./volumes/storage/server.reward-validator/data" || exit 2
 	fi
 
 	echoOk "Done."

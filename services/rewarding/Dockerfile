@@ -4,14 +4,14 @@ ARG PYTHON_VERSION=3.10
 ARG BASE_IMAGE=python:${PYTHON_VERSION}-slim-bookworm
 
 ARG DEBIAN_FRONTEND=noninteractive
-ARG RT_REWARDING_VALIDATOR_SLUG="server.rewarding-validator"
+ARG RT_REWARD_VALIDATOR_SLUG="server.reward-validator"
 
 
 ## Here is the builder image:
 FROM ${BASE_IMAGE} AS builder
 
 ARG DEBIAN_FRONTEND
-ARG RT_REWARDING_VALIDATOR_SLUG
+ARG RT_REWARD_VALIDATOR_SLUG
 
 ENV CARGO_HOME=/usr/local/rust/cargo \
 	RUSTUP_HOME=/usr/local/rust/rustup
@@ -19,7 +19,7 @@ ENV PATH="${CARGO_HOME}/bin:${PATH}"
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-WORKDIR "/usr/src/${RT_REWARDING_VALIDATOR_SLUG}"
+WORKDIR "/usr/src/${RT_REWARD_VALIDATOR_SLUG}"
 
 RUN --mount=type=cache,target=/root/.cache,sharing=locked \
 	_BUILD_TARGET_ARCH=$(uname -m) && \
@@ -50,30 +50,30 @@ RUN	--mount=type=cache,target=/root/.cache,sharing=locked \
 FROM ${BASE_IMAGE} AS base
 
 ARG DEBIAN_FRONTEND
-ARG RT_REWARDING_VALIDATOR_SLUG
+ARG RT_REWARD_VALIDATOR_SLUG
 
 ARG RT_HOME_DIR="/app"
-ARG RT_REWARDING_VALIDATOR_DIR="${RT_HOME_DIR}/${RT_REWARDING_VALIDATOR_SLUG}"
-ARG RT_REWARDING_VALIDATOR_DATA_DIR="/var/lib/${RT_REWARDING_VALIDATOR_SLUG}"
-ARG RT_REWARDING_VALIDATOR_LOGS_DIR="/var/log/${RT_REWARDING_VALIDATOR_SLUG}"
-ARG RT_REWARDING_VALIDATOR_TMP_DIR="/tmp/${RT_REWARDING_VALIDATOR_SLUG}"
+ARG RT_REWARD_VALIDATOR_DIR="${RT_HOME_DIR}/${RT_REWARD_VALIDATOR_SLUG}"
+ARG RT_REWARD_VALIDATOR_DATA_DIR="/var/lib/${RT_REWARD_VALIDATOR_SLUG}"
+ARG RT_REWARD_VALIDATOR_LOGS_DIR="/var/log/${RT_REWARD_VALIDATOR_SLUG}"
+ARG RT_REWARD_VALIDATOR_TMP_DIR="/tmp/${RT_REWARD_VALIDATOR_SLUG}"
 ARG BT_SUBTENSOR_HOST=subtensor
 ARG BT_SUBTENSOR_WS_PORT=9944
 ARG TESTNET=1
 ## IMPORTANT!: Get hashed password from build-arg!
-## echo "RT_REWARDING_VALIDATOR_PASSWORD123" | openssl passwd -5 -stdin
-ARG HASH_PASSWORD="\$5\$kEtZ8FKsQAmMfn4X\$2RETYlnzZwCRFWCe8bpns4hCwsKQxhlno69c6rQ5LG/"
+## echo "RT_REWARD_VALIDATOR_PASSWORD123" | openssl passwd -5 -stdin
+ARG HASH_PASSWORD="\$5\$92XQZEJ59Vs3llsd\$hca8huh.9PoEkMoWFYqGnxAK2maRdavuuDZktskVFc9"
 ARG UID=1000
 ARG GID=11000
 ARG USER=rt-user
 ARG GROUP=rt-group
 
-ENV RT_REWARDING_VALIDATOR_SLUG="${RT_REWARDING_VALIDATOR_SLUG}" \
+ENV RT_REWARD_VALIDATOR_SLUG="${RT_REWARD_VALIDATOR_SLUG}" \
 	RT_HOME_DIR="${RT_HOME_DIR}" \
-	RT_REWARDING_VALIDATOR_DIR="${RT_REWARDING_VALIDATOR_DIR}" \
-	RT_REWARDING_VALIDATOR_DATA_DIR="${RT_REWARDING_VALIDATOR_DATA_DIR}" \
-	RT_REWARDING_VALIDATOR_LOGS_DIR="${RT_REWARDING_VALIDATOR_LOGS_DIR}" \
-	RT_REWARDING_VALIDATOR_TMP_DIR="${RT_REWARDING_VALIDATOR_TMP_DIR}" \
+	RT_REWARD_VALIDATOR_DIR="${RT_REWARD_VALIDATOR_DIR}" \
+	RT_REWARD_VALIDATOR_DATA_DIR="${RT_REWARD_VALIDATOR_DATA_DIR}" \
+	RT_REWARD_VALIDATOR_LOGS_DIR="${RT_REWARD_VALIDATOR_LOGS_DIR}" \
+	RT_REWARD_VALIDATOR_TMP_DIR="${RT_REWARD_VALIDATOR_TMP_DIR}" \
 	BT_SUBTENSOR_HOST="${BT_SUBTENSOR_HOST}" \
 	BT_SUBTENSOR_WS_PORT="${BT_SUBTENSOR_WS_PORT}" \
 	TESTNET=${TESTNET} \
@@ -83,7 +83,7 @@ ENV RT_REWARDING_VALIDATOR_SLUG="${RT_REWARDING_VALIDATOR_SLUG}" \
 	GROUP=${GROUP} \
 	PYTHONIOENCODING=utf-8 \
 	PYTHONUNBUFFERED=1 \
-	PYTHONPATH="${RT_REWARDING_VALIDATOR_DIR}:${PYTHONPATH}"
+	PYTHONPATH="${RT_REWARD_VALIDATOR_DIR}:${PYTHONPATH}"
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
@@ -122,12 +122,12 @@ RUN rm -rfv /var/lib/apt/lists/* /var/cache/apt/archives/* /tmp/* /root/.cache/*
 	echo "alias ls='ls -aF --group-directories-first --color=auto'" >> "/home/${USER}/.bashrc" && \
 	echo -e "alias ll='ls -alhF --group-directories-first --color=auto'\n" >> "/home/${USER}/.bashrc" && \
 	rm -rfv /var/lib/apt/lists/* /var/cache/apt/archives/* /tmp/* /root/.cache/* "/home/${USER}/.cache/*" && \
-	mkdir -pv "${RT_REWARDING_VALIDATOR_DIR}" "${RT_REWARDING_VALIDATOR_DATA_DIR}" "${RT_REWARDING_VALIDATOR_LOGS_DIR}" "${RT_REWARDING_VALIDATOR_TMP_DIR}" && \
-	chown -Rc "${USER}:${GROUP}" "${RT_HOME_DIR}" "${RT_REWARDING_VALIDATOR_DATA_DIR}" "${RT_REWARDING_VALIDATOR_LOGS_DIR}" "${RT_REWARDING_VALIDATOR_TMP_DIR}" && \
-	find "${RT_REWARDING_VALIDATOR_DIR}" "${RT_REWARDING_VALIDATOR_DATA_DIR}" -type d -exec chmod -c 770 {} + && \
-	find "${RT_REWARDING_VALIDATOR_DIR}" "${RT_REWARDING_VALIDATOR_DATA_DIR}" -type d -exec chmod -c ug+s {} + && \
-	find "${RT_REWARDING_VALIDATOR_LOGS_DIR}" "${RT_REWARDING_VALIDATOR_TMP_DIR}" -type d -exec chmod -c 775 {} + && \
-	find "${RT_REWARDING_VALIDATOR_LOGS_DIR}" "${RT_REWARDING_VALIDATOR_TMP_DIR}" -type d -exec chmod -c +s {} +
+	mkdir -pv "${RT_REWARD_VALIDATOR_DIR}" "${RT_REWARD_VALIDATOR_DATA_DIR}" "${RT_REWARD_VALIDATOR_LOGS_DIR}" "${RT_REWARD_VALIDATOR_TMP_DIR}" && \
+	chown -Rc "${USER}:${GROUP}" "${RT_HOME_DIR}" "${RT_REWARD_VALIDATOR_DATA_DIR}" "${RT_REWARD_VALIDATOR_LOGS_DIR}" "${RT_REWARD_VALIDATOR_TMP_DIR}" && \
+	find "${RT_REWARD_VALIDATOR_DIR}" "${RT_REWARD_VALIDATOR_DATA_DIR}" -type d -exec chmod -c 770 {} + && \
+	find "${RT_REWARD_VALIDATOR_DIR}" "${RT_REWARD_VALIDATOR_DATA_DIR}" -type d -exec chmod -c ug+s {} + && \
+	find "${RT_REWARD_VALIDATOR_LOGS_DIR}" "${RT_REWARD_VALIDATOR_TMP_DIR}" -type d -exec chmod -c 775 {} + && \
+	find "${RT_REWARD_VALIDATOR_LOGS_DIR}" "${RT_REWARD_VALIDATOR_TMP_DIR}" -type d -exec chmod -c +s {} +
 
 ENV LANG=en_US.UTF-8 \
 	LANGUAGE=en_US.UTF-8 \
@@ -139,13 +139,13 @@ COPY --from=builder --chown=${UID}:${GID} /install /usr/local
 ## Here is the final image:
 FROM base AS app
 
-WORKDIR "${RT_REWARDING_VALIDATOR_DIR}"
-COPY --chown=${UID}:${GID} ./redteam_core ${RT_REWARDING_VALIDATOR_DIR}/redteam_core
-COPY --chown=${UID}:${GID} ./neurons/validator ${RT_REWARDING_VALIDATOR_DIR}/neurons/validator
-COPY --chown=${UID}:${GID} ./services/rewarding ${RT_REWARDING_VALIDATOR_DIR}/services/rewarding
+WORKDIR "${RT_REWARD_VALIDATOR_DIR}"
+COPY --chown=${UID}:${GID} ./redteam_core ${RT_REWARD_VALIDATOR_DIR}/redteam_core
+COPY --chown=${UID}:${GID} ./neurons/validator ${RT_REWARD_VALIDATOR_DIR}/neurons/validator
+COPY --chown=${UID}:${GID} ./services/rewarding ${RT_REWARD_VALIDATOR_DIR}/services/rewarding
 COPY --chown=${UID}:${GID} --chmod=770 ./services/rewarding/scripts/docker/*.sh /usr/local/bin/
 
-# VOLUME ["${RT_REWARDING_VALIDATOR_DATA_DIR}"]
+# VOLUME ["${RT_REWARD_VALIDATOR_DATA_DIR}"]
 
 USER ${UID}:${GID}
 
