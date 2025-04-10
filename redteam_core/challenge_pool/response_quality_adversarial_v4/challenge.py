@@ -80,8 +80,8 @@ class Challenge:
 
         embedding_similarity = (
             (
-                self.scoring_model.simcse_generator.transform([miner_input.original_prompt])
-                * self.scoring_model.simcse_generator.transform([miner_input.modified_prompt])
+                self.scoring_model.embedding_model.encode(miner_input.original_prompt)
+                * self.scoring_model.embedding_model.encode(miner_input.modified_prompt)
             )
             .sum()
             .item()
