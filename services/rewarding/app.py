@@ -21,6 +21,7 @@ from redteam_core.validator.models import (
     MinerChallengeCommit,
     ScoringLog,
 )
+from cache import ScoringLRUCache
 
 REWARD_APP_HOTKEY = os.getenv("REWARD_APP_HOTKEY")
 REWARD_APP_UID = -1
@@ -68,9 +69,11 @@ class RewardApp(Validator):
         # Quick lookup for miner commits by encrypted_commit, this has no new information, just a cache
         self.miner_commits_cache: dict[str, MinerChallengeCommit] = {}
         # Cache for scored docker_hub_ids, map from challenge_name to docker_hub_id to the coresponding "scoring_logs" and "comparison_logs"
-        self.scoring_results: dict[
-            str, dict[str, Union[list[ScoringLog], dict[str, ComparisonLog]]]
-        ] = self._fetch_centralized_scoring(list(self.active_challenges.keys()))
+        self.scoring_results = ScoringLRUCache(
+            challenges=list(self.active_challenges.keys()), maxsize_per_challenge=256
+        )
+        # Initialize cache for scoring results
+        self._initialize_scoring_cache()
         # Sync the cache from scoring results retrieved from storage upon initialization
         self._sync_scoring_results_from_storage_to_cache()
 
@@ -101,7 +104,9 @@ class RewardApp(Validator):
             daemon=True,  # Ensures the thread stops when the main process exits
         )
         self.server_thread.start()
-        bt.logging.info(f"FastAPI server is running on port {self.config.reward_app.port}!")
+        bt.logging.info(
+            f"FastAPI server is running on port {self.config.reward_app.port}!"
+        )
 
     def setup_bittensor_objects(self):
         bt.logging.info("Setting up Bittensor objects.")
@@ -159,12 +164,14 @@ class RewardApp(Validator):
 
                 # Update cache
                 for commit in revealed_commits[challenge]:
-                    self.scoring_results.setdefault(challenge, {})[
-                        commit.docker_hub_id
-                    ] = {
-                        "scoring_logs": commit.scoring_logs,
-                        "comparison_logs": commit.comparison_logs,
-                    }
+                    self.scoring_results.set(
+                        challenge=challenge,
+                        docker_hub_id=commit.docker_hub_id,
+                        result={
+                            "scoring_logs": commit.scoring_logs,
+                            "comparison_logs": commit.comparison_logs,
+                        },
+                    )
 
                 bt.logging.info(
                     f"[CENTRALIZED SCORING] Scoring for challenge: {challenge} has been completed"
@@ -265,9 +272,13 @@ class RewardApp(Validator):
 
         input_seed_hashes_set: set[str] = set()
         for commit in revealed_commits_list:
-            if commit.docker_hub_id in self.scoring_results.setdefault(challenge, {}):
+            if commit.docker_hub_id in self.scoring_results.get_all_for_challenge(
+                challenge
+            ):
                 # Use results for already scored commits
-                cached_result = self.scoring_results[challenge][commit.docker_hub_id]
+                cached_result = self.scoring_results.get(
+                    challenge=challenge, docker_hub_id=commit.docker_hub_id
+                )
                 commit.scoring_logs = cached_result["scoring_logs"]
                 commit.comparison_logs = cached_result["comparison_logs"]
 
@@ -416,7 +427,6 @@ class RewardApp(Validator):
             elapsed = end_epoch - start_epoch
             time_to_sleep = max(0, self.config.reward_app.epoch_length - elapsed)
             bt.logging.info(f"Epoch finished. Sleeping for {time_to_sleep} seconds.")
-
 
             try:
                 self.set_weights()
@@ -648,7 +658,9 @@ class RewardApp(Validator):
         for challenge_name in challenge_names:
             scoring_results_to_send: list[dict] = []
             # Send batch of maximum 5 results at a time to avoid huge payload
-            for docker_hub_id, result in self.scoring_results.get(challenge_name, {}).items():
+            for docker_hub_id, result in self.scoring_results.get_all_for_challenge(
+                challenge_name
+            ).items():
                 scoring_result = {
                     "challenge_name": challenge_name,
                     "docker_hub_id": docker_hub_id,
@@ -664,105 +676,146 @@ class RewardApp(Validator):
                         for docker_hub_id, _comparison_logs in result.get(
                             "comparison_logs", {}
                         ).items()
-                    }
+                    },
                 }
                 scoring_results_to_send.append(scoring_result)
                 all_scoring_results.append(scoring_result)
 
                 if len(scoring_results_to_send) >= 5:
                     try:
-                        data = {
-                            "scoring_results": scoring_results_to_send
-                        }
+                        data = {"scoring_results": scoring_results_to_send}
                         response = requests.post(
-                            endpoint, headers=self.validator_request_header_fn(data), json=data
+                            endpoint,
+                            headers=self.validator_request_header_fn(data),
+                            json=data,
                         )
                         response.raise_for_status()
                         scoring_results_to_send = []
                     except Exception:
-                        bt.logging.error(f"Failed to send scoring results to storage: {traceback.format_exc()}")
+                        bt.logging.error(
+                            f"Failed to send scoring results to storage: {traceback.format_exc()}"
+                        )
                         scoring_results_to_send = []
 
             if scoring_results_to_send:
                 try:
-                    data = {
-                        "scoring_results": scoring_results_to_send
-                    }
+                    data = {"scoring_results": scoring_results_to_send}
                     response = requests.post(
-                        endpoint, headers=self.validator_request_header_fn(data), json=data
+                        endpoint,
+                        headers=self.validator_request_header_fn(data),
+                        json=data,
                     )
                     response.raise_for_status()
                 except Exception:
-                    bt.logging.error(f"Failed to send scoring results to storage: {traceback.format_exc()}")
+                    bt.logging.error(
+                        f"Failed to send scoring results to storage: {traceback.format_exc()}"
+                    )
 
         if all_scoring_results:
             try:
                 with open("scoring_results.json", "w") as f:
                     json.dump(all_scoring_results, f)
             except Exception:
-                bt.logging.error(f"Failed to save scoring results to file: {traceback.format_exc()}")
+                bt.logging.error(
+                    f"Failed to save scoring results to file: {traceback.format_exc()}"
+                )
 
-    def _fetch_centralized_scoring(
-        self, challenge_names: list[str] = []
-    ) -> dict[str, dict[str, Union[list[ScoringLog], dict[str, ComparisonLog]]]]:
+    def _initialize_scoring_cache(self):
         """
-        Fetch scoring results from centralized storage.
-
-        Args:
-            challenge_names (list[str]): List of challenges to fetch.
-                                       If empty, fetches all active challenges.
-
-        Returns:
-            dict: Mapping of {challenge_name: {docker_hub_id: {scoring_logs, comparison_logs}}}
+        Initialize the scoring LRU cache with the most recent data from centralized storage.
+        Uses the limit parameter to get only the most recent data per challenge.
         """
-        if not challenge_names:
-            # Fetch all challenges
-            challenge_names = list(self.active_challenges.keys())
-
-        endpoint = f"{constants.STORAGE_URL}/fetch-centralized-score"
-        data = {
-            "challenge_names": challenge_names,
-        }
-        response = requests.post(
-            endpoint, headers=self.validator_request_header_fn(data), json=data
+        bt.logging.info(
+            "[CENTRALIZED SCORING] Initializing scoring LRU cache from storage"
         )
-        response.raise_for_status()
-        data = response.json()["data"]
 
-        scoring_results = {}
-        for results in data:
-            scoring_results.setdefault(results["challenge_name"], {})[
-                results["docker_hub_id"]
-            ] = {
-                "scoring_logs": [
-                    ScoringLog.model_validate(scoring_log)
-                    for scoring_log in results["scoring_logs"]
-                ],
-                "comparison_logs": {
-                    docker_hub_id: [
-                        ComparisonLog.model_validate(comparison_log)
-                        for comparison_log in _comparison_logs
-                    ]
-                    for docker_hub_id, _comparison_logs in results[
-                        "comparison_logs"
-                    ].items()
-                },
-            }
-        return scoring_results
+        # Process each challenge separately to manage memory usage
+        for challenge_name in self.active_challenges.keys():
+            try:
+                # Request the most recent entries for this challenge
+                entries_per_challenge = 256  # Match the LRU cache size
+
+                endpoint = f"{constants.STORAGE_URL}/fetch-centralized-score"
+                data = {
+                    "challenge_names": [challenge_name],
+                    "limit": entries_per_challenge,  # Get the most recent entries
+                    "full_results": False,  # Apply date filtering for recency
+                    "get_detailed_results": True,  # Get full details
+                }
+
+                bt.logging.info(
+                    f"[CENTRALIZED SCORING] Fetching up to {entries_per_challenge} scoring results for challenge {challenge_name}"
+                )
+
+                response = requests.post(
+                    endpoint, headers=self.validator_request_header_fn(data), json=data
+                )
+                response.raise_for_status()
+                results = response.json()["data"]
+
+                if not results:
+                    bt.logging.info(
+                        f"[CENTRALIZED SCORING] No scoring results found for challenge {challenge_name}"
+                    )
+                    continue
+
+                loaded_count = 0
+                for result in results:
+                    processed_result = {
+                        "scoring_logs": [
+                            ScoringLog.model_validate(scoring_log)
+                            for scoring_log in result["scoring_logs"]
+                        ],
+                        "comparison_logs": {
+                            docker_hub_id: [
+                                ComparisonLog.model_validate(comparison_log)
+                                for comparison_log in _comparison_logs
+                            ]
+                            for docker_hub_id, _comparison_logs in result[
+                                "comparison_logs"
+                            ].items()
+                        },
+                    }
+
+                    # Store in our LRU cache
+                    self.scoring_results.set(
+                        challenge=challenge_name,
+                        docker_hub_id=result["docker_hub_id"],
+                        result=processed_result,
+                    )
+                    loaded_count += 1
+
+                bt.logging.info(
+                    f"[CENTRALIZED SCORING] Loaded {loaded_count} scoring results for challenge {challenge_name}"
+                )
+
+            except Exception as e:
+                bt.logging.error(
+                    f"[CENTRALIZED SCORING] Error initializing scoring cache for challenge {challenge_name}: {traceback.format_exc()}"
+                )
+
+        # Log statistics about the populated cache
+        stats = self.scoring_results.get_stats()
+        bt.logging.info(
+            f"[CENTRALIZED SCORING] Cache initialized with {stats['total_entries']} total entries"
+        )
+        bt.logging.info(
+            f"[CENTRALIZED SCORING] Cache entries per challenge: {stats['challenge_counts']}"
+        )
 
     def _sync_scoring_results_from_storage_to_cache(self):
         """
         Sync scoring results (self.scoring_results) from storage to cache.
         This method will update the cache with scoring results from storage.
-        It will also delete cache entries that are not in self.scoring_results.
         """
         # Iter all the keys in all cache corespond to active challenges
         for challenge_name in self.active_challenges.keys():
-            cache = self.storage_manager._get_cache(challenge_name)
+            diskcache_ = self.storage_manager._get_cache(challenge_name)
+            memcache_ = self.scoring_results.get_all_for_challenge(challenge_name)
             cache_keys_to_delete = []
 
-            for hashed_cache_key in cache.iterkeys():
-                commit = cache.get(hashed_cache_key)
+            for hashed_cache_key in diskcache_.iterkeys():
+                commit = diskcache_.get(hashed_cache_key)
                 try:
                     commit = MinerChallengeCommit.model_validate(
                         commit
@@ -774,7 +827,7 @@ class RewardApp(Validator):
                     continue
 
                 # Check if docker_hub_id is in self.scoring_results
-                if commit.docker_hub_id not in self.scoring_results[challenge_name]:
+                if commit.docker_hub_id not in memcache_:
                     # Do this if we want to clean up commits with no scoring results
                     # cache_keys_to_delete.append(hashed_cache_key)
                     continue
@@ -782,10 +835,10 @@ class RewardApp(Validator):
                 # Found the commit in self.scoring_results, now we make sure cache have correct scoring_logs
                 if not commit.scoring_logs:
                     # If not scoring_logs, we add the scoring_logs from self.scoring_results
-                    commit.scoring_logs = self.scoring_results[challenge_name][
-                        commit.docker_hub_id
-                    ]["scoring_logs"]
-                    cache[hashed_cache_key] = commit.model_dump()
+                    commit.scoring_logs = memcache_[commit.docker_hub_id][
+                        "scoring_logs"
+                    ]
+                    diskcache_[hashed_cache_key] = commit.model_dump()
                 else:
                     # Check for each entries in scoring_logs for miner_input and miner_output, they should not be None
                     scoring_logs_with_none = []
@@ -798,14 +851,14 @@ class RewardApp(Validator):
 
                     # If there are any scoring logs with None, we use the scoring_logs from self.scoring_results and update the cache
                     if any(scoring_logs_with_none):
-                        commit.scoring_logs = self.scoring_results[challenge_name][
-                            commit.docker_hub_id
-                        ]["scoring_logs"]
-                        cache[hashed_cache_key] = commit.model_dump()
+                        commit.scoring_logs = memcache_[commit.docker_hub_id][
+                            "scoring_logs"
+                        ]
+                        diskcache_[hashed_cache_key] = commit.model_dump()
 
             # Clean up cache entries that we want to delete
             for hashed_cache_key in cache_keys_to_delete:
-                cache.delete(hashed_cache_key)
+                diskcache_.delete(hashed_cache_key)
 
     # MARK: Endpoints
     async def get_scoring_result(
