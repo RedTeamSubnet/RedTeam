@@ -38,7 +38,11 @@ class ResponseQualityAdversarialController(Controller):
         remaining_tasks = max(0, num_task - len(challenge_inputs))
         if remaining_tasks > 0:
             # Asynchronously generate more inputs
-            loop = asyncio.get_event_loop()
+            try:
+                loop = asyncio.get_event_loop()
+            except RuntimeError:
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
             new_inputs = loop.run_until_complete(
                 self._generate_new_inputs(remaining_tasks)
             )
@@ -163,7 +167,11 @@ class ResponseQualityAdversarialController(Controller):
             responses.append((miner_input, miner_output, error_message))
 
         # Step 2: Score all valid responses asynchronously (in parallel)
-        loop = asyncio.get_event_loop()
+        try:
+            loop = asyncio.get_event_loop()
+        except RuntimeError:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
         score_tasks = []
         for miner_input, miner_output, _ in responses:
             if miner_output is not None:

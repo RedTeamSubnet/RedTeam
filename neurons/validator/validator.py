@@ -218,7 +218,7 @@ class Validator(BaseValidator):
 
         # Forward the revealed commits to the appropriate scoring method
         if self.config.validator.use_centralized_scoring:
-            self._init_miner_submit_from_subnet()
+            self.forward_centralized_scoring(revealed_commits)
         else:
             self.forward_local_scoring(revealed_commits)
 

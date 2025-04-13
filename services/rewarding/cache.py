@@ -1,5 +1,5 @@
 import collections
-from typing import Any, Generic, Optional, TypeVar, Union, TYPE_CHECKING, Iterator
+from typing import Any, Generic, Optional, TypeVar, Union, TYPE_CHECKING, Iterator, Set
 
 from redteam_core.validator.models import ComparisonLog, ScoringLog
 
@@ -183,7 +183,7 @@ class ScoringLRUCache:
 
         return dict(self.caches[challenge].items())
 
-    def get_challenges(self) -> set[str]:
+    def get_challenges(self) -> Set[str]:
         """
         Get all challenge names that have caches.
 

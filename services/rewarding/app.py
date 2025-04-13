@@ -5,7 +5,7 @@ import os
 import threading
 import time
 import traceback
-from typing import Annotated, Union
+from typing import Annotated
 
 import bittensor as bt
 import requests
@@ -427,6 +427,7 @@ class RewardApp(Validator):
             elapsed = end_epoch - start_epoch
             time_to_sleep = max(0, self.config.reward_app.epoch_length - elapsed)
             bt.logging.info(f"Epoch finished. Sleeping for {time_to_sleep} seconds.")
+            time.sleep(time_to_sleep)
 
             try:
                 self.set_weights()
