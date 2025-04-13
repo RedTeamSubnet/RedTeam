@@ -150,9 +150,9 @@
 		"**/Thumbs.db": true
 	},
 	"python.languageServer": "Pylance",
-	"python.analysis.extraPaths": [
-		"${workspaceFolder}/redteam_core/challenge_pool/humanize_behaviour_v2/src",
-	],
+	// "python.analysis.extraPaths": [
+	// 	"${workspaceFolder}/redteam_core/challenge_pool/humanize_behaviour_v2/src",
+	// ],
 	"yaml.schemas": {
 		"https://squidfunk.github.io/mkdocs-material/schema.json": "mkdocs.yml"
 	},
