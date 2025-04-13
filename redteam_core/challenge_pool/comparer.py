@@ -60,7 +60,7 @@ class Comparer(BaseComparer):
             docker_utils.remove_container(
                 client=self.docker_client,
                 container_name=self.challenge_name,
-                stop_timeout=60,
+                stop_timeout=360,
                 force=True,
                 remove_volumes=True,
             )
@@ -260,7 +260,7 @@ class Comparer(BaseComparer):
         docker_utils.remove_container(
             client=self.docker_client,
             container_name=self.challenge_name,
-            stop_timeout=30,
+            stop_timeout=360,
             force=True,
             remove_volumes=True,
         )

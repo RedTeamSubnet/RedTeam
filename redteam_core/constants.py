@@ -44,13 +44,16 @@ class Constants(BaseModel):
 
     # Weighting settings
     CHALLENGE_SCORES_WEIGHT: float = Field(
-        default=0.75, description="Weight of challenge scores."
+        default=0.45, description="Weight of challenge scores."
     )
-    NEWLY_REGISTRATION_WEIGHT: float = Field(
-        default=0.1, description="Weight of newly registration scores."
-    )
+    # NEWLY_REGISTRATION_WEIGHT: float = Field(
+    #     default=0.05, description="Weight of newly registration scores."
+    # )
     ALPHA_STAKE_WEIGHT: float = Field(
-        default=0.15, description="Weight of alpha stake scores."
+        default=0.05, description="Weight of alpha stake scores."
+    )
+    ALPHA_BURN_WEIGHT: float = Field(
+        default=0.5, description="Weight of alpha burning."
     )
 
     # Network settings

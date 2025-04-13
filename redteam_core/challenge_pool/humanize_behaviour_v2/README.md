@@ -23,6 +23,8 @@ The **Humanize Behaviour v2** is designed to test the ability of a bot script to
     - **[RECOMMENDED] [Miniconda (v3)](https://docs.anaconda.com/miniconda)**
     - *[arm64/aarch64] [Miniforge (v3)](https://github.com/conda-forge/miniforge)*
     - *[Python virutal environment] [venv](https://docs.python.org/3/library/venv.html)*
+- Install **[graphviz](https://graphviz.org/download)**
+- Install **[pygraphviz](https://pygraphviz.github.io/documentation/stable/install.html)**
 
 [OPTIONAL] For **DEVELOPMENT** environment:
 

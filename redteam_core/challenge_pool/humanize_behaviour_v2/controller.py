@@ -15,9 +15,8 @@ from redteam_core.validator.models import (
 
 class HBController(Controller):
     # Class-level cache for baseline reference comparison commits
-    _baseline_reference_cache: dict[
-        str, MinerChallengeCommit
-    ] = {}  # {docker_hub_id: MinerChallengeCommit}
+    _baseline_reference_cache: dict[str, MinerChallengeCommit] = {}
+    # {docker_hub_id: MinerChallengeCommit}
 
     """
     A specialized controller for the 'humanize_behaviour_v2' challenge.
@@ -53,7 +52,9 @@ class HBController(Controller):
         )
 
         # Initialize local storage for this instance
-        self.baseline_reference_comparison_commits_to_score: list[MinerChallengeCommit] = []
+        self.baseline_reference_comparison_commits_to_score: list[
+            MinerChallengeCommit
+        ] = []
 
         for docker_hub_id in self.baseline_reference_comparison_docker_hub_ids:
             # Check if this docker_hub_id is already in the class cache
@@ -155,7 +156,9 @@ class HBController(Controller):
                     f"[CONTROLLER - HBController] Baseline reference scoring logs: {len(reference_commit.scoring_logs)}"
                 )
                 # Update the class cache with the scored commit
-                HBController._baseline_reference_cache[reference_commit.docker_hub_id] = reference_commit
+                HBController._baseline_reference_cache[
+                    reference_commit.docker_hub_id
+                ] = reference_commit
 
             except Exception as e:
                 bt.logging.error(
@@ -175,7 +178,7 @@ class HBController(Controller):
                 self._score_miner_with_new_inputs(miner_commit, challenge_inputs)
 
                 # 3. Run reference comparisons
-                self._run_reference_comparison_inputs(miner_commit)
+                self._run_reference_comparison_inputs(miner_commit, challenge_inputs)
 
             except Exception as e:
                 bt.logging.error(f"Error while processing miner {uid} - {hotkey}: {e}")
@@ -205,7 +208,7 @@ class HBController(Controller):
         docker_utils.remove_container(
             client=self.docker_client,
             container_name=self.challenge_name,
-            stop_timeout=60,
+            stop_timeout=360,
             force=True,
             remove_volumes=True,
         )
@@ -215,14 +218,15 @@ class HBController(Controller):
             remove_images=False,
         )
 
-    def _run_reference_comparison_inputs(self, miner_commit: MinerChallengeCommit):
+    def _run_reference_comparison_inputs(
+        self, miner_commit: MinerChallengeCommit, challenge_inputs
+    ):
         # Skip for baseline commit since it's used as reference
         if miner_commit.miner_uid == self.baseline_commit.miner_uid:
             return
 
-        all_reference_comparison_commits = (
-            self.reference_comparison_commits
-            + list(HBController._baseline_reference_cache.values())
+        all_reference_comparison_commits = self.reference_comparison_commits + list(
+            HBController._baseline_reference_cache.values()
         )
 
         for reference_commit in all_reference_comparison_commits:
@@ -239,26 +243,49 @@ class HBController(Controller):
                 reference_commit.docker_hub_id in miner_commit.comparison_logs
                 or miner_mean_score < self.behavior_scaling_factor
             ):
+                bt.logging.info(
+                    f"[CONTROLLER - HBController] Skipping comparison with {reference_commit.docker_hub_id} for miner {miner_commit.miner_uid} because it has already been compared or the mean score is below the behavior scaling factor."
+                )
                 continue
             else:
                 miner_commit.comparison_logs[reference_commit.docker_hub_id] = []
 
             # Process each input from the reference commit's scoring logs
-            for i, reference_log in enumerate(reference_commit.scoring_logs):
+            for _, reference_log in enumerate(reference_commit.scoring_logs):
                 if reference_log.miner_input is None:
                     continue
 
-                # Submit the same input to current miner
-                miner_output, error_message = self._submit_challenge_to_miner(
-                    reference_log.miner_input
-                )
+                _miner_output = None
+                _matching_logs = []
+                for log_index, scoring_log in enumerate(miner_commit.scoring_logs):
+                    # Skip if either log's input is None
+                    if scoring_log.miner_input is None:
+                        continue
+
+                    if scoring_log.miner_input in challenge_inputs:
+                        _matching_logs.append(log_index)
+
+                if not _matching_logs:
+                    # Submit the same input to current miner
+                    miner_output, error_message = self._submit_challenge_to_miner(
+                        reference_log.miner_input
+                    )
+                    _miner_output = miner_output
+
+                elif len(_matching_logs) >= 1:
+                    if not _matching_logs or not isinstance(_matching_logs, list):
+                        bt.logging.error(
+                            "No valid matching logs found or _matching_logs is not a list"
+                        )
+                        _miner_output = {"index": -1}  # Or some default value
+                    else:
+                        _miner_output = {"index": _matching_logs[0]}
 
                 # Create comparison log
                 comparison_log = ComparisonLog(
                     miner_input=reference_log.miner_input,
-                    miner_output=miner_output,
+                    miner_output=_miner_output,
                     reference_output=reference_log.miner_output,
-                    error=error_message,
                     reference_hotkey=reference_commit.miner_hotkey,
                     reference_similarity_score=reference_commit.penalty,
                 )

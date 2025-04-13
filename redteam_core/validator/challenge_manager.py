@@ -49,9 +49,9 @@ class MinerChallengeInfo(BaseModel):
             miner_uid=self.miner_uid,
             miner_hotkey=self.miner_hotkey,
             challenge_name=self.challenge_name,
-            latest_commit=self.latest_commit.public_view()
-            if self.latest_commit
-            else None,
+            latest_commit=(
+                self.latest_commit.public_view() if self.latest_commit else None
+            ),
             best_commit=self.best_commit.public_view() if self.best_commit else None,
             daily_scores=self.daily_scores,
         )
@@ -70,9 +70,9 @@ class ChallengeManager:
 
         # Track unique solutions set using cache keys
         self.max_unique_commits = challenge_info["max_unique_commits"]
-        self._unique_commits_heap: list[
-            tuple[float, str, str]
-        ] = []  # [(score, encrypted_commit, docker_hub_id)]
+        self._unique_commits_heap: list[tuple[float, str, str]] = (
+            []
+        )  # [(score, encrypted_commit, docker_hub_id)]
         self._unique_commits_set: set[str] = (
             set()
         )  # For O(1) lookup of existing commits
@@ -155,13 +155,10 @@ class ChallengeManager:
                 else:
                     miner_commit.score = float(score)
 
-                if not miner_commit.comparison_logs:
-                    # Penalty is 0 if no comparison logs
-                    miner_commit.penalty = 0.0
-                else:
-                    # Penalty by max of mean similarity with unique solutions
+                # Compute penalty
+                if miner_commit.comparison_logs:
                     penalty_values = [
-                        np.mean([log.similarity_score for log in logs])
+                        np.nanmax([log.similarity_score for log in logs] or [0.0])
                         for logs in miner_commit.comparison_logs.values()
                     ]
                     penalty = np.max(penalty_values).item() if penalty_values else 0
@@ -169,6 +166,8 @@ class ChallengeManager:
                         miner_commit.penalty = 0.0
                     else:
                         miner_commit.penalty = float(penalty)
+                else:
+                    miner_commit.penalty = 0.0
 
             except Exception:
                 bt.logging.error(
@@ -191,6 +190,9 @@ class ChallengeManager:
 
             # Try to add to unique solutions set if commit is accepted
             if miner_commit.accepted and miner_commit.encrypted_commit:
+                bt.logging.info(
+                    f"[CHALLENGE MANAGER] Adding miner commit `{miner_commit.miner_uid}` to unique commit set"
+                )
                 self._try_add_unique_commit(
                     encrypted_commit=miner_commit.encrypted_commit,
                     score=miner_commit.score,
@@ -274,9 +276,11 @@ class ChallengeManager:
             ],
             "unique_scored_docker_hub_ids": list(self._unique_scored_docker_hub_ids),
             "miner_states": {
-                str(uid): miner_state.public_view().model_dump()
-                if public_view
-                else miner_state.model_dump()
+                str(uid): (
+                    miner_state.public_view().model_dump()
+                    if public_view
+                    else miner_state.model_dump()
+                )
                 for uid, miner_state in self.miner_states.items()
             },
         }
