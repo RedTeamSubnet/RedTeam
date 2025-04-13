@@ -241,9 +241,13 @@ class HBController(Controller):
             key=lambda x: x.miner_output["log_time"],
         )
         if _sorted_miner_commits:
-            _latest_score = _sorted_miner_commits[-1]
-        else:
-            _latest_score = miner_commit.scoring_logs[-1]
+
+            _latest_commit = (
+                _sorted_miner_commits[-1]
+                if _sorted_miner_commits
+                else miner_commit.scoring_logs[-1]
+            )
+
         for reference_commit in all_reference_comparison_commits:
             bt.logging.info(
                 f"[CONTROLLER - HBController] Running comparison with reference commit {reference_commit.miner_uid}"
@@ -251,12 +255,12 @@ class HBController(Controller):
 
             # Skip if already compared, or if mean score is less than behavior scaling factor, or if miner is the same
             if (
-                _latest_score
+                not _latest_commit
                 or reference_commit.docker_hub_id in miner_commit.comparison_logs
-                or _latest_score.score < self.behavior_scaling_factor
+                or _latest_commit.score < self.behavior_scaling_factor
             ):
                 bt.logging.info(
-                    f"[CONTROLLER - HBController] Skipping comparison with {reference_commit.docker_hub_id} for miner {miner_commit.miner_uid} because it has already been compared or the mean score is below the behavior scaling factor."
+                    f"[CONTROLLER - HBController] Skipping comparison with {reference_commit.docker_hub_id} for miner {miner_commit} because it has already been compared or the mean score is below the behavior scaling factor."
                 )
                 continue
             else:
@@ -269,12 +273,17 @@ class HBController(Controller):
                     or reference_log.miner_output is None
                     or "cfg_output" not in reference_log.miner_output.keys()
                 ):
+                    bt.logging.info(
+                        f"[CONTROLLER - HBController] Skipping comparison with {reference_commit.docker_hub_id} for miner because the reference log is missing input or output."
+                    )
                     continue
-                reference_log.miner_output["bot.py"] = None
+                _ref_miner_output = reference_log.miner_output.copy()
+                _ref_miner_output["bot_py"] = None
                 comparison_log = ComparisonLog(
                     miner_input=reference_log.miner_input,
-                    reference_output=reference_log.miner_output,
+                    reference_output=_ref_miner_output,
                     reference_hotkey=reference_commit.miner_hotkey,
+                    reference_similarity_score=reference_commit.penalty,
                 )
 
                 # Add to comparison logs
@@ -286,7 +295,13 @@ class HBController(Controller):
                 reference_commit.docker_hub_id in miner_commit.comparison_logs
                 and not miner_commit.comparison_logs[reference_commit.docker_hub_id]
             ):
+                bt.logging.info(
+                    f"[CONTROLLER - HBController] Removing empty comparison logs for {reference_commit.docker_hub_id} for miner."
+                )
                 del miner_commit.comparison_logs[reference_commit.docker_hub_id]
+            bt.logging.info(
+                f"[CONTROLLER - HBController] Completed comparison with {reference_commit.docker_hub_id} for miner."
+            )
 
     def _get_reference_outputs(
         self, miner_commit: MinerChallengeCommit, challenge_inputs
@@ -370,22 +385,13 @@ class HBController(Controller):
                 verify=_ssl_verify,
                 json=payload,
             )
-
             response_data = response.json()
             analyzed_output = response_data.get("analyzed_output", None)
 
             if not analyzed_output:
                 return None
-
-            _is_error = analyzed_output["error"]["occurred"]
-            bt.logging.debug(f"Error state(is error occurred): {_is_error}")
-            if _is_error:
-                bt.logging.debug(
-                    f"Error message: {analyzed_output['error']['message']}"
-                )
-                return None
             return analyzed_output
 
         except Exception as e:
-            bt.logging.error(f"Error in comparison request: {str(e)}")
+            bt.logging.error(f"Error in analyse request: {str(e)}")
             return None

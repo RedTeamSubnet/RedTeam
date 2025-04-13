@@ -36,12 +36,14 @@ class HBComparer(Comparer):
             comparison_logs,
         ) in miner_commit.comparison_logs.items():
             for log in comparison_logs:
-                if log and (
-                    log.error
-                    or log.miner_output is None
-                    or log.reference_output is None
-                    or log.similarity_score is not None
+                if (
+                    not log
+                    or log.reference_output is None  # skip if no reference output
+                    or log.similarity_score is not None  # skip if already compared
                 ):
+                    bt.logging.warning(
+                        f"[COMPARER] Skipping comparison log for miner {miner_commit.miner_hotkey} against {reference_docker_hub_id}"
+                    )
                     continue
 
                 try:
@@ -70,9 +72,34 @@ class HBComparer(Comparer):
                     ###  Assign previous similarity score if the reference hotkey is the same as the miner hotkey
                     if miner_commit.miner_hotkey == log.reference_hotkey:
                         if similarity_score > 0.87:
-                            log.similarity_score = log.reference_similarity_score
-                            continue
-
+                            if len(miner_commit.scoring_logs) > 1:
+                                # get index of latest commit score and get previous commit score then subtract to find a difference
+                                _scoring_log_index = miner_commit.scoring_logs.index(
+                                    _latest_commit
+                                )
+                                if _scoring_log_index > 0:
+                                    _previous_commit = miner_commit.scoring_logs[
+                                        _scoring_log_index - 1
+                                    ]
+                                    _previous_commit_score = _previous_commit.get(
+                                        "score", 0
+                                    )
+                                    _latest_commit_score = _latest_commit.get(
+                                        "score", 0
+                                    )
+                                    _score_difference = abs(
+                                        _previous_commit_score - _latest_commit_score
+                                    )
+                                    if not _score_difference > 0.05:
+                                        bt.logging.info(
+                                            f"[COMPARER] Comparing with own scripts. Score is same so assigneing 1 to similarity score for miner {miner_commit.miner_hotkey}"
+                                        )
+                                        similarity_score = 1
+                                    else:
+                                        bt.logging.info(
+                                            f"[COMPARER] Comparing with own scripts. Score is different so assigneing 0.1 to similarity score for miner {miner_commit.miner_hotkey}"
+                                        )
+                                        similarity_score = 0.1
                     log.similarity_score = similarity_score
 
                 except Exception as e:
@@ -147,7 +174,7 @@ class HBComparer(Comparer):
                             reference_output=other_log.miner_output,
                         )
                         # Create a comparison log with the inputs and outputs
-                        _miner_output["bot.py"] = None
+                        _miner_output["bot_py"] = None
                         comparison_log = ComparisonLog(
                             similarity_score=similarity_score,
                             miner_input=miner_log.miner_input,
@@ -161,7 +188,7 @@ class HBComparer(Comparer):
                         bt.logging.error(
                             f"Error comparing outputs with matching inputs for miner {miner_commit.miner_hotkey}: {str(e)}"
                         )
-                        miner_log.miner_output["bot.py"] = None
+                        miner_log.miner_output["bot_py"] = None
                         comparison_log = ComparisonLog(
                             error=str(e),
                             similarity_score=0.0,
