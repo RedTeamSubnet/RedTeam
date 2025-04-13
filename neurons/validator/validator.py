@@ -608,11 +608,17 @@ class Validator(BaseValidator):
                 )
                 # Update miner commit data if it's new
                 if encrypted_commit != current_miner_commit.encrypted_commit:
-                    current_miner_commit.commit_timestamp = time.time()
-                    current_miner_commit.encrypted_commit = encrypted_commit
-                    current_miner_commit.key = keys.get(challenge_name)
-                    current_miner_commit.commit = ""
-
+                    # Create a completely new commit object for new submissions
+                    new_commit = MinerChallengeCommit(
+                        miner_uid=uid,
+                        miner_hotkey=hotkey,
+                        challenge_name=challenge_name,
+                        commit_timestamp=time.time(),
+                        encrypted_commit=encrypted_commit,
+                        key=keys.get(challenge_name),
+                    )
+                    # Update miner commit
+                    this_miner_commit[challenge_name] = current_miner_commit = new_commit
                 elif keys.get(challenge_name):
                     current_miner_commit.key = keys.get(challenge_name)
 
