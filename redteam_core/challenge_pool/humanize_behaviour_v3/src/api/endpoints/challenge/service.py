@@ -161,27 +161,27 @@ def score(miner_output: MinerOutput) -> float:
 
     try:
         _container_name = "bot_container"
-            if miner_output.pip_requirements:
-                ch_utils.check_pip_requirements(
-                    pip_requirements=miner_output.pip_requirements,
-                    target_dt=config.challenge.allowed_pip_pkg_dt,
-                )
-
-            _build_dir = os.path.join(config.api.paths.tmp_dir, "bot")
-            ch_utils.copy_bot_files(
-                miner_output=miner_output,
-                src_dir=str(_src_dir / "bot"),
-                dst_dir=_build_dir,
+        if miner_output.pip_requirements:
+            ch_utils.check_pip_requirements(
+                pip_requirements=miner_output.pip_requirements,
+                target_dt=config.challenge.allowed_pip_pkg_dt,
             )
 
-            _docker_client = docker.from_env()
-            _image_name = "bot:latest"
-            ch_utils.build_bot_image(
-                docker_client=_docker_client,
-                build_dir=_build_dir,
-                system_deps=miner_output.system_deps,
-                image_name=_image_name,
-            )
+        _build_dir = os.path.join(config.api.paths.tmp_dir, "bot")
+        ch_utils.copy_bot_files(
+            miner_output=miner_output,
+            src_dir=str(_src_dir / "bot"),
+            dst_dir=_build_dir,
+        )
+
+        _docker_client = docker.from_env()
+        _image_name = "bot:latest"
+        ch_utils.build_bot_image(
+            docker_client=_docker_client,
+            build_dir=_build_dir,
+            system_deps=miner_output.system_deps,
+            image_name=_image_name,
+        )
 
         # Get the next task
         task = tm.pop_task()
@@ -190,36 +190,36 @@ def score(miner_output: MinerOutput) -> float:
                 error_enum=ErrorCodeEnum.TOO_MANY_REQUESTS,
                 message=f"No initialized key pairs or action lists, or out of tasks!",
             )
-            ch_utils.run_bot_container(
+        ch_utils.run_bot_container(
             action_list=tm.cur_action_list,
-                docker_client=_docker_client,
-                image_name=_image_name,
-                container_name=_container_name,
-                ulimit=config.challenge.docker_ulimit,
-            )
+            docker_client=_docker_client,
+            image_name=_image_name,
+            container_name=_container_name,
+            ulimit=config.challenge.docker_ulimit,
+        )
 
-            _i = 0
-            while True:
-                if tm.cur_score is not None:
-                    _score += tm.cur_score / _num_tasks if tm.cur_score != 0 else 0
-                    tm.cur_score = None
-                    logger.info("Successfully scored the miner output.")
-                    break
+        _i = 0
+        while True:
+            if tm.cur_score is not None:
+                _score += tm.cur_score / _num_tasks if tm.cur_score != 0 else 0
+                tm.cur_score = None
+                logger.info("Successfully scored the miner output.")
+                break
 
             logger.info(f"Waiting for the bot to finish... {tm.cur_score is not None}")
-                time.sleep(1)
-                _i += 1
+            time.sleep(1)
+            _i += 1
 
-                if config.challenge.bot_timeout < _i:
+            if config.challenge.bot_timeout < _i:
                 logger.error("Timeout error: Bot running too long or failed to finish!")
-                    break
+                break
 
-        except Exception as err:
-            if isinstance(err, BaseHTTPException):
-                raise
-
-            logger.error(f"Failed to score the miner output: {str(err)}!")
+    except Exception as err:
+        if isinstance(err, BaseHTTPException):
             raise
+
+        logger.error(f"Failed to score the miner output: {str(err)}!")
+        raise
 
     return _score
 
