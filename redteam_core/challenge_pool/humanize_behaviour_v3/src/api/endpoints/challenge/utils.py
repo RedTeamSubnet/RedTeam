@@ -10,6 +10,7 @@ import subprocess
 from datetime import datetime, timezone
 from typing import List, Dict, Union, Tuple, Optional
 
+from api.config import config
 import vault_unlock
 import docker
 from docker.models.networks import Network
@@ -128,7 +129,8 @@ def gen_cb_actions(
                 },
             ]
         )
-        _challenge_list.append(_action_list)
+        for _ in range(config.challenge.n_run_per_ch):
+            _challenge_list.append(_action_list)
 
     return _challenge_list
 
@@ -320,7 +322,8 @@ def run_bot_container(
             environment={
                 "TZ": "UTC",
                 f"{ENV_PREFIX}ACTION_LIST": action_list,
-                f"{ENV_PREFIX}SESSION_COUNT": 2,
+                f"{ENV_PREFIX}SESSION_COUNT": config.challenge.n_run_per_ch
+                * config.challenge.n_ch_per_epoch,
             },
             network=network_name,
             detach=True,

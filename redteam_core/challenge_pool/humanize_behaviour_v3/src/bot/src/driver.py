@@ -24,17 +24,15 @@ class WebUIAutomate:
     _VIEWPORT_WIDTH = 1440
     _VIEWPORT_HEIGHT = 900
 
-    def __init__(self, web_url: HttpUrl, config: Dict[str, Any]):
+    def __init__(self, web_url: HttpUrl):
         """
         Initialize WebUI automation.
 
         Args:
             web_url (str , required): URL to automate.
-            config  (Dict, required): Configuration.
         """
 
         self.web_url = web_url
-        self.config = config
         self.driver: Union[WebDriver, None] = None
 
     def setup_driver(self) -> None:
@@ -115,13 +113,10 @@ class WebUIAutomate:
         if not self.web_url:
             raise RuntimeError("Web URL is empty, cannot proceed!")
 
-        if not self.config:
-            raise RuntimeError("Configuration is empty, cannot proceed!")
-
         try:
             self.setup_driver()
 
-            if not run_bot(driver=self.driver, config=self.config):
+            if not run_bot(driver=self.driver):
                 return None
 
             time.sleep(3)

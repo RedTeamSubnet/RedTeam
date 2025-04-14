@@ -12,6 +12,7 @@ from ._base import FrozenBaseConfig
 
 class ChallengeConfig(FrozenBaseConfig):
     n_ch_per_epoch: int = Field(...)
+    n_run_per_ch: int = Field(...)
     docker_ulimit: int = Field(...)
     allowed_pip_pkg_dt: datetime = Field(...)
     allowed_file_exts: List[

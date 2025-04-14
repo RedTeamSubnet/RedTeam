@@ -123,6 +123,17 @@ class TaskManager:
         logger.info(f"Current session: {len(self.action_metric_pair.keys())}, ")
         return len(self.action_metric_pair.keys()) == config.challenge.n_run_per_ch
 
+    def get_nonce(self) -> str:
+        _nonce_key: str = self.cur_key_pair.public_key
+        self.cur_key_pair.public_key = None
+        self.cur_key_pair.nonce = None
+        return _nonce_key
+
+    def get_private_key(self) -> str:
+        _private_key: str = self.cur_key_pair.private_key
+        self.cur_key_pair.private_key = None
+        return _private_key
+
 
 # Initialize the task manager as a global variable
 global tm
@@ -148,20 +159,8 @@ def score(miner_output: MinerOutput) -> float:
     if tm.get_remaining_task_count() < _num_tasks:
         tm.reset_tasks()
 
-    for _ in range(_num_tasks):
+    try:
         _container_name = "bot_container"
-        ch_utils.stop_container(container_name=_container_name)
-
-        # Get the next task
-        task = tm.pop_task()
-        if not task:
-            raise BaseHTTPException(
-                error_enum=ErrorCodeEnum.TOO_MANY_REQUESTS,
-                message=f"No initialized key pairs or action lists, or out of tasks!",
-            )
-
-        logger.debug(f"Current action list: {tm.cur_action_list}")
-        try:
             if miner_output.pip_requirements:
                 ch_utils.check_pip_requirements(
                     pip_requirements=miner_output.pip_requirements,
@@ -183,9 +182,17 @@ def score(miner_output: MinerOutput) -> float:
                 system_deps=miner_output.system_deps,
                 image_name=_image_name,
             )
+
+        # Get the next task
+        task = tm.pop_task()
+        if not task:
+            raise BaseHTTPException(
+                error_enum=ErrorCodeEnum.TOO_MANY_REQUESTS,
+                message=f"No initialized key pairs or action lists, or out of tasks!",
+            )
             ch_utils.run_bot_container(
+            action_list=tm.cur_action_list,
                 docker_client=_docker_client,
-                action_list=tm.cur_action_list,
                 image_name=_image_name,
                 container_name=_container_name,
                 ulimit=config.challenge.docker_ulimit,
@@ -199,16 +206,12 @@ def score(miner_output: MinerOutput) -> float:
                     logger.info("Successfully scored the miner output.")
                     break
 
-                logger.info(
-                    f"Waiting for the bot to finish... {tm.cur_score is not None}"
-                )
+            logger.info(f"Waiting for the bot to finish... {tm.cur_score is not None}")
                 time.sleep(1)
                 _i += 1
 
                 if config.challenge.bot_timeout < _i:
-                    logger.error(
-                        "Timeout error: Bot running too long or failed to finish!"
-                    )
+                logger.error("Timeout error: Bot running too long or failed to finish!")
                     break
 
         except Exception as err:
@@ -280,7 +283,7 @@ def get_random_val(nonce: str) -> str:
             message=f"Nonce is already retrieved!",
         )
 
-    _nonce_key: str = tm.cur_key_pair.public_key
+    _nonce_key = tm.get_nonce()
     return _nonce_key
 
 
@@ -293,7 +296,7 @@ def eval_bot(data: str) -> None:
             message=f"Not initialized key pair or out of key pair, this endpoint is shouldn't be called directly!",
         )
 
-    _private_key: str = tm.cur_key_pair.private_key
+    _private_key: str = tm.get_private_key()
 
     logger.debug("Evaluating the bot...")
 
@@ -310,7 +313,6 @@ def eval_bot(data: str) -> None:
                 config={"actions": tm.cur_action_list}
             )
             _result = _metrics_processor(data=tm.action_metric_pair)
-
             logger.info(f"Bot evaluation result: {_result}")
             tm.cur_score = _result["analysis"]["score"]
             logger.info(f"Bot score: {tm.cur_score}")
@@ -318,7 +320,9 @@ def eval_bot(data: str) -> None:
             # Reset for next epoch
             tm.action_metric_pair = {}
             tm.cur_key_pair = None
-
+            tm.pop_task()
+        else:
+            tm.pop_task()
         logger.debug("Successfully evaluated the bot.")
     except Exception as err:
         if isinstance(err, BaseHTTPException):
@@ -330,7 +334,6 @@ def eval_bot(data: str) -> None:
     return
 
 
-@validate_call
 def compare_outputs(miner_input, miner_output, reference_output) -> float:
     """
     Compare miner's output against a reference output using CFGAnalyser and CFGComparer.

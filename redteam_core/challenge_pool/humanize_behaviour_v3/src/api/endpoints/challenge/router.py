@@ -78,7 +78,7 @@ def post_score(
         )
         # raise
         return None
-
+    logger.success(f"[{_request_id}] - Successfully scored the miner output: {_score}")
     return _score
 
 
