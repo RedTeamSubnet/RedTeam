@@ -1,9 +1,11 @@
 # RedTeam Subnet Rewarding Server
 
 ## Overview
+
 The Rewarding Server is a specialized validator node that provides centralized scoring for the RedTeam Subnet (netuid 61). It extends the standard Validator functionality but focuses exclusively on scoring and comparing miner submissions rather than querying miners or setting weights directly.
 
 ## Key Features
+
 - Centralized scoring infrastructure for all subnet validators
 - Aggregation of miner submissions from all active validators
 - Automatic deduplication and versioning of submissions
@@ -16,7 +18,9 @@ The Rewarding Server is a specialized validator node that provides centralized s
 ## Technical Architecture
 
 ### State Management
+
 The rewarding server maintains several important state variables:
+
 - `validators_miner_commits`: Stores current miner commits from all validators, indexed by validator UID and hotkey
 - `miner_commits`: Aggregated miner commits from all validators, indexed by miner UID and hotkey
 - `miner_commits_cache`: Quick lookup cache mapping challenge+encrypted_commit to commit objects
@@ -56,36 +60,40 @@ The rewarding server maintains several important state variables:
 ## API Endpoints
 
 ### `/get_scoring_result`
+
 - **Method**: POST
 - **Parameters**:
-  - `challenge_name`: Name of the challenge
-  - `encrypted_commits`: List of encrypted commits to look up
-- **Response**: 
-  ```json
-  {
+    - `challenge_name`: Name of the challenge
+    - `encrypted_commits`: List of encrypted commits to look up
+- **Response**:
+
+    ```json
+    {
     "status": "success",
     "message": "Scoring results retrieved successfully",
     "data": {
-      "commits": {
+        "commits": {
         "<encrypted_commit>": {
-          "miner_uid": 123,
-          "miner_hotkey": "...",
-          "challenge_name": "...",
-          "scoring_logs": [...],
-          "comparison_logs": {...},
-          "score": 0.95,
-          "penalty": 0.0
+            "miner_uid": 123,
+            "miner_hotkey": "...",
+            "challenge_name": "...",
+            "scoring_logs": [...],
+            "comparison_logs": {...},
+            "score": 0.95,
+            "penalty": 0.0
         }
-      },
-      "is_done": true/false
+        },
+        "is_done": true/false
     }
-  }
-  ```
+    }
+    ```
 
 ## Setup
+
 Setup steps for the rewarding server are the same as the validator node, please refer to the [validator README](../../docs/1.validator.md) for more details.
 
 ### Running the Server
+
 ```bash
 python services/rewarding/app.py \
     --reward_app.port 47920 \
@@ -98,6 +106,7 @@ python services/rewarding/app.py \
 ```
 
 #### Command Line Arguments
+
 | Argument | Description | Default |
 |----------|-------------|---------|
 | `--reward_app.port` | Port for the FastAPI server | 47920 |
@@ -109,25 +118,29 @@ python services/rewarding/app.py \
 | `--wallet.hotkey` | Wallet hotkey name | Required |
 
 ## Integration for Validators
+
 Validators can use the centralized scoring service by:
 
 1. Adding the `--validator.use_centralized_scoring` flag to their validator command
-2. The validator will automatically fetch scoring results from the rewarding server 
+2. The validator will automatically fetch scoring results from the rewarding server
 3. This eliminates the need for each validator to run scoring infrastructure
 
 ## Development & Troubleshooting
 
 ### Monitoring
+
 - Check the Prometheus metrics endpoint for performance monitoring
 - Review logs for scoring errors and processing delays
 - The `scoring_results.json` file provides a backup of all scoring data
 
 ### Common Issues
+
 - If scoring results aren't being updated, check network connectivity to storage service
 - Verify that the reward app has sufficient stake in the metagraph
 - Ensure the REWARD_APP_HOTKEY environment variable matches the wallet.hotkey
 
 ### Security Considerations
+
 - The reward app has access to all validator submissions and must maintain data integrity
 - Uses validation headers for secure communication with storage service
 - Maintains proper synchronization between memory cache and persistent storage

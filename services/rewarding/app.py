@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import argparse
 import datetime
 import json
@@ -101,7 +104,9 @@ class RewardApp(Validator):
             daemon=True,  # Ensures the thread stops when the main process exits
         )
         self.server_thread.start()
-        bt.logging.info(f"FastAPI server is running on port {self.config.reward_app.port}!")
+        bt.logging.info(
+            f"FastAPI server is running on port {self.config.reward_app.port}!"
+        )
 
     def setup_bittensor_objects(self):
         bt.logging.info("Setting up Bittensor objects.")
@@ -417,7 +422,6 @@ class RewardApp(Validator):
             time_to_sleep = max(0, self.config.reward_app.epoch_length - elapsed)
             bt.logging.info(f"Epoch finished. Sleeping for {time_to_sleep} seconds.")
 
-
             try:
                 self.set_weights()
             except Exception:
@@ -648,7 +652,9 @@ class RewardApp(Validator):
         for challenge_name in challenge_names:
             scoring_results_to_send: list[dict] = []
             # Send batch of maximum 5 results at a time to avoid huge payload
-            for docker_hub_id, result in self.scoring_results.get(challenge_name, {}).items():
+            for docker_hub_id, result in self.scoring_results.get(
+                challenge_name, {}
+            ).items():
                 scoring_result = {
                     "challenge_name": challenge_name,
                     "docker_hub_id": docker_hub_id,
@@ -664,43 +670,49 @@ class RewardApp(Validator):
                         for docker_hub_id, _comparison_logs in result.get(
                             "comparison_logs", {}
                         ).items()
-                    }
+                    },
                 }
                 scoring_results_to_send.append(scoring_result)
                 all_scoring_results.append(scoring_result)
 
                 if len(scoring_results_to_send) >= 5:
                     try:
-                        data = {
-                            "scoring_results": scoring_results_to_send
-                        }
+                        data = {"scoring_results": scoring_results_to_send}
                         response = requests.post(
-                            endpoint, headers=self.validator_request_header_fn(data), json=data
+                            endpoint,
+                            headers=self.validator_request_header_fn(data),
+                            json=data,
                         )
                         response.raise_for_status()
                         scoring_results_to_send = []
                     except Exception:
-                        bt.logging.error(f"Failed to send scoring results to storage: {traceback.format_exc()}")
+                        bt.logging.error(
+                            f"Failed to send scoring results to storage: {traceback.format_exc()}"
+                        )
                         scoring_results_to_send = []
 
             if scoring_results_to_send:
                 try:
-                    data = {
-                        "scoring_results": scoring_results_to_send
-                    }
+                    data = {"scoring_results": scoring_results_to_send}
                     response = requests.post(
-                        endpoint, headers=self.validator_request_header_fn(data), json=data
+                        endpoint,
+                        headers=self.validator_request_header_fn(data),
+                        json=data,
                     )
                     response.raise_for_status()
                 except Exception:
-                    bt.logging.error(f"Failed to send scoring results to storage: {traceback.format_exc()}")
+                    bt.logging.error(
+                        f"Failed to send scoring results to storage: {traceback.format_exc()}"
+                    )
 
         if all_scoring_results:
             try:
                 with open("scoring_results.json", "w") as f:
                     json.dump(all_scoring_results, f)
             except Exception:
-                bt.logging.error(f"Failed to save scoring results to file: {traceback.format_exc()}")
+                bt.logging.error(
+                    f"Failed to save scoring results to file: {traceback.format_exc()}"
+                )
 
     def _fetch_centralized_scoring(
         self, challenge_names: list[str] = []
@@ -825,9 +837,9 @@ class RewardApp(Validator):
                 docker_hub_id: scoring_log or None if not found
             }
         """
-        assert challenge_name in self.active_challenges, (
-            f"Challenge {challenge_name} is not active"
-        )
+        assert (
+            challenge_name in self.active_challenges
+        ), f"Challenge {challenge_name} is not active"
 
         results: dict[str, MinerChallengeCommit] = {}
 

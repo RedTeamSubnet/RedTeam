@@ -1,0 +1,104 @@
+services:
+  subtensor:
+    image: ghcr.io/opentensor/subtensor-localnet:latest
+    restart: unless-stopped
+    environment:
+      TERM: ${TERM:-xterm}
+      TZ: ${TZ:-UTC}
+    env_file:
+      - path: .env
+        required: false
+    volumes:
+      - "subtensor-data:/tmp"
+    command: ["False", "--no-purge"]
+    tty: true
+
+  sidecar-btcli:
+    image: redteamsubnet61/sidecar.btcli:latest
+    build:
+      context: .
+    depends_on:
+      - subtensor
+    restart: unless-stopped
+    environment:
+      TERM: ${TERM:-xterm}
+      TZ: ${TZ:-UTC}
+      RT_SUBTENSOR_HOST: ${RT_SUBTENSOR_HOST:-subtensor}
+    env_file:
+      - path: .env
+        required: false
+    volumes:
+      - "sidecar-btcli-data:${RT_BTCLI_DATA_DIR:-/var/lib/sidecar.btcli}"
+    tty: true
+
+  validator:
+      image: redteamsubnet61/agent.validator:latest
+      build:
+        context: .
+        dockerfile: ./neurons/validator/Dockerfile
+      depends_on:
+        - subtensor
+        - sidecar-btcli
+      restart: unless-stopped
+      privileged: true
+      environment:
+        TERM: ${TERM:-xterm}
+        TZ: ${TZ:-UTC}
+        HF_TOKEN: ${HF_TOKEN}
+      env_file:
+        - path: .env
+          required: false
+      volumes:
+        - "/var/run/docker.sock:/var/run/docker.sock"
+        - "sidecar-btcli-data:${RT_BTCLI_DATA_DIR:-/var/lib/sidecar.btcli}"
+        - "validator-data:${RT_VALIDATOR_DATA_DIR:-/var/lib/agent.validator}"
+      tty: true
+
+  miner:
+      image: redteamsubnet61/agent.miner:latest
+      build:
+        context: .
+        dockerfile: ./neurons/miner/Dockerfile
+      depends_on:
+        - subtensor
+        - sidecar-btcli
+      restart: unless-stopped
+      environment:
+        TERM: ${TERM:-xterm}
+        TZ: ${TZ:-UTC}
+      env_file:
+        - path: .env
+          required: false
+      volumes:
+        - "sidecar-btcli-data:${RT_BTCLI_DATA_DIR:-/var/lib/sidecar.btcli}"
+        - "miner-data:${RT_MINER_DATA_DIR:-/var/lib/agent.miner}"
+      tty: true
+
+  reward-validator:
+      image: redteamsubnet61/server.reward-validator:latest
+      build:
+        context: .
+        dockerfile: ./services/rewarding/Dockerfile
+      depends_on:
+        - subtensor
+        - sidecar-btcli
+      restart: unless-stopped
+      privileged: true
+      environment:
+        TERM: ${TERM:-xterm}
+        TZ: ${TZ:-UTC}
+      env_file:
+        - path: .env
+          required: false
+      volumes:
+        - "/var/run/docker.sock:/var/run/docker.sock"
+        - "sidecar-btcli-data:${RT_BTCLI_DATA_DIR:-/var/lib/sidecar.btcli}"
+        - "reward-validator-data:${RT_REWARD_VALIDATOR_DATA_DIR:-/var/lib/server.reward-validator}"
+      tty: true
+
+volumes:
+  subtensor-data:
+  sidecar-btcli-data:
+  validator-data:
+  miner-data:
+  reward-validator-data:
