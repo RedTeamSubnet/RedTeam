@@ -1,4 +1,5 @@
 # syntax=docker/dockerfile:1
+# check=skip=SecretsUsedInArgOrEnv,UndefinedVar
 
 ARG PYTHON_VERSION=3.10
 ARG BASE_IMAGE=python:${PYTHON_VERSION}-slim-bookworm
@@ -36,12 +37,12 @@ RUN --mount=type=cache,target=/root/.cache,sharing=locked \
 		libssl-dev \
 		build-essential && \
 	curl https://sh.rustup.rs -sSf | sh -s -- -y  && \
-	python3 -m pip install --timeout 60 -U pip
+	python3 -m pip install --timeout 60 -U pip uv
 
 # COPY ./requirements* ./
 RUN	--mount=type=cache,target=/root/.cache,sharing=locked \
 	--mount=type=bind,source=requirements.txt,target=requirements.txt \
-	python3 -m pip install --prefix=/install --timeout 60 -r ./requirements.txt
+	python3 -m uv pip install --prefix=/install -r ./requirements.txt
 
 
 ## Here is the base image:
@@ -131,7 +132,7 @@ ENV LANG=en_US.UTF-8 \
 	LANGUAGE=en_US.UTF-8 \
 	LC_ALL=en_US.UTF-8
 
-COPY --from=builder --chown=${UID}:${GID} /install /usr/local
+COPY --from=builder /install /usr/local
 
 
 ## Here is the final image:
