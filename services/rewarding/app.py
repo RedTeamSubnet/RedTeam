@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import argparse
 import datetime
 import json
@@ -879,9 +882,9 @@ class RewardApp(Validator):
                 docker_hub_id: scoring_log or None if not found
             }
         """
-        assert challenge_name in self.active_challenges, (
-            f"Challenge {challenge_name} is not active"
-        )
+        assert (
+            challenge_name in self.active_challenges
+        ), f"Challenge {challenge_name} is not active"
 
         results: dict[str, MinerChallengeCommit] = {}
 

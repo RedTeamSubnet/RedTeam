@@ -1,20 +1,22 @@
 import os
 import datetime
 
-from pydantic import BaseModel, Field, model_validator, AnyUrl
+from pydantic import Field, model_validator, AnyUrl
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from .common import generate_constants_docs
 
+ENV_PREFIX = "RT_"
 
-class Constants(BaseModel):
+
+class Constants(BaseSettings):
     """
     Configuration constants for the application.
     """
 
     # Environment settings
     TESTNET: bool = Field(
-        default_factory=lambda: os.getenv("TESTNET", "0").strip().lower()
-        in ("1", "true", "yes"),
+        default=False,
         description="Flag to indicate if running in testnet mode.",
     )
 
@@ -90,8 +92,13 @@ class Constants(BaseModel):
         description="URL for rewarding miners",
     )
 
-    class Config:
-        validate_assignment = True
+    model_config = SettingsConfigDict(
+        validate_assignment=True,
+        env_nested_delimiter="__",
+        env_prefix=ENV_PREFIX,
+        env_file=".env",
+        extra="allow",
+    )
 
     @model_validator(mode="before")
     def calculate_spec_version(cls, values):

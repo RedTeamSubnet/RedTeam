@@ -33,6 +33,8 @@ exclude *.pyc
 exclude **/compose*.yml
 exclude **/compose*.yaml
 exclude **/scripts/*
+exclude **/.env
+exclude **/.env.example
 prune **/modules
 prune **/volumes
 prune **/tests
