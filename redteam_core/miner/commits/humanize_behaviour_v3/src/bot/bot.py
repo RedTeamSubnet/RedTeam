@@ -31,7 +31,6 @@ def run_bot(
     Returns:
         bool: True if login is successful, False otherwise.
     """
-
     try:
         _wait = WebDriverWait(driver, 15)
 
@@ -53,7 +52,7 @@ def run_bot(
         # Perform configured actions
         action_list = driver.execute_script("return window.ACTIONS_LIST;")
         _action_list = json.loads(action_list)
-        for i, _action in enumerate(_action_list["actions"]):
+        for i, _action in enumerate(_action_list):
             if _action["type"] == "click":
                 x = _action["args"]["location"]["x"]
                 y = _action["args"]["location"]["y"]
