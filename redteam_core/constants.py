@@ -38,7 +38,7 @@ class Constants(BaseSettings):
 
     # Challenge settings
     N_CHALLENGES_PER_EPOCH: int = Field(
-        default=10, description="Number of challenges per epoch."
+        default=100, description="Number of challenges per epoch."
     )
     SCORING_HOUR: int = Field(
         default=14, description="Hour of the day when scoring occurs (0-23)."

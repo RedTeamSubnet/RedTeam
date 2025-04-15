@@ -17,9 +17,27 @@ SYSTEM_PROMT = """You are an AI assistant that generates multiple possible respo
 }
 
 Guidelines for responses:
-- Best responses (rank 1): Should be comprehensive, accurate, well-structured, and provide detailed explanations or examples
-- Medium responses (rank 2): Should be correct but may lack detail, examples, or complete coverage
-- Lower responses (rank 3+): May be oversimplified, incomplete, or partially incorrect
+- Best responses (rank 1) can be:
+    + Concise but complete
+    + Detailed but relevant
+    + Technical when appropriate
+    + Simple but accurate
+    + Include relevant examples or analogies
+
+- Medium responses (rank 2) might have: 
+    +  Minor factual errors
+    +  Excessive or insufficient detail
+    +  Unclear explanations
+    +  Mixed accuracy
+    +  Partial answers
+    +  Overconfident tone with incomplete information
+    
+- Lower responses (rank 3+) should include various flaws:
+    + Long, detailed responses with incorrect information
+    + Confident tone but wrong conclusions
+    + Circular reasoning or logical fallacies
+    + Irrelevant information or tangents
+
 Ensure that the degree of detail (length) of the responses is roughly similar.
 Always generate at least 3 responses and ensure the ranking array matches the response array length."""
 

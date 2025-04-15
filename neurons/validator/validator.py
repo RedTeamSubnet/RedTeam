@@ -615,11 +615,17 @@ class Validator(BaseValidator):
                 )
                 # Update miner commit data if it's new
                 if encrypted_commit != current_miner_commit.encrypted_commit:
-                    current_miner_commit.commit_timestamp = time.time()
-                    current_miner_commit.encrypted_commit = encrypted_commit
-                    current_miner_commit.key = keys.get(challenge_name)
-                    current_miner_commit.commit = ""
-
+                    # Create a completely new commit object for new submissions
+                    new_commit = MinerChallengeCommit(
+                        miner_uid=uid,
+                        miner_hotkey=hotkey,
+                        challenge_name=challenge_name,
+                        commit_timestamp=time.time(),
+                        encrypted_commit=encrypted_commit,
+                        key=keys.get(challenge_name),
+                    )
+                    # Update miner commit
+                    this_miner_commit[challenge_name] = current_miner_commit = new_commit
                 elif keys.get(challenge_name):
                     current_miner_commit.key = keys.get(challenge_name)
 
@@ -806,22 +812,24 @@ class Validator(BaseValidator):
         Returns:
             dict: A dictionary containing the serialized state
         """
-        miner_commits: list[dict] = []
-        for (uid, ss58), commits in self.miner_commits.items():
-            miner_commits.append(
-                {
-                    "uid": uid,
-                    "ss58": ss58,
-                    "commits": {
-                        challenge_name: (
-                            commit.public_view().model_dump()
-                            if public_view
-                            else commit.model_dump()
-                        )
-                        for challenge_name, commit in commits.items()
-                    },
-                }
-            )
+        # We no longer export miner commits since:
+        # 1. They change quickly and is taking up lots space.
+        # 2. They are already inside challenge_managers 's state, miner_state.latest_commit if updated successfully.
+
+        # miner_commits: list[dict] = []
+        # for (uid, ss58), commits in self.miner_commits.items():
+        #     miner_commits.append(
+        #         {
+        #             "uid": uid,
+        #             "ss58": ss58,
+        #             "commits": {
+        #                 challenge_name: commit.public_view().model_dump()
+        #                 if public_view
+        #                 else commit.model_dump()
+        #                 for challenge_name, commit in commits.items()
+        #             },
+        #         }
+        #     )
 
         challenge_managers: dict[str, dict] = {
             challenge_name: manager.export_state(public_view=public_view)
@@ -831,7 +839,6 @@ class Validator(BaseValidator):
         state = {
             "validator_uid": self.uid,
             "validator_hotkey": self.wallet.hotkey.ss58_address,
-            "miner_commits": miner_commits,
             "challenge_managers": challenge_managers,
             "scoring_dates": self.scoring_dates,
         }
@@ -848,15 +855,15 @@ class Validator(BaseValidator):
         # Load scoring dates
         self.scoring_dates = state.get("scoring_dates", [])
 
-        # Load miner commits
-        self.miner_commits = {}
-        for miner_data in state.get("miner_commits", []):
-            uid = miner_data["uid"]
-            ss58 = miner_data["ss58"]
-            self.miner_commits[(uid, ss58)] = {
-                challenge_name: MinerChallengeCommit.model_validate(commit_data)
-                for challenge_name, commit_data in miner_data["commits"].items()
-            }
+        # Load miner commits (no longer load directly since we removed it from export_state)
+        # self.miner_commits = {}
+        # for miner_data in state.get("miner_commits", []):
+        #     uid = miner_data["uid"]
+        #     ss58 = miner_data["ss58"]
+        #     self.miner_commits[(uid, ss58)] = {
+        #         challenge_name: MinerChallengeCommit.model_validate(commit_data)
+        #         for challenge_name, commit_data in miner_data["commits"].items()
+        #     }
 
         # Load challenge managers state using their load_state class method
         for challenge_name, manager_state in state.get(
@@ -871,6 +878,13 @@ class Validator(BaseValidator):
                 )
                 # Update the existing challenge manager with the loaded state
                 self.challenge_managers[challenge_name] = loaded_manager
+
+        # Try to load miner commits from challenge managers
+        for challenge_name, manager in self.challenge_managers.items():
+            for miner_state in manager.miner_states.values():
+                self.miner_commits[(miner_state.miner_uid, miner_state.miner_hotkey)] = {
+                    challenge_name: miner_state.latest_commit
+                }
 
 
 if __name__ == "__main__":
