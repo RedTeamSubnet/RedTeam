@@ -16,7 +16,6 @@ logger = logging.getLogger(__name__)
 
 def run_bot(
     driver: WebDriver,
-    config: Dict[str, Any],
 ) -> bool:
     """Run bot to automate login.
 
@@ -35,18 +34,16 @@ def run_bot(
 
         mouse = PointerInput(kind="mouse", name="mouse")
 
-        # Get config from window.ACTIONS_LIST if config is empty
-        if not config:
-            # Execute JavaScript to get ACTIONS_LIST
-            actions_list = driver.execute_script("return window.ACTIONS_LIST;")
-            if actions_list:
-                logger.info("Retrieved config from window.ACTIONS_LIST")
-            else:
-                logger.error("window.ACTIONS_LIST is empty or doesn't exist")
-                return False
+        # Execute JavaScript to get ACTIONS_LIST
+        actions_list = driver.execute_script("return window.ACTIONS_LIST;")
+        if actions_list:
+            logger.info("Retrieved config from window.ACTIONS_LIST")
+        else:
+            logger.error("window.ACTIONS_LIST is empty or doesn't exist")
+            return False
 
         # Perform configured actions
-        for i, _action in enumerate(config["actions"]):
+        for i, _action in enumerate(actions_list):
             if _action["type"] == "click":
                 x = _action["args"]["location"]["x"]
                 y = _action["args"]["location"]["y"]
