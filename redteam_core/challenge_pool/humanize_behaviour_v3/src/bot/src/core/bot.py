@@ -1,5 +1,6 @@
 import logging
 import time
+import json
 from typing import Any, Dict
 
 from selenium.webdriver.common.by import By
@@ -35,7 +36,7 @@ def run_bot(
         mouse = PointerInput(kind="mouse", name="mouse")
 
         # Execute JavaScript to get ACTIONS_LIST
-        actions_list = driver.execute_script("return window.ACTIONS_LIST;")
+        actions_list = json.loads(driver.execute_script("return window.ACTIONS_LIST;"))
         if actions_list:
             logger.info("Retrieved config from window.ACTIONS_LIST")
         else:
