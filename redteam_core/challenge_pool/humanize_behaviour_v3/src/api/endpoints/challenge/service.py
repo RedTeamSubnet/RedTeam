@@ -314,9 +314,7 @@ def eval_bot(data: str) -> None:
             )
             _result = _metrics_processor(data=tm.action_metric_pair)
             _cur_sesion_score = _result["analysis"]["score"]
-            os.makedirs("data", exist_ok=True)
-            with open(f"data/bot_{time.time()}_{_cur_sesion_score}.json", "w") as f:
-                json.dump(tm.action_metric_pair, f, indent=4)
+
             logger.info(f"Bot evaluation result: {_result}")
             if tm.cur_score is not None:
                 tm.cur_score += (
