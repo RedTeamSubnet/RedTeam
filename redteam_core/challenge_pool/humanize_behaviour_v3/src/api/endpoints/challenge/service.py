@@ -92,7 +92,6 @@ class TaskManager:
 
         self.cur_key_pair = self.key_pairs.pop(0)
         self.cur_action_list = self.challenges_action_list.pop(0)
-        self.cur_score = None
 
         return (self.cur_key_pair, self.cur_action_list)
 
@@ -185,6 +184,7 @@ def score(miner_output: MinerOutput) -> float:
 
         # Get the next task
         task = tm.pop_task()
+        tm.cur_score = None
         if not task:
             raise BaseHTTPException(
                 error_enum=ErrorCodeEnum.TOO_MANY_REQUESTS,
@@ -201,7 +201,7 @@ def score(miner_output: MinerOutput) -> float:
         _i = 0
         while True:
             if tm.cur_score is not None:
-                _score += tm.cur_score / _num_tasks if tm.cur_score != 0 else 0
+                _score = tm.cur_score
                 tm.cur_score = None
                 logger.info("Successfully scored the miner output.")
                 break
@@ -313,9 +313,24 @@ def eval_bot(data: str) -> None:
                 config={"actions": tm.cur_action_list}
             )
             _result = _metrics_processor(data=tm.action_metric_pair)
+            _cur_sesion_score = _result["analysis"]["score"]
+            os.makedirs("data", exist_ok=True)
+            with open(f"data/bot_{time.time()}_{_cur_sesion_score}.json", "w") as f:
+                json.dump(tm.action_metric_pair, f, indent=4)
             logger.info(f"Bot evaluation result: {_result}")
-            tm.cur_score = _result["analysis"]["score"]
-            logger.info(f"Bot score: {tm.cur_score}")
+            if tm.cur_score is not None:
+                tm.cur_score += (
+                    _cur_sesion_score / config.challenge.n_ch_per_epoch
+                    if _cur_sesion_score != 0
+                    else 0
+                )
+            else:
+                tm.cur_score = (
+                    _cur_sesion_score / config.challenge.n_ch_per_epoch
+                    if _cur_sesion_score != 0
+                    else 0
+                )
+            logger.info(f"Bot current score: {tm.cur_score}")
 
             # Reset for next epoch
             tm.action_metric_pair = {}
