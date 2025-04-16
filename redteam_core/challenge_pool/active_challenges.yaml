@@ -113,7 +113,6 @@ humanize_behaviour_v3:
   target: redteam_core.challenge_pool.humanize_behaviour_v3.controller.HBController
   comparer: redteam_core.challenge_pool.humanize_behaviour_v3.comparer.HBComparer
   challenge_manager: redteam_core.challenge_pool.humanize_behaviour_v3.challenge_manager.HBChallengeManager
-  # baseline: "asadbey/rest.rt-hb-v1-miner@sha256:f84f4d5a179908214121e071906357ddbfaee30fb6da2e896d404fc00acd20e3"
   max_unique_commits: 25
   behavior_scaling_factor: 0.1
   challenge_solve_timeout: 60
@@ -148,3 +147,5 @@ humanize_behaviour_v3:
     - redteamsubnet61/base_hbv2_image2@sha256:4ded4313b448cb970cadf62664c7bba28d9d777c9f63c95a51d6fea9b307c0f9
     - redteamsubnet61/base_hbv2_image3@sha256:65110ad3f64a9ee782868348da873399f00730b65fd8feb14b730eaae62d53a4
     - redteamsubnet61/base_hbv2_image4@sha256:6d2360ed9ff7310dbc31aee5ac61a9ebf60edbd4e85fd3077bfbdd42f7abd3f0
+    - redteamsubnet61/base_hbv3_image1@sha256:14305b2d81d562a9549db0719ab4d8c19cc00dafc31fe826d28c5ab935fb3130
+    - redteamsubnet61/base_hbv3_image2@sha256:fee9a54863c480c0088419e3b376b16ec99cf2fbdcf71211834b6e0bb155aefc
