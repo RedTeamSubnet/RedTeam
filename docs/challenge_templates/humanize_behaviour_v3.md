@@ -2,9 +2,9 @@
 
 ## Overview
 
-**Humanize Behaviour v3** tests bot scripts' ability to mimic human interaction with a web UI form with dynamic movements accross different sessions. It evaluates how well a bot navigates UI elements, interacts with form fields, and submits data without being caught by the bot detection system, based on  **mouse movement** and **keyboard interaction analysis.**
+**Humanize Behaviour v3** tests bot scripts' ability to mimic human interaction with a web UI form with dynamic movements accross different sessions. It evaluates how well a bot navigates UI elements, interacts with form fields, and submits data without being caught by the bot detection system, based on  **mouse movement**, **keyboard interaction analysis.** and **mouse movement similarities over sessions**
 
-Miners must demonstrate precise, human-like interactions through their bot scripts when completing the form.
+Miners must demonstrate precise, human-like interactions through their bot scripts when completing the form. And also they have to keep in mind their bots should not make same mouse movement trajectory in each iteration
 
 ---
 
@@ -24,21 +24,20 @@ Example codes for the Humanize Behaviour v3 can be found in the [`redteam_core/m
 2. Keep the `run_bot()` function signature unchanged
 3. Your bot must:
    - Work with the provided Selenium driver
-   - Follow the click sequence specified in `config`
    - Input text into designated fields
    - Submit the form without errors
 
 ### Key Guidelines
 
 - **Driver Usage**: Stick to the provided Selenium driver to ensure proper evaluation
-- **Action Sequence**: Follow the provided `config` order. Clicking it at the start or in the middle will prematurely submit data and result in a zero score due to invalid action flow.
+- **Action Sequence**: Follow the provided `ACTIONS LIST` order. Clicking it at the start or in the middle will prematurely submit data and result in a zero score due to invalid action flow.
 - **Click Behavior**:
     - Only click at specified locations
     - Additional clicks for input fields and submit buttons are allowed
     - Wrong click order will result in form submission failure.
 - **Text Input**:
     - Locate fields by their `id`
-    - Use text from the `config`
+    - Use text from the `ACTIONS LIST`
     - Maintain the specified input order
 - **Cross-Session Behavior Variation**:
     - Your bot must demonstrate different movement patterns across multiple evaluation sessions
