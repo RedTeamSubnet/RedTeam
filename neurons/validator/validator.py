@@ -101,7 +101,7 @@ class Validator(BaseValidator):
 
         # Remove challenges that are not active and setup the active challenges
         if datetime.datetime.now(datetime.timezone.utc) <= datetime.datetime(
-            2025, 4, 15, 14, 0, 0, 0, datetime.timezone.utc
+            2025, 4, 19, 14, 0, 0, 0, datetime.timezone.utc
         ):
             all_challenges.pop("humanize_behaviour_v3", None)
         else:
@@ -621,7 +621,9 @@ class Validator(BaseValidator):
                         key=keys.get(challenge_name),
                     )
                     # Update miner commit
-                    this_miner_commit[challenge_name] = current_miner_commit = new_commit
+                    this_miner_commit[challenge_name] = current_miner_commit = (
+                        new_commit
+                    )
                 elif keys.get(challenge_name):
                     current_miner_commit.key = keys.get(challenge_name)
 
@@ -878,9 +880,9 @@ class Validator(BaseValidator):
         # Try to load miner commits from challenge managers
         for challenge_name, manager in self.challenge_managers.items():
             for miner_state in manager.miner_states.values():
-                self.miner_commits[(miner_state.miner_uid, miner_state.miner_hotkey)] = {
-                    challenge_name: miner_state.latest_commit
-                }
+                self.miner_commits[
+                    (miner_state.miner_uid, miner_state.miner_hotkey)
+                ] = {challenge_name: miner_state.latest_commit}
 
 
 if __name__ == "__main__":
