@@ -3,7 +3,11 @@ import requests
 
 from redteam_core.constants import constants
 from redteam_core.challenge_pool.comparer import Comparer
-from redteam_core.validator.models import MinerChallengeCommit, ComparisonLog, ScoringLog
+from redteam_core.validator.models import (
+    MinerChallengeCommit,
+    ComparisonLog,
+    ScoringLog,
+)
 
 COMPARE_SCORE_THRESHOLD = 0.0
 
@@ -45,9 +49,30 @@ class HBComparer(Comparer):
 
                 try:
                     # Send to /compare endpoint
+                    _miner_output = None
+                    _scoring_log_index = log.miner_output.get("index", None)
+                    if _scoring_log_index is None:
+                        bt.logging.warning(
+                            f"[COMPARER - HBComparer] Could not get scoring log index using miner_output for miner {miner_commit.miner_uid}"
+                        )
+                        _miner_output = log.miner_output
+                        log.miner_output = None
+                    else:
+                        _miner_output = miner_commit.scoring_logs[
+                            _scoring_log_index
+                        ].miner_output
+
+                    if not _miner_output:
+                        bt.logging.warning(
+                            f"[COMPARER - HBComparer] miner_output is None for miner {miner_commit.miner_uid}"
+                        )
+                        log.error = "miner_output is None"
+                        log.similarity_score = 0.0
+                        continue
+
                     similarity_score = self._compare_outputs(
                         miner_input=log.miner_input,
-                        miner_output=log.miner_output,
+                        miner_output=_miner_output,
                         reference_output=log.reference_output,
                     )
 
@@ -61,7 +86,7 @@ class HBComparer(Comparer):
 
                 except Exception as e:
                     bt.logging.error(
-                        f"[COMPARER] Error comparing outputs for miner {miner_commit.miner_hotkey}: {str(e)}"
+                        f"[COMPARER - HBComparer] Error comparing outputs for miner {miner_commit.miner_hotkey}: {str(e)}"
                     )
                     log.error = str(e)
                     log.similarity_score = 0.0
@@ -84,10 +109,14 @@ class HBComparer(Comparer):
 
         for other_commit in self.miner_commits:
             ### Check if we should compare with this commit
-            if (other_commit.commit_timestamp > miner_commit.commit_timestamp or # Newer commit
-                other_commit.docker_hub_id in miner_commit.comparison_logs or  # Already compared
-                not other_commit.scoring_logs or  # No scoring logs
-                miner_commit.miner_hotkey == other_commit.miner_hotkey): # Same miner
+            if (
+                other_commit.commit_timestamp
+                > miner_commit.commit_timestamp  # Newer commit
+                or other_commit.docker_hub_id
+                in miner_commit.comparison_logs  # Already compared
+                or not other_commit.scoring_logs  # No scoring logs
+                or miner_commit.miner_hotkey == other_commit.miner_hotkey
+            ):  # Same miner
                 continue
 
             # Find matching inputs between the two commits
@@ -103,18 +132,36 @@ class HBComparer(Comparer):
                     miner_log = miner_logs_by_hash[other_log.input_hash]
 
                     try:
+                        _scoring_log_index = miner_log.miner_output.get("index", None)
+                        if _scoring_log_index is None:
+                            bt.logging.warning(
+                                f"[COMPARER - HBComparer] Could not get scoring log index using miner_output for miner {miner_commit.miner_uid}"
+                            )
+                            _miner_output = log.miner_output
+                        else:
+                            _miner_output = miner_commit.scoring_logs[
+                                _scoring_log_index
+                            ].miner_output
+
+                        if not _miner_output:
+                            bt.logging.warning(
+                                f"[COMPARER - HBComparer] miner_output is None for miner {miner_commit.miner_uid}"
+                            )
+                            log.error = "miner_output is None"
+                            log.similarity_score = 0.0
+                            continue
                         # Use the comparison API to compare outputs
                         similarity_score = self._compare_outputs(
                             miner_input=miner_log.miner_input,  # Both used the same input
-                            miner_output=miner_log.miner_output,
-                            reference_output=other_log.miner_output
+                            miner_output=_miner_output,
+                            reference_output=other_log.miner_output,
                         )
 
                         # Create a comparison log with the inputs and outputs
                         comparison_log = ComparisonLog(
                             similarity_score=similarity_score,
                             miner_input=miner_log.miner_input,
-                            miner_output=miner_log.miner_output,
+                            miner_output=_miner_output,
                             reference_output=other_log.miner_output,
                             reference_hotkey=other_commit.miner_hotkey,
                             # reference_similarity_score=other_commit.penalty,
@@ -138,7 +185,9 @@ class HBComparer(Comparer):
 
             # If we found any matching inputs, add the comparison logs
             if comparison_logs:
-                miner_commit.comparison_logs[other_commit.docker_hub_id] = comparison_logs
+                miner_commit.comparison_logs[other_commit.docker_hub_id] = (
+                    comparison_logs
+                )
                 bt.logging.info(
                     f"[COMPARER] Added {len(comparison_logs)} comparison logs for commit {miner_commit.encrypted_commit} against docker_hub_id {other_commit.docker_hub_id}"
                 )
@@ -146,7 +195,6 @@ class HBComparer(Comparer):
                 bt.logging.warning(
                     f"[COMPARER] No matching inputs found for comparison between commit {miner_commit.encrypted_commit} and docker_hub_id {other_commit.docker_hub_id}"
                 )
-
 
     def _compare_outputs(
         self, miner_input: dict, miner_output: dict, reference_output: dict

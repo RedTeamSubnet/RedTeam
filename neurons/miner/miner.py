@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 from redteam_core import BaseMiner, Commit, constants
 from typing import Tuple
 import bittensor as bt
@@ -7,6 +10,7 @@ import yaml
 import os
 import copy
 import pickle
+
 
 class Miner(BaseMiner):
     def __init__(self):
@@ -37,13 +41,13 @@ class Miner(BaseMiner):
         commit_file = self.config.neuron.fullpath + "/commit.pkl"
         if not os.path.exists(commit_file):
             return Commit()
-        with open(commit_file, 'rb') as f:
+        with open(commit_file, "rb") as f:
             commit = pickle.load(f)
         return commit
 
     def _save_synapse_commit(self):
         commit_file = self.config.neuron.fullpath + "/commit.pkl"
-        with open(commit_file, 'wb') as f:
+        with open(commit_file, "wb") as f:
             pickle.dump(self.synapse_commit, f)
 
     def _load_active_commit(self) -> list:

@@ -1,0 +1,85 @@
+[build-system]
+requires = ["setuptools>=70.3.0,<80.0.0", "setuptools-scm>=8.0.4,<9.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "redteam_core"
+authors = [{ name = "RedTeam" }]
+description = "The RedTeam subnet by Innerworks is a decentralized platform designed to drive innovation in cybersecurity through competitive programming challenges."
+readme = "README.md"
+requires-python = ">=3.10,<4.0"
+keywords = [
+	"redteam_core",
+	"bittensor",
+	"subnet",
+	"innerworks",
+	"decentralized",
+	"miners",
+	"validators",
+	"challenges",
+]
+license-files = ["LICENSE.txt"]
+classifiers = [
+	"Development Status :: 4 - Beta",
+	"Intended Audience :: Developers",
+	"Topic :: Software Development :: Libraries",
+	"Operating System :: OS Independent",
+	"Programming Language :: Python :: 3",
+	"Programming Language :: Python :: 3.10",
+	"Programming Language :: Python :: 3.11",
+	"Programming Language :: Python :: 3.12",
+	"Programming Language :: Python :: 3.13",
+]
+dynamic = ["version", "dependencies", "optional-dependencies"]
+
+[tool.setuptools]
+package-dir = { "redteam_core" = "redteam_core", "neurons" = "neurons", "services" = "services" }
+
+# [tool.setuptools.packages.find]
+# where = ["src"]
+# include = ["redteam_core*"]
+# namespaces = false
+
+[tool.setuptools.dynamic]
+version = { attr = "redteam_core.__version__.__version__" }
+dependencies = { file = "./requirements.txt" }
+
+[tool.setuptools.package-data]
+"neurons" = [
+	"**/*.yml",
+	"**/*.yaml",
+	"**/*.txt",
+	"**/*.whl",
+	"**/docker/*.sh",
+	"**/.dockerignore",
+	"**/Dockerfile*",
+]
+"redteam_core" = [
+	"**/*.yml",
+	"**/*.yaml",
+	"**/*.txt",
+	"**/*.js",
+	"**/*.json",
+	"**/*.css",
+	"**/*.html",
+	"**/*.whl",
+	"**/docker/*.sh",
+	"**/.dockerignore",
+	"**/Dockerfile*",
+]
+"services" = [
+	"**/*.yml",
+	"**/*.yaml",
+	"**/*.txt",
+	"**/*.whl",
+	"**/docker/*.sh",
+	"**/.dockerignore",
+	"**/Dockerfile*",
+]
+
+[project.urls]
+Homepage = "https://github.com/RedTeamSubnet/RedTeam"
+Documentation = "https://docs.theredteam.io"
+Repository = "https://github.com/RedTeamSubnet/RedTeam.git"
+Issues = "https://github.com/RedTeamSubnet/RedTeam/issues"
+Changelog = "https://github.com/RedTeamSubnet/RedTeam/blob/main/CHANGELOG.md"

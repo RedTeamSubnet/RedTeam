@@ -1,7 +1,10 @@
 name: 3. Update Changelog
 
 on:
-  workflow_dispatch:
+  workflow_run:
+    workflows: ["2. Build and Publish"]
+    types:
+      - completed
 
 jobs:
   build_publish:

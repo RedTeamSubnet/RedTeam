@@ -80,8 +80,8 @@ class Challenge:
 
         embedding_similarity = (
             (
-                self.scoring_model.simcse_generator.transform([miner_input.original_prompt])
-                * self.scoring_model.simcse_generator.transform([miner_input.modified_prompt])
+                self.scoring_model.embedding_model.encode(miner_input.original_prompt)
+                * self.scoring_model.embedding_model.encode(miner_input.modified_prompt)
             )
             .sum()
             .item()
@@ -98,10 +98,13 @@ class Challenge:
         return similarity
 
     def _rephrase_question(self, original_prompt: str) -> str:
-        PROMPT_REPHRASE = f"""Original question: {original_prompt}
-Please rewrite this question freely to make it as difficult as possible for search algorithms to match. You can rephrase, alter the context, use indirect phrasing, or break it into multiple parts, as long as the core meaning is preserved.
+        PROMPT_REPHRASE = f"""You are an expert. Given the following input:
 
-Return only the modified question without any explanation."
+Question: {original_prompt}
+
+Paraphrase and enhance the question by making it clearer, more insightful, and adding relevant context or clues when necessary.
+Ensure the improved question remains precise, relevant, and does not introduce incorrect assumptions.
+Return only one modified question without any explanation.
 """
         messages = [{"role": "user", "content": PROMPT_REPHRASE}]
         try:

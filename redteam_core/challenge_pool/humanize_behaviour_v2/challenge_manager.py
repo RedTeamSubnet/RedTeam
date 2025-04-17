@@ -51,7 +51,7 @@ class HBChallengeManager(ChallengeManager):
 
             try:
                 # Compute mean score
-                score = np.mean(
+                score = np.max(
                     [scoring_log.score for scoring_log in miner_commit.scoring_logs]
                 ).item()
                 if np.isnan(score):
@@ -203,7 +203,7 @@ class HBChallengeManager(ChallengeManager):
 
     def _adjust_score_by_similarity(self, raw_score, similarity_score):
         """Adjusts the raw score based on the similarity score."""
-        if similarity_score < self.min_similarity:
+        if similarity_score <= self.min_similarity:
             return 0
         if similarity_score < self.max_similarity:
             return raw_score
