@@ -63,57 +63,15 @@ toxic_response_adversarial:
   exclude_miner_input_key: # Hidden from miner; only visible to validator for evaluation purposes
     - system_prompt
 
-humanize_behaviour_v2:
-  name: "humanize_behaviour_v2"
-  description: "Imitate human-like behaviour for given UI tasks"
-  challenge_incentive_weight: 0.2
-  target: redteam_core.challenge_pool.humanize_behaviour_v2.controller.HBController
-  comparer: redteam_core.challenge_pool.humanize_behaviour_v2.comparer.HBComparer
-  challenge_manager: redteam_core.challenge_pool.humanize_behaviour_v2.challenge_manager.HBChallengeManager
-  # baseline: "asadbey/rest.rt-hb-v1-miner@sha256:f84f4d5a179908214121e071906357ddbfaee30fb6da2e896d404fc00acd20e3"
-  max_unique_commits: 25
-  behavior_scaling_factor: 0.1
-  challenge_solve_timeout: 60
-  docker_run_timeout: 900
-  num_tasks: 1
-
-  challenge_container_run_kwargs:
-    name: "humanize_behaviour_v2"
-    privileged: true
-
-  miner_container_run_kwargs:
-    cpu_count: 4
-    mem_limit: "12g"
-    network: "redteam_local"
-    environment:
-      CHALLENGE_NAME: "humanize_behaviour_v2"
-
-  reset_challenge: true
-  protocols:
-    challenger: "http"
-    challenger_ssl_verify: false
-    miner: "http"
-    miner_ssl_verify: false
-  resource_limits:
-    num_cpus: 4
-    mem_limit: "12g"
-  environment:
-    ENV: "PRODUCTION"
-
-  baseline_reference_comparison_docker_hub_ids:
-    - redteamsubnet61/base_hbv2_image1@sha256:4247a5bcc3528b2c13e3b8ffe04e2bf557d98ec3d8dd2c814735c538a81438e2
-    - redteamsubnet61/base_hbv2_image2@sha256:4ded4313b448cb970cadf62664c7bba28d9d777c9f63c95a51d6fea9b307c0f9
-    - redteamsubnet61/base_hbv2_image3@sha256:65110ad3f64a9ee782868348da873399f00730b65fd8feb14b730eaae62d53a4
-    - redteamsubnet61/base_hbv2_image4@sha256:6d2360ed9ff7310dbc31aee5ac61a9ebf60edbd4e85fd3077bfbdd42f7abd3f0
 
 humanize_behaviour_v3:
   name: "humanize_behaviour_v3"
   description: "Imitate human-like behaviour for given UI tasks"
-  challenge_incentive_weight: 0.3
+  challenge_incentive_weight: 0.5
   target: redteam_core.challenge_pool.humanize_behaviour_v3.controller.HBController
   comparer: redteam_core.challenge_pool.humanize_behaviour_v3.comparer.HBComparer
   challenge_manager: redteam_core.challenge_pool.humanize_behaviour_v3.challenge_manager.HBChallengeManager
-  max_unique_commits: 25
+  max_unique_commits: 15
   behavior_scaling_factor: 0.1
   challenge_solve_timeout: 60
   docker_run_timeout: 900

@@ -1,4 +1,4 @@
-# Humanize Behaviour v3 Submission Guide (Active after March 18th 2025 14:00 UTC)
+# Humanize Behaviour v3 Submission Guide (Active after April [x]th 2025 14:00 UTC)
 
 ## Overview
 

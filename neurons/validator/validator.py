@@ -104,11 +104,10 @@ class Validator(BaseValidator):
             2025, 4, 15, 14, 0, 0, 0, datetime.timezone.utc
         ):
             all_challenges.pop("humanize_behaviour_v3", None)
-            all_challenges.pop("response_quality_adversarial_v4", None)
-            all_challenges.pop("toxic_response_adversarial", None)
         else:
-            all_challenges.pop("response_quality_adversarial_v3", None)
             all_challenges.pop("humanize_behaviour_v2", None)
+            all_challenges.pop("toxic_response_adversarial", None)
+            all_challenges.pop("response_quality_adversarial_v4", None)
 
         self.active_challenges = all_challenges
 
