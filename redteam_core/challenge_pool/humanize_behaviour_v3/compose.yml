@@ -1,6 +1,6 @@
 services:
   challenger-api:
-    image: humanize_behaviour_v1:latest
+    image: humanize_behaviour:latest
     build:
       context: .
       platforms:
