@@ -16,6 +16,5 @@ fi
 
 docker build \
 	--progress plain \
-	--platform linux/amd64 \
 	-t bot:latest \
 	.

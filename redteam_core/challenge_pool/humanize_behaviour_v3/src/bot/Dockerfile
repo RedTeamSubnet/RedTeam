@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM redteamsn61/hbc-bot-base:latest
+FROM redteamsubnet61/hbc-bot-base:latest
 
 ARG DEBIAN_FRONTEND=noninteractive
 ARG APT_PACKAGES=""
