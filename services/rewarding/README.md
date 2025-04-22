@@ -1,70 +1,146 @@
 # RedTeam Subnet Rewarding Server
 
 ## Overview
-The Rewarding Server is a centralized service designed to streamline the scoring process for RedTeam Subnet validators. Instead of each validator running their own scoring infrastructure, this server handles the evaluation of miner submissions centrally, ensuring consistent and efficient scoring across the network.
+
+The Rewarding Server is a specialized validator node that provides centralized scoring for the RedTeam Subnet (netuid 61). It extends the standard Validator functionality but focuses exclusively on scoring and comparing miner submissions rather than querying miners or setting weights directly.
 
 ## Key Features
-- Centralized scoring for all active challenges
-- Automatic syncing with the subnet's metagraph
-- Real-time submission processing and evaluation
-- Prometheus metrics integration for monitoring
-- Secure handling of encrypted miner submissions
-- Daily scoring aggregation at predetermined hours
 
-## Architecture & Workflow
+- Centralized scoring infrastructure for all subnet validators
+- Aggregation of miner submissions from all active validators
+- Automatic deduplication and versioning of submissions
+- Challenge-specific scoring and comparison controllers
+- Daily score processing at predetermined hours (SCORING_HOUR constant)
+- In-memory and persistent caching of scoring results
+- RESTful API for validators to retrieve scoring results
+- Prometheus metrics for monitoring
 
+## Technical Architecture
 
-1. **Submission Collection**
-   - Fetches miner submissions from all active validators
-   - Aggregates and deduplicates submissions based on timestamps
-   - Decrypts submissions when appropriate (after 24-hour waiting period)
+### State Management
 
-2. **Challenge Processing**
-   - Groups submissions by challenge type
-   - Runs submissions through challenge-specific controllers
-   - Evaluates submissions in isolated environments
-   - Maintains scoring logs for each submission
+The rewarding server maintains several important state variables:
 
-3. **Score Distribution**
-   - Processes scores daily at a fixed hour (defined by SCORING_HOUR)
-   - Normalizes scores across submissions
-   - Updates challenge records for validator reference
-   - Syncs results to storage for validator access
+- `validators_miner_commits`: Stores current miner commits from all validators, indexed by validator UID and hotkey
+- `miner_commits`: Aggregated miner commits from all validators, indexed by miner UID and hotkey
+- `miner_commits_cache`: Quick lookup cache mapping challenge+encrypted_commit to commit objects
+- `scoring_results`: Cache for scored submissions with scoring logs and comparison logs
+- `is_scoring_done`: Tracks scoring completion status for each challenge
 
-4. **API Endpoints**
-   - `/get_scoring_logs`: Retrieve scoring logs for specific challenges
-   - Prometheus metrics endpoint for monitoring
+### Processing Workflow
 
-Please refer to the [services/rewarding/app.py](services/rewarding/app.py) for more details.
+1. **Validation Loop (`forward` method)**
+   - Updates validator and miner commit state
+   - Scores new submissions
+   - Finalizes daily scoring at the designated scoring hour
+   - Stores results in persistent storage
+
+2. **Submission Collection**
+   - `_update_validators_miner_commits`: Fetches commits from all validators with sufficient stake
+   - `_update_miner_commits`: Aggregates commits from all validators, keeping the latest versions
+   - Maintains submission history and versioning based on commit timestamps
+
+3. **Scoring Process**
+   - `_score_and_compare_new_miner_commits`: Scores new submissions using challenge controllers
+   - `_compare_miner_commits`: Compares submissions for similarity detection
+   - Caches scoring results for each docker_hub_id to prevent duplicate processing
+   - Handles both daily incremental scoring and final scoring at the designated hour
+
+4. **Storage Integration**
+   - `_store_centralized_scoring`: Persists scoring results to storage service
+   - `_fetch_centralized_scoring`: Retrieves scoring results from storage
+   - `_sync_scoring_results_from_storage_to_cache`: Syncs storage data to local cache
+   - Maintains local backup in `scoring_results.json`
+
+5. **API Interface**
+   - FastAPI server running in a separate thread
+   - `/get_scoring_result`: Returns scoring and comparison results for specific challenge and commits, validator can use this endpoint to get the scoring results of the miner commits
+   - Prometheus metrics for monitoring
+
+## API Endpoints
+
+### `/get_scoring_result`
+
+- **Method**: POST
+- **Parameters**:
+    - `challenge_name`: Name of the challenge
+    - `encrypted_commits`: List of encrypted commits to look up
+- **Response**:
+
+    ```json
+    {
+    "status": "success",
+    "message": "Scoring results retrieved successfully",
+    "data": {
+        "commits": {
+        "<encrypted_commit>": {
+            "miner_uid": 123,
+            "miner_hotkey": "...",
+            "challenge_name": "...",
+            "scoring_logs": [...],
+            "comparison_logs": {...},
+            "score": 0.95,
+            "penalty": 0.0
+        }
+        },
+        "is_done": true/false
+    }
+    }
+    ```
 
 ## Setup
 
-### Prerequisites
-- Python 3.8+
-- Docker
-- FastAPI
-- Bittensor
-
-### Logging in to Hugging Face
-```bash
-huggingface-cli login
-```
-
-### Environment Variables
-```bash
-REWARD_APP_KEY=<your-reward-app-key>
-REWARD_APP_SS58=<your-reward-app-ss58-address>
-```
+Setup steps for the rewarding server are the same as the validator node, please refer to the [validator README](../../docs/1.validator.md) for more details.
 
 ### Running the Server
+
 ```bash
 python services/rewarding/app.py \
-    --port 10001 \
+    --reward_app.port 47920 \
+    --reward_app.epoch_length 60 \
     --netuid 61 \
     --network finney \
-    --cache_dir "cache_reward_app" \
-    --hf_repo_id test_user/sn61-test-rewarding-app
+    --subtensor.chain_endpoint <subtensor-endpoint> \
+    --wallet.name <wallet-name> \
+    --wallet.hotkey <hotkey-name>
 ```
 
+#### Command Line Arguments
+
+| Argument | Description | Default |
+|----------|-------------|---------|
+| `--reward_app.port` | Port for the FastAPI server | 47920 |
+| `--reward_app.epoch_length` | Processing cycle duration (seconds) | 60 |
+| `--netuid` | Subnet ID to connect to | Required |
+| `--network` | Bittensor network (finney, test) | Required |
+| `--subtensor.chain_endpoint` | Custom subtensor endpoint | Required |
+| `--wallet.name` | Wallet name | Required |
+| `--wallet.hotkey` | Wallet hotkey name | Required |
+
 ## Integration for Validators
-Validators can opt-in to use centralized scoring by adding the `--validator.use_centralized_scoring` flag when starting their validator node. This will make the validator fetch scores from this rewarding server instead of running the scoring locally.
+
+Validators can use the centralized scoring service by:
+
+1. Adding the `--validator.use_centralized_scoring` flag to their validator command
+2. The validator will automatically fetch scoring results from the rewarding server
+3. This eliminates the need for each validator to run scoring infrastructure
+
+## Development & Troubleshooting
+
+### Monitoring
+
+- Check the Prometheus metrics endpoint for performance monitoring
+- Review logs for scoring errors and processing delays
+- The `scoring_results.json` file provides a backup of all scoring data
+
+### Common Issues
+
+- If scoring results aren't being updated, check network connectivity to storage service
+- Verify that the reward app has sufficient stake in the metagraph
+- Ensure the REWARD_APP_HOTKEY environment variable matches the wallet.hotkey
+
+### Security Considerations
+
+- The reward app has access to all validator submissions and must maintain data integrity
+- Uses validation headers for secure communication with storage service
+- Maintains proper synchronization between memory cache and persistent storage
