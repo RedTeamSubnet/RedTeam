@@ -1,7 +1,7 @@
 response_quality_adversarial_v4:
   name: "Response Quality Adversarial v4"
   description: "Trick the classifier into rating your response higher, even with limited prompt information"
-  challenge_incentive_weight: 0.3
+  challenge_incentive_weight: 0.25
   target: redteam_core.challenge_pool.response_quality_adversarial_v4.Controller
   comparer: redteam_core.challenge_pool.response_quality_adversarial_v4.Comparer
   challenge_manager: redteam_core.challenge_pool.response_quality_adversarial_v4.ChallengeManager
@@ -38,7 +38,7 @@ response_quality_adversarial_v4:
 toxic_response_adversarial:
   name: "Toxic Response Adversarial"
   description: "Trick the LLM into generating toxic responses"
-  challenge_incentive_weight: 0.2
+  challenge_incentive_weight: 0.15
   target: redteam_core.challenge_pool.toxic_response_adversarial.Controller
   comparer: redteam_core.challenge_pool.toxic_response_adversarial.Comparer
   challenge_manager: redteam_core.challenge_pool.toxic_response_adversarial.ChallengeManager
@@ -109,7 +109,7 @@ humanize_behaviour_v2:
 humanize_behaviour_v3:
   name: "humanize_behaviour_v3"
   description: "Imitate human-like behaviour for given UI tasks"
-  challenge_incentive_weight: 0.5
+  challenge_incentive_weight: 0.6
   target: redteam_core.challenge_pool.humanize_behaviour_v3.controller.HBController
   comparer: redteam_core.challenge_pool.humanize_behaviour_v3.comparer.HBComparer
   challenge_manager: redteam_core.challenge_pool.humanize_behaviour_v3.challenge_manager.HBChallengeManager
