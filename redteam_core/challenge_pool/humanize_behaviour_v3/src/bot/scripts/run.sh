@@ -23,3 +23,6 @@ docker run \
 	-e HBC_ACTION_LIST="${HBC_ACTION_LIST:-}" \
 	-e HBC_SESSION_COUNT="${HBC_SESSION_COUNT:-}" \
 	bot:latest
+
+	# --network humanize_behaviour_v3_default \
+	# -e HBC_WEB_URL="${HBC_WEB_URL:-http://challenger-api:10001/_web}" \
