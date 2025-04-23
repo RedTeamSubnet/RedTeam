@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM selenium/standalone-chromium:4.31.0-20250414
+FROM selenium/standalone-chrome:4.31.0-20250414
 
 ARG DEBIAN_FRONTEND=noninteractive
 

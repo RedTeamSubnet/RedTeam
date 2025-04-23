@@ -14,7 +14,8 @@ if [ -f ".env" ]; then
 fi
 
 
-docker build \
+DOCKER_BUILDKIT=1 docker build \
 	--progress plain \
+	--platform linux/amd64 \
 	-t bot:latest \
 	.
