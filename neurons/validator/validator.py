@@ -84,9 +84,9 @@ class Validator(BaseValidator):
         self._init_active_challenges()
 
         # Initialize validator state
-        self.miner_commits: dict[tuple[int, str], dict[str, MinerChallengeCommit]] = (
-            {}
-        )  # {(uid, hotkey): {challenge_name: MinerCommit}}
+        self.miner_commits: dict[
+            tuple[int, str], dict[str, MinerChallengeCommit]
+        ] = {}  # {(uid, hotkey): {challenge_name: MinerCommit}}
         self.scoring_dates: list[str] = []
         self._init_validator_state()
 
@@ -196,14 +196,17 @@ class Validator(BaseValidator):
         main loop to process new miner commits and update scores.
         """
         date_time = datetime.datetime.now(datetime.timezone.utc)
-        bt.logging.success(f"[FORWARD] Forwarding for {date_time}")
+        bt.logging.info(f"[FORWARD] Forwarding for {date_time}")
         self._init_active_challenges()
+        bt.logging.success(
+            f"[FORWARD] Active challenges initialized for {date_time}: {self.active_challenges}"
+        )
 
         self.update_miner_commits(self.active_challenges)
-        bt.logging.info(f"[FORWARD] Miner commits updated for {date_time}")
+        bt.logging.success(f"[FORWARD] Miner commits updated for {date_time}")
 
         revealed_commits = self.get_revealed_commits()
-        bt.logging.info(f"[FORWARD] Revealed commits updated for {date_time}")
+        bt.logging.success(f"[FORWARD] Revealed commits updated for {date_time}")
 
         # Update miner infos
         for challenge, challenge_manager in self.challenge_managers.items():
@@ -596,12 +599,13 @@ class Validator(BaseValidator):
             encrypted_commit_dockers = response.encrypted_commit_dockers
             keys = response.public_keys
 
+            # Update miner commits for each submitted challenge
             for challenge_name, encrypted_commit in encrypted_commit_dockers.items():
                 if challenge_name not in active_challenges:
                     this_miner_commit.pop(challenge_name, None)
                     continue
 
-                current_miner_commit = this_miner_commit.setdefault(
+                current_miner_challenge_commit = this_miner_commit.setdefault(
                     challenge_name,
                     MinerChallengeCommit(
                         miner_uid=uid,
@@ -610,7 +614,7 @@ class Validator(BaseValidator):
                     ),
                 )
                 # Update miner commit data if it's new
-                if encrypted_commit != current_miner_commit.encrypted_commit:
+                if encrypted_commit != current_miner_challenge_commit.encrypted_commit:
                     # Create a completely new commit object for new submissions
                     new_commit = MinerChallengeCommit(
                         miner_uid=uid,
@@ -621,23 +625,35 @@ class Validator(BaseValidator):
                         key=keys.get(challenge_name),
                     )
                     # Update miner commit
-                    this_miner_commit[challenge_name] = current_miner_commit = (
+                    this_miner_commit[challenge_name] = current_miner_challenge_commit = (
                         new_commit
                     )
                 elif keys.get(challenge_name):
-                    current_miner_commit.key = keys.get(challenge_name)
+                    current_miner_challenge_commit.key = keys.get(challenge_name)
 
                 # Reveal commit if the interval has passed
-                commit_timestamp = current_miner_commit.commit_timestamp
-                encrypted_commit = current_miner_commit.encrypted_commit
-                key = current_miner_commit.key
+                commit_timestamp = current_miner_challenge_commit.commit_timestamp
+                encrypted_commit = current_miner_challenge_commit.encrypted_commit
+                key = current_miner_challenge_commit.key
                 if key and constants.is_commit_on_time(commit_timestamp):
                     try:
                         f = Fernet(key)
                         commit = f.decrypt(encrypted_commit).decode()
-                        current_miner_commit.commit = commit
+                        current_miner_challenge_commit.commit = commit
+                        bt.logging.success(
+                            f"Decrypted commit: {uid} - {hotkey} - {challenge_name} - {current_miner_challenge_commit.encrypted_commit} to {current_miner_challenge_commit.commit}"
+                        )
                     except Exception as e:
                         bt.logging.error(f"Failed to decrypt commit: {e}")
+
+            # Filter out commits that are not in active challenges
+            challenge_names_to_remove = [
+                challenge_name
+                for challenge_name in this_miner_commit.keys()
+                if challenge_name not in active_challenges
+            ]
+            for challenge_name in challenge_names_to_remove:
+                this_miner_commit.pop(challenge_name, None)
 
         # Cutoff miners not in metagraph using dict comprehension
         self.miner_commits = {
