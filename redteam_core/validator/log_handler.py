@@ -1,5 +1,5 @@
 import logging
-from logging.handlers import QueueListener
+from logging.handlers import QueueHandler, QueueListener
 import requests
 import traceback
 import threading
@@ -81,8 +81,11 @@ def start_bittensor_log_listener(api_key, buffer_size=100):
     """
     Starts a separate QueueListener that listens to Bittensor's logging queue.
     """
-    bt_logger = bt.logging  # The Bittensor logging machine
-    log_queue = bt_logger.get_queue()  # Get the shared log queue
+    bt_logger = bt.logging._logger  # The Bittensor logger
+
+    # Add a new queue handler to the Bittensor logger
+    log_queue = queue.Queue()  # Get the shared log queue
+    bt_logger.addHandler(QueueHandler(log_queue))
 
     # Create our custom log handler
     custom_handler = BittensorLogHandler(api_key, buffer_size)

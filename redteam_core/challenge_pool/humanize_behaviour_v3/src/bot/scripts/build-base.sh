@@ -14,9 +14,9 @@ if [ -f ".env" ]; then
 fi
 
 
-docker build \
+DOCKER_BUILDKIT=1 docker build \
 	--progress plain \
 	--platform linux/amd64 \
-	-t redteamsn61/hbc-bot-base:latest \
+	-t redteamsubnet61/hbc-bot-base:latest \
 	-f Dockerfile.base \
-	.
+	. || exit 2

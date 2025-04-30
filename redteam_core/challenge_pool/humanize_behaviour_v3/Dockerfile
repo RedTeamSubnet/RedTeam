@@ -1,4 +1,5 @@
 # syntax=docker/dockerfile:1
+# check=skip=SecretsUsedInArgOrEnv
 
 ARG BASE_IMAGE=ubuntu:22.04
 
@@ -20,7 +21,7 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 WORKDIR "/usr/src/${HBC_API_SLUG}"
 
 RUN _BUILD_TARGET_ARCH=$(uname -m) && \
-    echo "BUILDING TARGET ARCHITECTURE: $_BUILD_TARGET_ARCH" && \
+	echo "BUILDING TARGET ARCHITECTURE: $_BUILD_TARGET_ARCH" && \
 	rm -rfv /var/lib/apt/lists/* /var/cache/apt/archives/* /tmp/* && \
 	apt-get clean -y && \
 	apt-get update --fix-missing -o Acquire::CompressionTypes::Order::=gz && \

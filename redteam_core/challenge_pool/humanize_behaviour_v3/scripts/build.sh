@@ -57,8 +57,10 @@ _buildImages()
 {
 	echoInfo "Building image (${IMG_PLATFORM}): ${_IMG_FULLNAME}"
 	# shellcheck disable=SC2086
-	DOCKER_BUILDKIT=0 docker build \
+	DOCKER_BUILDKIT=1 docker build \
 		${IMG_ARGS} \
+		--progress plain \
+		--platform "${IMG_PLATFORM}" \
 		-t "${_IMG_FULLNAME}" \
 		-t "${_IMG_LATEST_FULLNAME}" \
 		-t "${_IMG_FULLNAME}-${IMG_PLATFORM#linux/*}" \
