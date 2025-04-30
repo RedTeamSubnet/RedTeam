@@ -15,8 +15,6 @@ services:
 
   sidecar-btcli:
     image: redteamsubnet61/sidecar.btcli:latest
-    build:
-      context: .
     depends_on:
       - subtensor
     restart: unless-stopped
