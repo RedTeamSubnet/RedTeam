@@ -9,14 +9,14 @@ services:
     #       cpus: "1.0"
     #       memory: 1G
     ports:
-      - "${RT_SUBTENSOR_WS_PORT:-9944}:9944"
+      - "${RT_BT_SUBTENSOR_WS_PORT:-9944}:9944"
     #   - "9945:9945"
     #   - "30334:30334"
     #   - "30335:30335"
 
   sidecar-btcli:
     environment:
-      RT_SUBTENSOR_HOST: subtensor
+      RT_BT_SUBTENSOR_HOST: subtensor
     volumes:
       - "./volumes/storage/sidecar.btcli/data:${RT_BTCLI_DATA_DIR:-/var/lib/sidecar.btcli}"
       - "./volumes/.vscode-server:/home/rt-user/.vscode-server"
@@ -30,7 +30,7 @@ services:
 
   validator:
     environment:
-      RT_SUBTENSOR_HOST: subtensor
+      RT_BT_SUBTENSOR_HOST: subtensor
     volumes:
       - "./volumes/storage/sidecar.btcli/data:${RT_BTCLI_DATA_DIR:-/var/lib/sidecar.btcli}"
       - "./volumes/storage/agent.validator/data:${RT_VALIDATOR_DATA_DIR:-/var/lib/agent.validator}"
@@ -47,7 +47,7 @@ services:
 
   miner:
     environment:
-      RT_SUBTENSOR_HOST: subtensor
+      RT_BT_SUBTENSOR_HOST: subtensor
     volumes:
       - "./volumes/storage/sidecar.btcli/data:${RT_BTCLI_DATA_DIR:-/var/lib/sidecar.btcli}"
       - "./volumes/storage/agent.miner/data:${RT_MINER_DATA_DIR:-/var/lib/agent.miner}"
@@ -66,7 +66,7 @@ services:
 
   rewarding-validator:
     environment:
-      RT_SUBTENSOR_HOST: subtensor
+      RT_BT_SUBTENSOR_HOST: subtensor
     volumes:
       - "./volumes/storage/sidecar.btcli/data:${RT_BTCLI_DATA_DIR:-/var/lib/sidecar.btcli}"
       - "./volumes/storage/server.reward-validator/data:${RT_REWARD_VALIDATOR_DATA_DIR:-/var/lib/server.reward-validator}"

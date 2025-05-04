@@ -7,7 +7,7 @@ echo "INFO: Running '${RT_REWARD_VALIDATOR_SLUG}' docker-entrypoint.sh..."
 _doStart()
 {
 	while true; do
-		if [ -d "${RT_BTCLI_WALLET_DIR:-${RT_BTCLI_DATA_DIR:-/var/lib/sidecar.btcli}/wallets}" ]; then
+		if [ -d "${RT_BT_WALLET_DIR:-${RT_BTCLI_DATA_DIR:-/var/lib/sidecar.btcli}/wallets}" ]; then
 			break
 		fi
 		sleep 1
@@ -28,11 +28,11 @@ _doStart()
 	echo "INFO: Starting ${RT_REWARD_VALIDATOR_SLUG}..."
 	exec sg docker "exec python -u ./services/rewarding/app.py \
 		--wallet.name \"${RT_REWARD_VALIDATOR_WALLET_NAME:-validator}\" \
-		--wallet.path \"${RT_BTCLI_WALLET_DIR:-${RT_BTCLI_DATA_DIR:-/var/lib/sidecar.btcli}/wallets}\" \
+		--wallet.path \"${RT_BT_WALLET_DIR:-${RT_BTCLI_DATA_DIR:-/var/lib/sidecar.btcli}/wallets}\" \
 		--wallet.hotkey \"default\" \
-		--subtensor.network \"${RT_SUBTENSOR_CHAIN_URL:-ws://${RT_SUBTENSOR_HOST:-subtensor}:${RT_SUBTENSOR_WS_PORT:-9944}}\" \
+		--subtensor.network \"${RT_BT_SUBTENSOR_NETWORK:-ws://${RT_BT_SUBTENSOR_HOST:-subtensor}:${RT_BT_SUBTENSOR_WS_PORT:-9944}}\" \
 		--network \"${RT_SUBTENSOR_NETWORK:-test}\" \
-		--netuid \"${RT_BTCLI_SUBNET_NETUID:-2}\" \
+		--netuid \"${RT_BT_SUBNET_NETUID:-2}\" \
 		--reward_app.port \"${RT_REWARD_VALIDATOR_PORT:-47920}\" \
 		--reward_app.epoch_length \"${RT_REWARD_VALIDATOR_EPOCH_LENGTH:-60}\"" || exit 2
 
