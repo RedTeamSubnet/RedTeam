@@ -7,28 +7,38 @@ echo "INFO: Running '${RT_REWARD_VALIDATOR_SLUG}' docker-entrypoint.sh..."
 _doStart()
 {
 	while true; do
-		if [ -d "${RT_BT_WALLET_DIR:-${RT_BTCLI_DATA_DIR:-/var/lib/sidecar.btcli}/wallets}" ]; then
+		if [ -d "${RT_BTCLI_WALLET_DIR:-${RT_BTCLI_DATA_DIR:-/var/lib/sidecar.btcli}/wallets}" ]; then
 			break
 		fi
+
+		echo "INFO: Waiting for the wallet directory to be created..."
+		_i=$((_i + 1))
+		if [ "${_i}" -ge 60 ]; then
+			echo "ERROR: Timeout waiting for the wallet directory to be created."
+			exit 1
+		fi
+
 		sleep 1
 	done
 
-	while true; do
-		local _checkpoint_file_path="${RT_BTCLI_DATA_DIR:-/var/lib/sidecar.btcli}/${RT_BTCLI_CHECKPOINT_FNAME:-.checkpoint.txt}"
-		if [ -f "${_checkpoint_file_path}" ]; then
-			local _checkpoint_val=0
-			_checkpoint_val=$(cat "${_checkpoint_file_path}")
-			if [ "${_checkpoint_val}" -ge 4 ]; then
-				break
+	if [ "${ENV:-}" != "PRODUCTION" ] && [ "${ENV:-}" != "STAGING" ]; then
+		while true; do
+			local _checkpoint_file_path="${RT_BTCLI_DATA_DIR:-/var/lib/sidecar.btcli}/${RT_BTCLI_CHECKPOINT_FNAME:-.checkpoint.txt}"
+			if [ -f "${_checkpoint_file_path}" ]; then
+				local _checkpoint_val=0
+				_checkpoint_val=$(cat "${_checkpoint_file_path}")
+				if [ "${_checkpoint_val}" -ge 4 ]; then
+					break
+				fi
 			fi
-		fi
-		sleep 1
-	done
+			sleep 1
+		done
+	fi
 
 	echo "INFO: Starting ${RT_REWARD_VALIDATOR_SLUG}..."
 	exec sg docker "exec python -u ./services/rewarding/app.py \
 		--wallet.name \"${RT_REWARD_VALIDATOR_WALLET_NAME:-validator}\" \
-		--wallet.path \"${RT_BT_WALLET_DIR:-${RT_BTCLI_DATA_DIR:-/var/lib/sidecar.btcli}/wallets}\" \
+		--wallet.path \"${RT_BTCLI_WALLET_DIR:-${RT_BTCLI_DATA_DIR:-/var/lib/sidecar.btcli}/wallets}\" \
 		--wallet.hotkey \"default\" \
 		--subtensor.network \"${RT_BT_SUBTENSOR_NETWORK:-ws://${RT_BT_SUBTENSOR_HOST:-subtensor}:${RT_BT_SUBTENSOR_WS_PORT:-9944}}\" \
 		--network \"${RT_SUBTENSOR_NETWORK:-test}\" \
