@@ -896,9 +896,10 @@ class Validator(BaseValidator):
         # Try to load miner commits from challenge managers
         for challenge_name, manager in self.challenge_managers.items():
             for miner_state in manager.miner_states.values():
-                self.miner_commits[
-                    (miner_state.miner_uid, miner_state.miner_hotkey)
-                ] = {challenge_name: miner_state.latest_commit}
+                if miner_state.latest_commit:
+                    self.miner_commits.setdefault(
+                        (miner_state.miner_uid, miner_state.miner_hotkey), {}
+                    )[challenge_name] = miner_state.latest_commit
 
 
 if __name__ == "__main__":
