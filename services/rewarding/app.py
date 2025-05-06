@@ -136,27 +136,44 @@ class RewardApp(Validator):
 
     # MARK: Validation Loop
     def forward(self):
-        # 1. Update subnet commits state
+        date_time = datetime.datetime.now(datetime.timezone.utc)
+        # 1. Update active challenges
+        bt.logging.info(f"[CENTRALIZED SCORING] Forwarding for {date_time}")
+        self._init_active_challenges()
+        bt.logging.success(
+            f"[CENTRALIZED SCORING] Active challenges initialized for {date_time}: {self.active_challenges}"
+        )
+
+        # 2. Update subnet commits state
         # Update commits from all validators
         self._update_validators_miner_commits()
         # Update (aggregate) miner commits
         self._update_miner_commits()
-        # Get revealed commits
-        revealed_commits = self.get_revealed_commits()
+        bt.logging.success(f"[CENTRALIZED SCORING] Miner commits updated for {date_time}")
 
         # Update miner infos
-        for challenge, challenge_manager in self.challenge_managers.items():
-            if challenge not in revealed_commits:
-                continue
-            challenge_manager.update_miner_infos(
-                miner_commits=revealed_commits.get(challenge, [])
-            )
+        for challenge_name, challenge_manager in self.challenge_managers.items():
+            miner_commits_for_this_challenge = []
+            for (uid, hotkey), commits in self.miner_commits.items():
+                    for _challenge_name, commit in commits.items():
+                        if _challenge_name == challenge_name:
+                            miner_commits_for_this_challenge.append(commit)
 
+            challenge_manager.update_miner_infos(
+                miner_commits=miner_commits_for_this_challenge
+            )
+        bt.logging.success(
+            f"[CENTRALIZED SCORING] Miner infos in challenge managers updated for {date_time}"
+        )
+
+        # Get revealed commits
+        revealed_commits = self.get_revealed_commits()
+        for challenge in self.active_challenges.keys():
             # Flag the challenge as not done scoring if there are still unscored submissions
-            if revealed_commits[challenge]:
+            if revealed_commits.get(challenge):
                 self.is_scoring_done[challenge] = False
 
-        # 2. Score and compare miner commits for each challenge
+        # 3. Score and compare miner commits for each challenge
         for challenge in revealed_commits:
             if revealed_commits[challenge]:
                 # Score and compare new commits
@@ -191,7 +208,7 @@ class RewardApp(Validator):
             data=self.export_state(public_view=True), async_update=True
         )
 
-        # 3. Finalize validator's daily state
+        # 4. Finalize validator's daily state
         # Get current time info
         today = datetime.datetime.now(datetime.timezone.utc)
         today_key = today.strftime("%Y-%m-%d")

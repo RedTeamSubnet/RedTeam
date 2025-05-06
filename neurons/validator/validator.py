@@ -205,16 +205,23 @@ class Validator(BaseValidator):
         self.update_miner_commits(self.active_challenges)
         bt.logging.success(f"[FORWARD] Miner commits updated for {date_time}")
 
+        # Update miner infos
+        for challenge_name, challenge_manager in self.challenge_managers.items():
+            miner_commits_for_this_challenge = []
+            for (uid, hotkey), commits in self.miner_commits.items():
+                    for _challenge_name, commit in commits.items():
+                        if _challenge_name == challenge_name:
+                            miner_commits_for_this_challenge.append(commit)
+
+            challenge_manager.update_miner_infos(
+                miner_commits=miner_commits_for_this_challenge
+            )
+        bt.logging.success(
+            f"[FORWARD] Miner infos in challenge managers updated for {date_time}"
+        )
+
         revealed_commits = self.get_revealed_commits()
         bt.logging.success(f"[FORWARD] Revealed commits updated for {date_time}")
-
-        # Update miner infos
-        for challenge, challenge_manager in self.challenge_managers.items():
-            if challenge not in revealed_commits:
-                continue
-            challenge_manager.update_miner_infos(
-                miner_commits=revealed_commits.get(challenge, [])
-            )
 
         # Forward the revealed commits to the appropriate scoring method
         if self.config.validator.use_centralized_scoring:
@@ -625,9 +632,9 @@ class Validator(BaseValidator):
                         key=keys.get(challenge_name),
                     )
                     # Update miner commit
-                    this_miner_commit[challenge_name] = current_miner_challenge_commit = (
-                        new_commit
-                    )
+                    this_miner_commit[challenge_name] = (
+                        current_miner_challenge_commit
+                    ) = new_commit
                 elif keys.get(challenge_name):
                     current_miner_challenge_commit.key = keys.get(challenge_name)
 
