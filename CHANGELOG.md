@@ -1,5 +1,18 @@
 # Changelog
 
+## v1.0.1 (2025-05-07)
+
+<!-- Release notes generated using configuration in .github/release.yml at v1.0.1 -->
+
+## What's Changed
+### ✨ Features
+* 🛠️ Fix: Correct Commit Timestamp Update in Validators by @aliyuldashev in https://github.com/RedTeamSubnet/RedTeam/pull/59
+### 🐛 Fixes
+* Bugfix: Validator error on revealing commits by @haihp02 in https://github.com/RedTeamSubnet/RedTeam/pull/58
+
+
+**Full Changelog**: https://github.com/RedTeamSubnet/RedTeam/compare/v1.0.0...v1.0.1
+
 ## v1.0.0 (2025-04-22)
 
 <!-- Release notes generated using configuration in .github/release.yml at v1.0.0 -->
@@ -47,5 +60,3 @@
 * @ohayek made their first contribution in https://github.com/RedTeamSubnet/RedTeam/pull/47
 
 **Full Changelog**: https://github.com/RedTeamSubnet/RedTeam/commits/v1.0.0
-
-
