@@ -70,9 +70,9 @@ class ChallengeManager:
 
         # Track unique solutions set using cache keys
         self.max_unique_commits = challenge_info["max_unique_commits"]
-        self._unique_commits_heap: list[tuple[float, str, str]] = (
-            []
-        )  # [(score, encrypted_commit, docker_hub_id)]
+        self._unique_commits_heap: list[
+            tuple[float, str, str]
+        ] = []  # [(score, encrypted_commit, docker_hub_id)]
         self._unique_commits_set: set[str] = (
             set()
         )  # For O(1) lookup of existing commits
@@ -97,10 +97,6 @@ class ChallengeManager:
             list[MinerChallengeCommit]: A list of miner commits that are updated for the challenge.
         """
         for miner_commit in miner_commits:
-            if not miner_commit.docker_hub_id:
-                # Only update miner state if docker_hub_id is revealed
-                continue
-
             current_miner_state: MinerChallengeInfo = self.miner_states.setdefault(
                 miner_commit.miner_uid,
                 MinerChallengeInfo(
@@ -127,6 +123,10 @@ class ChallengeManager:
             miner_uid: miner_state
             for miner_uid, miner_state in self.miner_states.items()
             if miner_state.miner_hotkey in self.metagraph.hotkeys
+            and (
+                miner_uid < len(self.metagraph.hotkeys)
+                and self.metagraph.hotkeys[miner_uid] == miner_state.miner_hotkey
+            )
         }
 
     def update_miner_scores(self, miner_commits: list[MinerChallengeCommit]):
