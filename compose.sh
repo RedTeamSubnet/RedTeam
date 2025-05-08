@@ -29,8 +29,8 @@ _DEFAULT_SERVICE="validator"
 ## --- Functions --- ##
 _doBuild()
 {
-	./scripts/build.sh || exit 2
-	# docker compose build || exit 2
+	# ./scripts/build.sh || exit 2
+	docker compose build || exit 2
 }
 
 _doValidate()

@@ -6,7 +6,7 @@ echo "INFO: Running '${RT_VALIDATOR_SLUG}' docker-entrypoint.sh..."
 
 _doStart()
 {
-	_i=0
+	local _i=0
 	while true; do
 		if [ -d "${RT_BTCLI_WALLET_DIR:-${RT_BTCLI_DATA_DIR:-/var/lib/sidecar.btcli}/wallets}" ]; then
 			break
@@ -23,6 +23,7 @@ _doStart()
 	done
 
 	if [ "${ENV:-}" != "PRODUCTION" ] && [ "${ENV:-}" != "STAGING" ]; then
+		_i=0
 		while true; do
 			local _checkpoint_file_path="${RT_BTCLI_DATA_DIR:-/var/lib/sidecar.btcli}/${RT_BTCLI_CHECKPOINT_FNAME:-.checkpoint.txt}"
 			if [ -f "${_checkpoint_file_path}" ]; then
@@ -32,6 +33,11 @@ _doStart()
 					break
 				fi
 			fi
+
+			if [ $(( _i % 10 )) -eq 0 ]; then
+				echo "INFO: Waiting for the wallets to be registered and ready..."
+			fi
+			_i=$((_i + 1))
 			sleep 1
 		done
 	fi
@@ -69,7 +75,7 @@ main()
 	umask 0002 || exit 2
 	find "${RT_HOME_DIR}" "${RT_VALIDATOR_DATA_DIR}" "${RT_VALIDATOR_LOGS_DIR}" "${RT_VALIDATOR_TMP_DIR}" -path "*/modules" -prune -o -name ".env" -o -print0 | sudo xargs -0 chown -c "${USER}:${GROUP}" || exit 2
 	find "${RT_VALIDATOR_DIR}" "${RT_VALIDATOR_DATA_DIR}" -type d -not -path "*/modules/*" -not -path "*/scripts/*" -exec sudo chmod 770 {} + || exit 2
-	find "${RT_VALIDATOR_DIR}" "${RT_VALIDATOR_DATA_DIR}" -type f -not -path "*/modules/*" -not -path "*/scripts/*" -exec sudo chmod 660 {} + || exit 2
+	find "${RT_VALIDATOR_DIR}" "${RT_VALIDATOR_DATA_DIR}" -type f -not -path "*/modules/*" -not -path "*/scripts/*" -not -name "*.sh" -exec sudo chmod 660 {} + || exit 2
 	find "${RT_VALIDATOR_DIR}" "${RT_VALIDATOR_DATA_DIR}" -type d -not -path "*/modules/*" -not -path "*/scripts/*" -exec sudo chmod ug+s {} + || exit 2
 	find "${RT_VALIDATOR_LOGS_DIR}" "${RT_VALIDATOR_TMP_DIR}" -type d -exec sudo chmod 775 {} + || exit 2
 	find "${RT_VALIDATOR_LOGS_DIR}" "${RT_VALIDATOR_TMP_DIR}" -type f -exec sudo chmod 664 {} + || exit 2
