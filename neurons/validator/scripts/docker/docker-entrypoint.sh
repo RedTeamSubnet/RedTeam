@@ -15,7 +15,7 @@ _doStart()
 		echo "INFO: Waiting for the wallet directory to be created..."
 		_i=$((_i + 1))
 		if [ "${_i}" -ge 60 ]; then
-			echo "ERROR: Timeout waiting for the wallet directory to be created."
+			echo "ERROR: Timeout waiting for the wallet directory to be created!"
 			exit 1
 		fi
 

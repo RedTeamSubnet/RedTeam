@@ -6,6 +6,7 @@ echo "INFO: Running '${RT_REWARD_VALIDATOR_SLUG}' docker-entrypoint.sh..."
 
 _doStart()
 {
+	_i=0
 	while true; do
 		if [ -d "${RT_BTCLI_WALLET_DIR:-${RT_BTCLI_DATA_DIR:-/var/lib/sidecar.btcli}/wallets}" ]; then
 			break
@@ -14,7 +15,7 @@ _doStart()
 		echo "INFO: Waiting for the wallet directory to be created..."
 		_i=$((_i + 1))
 		if [ "${_i}" -ge 60 ]; then
-			echo "ERROR: Timeout waiting for the wallet directory to be created."
+			echo "ERROR: Timeout waiting for the wallet directory to be created!"
 			exit 1
 		fi
 
