@@ -64,7 +64,7 @@ services:
       - "${RT_MINER_PORT:-8088}:${RT_MINER_PORT:-8088}"
     # command: ["/bin/bash"]
 
-  rewarding-validator:
+  reward-validator:
     environment:
       RT_BT_SUBTENSOR_HOST: subtensor
     volumes:
