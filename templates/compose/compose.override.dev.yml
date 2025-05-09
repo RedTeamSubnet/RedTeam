@@ -34,6 +34,7 @@ services:
     volumes:
       - "./volumes/storage/sidecar.btcli/data:${RT_BTCLI_DATA_DIR:-/var/lib/sidecar.btcli}"
       - "./volumes/storage/agent.validator/data:${RT_VALIDATOR_DATA_DIR:-/var/lib/agent.validator}"
+      - "./redteam_core:/app/agent.validator/redteam_core"
       - "./neurons/validator:/app/agent.validator/neurons/validator"
       - "./neurons/validator/scripts/docker/docker-entrypoint.sh:/usr/local/bin/docker-entrypoint.sh"
       - "./volumes/.vscode-server:/home/rt-user/.vscode-server"
@@ -51,6 +52,7 @@ services:
     volumes:
       - "./volumes/storage/sidecar.btcli/data:${RT_BTCLI_DATA_DIR:-/var/lib/sidecar.btcli}"
       - "./volumes/storage/agent.miner/data:${RT_MINER_DATA_DIR:-/var/lib/agent.miner}"
+      - "./redteam_core:/app/agent.miner/redteam_core"
       - "./neurons/miner:/app/agent.miner/neurons/miner"
       - "./neurons/miner/scripts/docker/docker-entrypoint.sh:/usr/local/bin/docker-entrypoint.sh"
       - "./volumes/.vscode-server:/home/rt-user/.vscode-server"
@@ -64,12 +66,14 @@ services:
       - "${RT_MINER_PORT:-8088}:${RT_MINER_PORT:-8088}"
     # command: ["/bin/bash"]
 
-  rewarding-validator:
+  reward-validator:
     environment:
       RT_BT_SUBTENSOR_HOST: subtensor
     volumes:
       - "./volumes/storage/sidecar.btcli/data:${RT_BTCLI_DATA_DIR:-/var/lib/sidecar.btcli}"
       - "./volumes/storage/server.reward-validator/data:${RT_REWARD_VALIDATOR_DATA_DIR:-/var/lib/server.reward-validator}"
+      - "./redteam_core:/app/server.reward-validator/redteam_core"
+      - "./neurons/validator:/app/server.reward-validator/neurons/validator"
       - "./services/rewarding:/app/server.reward-validator/services/rewarding"
       - "./services/rewarding/scripts/docker/docker-entrypoint.sh:/usr/local/bin/docker-entrypoint.sh"
       - "./volumes/.vscode-server:/home/rt-user/.vscode-server"

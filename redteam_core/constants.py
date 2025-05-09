@@ -4,7 +4,9 @@ import datetime
 from pydantic import Field, model_validator, AnyUrl
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from .__version__ import __version__
 from .common import generate_constants_docs
+
 
 ENV_PREFIX = "RT_"
 
@@ -28,7 +30,7 @@ class Constants(BaseSettings):
 
     # Versioning
     VERSION: str = Field(
-        default="0.0.3",
+        default=__version__,
         description="Version of the application in 'major.minor.patch' format.",
     )
     SPEC_VERSION: int = Field(
@@ -94,9 +96,9 @@ class Constants(BaseSettings):
 
     model_config = SettingsConfigDict(
         validate_assignment=True,
-        env_nested_delimiter="__",
-        env_prefix=ENV_PREFIX,
         env_file=".env",
+        env_prefix=ENV_PREFIX,
+        env_nested_delimiter="__",
         extra="allow",
     )
 
@@ -148,7 +150,7 @@ class Constants(BaseSettings):
         return commit_timestamp < previous_day_closed_time.timestamp()
 
 
-constants = Constants(VERSION="0.0.2")
+constants = Constants(VERSION=__version__)
 
 
 if __name__ == "__main__":
@@ -166,3 +168,9 @@ if __name__ == "__main__":
     markdown_content = generate_constants_docs(Constants)
 
     print_with_colors(markdown_content)
+
+
+__all__ = [
+    "constants",
+    "Constants",
+]
