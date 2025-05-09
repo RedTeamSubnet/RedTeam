@@ -71,7 +71,7 @@ class Constants(BaseSettings):
         default=3600 * 24, description="Time interval for revealing commits."
     )
     EPOCH_LENGTH: int = Field(
-        default=3600, description="Length of an epoch in seconds."
+        default=1200, description="Length of an epoch in seconds."
     )
     MIN_VALIDATOR_STAKE: int = Field(
         default=10_000, description="Minimum validator stake required."
