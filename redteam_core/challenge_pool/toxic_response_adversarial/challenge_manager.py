@@ -9,7 +9,7 @@ class ToxicResponseAdversarialChallengeManager(ChallengeManager):
         scores = np.zeros(len(uids))
 
         current_time = time.time()
-        decay_period = 5 * 24 * 60 * 60  # 3 days in seconds
+        decay_period = 5 * 24 * 60 * 60  # 5 days in seconds
 
         for _, miner_state in self.miner_states.items():
             if (
