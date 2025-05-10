@@ -491,6 +491,7 @@ class Validator(BaseValidator):
 
             # Extract encrypted commits
             encrypted_commits = [commit.encrypted_commit for commit in revealed_commits]
+            encrypted_commits_set = set(encrypted_commits)
 
             # Query centralized scoring server
             endpoint = f"{constants.REWARDING_URL}/get_scoring_result"
@@ -506,7 +507,8 @@ class Validator(BaseValidator):
             data = response.json().get("data", {})
 
             # Update commits with results
-            scored_commits = []
+            scored_commits: list[MinerChallengeCommit] = []
+            scored_encrypted_commits_set = set()
             for commit in revealed_commits:
                 if not commit.encrypted_commit:
                     continue
@@ -528,8 +530,9 @@ class Validator(BaseValidator):
                         ).items()
                     }
                     scored_commits.append(commit)
+                    scored_encrypted_commits_set.add(commit.encrypted_commit)
 
-            return scored_commits, data.get("is_done", False)
+            return scored_commits, data.get("is_done", False) or len(encrypted_commits_set) == len(scored_encrypted_commits_set)
 
         except Exception:
             bt.logging.error(

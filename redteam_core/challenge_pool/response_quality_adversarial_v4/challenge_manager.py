@@ -15,12 +15,27 @@ class ResponseQualityAdversarialChallengeManager(ChallengeManager):
             if (
                 miner_state.miner_uid in uids
                 and miner_state.miner_hotkey in self.metagraph.hotkeys
-                and miner_state.best_commit is not None
             ):
-                commit = miner_state.best_commit
-                time_elapsed = current_time - commit.scored_timestamp
-                decay_factor = max(0, 1 - (time_elapsed / decay_period))
-                scores[miner_state.miner_uid] = commit.score * decay_factor
+                best_score = 0
+
+                # Check best_commit if available
+                if miner_state.best_commit is not None:
+                    best_commit = miner_state.best_commit
+                    time_elapsed = current_time - best_commit.scored_timestamp
+                    decay_factor = max(0, 1 - (time_elapsed / decay_period))
+                    best_score = best_commit.score * decay_factor
+
+                # Compare with latest_commit if available
+                if miner_state.latest_commit is not None and miner_state.latest_commit.accepted:
+                    latest_commit = miner_state.latest_commit
+                    time_elapsed = current_time - latest_commit.scored_timestamp
+                    decay_factor = max(0, 1 - (time_elapsed / decay_period))
+                    latest_score = latest_commit.score * decay_factor
+
+                    # Use whichever is higher
+                    best_score = max(best_score, latest_score)
+
+                scores[miner_state.miner_uid] = best_score
 
         # Apply softmax
         temperature = self.challenge_info.get("temperature", 0.2)

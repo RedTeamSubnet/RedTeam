@@ -71,10 +71,7 @@ class BittensorLogHandler(logging.Handler):
         bt.logging.success(f"[LOG HANDLER] Successfully sent {len(logs)} logs")
 
     def close(self):
-        """Stop the daemon thread and flush remaining logs."""
-        self.stop_event.set()
-        self.sender_thread.join(timeout=2)  # Allow time to finish processing
-        super().close()
+        bt.logging.warning("[LOG HANDLER] Handler close() called, but we're ignoring it")
 
 
 def start_bittensor_log_listener(api_key, buffer_size=100):

@@ -24,7 +24,7 @@ from redteam_core.validator.models import (
     MinerChallengeCommit,
     ScoringLog,
 )
-from cache import ScoringLRUCache
+from .cache import ScoringLRUCache
 
 REWARD_APP_HOTKEY = os.getenv("REWARD_APP_HOTKEY")
 REWARD_APP_UID = -1
@@ -427,7 +427,7 @@ class RewardApp(Validator):
         )
 
     def run(self):
-        bt.logging.info("Starting RewardApp loop.")
+        bt.logging.info("Starting reward app loop.")
         # Try set weights after initial sync
         try:
             bt.logging.info("Initializing weights")
@@ -436,32 +436,30 @@ class RewardApp(Validator):
             bt.logging.error(f"Initial set weights error: {traceback.format_exc()}")
 
         while True:
-            start_epoch = time.time()
-
-            try:
-                self.forward()
-            except Exception as e:
-                bt.logging.error(f"Forward error: {traceback.format_exc()}")
-
-            end_epoch = time.time()
-            elapsed = end_epoch - start_epoch
-            time_to_sleep = max(0, self.config.reward_app.epoch_length - elapsed)
-            bt.logging.info(f"Epoch finished. Sleeping for {time_to_sleep} seconds.")
-            time.sleep(time_to_sleep)
+            # Check if we need to start a new forward thread
+            if self.forward_thread is None or not self.forward_thread.is_alive():
+                # Start new forward thread
+                self.forward_thread = threading.Thread(target=self._run_forward, daemon=True, name="validator_forward_thread")
+                self.forward_thread.start()
+                bt.logging.info("Started new forward thread")
 
             try:
                 self.set_weights()
+                bt.logging.success("Set weights completed")
             except Exception:
                 bt.logging.error(f"Set weights error: {traceback.format_exc()}")
 
             try:
                 self.resync_metagraph()
+                bt.logging.success("Resync metagraph completed")
             except Exception:
                 bt.logging.error(f"Resync metagraph error: {traceback.format_exc()}")
-
             except KeyboardInterrupt:
                 bt.logging.success("Keyboard interrupt detected. Exiting validator.")
                 exit()
+
+            # Sleep until next weight update
+            time.sleep(constants.EPOCH_LENGTH)
 
     # MARK: Commit Management
     def _update_validators_miner_commits(self):
