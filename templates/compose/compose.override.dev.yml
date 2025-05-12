@@ -66,15 +66,15 @@ services:
       - "${RT_MINER_PORT:-8088}:${RT_MINER_PORT:-8088}"
     # command: ["/bin/bash"]
 
-  reward-validator:
+  reward-app:
     environment:
       RT_BT_SUBTENSOR_HOST: subtensor
     volumes:
       - "./volumes/storage/sidecar.btcli/data:${RT_BTCLI_DATA_DIR:-/var/lib/sidecar.btcli}"
-      - "./volumes/storage/server.reward-validator/data:${RT_REWARD_VALIDATOR_DATA_DIR:-/var/lib/server.reward-validator}"
-      - "./redteam_core:/app/server.reward-validator/redteam_core"
-      - "./neurons/validator:/app/server.reward-validator/neurons/validator"
-      - "./services/rewarding:/app/server.reward-validator/services/rewarding"
+      - "./volumes/storage/server.reward-app/data:${RT_REWARD_APP_DATA_DIR:-/var/lib/server.reward-app}"
+      - "./redteam_core:/app/server.reward-app/redteam_core"
+      - "./neurons/validator:/app/server.reward-app/neurons/validator"
+      - "./services/rewarding:/app/server.reward-app/services/rewarding"
       - "./services/rewarding/scripts/docker/docker-entrypoint.sh:/usr/local/bin/docker-entrypoint.sh"
       - "./volumes/.vscode-server:/home/rt-user/.vscode-server"
     # deploy:
@@ -84,5 +84,5 @@ services:
     #       cpus: "8"
     #       memory: 16G
     ports:
-      - "${RT_REWARD_VALIDATOR_PORT:-47920}:${RT_REWARD_VALIDATOR_PORT:-47920}"
+      - "${RT_REWARD_APP_PORT:-47920}:${RT_REWARD_APP_PORT:-47920}"
     # command: ["/bin/bash"]

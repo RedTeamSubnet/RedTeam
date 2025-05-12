@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from redteam_core import BaseMiner, Commit, constants
-from typing import Tuple
-import bittensor as bt
-import time
-import json
-import yaml
 import os
-import copy
+import time
+import yaml
 import pickle
+from typing import Tuple
+
+import bittensor as bt
+
+from redteam_core import BaseMiner, Commit, constants
 
 
 class Miner(BaseMiner):

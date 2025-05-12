@@ -12,13 +12,15 @@ def get_config(parser=ArgumentParser()) -> bt.Config:
     parser.add_argument("--netuid", type=int)
     parser.add_argument("--neuron.fullpath", type=str, default="")
     parser.add_argument("--validator.cache_dir", type=str, default="./.cache/")
-    parser.add_argument("--validator.hf_repo_id", type=str, default="example_username/redteam_storage")
+    parser.add_argument(
+        "--validator.hf_repo_id", type=str, default="redteamsubnet61/storage"
+    )
     parser.add_argument(
         "--validator.use_centralized_scoring",
         action="store_true",
         default=False,
         help="Opt-in to get scores of challenges from a centralized server. "
-            "If not set, validators score themselves by default."
+        "If not set, validators score themselves by default.",
     )
     config = bt.config(parser)
     bt.logging.check_config(config)

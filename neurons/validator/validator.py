@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import datetime
 import time
+import datetime
 import traceback
 from copy import deepcopy
 
-import bittensor as bt
-import numpy as np
 import requests
+import numpy as np
+import bittensor as bt
 from cryptography.fernet import Fernet
 
 from redteam_core import BaseValidator, Commit, challenge_pool, constants
@@ -84,9 +84,9 @@ class Validator(BaseValidator):
         self._init_active_challenges()
 
         # Initialize validator state
-        self.miner_commits: dict[
-            tuple[int, str], dict[str, MinerChallengeCommit]
-        ] = {}  # {(uid, hotkey): {challenge_name: MinerCommit}}
+        self.miner_commits: dict[tuple[int, str], dict[str, MinerChallengeCommit]] = (
+            {}
+        )  # {(uid, hotkey): {challenge_name: MinerCommit}}
         self.scoring_dates: list[str] = []
         self._init_validator_state()
 
@@ -209,9 +209,9 @@ class Validator(BaseValidator):
         for challenge_name, challenge_manager in self.challenge_managers.items():
             miner_commits_for_this_challenge = []
             for (uid, hotkey), commits in self.miner_commits.items():
-                    for _challenge_name, commit in commits.items():
-                        if _challenge_name == challenge_name:
-                            miner_commits_for_this_challenge.append(commit)
+                for _challenge_name, commit in commits.items():
+                    if _challenge_name == challenge_name:
+                        miner_commits_for_this_challenge.append(commit)
 
             challenge_manager.update_miner_infos(
                 miner_commits=miner_commits_for_this_challenge
@@ -494,7 +494,7 @@ class Validator(BaseValidator):
             encrypted_commits_set = set(encrypted_commits)
 
             # Query centralized scoring server
-            endpoint = f"{constants.REWARDING_URL}/get_scoring_result"
+            endpoint = f"{constants.REWARD_APP.URL}/get_scoring_result"
             response = requests.post(
                 endpoint,
                 json={
@@ -532,7 +532,9 @@ class Validator(BaseValidator):
                     scored_commits.append(commit)
                     scored_encrypted_commits_set.add(commit.encrypted_commit)
 
-            return scored_commits, data.get("is_done", False) or len(encrypted_commits_set) == len(scored_encrypted_commits_set)
+            return scored_commits, data.get("is_done", False) or len(
+                encrypted_commits_set
+            ) == len(scored_encrypted_commits_set)
 
         except Exception:
             bt.logging.error(
@@ -796,7 +798,7 @@ class Validator(BaseValidator):
         """
         Retrieves the storage API key from the config.
         """
-        endpoint = f"{constants.STORAGE_URL}/get-api-key"
+        endpoint = f"{constants.STORAGE_API.URL}/get-api-key"
         data = {
             "validator_uid": self.uid,
             "validator_hotkey": self.metagraph.hotkeys[self.uid],
