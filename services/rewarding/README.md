@@ -116,6 +116,8 @@ python services/rewarding/app.py \
 | `--subtensor.chain_endpoint` | Custom subtensor endpoint | Required |
 | `--wallet.name` | Wallet name | Required |
 | `--wallet.hotkey` | Wallet hotkey name | Required |
+| `--validator.cache_dir` | Directory for caching scoring results | `./.cache` |
+| `--validator.hf_repo_id` | Hugging Face repo ID for model weights | `my_username/rt.reward-storage` |
 
 ## Integration for Validators
 
