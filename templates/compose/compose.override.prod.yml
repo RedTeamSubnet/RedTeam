@@ -15,7 +15,7 @@ services:
   #     - "30335:30335"
 
   sidecar-btcli:
-    image: redteamsubnet61/sidecar.btcli:3.0.0-250504
+    image: redteamsubnet61/sidecar.btcli:3.1.0-250512
     # volumes:
     #   - "./volumes/storage/sidecar.btcli/data:${RT_BTCLI_DATA_DIR:-/var/lib/sidecar.btcli}"
     #   - "./volumes/.vscode-server:/home/rt-user/.vscode-server"
@@ -27,10 +27,28 @@ services:
     #       memory: 256M
     # command: ["/bin/bash"]
 
+  reward-app:
+    image: redteamsubnet61/server.reward-app:0.0.2-250413
+    # volumes:
+    #   - "./volumes/storage/sidecar.btcli/data:${RT_BTCLI_DATA_DIR:-/var/lib/sidecar.btcli}"
+    #   - "./volumes/storage/server.reward-app/logs:${RT_REWARD_APP_LOGS_DIR:-/var/log/server.reward-app}"
+    #   - "./volumes/storage/server.reward-app/data:${RT_REWARD_APP_DATA_DIR:-/var/lib/server.reward-app}"
+    #   - "./volumes/.vscode-server:/home/rt-user/.vscode-server"
+    # deploy:
+    #   replicas: 0
+    #   resources:
+    #     limits:
+    #       cpus: "8"
+    #       memory: 16G
+    # ports:
+    #   - "${RT_REWARD_APP_PORT:-47920}:${RT_REWARD_APP_PORT:-47920}"
+    # command: ["/bin/bash"]
+
   validator:
     image: redteamsubnet61/agent.validator:0.0.2-250413
     # volumes:
     #   - "./volumes/storage/sidecar.btcli/data:${RT_BTCLI_DATA_DIR:-/var/lib/sidecar.btcli}"
+    #   - "./volumes/storage/agent.validator/logs:${RT_VALIDATOR_LOGS_DIR:-/var/log/agent.validator}"
     #   - "./volumes/storage/agent.validator/data:${RT_VALIDATOR_DATA_DIR:-/var/lib/agent.validator}"
     #   - "./volumes/.vscode-server:/home/rt-user/.vscode-server"
     # deploy:
@@ -45,6 +63,7 @@ services:
     image: redteamsubnet61/agent.miner:0.0.2-250413
     # volumes:
     #   - "./volumes/storage/sidecar.btcli/data:${RT_BTCLI_DATA_DIR:-/var/lib/sidecar.btcli}"
+    #   - "./volumes/storage/agent.miner/logs:${RT_MINER_LOGS_DIR:-/var/log/agent.miner}"
     #   - "./volumes/storage/agent.miner/data:${RT_MINER_DATA_DIR:-/var/lib/agent.miner}"
     #   - "./volumes/.vscode-server:/home/rt-user/.vscode-server"
     # deploy:
@@ -57,18 +76,3 @@ services:
     #   - "${RT_MINER_PORT:-8088}:${RT_MINER_PORT:-8088}"
     # command: ["/bin/bash"]
 
-  reward-app:
-    image: redteamsubnet61/server.reward-app:0.0.2-250413
-    # volumes:
-    #   - "./volumes/storage/sidecar.btcli/data:${RT_BTCLI_DATA_DIR:-/var/lib/sidecar.btcli}"
-    #   - "./volumes/storage/server.reward-app/data:${RT_REWARD_APP_DATA_DIR:-/var/lib/server.reward-app}"
-    #   - "./volumes/.vscode-server:/home/rt-user/.vscode-server"
-    # deploy:
-    #   replicas: 0
-    #   resources:
-    #     limits:
-    #       cpus: "8"
-    #       memory: 16G
-    # ports:
-    #   - "${RT_REWARD_APP_PORT:-47920}:${RT_REWARD_APP_PORT:-47920}"
-    # command: ["/bin/bash"]

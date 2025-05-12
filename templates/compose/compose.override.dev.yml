@@ -16,7 +16,7 @@ services:
 
   sidecar-btcli:
     environment:
-      RT_BT_SUBTENSOR_HOST: subtensor
+      RT_BT_SUBTENSOR_NETWORK: "ws://subtensor:9944"
     volumes:
       - "./volumes/storage/sidecar.btcli/data:${RT_BTCLI_DATA_DIR:-/var/lib/sidecar.btcli}"
       - "./volumes/.vscode-server:/home/rt-user/.vscode-server"
@@ -28,11 +28,35 @@ services:
     #       memory: 256M
     # command: ["/bin/bash"]
 
-  validator:
+  reward-app:
     environment:
-      RT_BT_SUBTENSOR_HOST: subtensor
+      RT_BT_SUBTENSOR_NETWORK: "ws://subtensor:9944"
     volumes:
       - "./volumes/storage/sidecar.btcli/data:${RT_BTCLI_DATA_DIR:-/var/lib/sidecar.btcli}"
+      - "./volumes/storage/server.reward-app/logs:${RT_REWARD_APP_LOGS_DIR:-/var/log/server.reward-app}"
+      - "./volumes/storage/server.reward-app/data:${RT_REWARD_APP_DATA_DIR:-/var/lib/server.reward-app}"
+      - "./redteam_core:/app/server.reward-app/redteam_core"
+      - "./neurons/validator:/app/server.reward-app/neurons/validator"
+      - "./services/rewarding:/app/server.reward-app/services/rewarding"
+      - "./services/rewarding/scripts/docker/docker-entrypoint.sh:/usr/local/bin/docker-entrypoint.sh"
+      - "./volumes/.vscode-server:/home/rt-user/.vscode-server"
+    # deploy:
+    #   replicas: 0
+    #   resources:
+    #     limits:
+    #       cpus: "8"
+    #       memory: 16G
+    ports:
+      - "${RT_REWARD_APP_PORT:-47920}:${RT_REWARD_APP_PORT:-47920}"
+    # command: ["/bin/bash"]
+
+  validator:
+    environment:
+      RT_BT_SUBTENSOR_NETWORK: "ws://subtensor:9944"
+      RT_REWARD_APP_URL: "http://reward-app:${RT_REWARD_APP_PORT:-47920}"
+    volumes:
+      - "./volumes/storage/sidecar.btcli/data:${RT_BTCLI_DATA_DIR:-/var/lib/sidecar.btcli}"
+      - "./volumes/storage/agent.validator/logs:${RT_VALIDATOR_LOGS_DIR:-/var/log/agent.validator}"
       - "./volumes/storage/agent.validator/data:${RT_VALIDATOR_DATA_DIR:-/var/lib/agent.validator}"
       - "./redteam_core:/app/agent.validator/redteam_core"
       - "./neurons/validator:/app/agent.validator/neurons/validator"
@@ -48,9 +72,10 @@ services:
 
   miner:
     environment:
-      RT_BT_SUBTENSOR_HOST: subtensor
+      RT_BT_SUBTENSOR_NETWORK: "ws://subtensor:9944"
     volumes:
       - "./volumes/storage/sidecar.btcli/data:${RT_BTCLI_DATA_DIR:-/var/lib/sidecar.btcli}"
+      - "./volumes/storage/agent.miner/logs:${RT_MINER_LOGS_DIR:-/var/log/agent.miner}"
       - "./volumes/storage/agent.miner/data:${RT_MINER_DATA_DIR:-/var/lib/agent.miner}"
       - "./redteam_core:/app/agent.miner/redteam_core"
       - "./neurons/miner:/app/agent.miner/neurons/miner"
@@ -64,25 +89,4 @@ services:
     #       memory: 8G
     ports:
       - "${RT_MINER_PORT:-8088}:${RT_MINER_PORT:-8088}"
-    # command: ["/bin/bash"]
-
-  reward-app:
-    environment:
-      RT_BT_SUBTENSOR_HOST: subtensor
-    volumes:
-      - "./volumes/storage/sidecar.btcli/data:${RT_BTCLI_DATA_DIR:-/var/lib/sidecar.btcli}"
-      - "./volumes/storage/server.reward-app/data:${RT_REWARD_APP_DATA_DIR:-/var/lib/server.reward-app}"
-      - "./redteam_core:/app/server.reward-app/redteam_core"
-      - "./neurons/validator:/app/server.reward-app/neurons/validator"
-      - "./services/rewarding:/app/server.reward-app/services/rewarding"
-      - "./services/rewarding/scripts/docker/docker-entrypoint.sh:/usr/local/bin/docker-entrypoint.sh"
-      - "./volumes/.vscode-server:/home/rt-user/.vscode-server"
-    # deploy:
-    #   replicas: 0
-    #   resources:
-    #     limits:
-    #       cpus: "8"
-    #       memory: 16G
-    ports:
-      - "${RT_REWARD_APP_PORT:-47920}:${RT_REWARD_APP_PORT:-47920}"
     # command: ["/bin/bash"]
