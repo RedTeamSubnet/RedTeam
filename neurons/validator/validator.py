@@ -209,9 +209,9 @@ class Validator(BaseValidator):
         for challenge_name, challenge_manager in self.challenge_managers.items():
             miner_commits_for_this_challenge = []
             for (uid, hotkey), commits in self.miner_commits.items():
-                    for _challenge_name, commit in commits.items():
-                        if _challenge_name == challenge_name:
-                            miner_commits_for_this_challenge.append(commit)
+                for _challenge_name, commit in commits.items():
+                    if _challenge_name == challenge_name:
+                        miner_commits_for_this_challenge.append(commit)
 
             challenge_manager.update_miner_infos(
                 miner_commits=miner_commits_for_this_challenge
@@ -532,7 +532,9 @@ class Validator(BaseValidator):
                     scored_commits.append(commit)
                     scored_encrypted_commits_set.add(commit.encrypted_commit)
 
-            return scored_commits, data.get("is_done", False) or len(encrypted_commits_set) == len(scored_encrypted_commits_set)
+            return scored_commits, data.get("is_done", False) or len(
+                encrypted_commits_set
+            ) == len(scored_encrypted_commits_set)
 
         except Exception:
             bt.logging.error(
@@ -730,6 +732,7 @@ class Validator(BaseValidator):
         """
         if not miner_commits:
             # Default to store all miner commits
+            bt.logging.info("[STORE MINER COMMMITS] Storing all commits in self.miner_commits")
             for _, miner_challenge_commits in self.miner_commits.items():
                 for challenge_name, commit in miner_challenge_commits.items():
                     miner_commits.setdefault(challenge_name, []).append(commit)
@@ -739,6 +742,10 @@ class Validator(BaseValidator):
             for challenge_name, commits in miner_commits.items()
             for commit in commits
         ]
+
+        bt.logging.info(
+            f"[STORE MINER COMMMITS] Storing {len(data_to_store)} to storage: {[commit.encrypted_commit[:10] for commit in data_to_store]}"
+        )
 
         try:
             self.storage_manager.update_commit_batch(

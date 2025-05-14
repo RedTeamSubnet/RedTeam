@@ -185,7 +185,7 @@ class ChallengeManager:
             miner_commit.scored_timestamp = time.time()
 
             # Update miner 's best submission if current score is higher
-            miner_state = self.miner_states[miner_commit.miner_uid]
+            miner_state = self.miner_states.get(miner_commit.miner_uid)
             miner_state.update_best_commit(miner_commit)
 
             # Try to add to unique solutions set if commit is accepted
