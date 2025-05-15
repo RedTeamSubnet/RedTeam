@@ -126,14 +126,10 @@ class HBChallengeManager(ChallengeManager):
         for miner_state in self.miner_states.values():
             best_commit = miner_state.best_commit
 
-            if (
-                best_commit is None
-                or miner_state.miner_uid >= n_uids
-                or not (
-                    miner_state.miner_uid < len(self.metagraph.hotkeys)
-                    and miner_state.miner_hotkey
-                    == self.metagraph.hotkeys[miner_state.miner_uid]
-                )
+            if best_commit is None or not (
+                miner_state.miner_uid < len(self.metagraph.hotkeys)
+                and miner_state.miner_hotkey
+                == self.metagraph.hotkeys[miner_state.miner_uid]
             ):
                 continue
 
@@ -157,14 +153,10 @@ class HBChallengeManager(ChallengeManager):
         # Step 3: Apply decay and adjustment
         for miner_state in self.miner_states.values():
             best_commit = miner_state.best_commit
-            if (
-                best_commit is None
-                or miner_state.miner_uid >= n_uids
-                or not (
-                    miner_state.miner_uid < len(self.metagraph.hotkeys)
-                    and miner_state.miner_hotkey
-                    == self.metagraph.hotkeys[miner_state.miner_uid]
-                )
+            if best_commit is None or not (
+                miner_state.miner_uid < len(self.metagraph.hotkeys)
+                and miner_state.miner_hotkey
+                == self.metagraph.hotkeys[miner_state.miner_uid]
             ):
                 continue  # Skip invalid miners
 
