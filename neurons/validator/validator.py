@@ -732,6 +732,7 @@ class Validator(BaseValidator):
         """
         if not miner_commits:
             # Default to store all miner commits
+            bt.logging.info("[STORE MINER COMMMITS] Storing all commits in self.miner_commits")
             for _, miner_challenge_commits in self.miner_commits.items():
                 for challenge_name, commit in miner_challenge_commits.items():
                     miner_commits.setdefault(challenge_name, []).append(commit)
@@ -741,6 +742,10 @@ class Validator(BaseValidator):
             for challenge_name, commits in miner_commits.items()
             for commit in commits
         ]
+
+        bt.logging.info(
+            f"[STORE MINER COMMMITS] Storing {len(data_to_store)} to storage: {[commit.encrypted_commit[:10] for commit in data_to_store]}"
+        )
 
         try:
             self.storage_manager.update_commit_batch(
