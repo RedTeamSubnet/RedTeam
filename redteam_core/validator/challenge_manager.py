@@ -245,6 +245,7 @@ class ChallengeManager:
             if (
                 miner_state.miner_uid in uids
                 and miner_state.miner_hotkey in self.metagraph.hotkeys
+                and miner_state.miner_hotkey == self.metagraph.hotkeys[miner_state.miner_uid]
                 and miner_state.best_commit is not None
             ):
                 scores[miner_state.miner_uid] = miner_state.best_commit.score

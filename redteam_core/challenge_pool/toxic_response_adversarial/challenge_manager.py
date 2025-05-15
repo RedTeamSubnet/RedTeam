@@ -9,12 +9,13 @@ class ToxicResponseAdversarialChallengeManager(ChallengeManager):
         scores = np.zeros(len(uids))
 
         current_time = time.time()
-        decay_period = 5 * 24 * 60 * 60  # 3 days in seconds
+        decay_period = 5 * 24 * 60 * 60  # 5 days in seconds
 
         for _, miner_state in self.miner_states.items():
             if (
                 miner_state.miner_uid in uids
                 and miner_state.miner_hotkey in self.metagraph.hotkeys
+                and miner_state.miner_hotkey == self.metagraph.hotkeys[miner_state.miner_uid]
             ):
                 best_score = 0
 
