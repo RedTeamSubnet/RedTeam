@@ -15,6 +15,7 @@ class ToxicResponseAdversarialChallengeManager(ChallengeManager):
             if (
                 miner_state.miner_uid in uids
                 and miner_state.miner_hotkey in self.metagraph.hotkeys
+                and miner_state.miner_hotkey == self.metagraph.hotkeys[miner_state.miner_uid]
             ):
                 best_score = 0
 

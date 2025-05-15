@@ -671,7 +671,7 @@ class Validator(BaseValidator):
         self.miner_commits = {
             (uid, hotkey): commits
             for (uid, hotkey), commits in self.miner_commits.items()
-            if hotkey in self.metagraph.hotkeys
+            if (uid < len(self.metagraph.hotkeys) and hotkey == self.metagraph.hotkeys[uid])
         }
 
         # Sort by UID to make sure all next operations are order consistent
