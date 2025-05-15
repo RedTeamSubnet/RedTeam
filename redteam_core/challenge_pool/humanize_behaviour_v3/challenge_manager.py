@@ -129,7 +129,11 @@ class HBChallengeManager(ChallengeManager):
             if (
                 best_commit is None
                 or miner_state.miner_uid >= n_uids
-                or miner_state.miner_hotkey not in self.metagraph.hotkeys
+                or not (
+                    miner_state.miner_uid < len(self.metagraph.hotkeys)
+                    and miner_state.miner_hotkey
+                    == self.metagraph.hotkeys[miner_state.miner_uid]
+                )
             ):
                 continue
 
@@ -156,7 +160,11 @@ class HBChallengeManager(ChallengeManager):
             if (
                 best_commit is None
                 or miner_state.miner_uid >= n_uids
-                or miner_state.miner_hotkey not in self.metagraph.hotkeys
+                or not (
+                    miner_state.miner_uid < len(self.metagraph.hotkeys)
+                    and miner_state.miner_hotkey
+                    == self.metagraph.hotkeys[miner_state.miner_uid]
+                )
             ):
                 continue  # Skip invalid miners
 
