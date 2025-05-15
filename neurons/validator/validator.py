@@ -725,12 +725,13 @@ class Validator(BaseValidator):
 
     # MARK: Storage
     def _store_miner_commits(
-        self, miner_commits: dict[str, list[MinerChallengeCommit]] = {}
+        self, miner_commits: dict[str, list[MinerChallengeCommit]] = None
     ):
         """
         Store miner commits to storage.
         """
         if not miner_commits:
+            miner_commits = {}
             # Default to store all miner commits
             bt.logging.info("[STORE MINER COMMMITS] Storing all commits in self.miner_commits")
             for _, miner_challenge_commits in self.miner_commits.items():
@@ -744,7 +745,7 @@ class Validator(BaseValidator):
         ]
 
         bt.logging.info(
-            f"[STORE MINER COMMMITS] Storing {len(data_to_store)} to storage: {[commit.encrypted_commit[:10] for commit in data_to_store]}"
+            f"[STORE MINER COMMMITS] Storing {len(data_to_store)} commits to storage: {[commit.encrypted_commit[:15] for commit in data_to_store]}"
         )
 
         try:
