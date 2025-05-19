@@ -42,8 +42,8 @@ services:
         RT_BT_SUBTENSOR_NETWORK: "${RT_BT_SUBTENSOR_NETWORK:-ws://subtensor:9944}"
         HF_TOKEN: "${HF_TOKEN}"
         RT_REWARD_APP_HF_REPO: ${RT_REWARD_APP_HF_REPO}
-        RT_STORAGE_API_URL: "${RT_STORAGE_API_URL}"
         RT_REWARD_APP_HOTKEY: ${RT_REWARD_APP_HOTKEY}
+        RT_STORAGE_API_URL: "${RT_STORAGE_API_URL}"
       env_file:
         - path: .env
           required: false
@@ -68,9 +68,9 @@ services:
       environment:
         TERM: ${TERM:-xterm}
         TZ: ${TZ:-UTC}
+        RT_VALIDATOR_USE_CENTRALIZED: true
         RT_BT_SUBTENSOR_NETWORK: "${RT_BT_SUBTENSOR_NETWORK:-ws://subtensor:9944}"
         RT_REWARD_APP_URL: "${RT_REWARD_APP_URL:-http://reward-app:${RT_REWARD_APP_PORT:-47920}}"
-        RT_VALIDATOR_USE_CENTRALIZED: true
         HF_TOKEN: "${HF_TOKEN}"
         RT_VALIDATOR_HF_REPO: ${RT_VALIDATOR_HF_REPO}
         RT_STORAGE_API_URL: "${RT_STORAGE_API_URL}"
