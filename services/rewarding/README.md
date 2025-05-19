@@ -99,10 +99,11 @@ python services/rewarding/app.py \
     --reward_app.port 47920 \
     --reward_app.epoch_length 60 \
     --netuid 61 \
-    --network finney \
-    --subtensor.chain_endpoint <subtensor-endpoint> \
+    --subtensor.network <subtensor-endpoint> \
     --wallet.name <wallet-name> \
-    --wallet.hotkey <hotkey-name>
+    --wallet.hotkey <hotkey-name> \
+    --validator.cache_dir <cache-dir> \
+    --validator.hf_repo_id <hf-repo-id>
 ```
 
 #### Command Line Arguments
@@ -112,10 +113,11 @@ python services/rewarding/app.py \
 | `--reward_app.port` | Port for the FastAPI server | 47920 |
 | `--reward_app.epoch_length` | Processing cycle duration (seconds) | 60 |
 | `--netuid` | Subnet ID to connect to | Required |
-| `--network` | Bittensor network (finney, test) | Required |
-| `--subtensor.chain_endpoint` | Custom subtensor endpoint | Required |
+| `--subtensor.network` | Subtensor endpoint | Required |
 | `--wallet.name` | Wallet name | Required |
 | `--wallet.hotkey` | Wallet hotkey name | Required |
+| `--validator.cache_dir` | Directory for caching scoring results | `./.cache` |
+| `--validator.hf_repo_id` | Hugging Face repo ID for model weights | `my_username/rt.reward-storage` |
 
 ## Integration for Validators
 

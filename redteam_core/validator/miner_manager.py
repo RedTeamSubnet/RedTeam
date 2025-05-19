@@ -1,10 +1,10 @@
-import base58
-import datetime
 import hashlib
+import datetime
 
-import bittensor as bt
-import numpy as np
+import base58
 import requests
+import numpy as np
+import bittensor as bt
 
 from redteam_core.constants import constants
 from redteam_core.validator.challenge_manager import ChallengeManager
@@ -71,7 +71,7 @@ class MinerManager:
         """
         scores = np.zeros(n_uids)
         current_time = datetime.datetime.now(datetime.timezone.utc)
-        endpoint = constants.STORAGE_URL + "/fetch-uids-registration-time"
+        endpoint = constants.STORAGE_API.URL + "/fetch-uids-registration-time"
 
         try:
             response = requests.get(endpoint)
@@ -111,7 +111,9 @@ class MinerManager:
             bt.logging.error(f"Error fetching uids registration time: {e}")
             return np.zeros(n_uids)
 
-        bt.logging.debug(f"[MINER MANAGER] Newly registration scores: {scores.tolist()}")
+        bt.logging.debug(
+            f"[MINER MANAGER] Newly registration scores: {scores.tolist()}"
+        )
 
         return scores
 
@@ -150,9 +152,9 @@ class MinerManager:
 
             # Calculate checksum (blake2b-512)
             blake2b = hashlib.blake2b(digest_size=64)
-            blake2b.update(b'SS58PRE' + input_bytes)
+            blake2b.update(b"SS58PRE" + input_bytes)
             checksum = blake2b.digest()
-            checksum_bytes = checksum[:2] # Take first two bytes of checksum
+            checksum_bytes = checksum[:2]  # Take first two bytes of checksum
 
             # Final bytes = prefix + public key + checksum
             final_bytes = input_bytes + checksum_bytes

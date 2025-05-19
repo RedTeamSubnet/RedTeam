@@ -40,9 +40,14 @@ services:
       - "./services/rewarding:/app/server.reward-app/services/rewarding"
       - "./services/rewarding/scripts/docker/docker-entrypoint.sh:/usr/local/bin/docker-entrypoint.sh"
       - "./volumes/.vscode-server:/home/rt-user/.vscode-server"
-    # deploy:
-    #   replicas: 0
-    #   resources:
+    deploy:
+      # replicas: 0
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
     #     limits:
     #       cpus: "8"
     #       memory: 16G
@@ -62,9 +67,14 @@ services:
       - "./neurons/validator:/app/agent.validator/neurons/validator"
       - "./neurons/validator/scripts/docker/docker-entrypoint.sh:/usr/local/bin/docker-entrypoint.sh"
       - "./volumes/.vscode-server:/home/rt-user/.vscode-server"
-    # deploy:
-    #   replicas: 0
-    #   resources:
+    deploy:
+      # replicas: 0
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
     #     limits:
     #       cpus: "8"
     #       memory: 16G
@@ -81,12 +91,17 @@ services:
       - "./neurons/miner:/app/agent.miner/neurons/miner"
       - "./neurons/miner/scripts/docker/docker-entrypoint.sh:/usr/local/bin/docker-entrypoint.sh"
       - "./volumes/.vscode-server:/home/rt-user/.vscode-server"
-    # deploy:
-    #   replicas: 0
-    #   resources:
-    #     limits:
-    #       cpus: "4"
-    #       memory: 8G
+    deploy:
+      # replicas: 0
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+        # limits:
+        #   cpus: "4"
+        #   memory: 8G
     ports:
       - "${RT_MINER_PORT:-8088}:${RT_MINER_PORT:-8088}"
     # command: ["/bin/bash"]
