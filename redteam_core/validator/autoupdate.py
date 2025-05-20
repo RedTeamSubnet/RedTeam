@@ -42,11 +42,11 @@ class AutoUpdater:
         # Fetch latest changes from remote
         repo.remotes.origin.fetch()
 
-        # Get the latest commit hash from origin/main
-        new_version = repo.remotes.origin.refs.main.commit.hexsha
+        branch_name = "validator-autoupdate"  # Replace with your branch name
+        new_version = repo.remotes.origin.refs[branch_name].commit.hexsha
 
         if current_version != new_version:
-            repo.remotes.origin.pull("validator-autoupdate", strategy_option="theirs")
+            repo.remotes.origin.pull(branch_name, strategy_option="theirs")
             bt.logging.info(f"New version detected: '{new_version}'. Restarting...")
             self._stop_flag.set()
             self._restart_process()
