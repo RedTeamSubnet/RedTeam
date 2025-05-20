@@ -4,9 +4,10 @@
 import time
 import bittensor as bt
 
-from redteam_core.common import get_config
 from redteam_core.validator.autoupdate import AutoUpdater
 from neurons.validator.base_validator import Validator
+from redteam_core.common import get_config
+from redteam_core import constants
 
 # The main function parses the configuration and runs the validator.
 if __name__ == "__main__":
@@ -17,7 +18,7 @@ if __name__ == "__main__":
     with Validator(get_config()) as validator:
         while True:
             bt.logging.info("Validator running...")
-            time.sleep(60)
+            time.sleep(constants.EPOCH_LENGTH // 4)
 
             if validator.should_exit:
                 bt.logging.warning("Ending validator...")

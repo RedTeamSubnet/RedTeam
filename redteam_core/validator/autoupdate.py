@@ -4,8 +4,8 @@ import git
 import bittensor as bt
 import os
 import signal
+from redteam_core.constants import constants
 
-UPDATE_RATE_MINUTES = 60  # Check for updates every hour
 
 class AutoUpdater:
     def __init__(self):
@@ -16,13 +16,19 @@ class AutoUpdater:
 
     def _monitor(self):
         while not self._stop_flag.is_set():
+            bt.logging.info("Checking for updates...")
+
             try:
                 current_time = time.localtime()
-                if current_time.tm_min % UPDATE_RATE_MINUTES == 0:
+                if current_time.tm_min % constants.UPDATE_RATE_MINUTES == 0:
                     self._check_for_updates()
                     time.sleep(60)
                 else:
-                    sleep_minutes = UPDATE_RATE_MINUTES - current_time.tm_min % UPDATE_RATE_MINUTES
+                    sleep_minutes = (
+                        constants.UPDATE_RATE_MINUTES
+                        - current_time.tm_min % constants.UPDATE_RATE_MINUTES
+                    )
+                    bt.logging.info(f"Sleeping for {sleep_minutes} minutes")
                     time.sleep(sleep_minutes * 60 - current_time.tm_sec)
             except Exception as e:
                 bt.logging.error(f"Error occurred while checking for updates: {e}")
@@ -30,15 +36,17 @@ class AutoUpdater:
                 self._restart_process()
 
     def _check_for_updates(self):
-        bt.logging.info("Checking for updates...")
         repo = git.Repo(search_parent_directories=True)
         current_version = repo.head.commit.hexsha
 
-        repo.remotes.origin.pull("main")
+        # Fetch latest changes from remote
+        repo.remotes.origin.fetch()
 
-        new_version = repo.head.commit.hexsha
+        # Get the latest commit hash from origin/main
+        new_version = repo.remotes.origin.refs.main.commit.hexsha
 
         if current_version != new_version:
+            repo.remotes.origin.pull("validator-autoupdate", strategy_option="theirs")
             bt.logging.info(f"New version detected: '{new_version}'. Restarting...")
             self._stop_flag.set()
             self._restart_process()
