@@ -36,22 +36,49 @@ class AutoUpdater:
                 self._restart_process()
 
     def _check_for_updates(self):
-        repo = git.Repo(search_parent_directories=True)
-        current_version = repo.head.commit.hexsha
+        try:
+            repo = git.Repo(search_parent_directories=True)
+            current_version = repo.head.commit.hexsha
 
-        # Fetch latest changes from remote
-        repo.remotes.origin.fetch()
+            # Fetch latest changes
+            repo.remotes.origin.fetch()
+            branch_name = "validator-autoupdate"
+            new_version = repo.remotes.origin.refs[branch_name].commit.hexsha
 
-        branch_name = "validator-autoupdate"  # Replace with your branch name
-        new_version = repo.remotes.origin.refs[branch_name].commit.hexsha
+            if current_version != new_version:
+                bt.logging.info(f"New version detected: '{new_version}'. Restarting...")
+                try:
+                    # Attempt a clean pull first
+                    repo.git.pull("origin", branch_name, strategy_option="theirs")
+                except Exception as e:
+                    bt.logging.warning(f"Pull failed: {e}. Trying soft reset.")
+                    # Force update to remote state if pull fails
+                    try:
+                        repo.git.reset("--soft", f"origin/{branch_name}")
+                        repo.remotes.origin.fetch()
+                        repo.git.merge(
+                            f"origin/{branch_name}", "--no-edit", "-X", "theirs"
+                        )
 
-        if current_version != new_version:
-            repo.remotes.origin.pull(branch_name, strategy_option="theirs")
-            bt.logging.info(f"New version detected: '{new_version}'. Restarting...")
-            self._stop_flag.set()
-            self._restart_process()
-        else:
-            bt.logging.info("Already up to date.")
+                    except Exception as e:
+                        bt.logging.warning(
+                            f"Soft reset failed: {e}. Trying hard reset."
+                        )
+                        repo.git.reset("--hard", f"origin/{branch_name}")
+                        repo.git.clean("-fd")  # Remove untracked files if needed
+                        repo.remotes.origin.fetch()
+                        repo.git.merge(
+                            f"origin/{branch_name}", strategy_option="theirs"
+                        )
+                final_version = repo.head.commit.hexsha
+                if final_version != new_version:
+                    bt.logging.warning("Update did not complete successfully.")
+                self._stop_flag.set()
+                self._restart_process()
+            else:
+                bt.logging.info("Already up to date.")
+        except Exception as e:
+            bt.logging.error(f"Update check failed: {e}")
 
     def _restart_process(self):
         """Restart the current process by sending SIGTERM to itself"""
