@@ -42,7 +42,7 @@ class AutoUpdater:
 
             # Fetch latest changes
             repo.remotes.origin.fetch()
-            branch_name = "validator-autoupdate"
+            branch_name = constants.UPDATE_BRANCH_NAME
             new_version = repo.remotes.origin.refs[branch_name].commit.hexsha
 
             if current_version != new_version:
