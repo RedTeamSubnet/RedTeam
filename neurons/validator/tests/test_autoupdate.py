@@ -53,8 +53,7 @@ class TestValidatorAutoUpdate(unittest.TestCase):
                     # Skip the actual initialization that would start the thread
                     # We'll manually call the _check_for_updates method
                     self._stop_flag = None  # Mock this
-                    self._branch = "main"
-                    self._remote = "origin"
+# Removed unused attributes _branch and _remote
                     self._restart_function = mock_restart_current_process
                     # Store the initial version
                     self._stored_version = test_repo.head.commit.hexsha
