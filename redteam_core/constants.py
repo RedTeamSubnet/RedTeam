@@ -93,6 +93,8 @@ class Constants(BaseSettings):
         default="http://storage.redteam.technology/rewarding",
         description="URL for rewarding miners",
     )
+    UPDATE_RATE_MINUTES: int = Field(default=60, description="Update rate in minutes.")
+    UPDATE_BRANCH_NAME: str = Field(default="main", description="Update branch name.")
 
     model_config = SettingsConfigDict(
         validate_assignment=True,
