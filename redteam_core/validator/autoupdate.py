@@ -32,8 +32,22 @@ class AutoUpdater:
                     time.sleep(sleep_minutes * 60 - current_time.tm_sec)
             except Exception as e:
                 bt.logging.error(f"Error occurred while checking for updates: {e}")
-                self._stop_flag.set()
-                self._restart_process()
+                max_retries = 5
+                backoff_time = 1  # Start with 1 second
+                for attempt in range(1, max_retries + 1):
+                    bt.logging.info(f"Retrying in {backoff_time} seconds (attempt {attempt}/{max_retries})...")
+                    time.sleep(backoff_time)
+                    try:
+                        self._check_for_updates()
+                        bt.logging.info("Retry successful.")
+                        break
+                    except Exception as retry_error:
+                        bt.logging.error(f"Retry {attempt} failed: {retry_error}")
+                        backoff_time *= 2  # Exponential backoff
+                else:
+                    bt.logging.error("All retry attempts failed. Restarting process.")
+                    self._stop_flag.set()
+                    self._restart_process()
 
     def _check_for_updates(self):
         try:
