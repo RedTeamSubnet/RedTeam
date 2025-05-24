@@ -698,15 +698,14 @@ class Validator(BaseValidator):
                         challenge_name, []
                     )
                     docker_hub_id = commit.commit.split("---")[1]
-
-                    if (
-                        docker_hub_id in seen_docker_hub_ids
-                        or docker_hub_id
-                        in self.challenge_managers[
+                    _in_seen_docker_hub_ids = docker_hub_id in seen_docker_hub_ids
+                    _scored =  docker_hub_id in self.challenge_managers[
                             challenge_name
                         ].get_unique_scored_docker_hub_ids()
-                    ):
-                        # Only reveal unique docker hub ids in one pass, also ignore if docker_hub_id has been scored
+                    _dereged = not (uid < len(self.metagraph.hotkeys) and self.metagraph.hotkeys[uid] == hotkey)
+                    if (_in_seen_docker_hub_ids or _scored or _dereged):
+                        # Only reveal unique docker hub ids in one pass, also ignore if docker_hub_id has been scored also ignore dereged commits
+                        bt.logging.info(f"Skipping commit: {uid} because of degregistration: {_dereged}, seen: {_in_seen_docker_hub_ids}, scored: {_scored}")
                         continue
                     else:
                         commit.docker_hub_id = docker_hub_id
@@ -714,6 +713,10 @@ class Validator(BaseValidator):
                         seen_docker_hub_ids.add(docker_hub_id)
                         bt.logging.info(
                             f"[GET REVEALED COMMITS] Revealed commit: {uid} - {hotkey} - {challenge_name} - {commit.encrypted_commit}"
+                        )
+                else:
+                    bt.logging.info(
+                        f"[GET REVEALED COMMITS] Commit is not revealed yet: {uid} - {hotkey} - {challenge_name} - "
                         )
 
         return revealed_commits
