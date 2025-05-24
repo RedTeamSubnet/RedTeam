@@ -34,9 +34,14 @@ services:
     #   - "./volumes/storage/server.reward-app/logs:${RT_REWARD_APP_LOGS_DIR:-/var/log/server.reward-app}"
     #   - "./volumes/storage/server.reward-app/data:${RT_REWARD_APP_DATA_DIR:-/var/lib/server.reward-app}"
     #   - "./volumes/.vscode-server:/home/rt-user/.vscode-server"
-    # deploy:
-    #   replicas: 0
-    #   resources:
+    deploy:
+      # replicas: 0
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
     #     limits:
     #       cpus: "8"
     #       memory: 16G
@@ -51,9 +56,14 @@ services:
     #   - "./volumes/storage/agent.validator/logs:${RT_VALIDATOR_LOGS_DIR:-/var/log/agent.validator}"
     #   - "./volumes/storage/agent.validator/data:${RT_VALIDATOR_DATA_DIR:-/var/lib/agent.validator}"
     #   - "./volumes/.vscode-server:/home/rt-user/.vscode-server"
-    # deploy:
-    #   replicas: 0
-    #   resources:
+    deploy:
+      # replicas: 0
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
     #     limits:
     #       cpus: "8"
     #       memory: 16G
@@ -66,9 +76,14 @@ services:
     #   - "./volumes/storage/agent.miner/logs:${RT_MINER_LOGS_DIR:-/var/log/agent.miner}"
     #   - "./volumes/storage/agent.miner/data:${RT_MINER_DATA_DIR:-/var/lib/agent.miner}"
     #   - "./volumes/.vscode-server:/home/rt-user/.vscode-server"
-    # deploy:
-    #   replicas: 0
-    #   resources:
+    deploy:
+      # replicas: 0
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
     #     limits:
     #       cpus: "4"
     #       memory: 8G

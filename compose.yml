@@ -18,12 +18,41 @@ services:
     environment:
       TERM: ${TERM:-xterm}
       TZ: ${TZ:-UTC}
+      RT_BT_SUBTENSOR_NETWORK: "${RT_BT_SUBTENSOR_NETWORK:-ws://subtensor:9944}"
     env_file:
       - path: .env
         required: false
     volumes:
       - "sidecar-btcli-data:${RT_BTCLI_DATA_DIR:-/var/lib/sidecar.btcli}"
     tty: true
+
+  reward-app:
+      image: redteamsubnet61/server.reward-app:latest
+      build:
+        context: .
+        dockerfile: ./services/rewarding/Dockerfile
+      depends_on:
+        - subtensor
+        - sidecar-btcli
+      restart: unless-stopped
+      privileged: true
+      environment:
+        TERM: ${TERM:-xterm}
+        TZ: ${TZ:-UTC}
+        RT_BT_SUBTENSOR_NETWORK: "${RT_BT_SUBTENSOR_NETWORK:-ws://subtensor:9944}"
+        HF_TOKEN: "${HF_TOKEN}"
+        RT_REWARD_APP_HF_REPO: ${RT_REWARD_APP_HF_REPO}
+        RT_REWARD_APP_HOTKEY: ${RT_REWARD_APP_HOTKEY}
+        RT_STORAGE_API_URL: "${RT_STORAGE_API_URL}"
+      env_file:
+        - path: .env
+          required: false
+      volumes:
+        - "/var/run/docker.sock:/var/run/docker.sock"
+        - "sidecar-btcli-data:${RT_BTCLI_DATA_DIR:-/var/lib/sidecar.btcli}"
+        - "reward-app-logs:${RT_REWARD_APP_LOGS_DIR:-/var/log/server.reward-app}"
+        - "reward-app-data:${RT_REWARD_APP_DATA_DIR:-/var/lib/server.reward-app}"
+      tty: true
 
   validator:
       image: redteamsubnet61/agent.validator:latest
@@ -33,18 +62,25 @@ services:
       depends_on:
         - subtensor
         - sidecar-btcli
+        - reward-app
       restart: unless-stopped
       privileged: true
       environment:
         TERM: ${TERM:-xterm}
         TZ: ${TZ:-UTC}
-        HF_TOKEN: ${HF_TOKEN}
+        RT_VALIDATOR_USE_CENTRALIZED: true
+        RT_BT_SUBTENSOR_NETWORK: "${RT_BT_SUBTENSOR_NETWORK:-ws://subtensor:9944}"
+        RT_REWARD_APP_URL: "${RT_REWARD_APP_URL:-http://reward-app:${RT_REWARD_APP_PORT:-47920}}"
+        HF_TOKEN: "${HF_TOKEN}"
+        RT_VALIDATOR_HF_REPO: ${RT_VALIDATOR_HF_REPO}
+        RT_STORAGE_API_URL: "${RT_STORAGE_API_URL}"
       env_file:
         - path: .env
           required: false
       volumes:
         - "/var/run/docker.sock:/var/run/docker.sock"
         - "sidecar-btcli-data:${RT_BTCLI_DATA_DIR:-/var/lib/sidecar.btcli}"
+        - "validator-logs:${RT_VALIDATOR_LOGS_DIR:-/var/log/agent.validator}"
         - "validator-data:${RT_VALIDATOR_DATA_DIR:-/var/lib/agent.validator}"
       tty: true
 
@@ -60,39 +96,22 @@ services:
       environment:
         TERM: ${TERM:-xterm}
         TZ: ${TZ:-UTC}
+        RT_BT_SUBTENSOR_NETWORK: "${RT_BT_SUBTENSOR_NETWORK:-ws://subtensor:9944}"
       env_file:
         - path: .env
           required: false
       volumes:
         - "sidecar-btcli-data:${RT_BTCLI_DATA_DIR:-/var/lib/sidecar.btcli}"
+        - "miner-logs:${RT_MINER_LOGS_DIR:-/var/log/agent.miner}"
         - "miner-data:${RT_MINER_DATA_DIR:-/var/lib/agent.miner}"
-      tty: true
-
-  reward-validator:
-      image: redteamsubnet61/server.reward-validator:latest
-      build:
-        context: .
-        dockerfile: ./services/rewarding/Dockerfile
-      depends_on:
-        - subtensor
-        - sidecar-btcli
-      restart: unless-stopped
-      privileged: true
-      environment:
-        TERM: ${TERM:-xterm}
-        TZ: ${TZ:-UTC}
-      env_file:
-        - path: .env
-          required: false
-      volumes:
-        - "/var/run/docker.sock:/var/run/docker.sock"
-        - "sidecar-btcli-data:${RT_BTCLI_DATA_DIR:-/var/lib/sidecar.btcli}"
-        - "reward-validator-data:${RT_REWARD_VALIDATOR_DATA_DIR:-/var/lib/server.reward-validator}"
       tty: true
 
 volumes:
   subtensor-data:
   sidecar-btcli-data:
+  validator-logs:
   validator-data:
+  reward-app-logs:
+  reward-app-data:
+  miner-logs:
   miner-data:
-  reward-validator-data:

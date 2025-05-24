@@ -95,7 +95,7 @@ class HBChallengeManager(ChallengeManager):
             # Update miner's best submission
             miner_commit.scored_timestamp = time.time()
 
-            miner_state = self.miner_states[miner_commit.miner_uid]
+            miner_state = self.miner_states.get(miner_commit.miner_uid)
             if miner_state:
                 miner_state.update_best_commit(miner_commit)
                 bt.logging.debug(

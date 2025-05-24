@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.0.2 (2025-05-10)
+
+<!-- Release notes generated using configuration in .github/release.yml at v1.0.2 -->
+
+## What's Changed
+### ✨ Features
+* feat: threading for forward, set_weight for validators, fix hb_v3 batch, update challenges by @aliyuldashev in https://github.com/RedTeamSubnet/RedTeam/pull/60
+
+
+**Full Changelog**: https://github.com/RedTeamSubnet/RedTeam/compare/v1.0.1...v1.0.2
+
 ## v1.0.1 (2025-05-07)
 
 <!-- Release notes generated using configuration in .github/release.yml at v1.0.1 -->

@@ -1,20 +1,20 @@
-import datetime
-import hashlib
-import json
 import os
-import random
-import threading
+import json
 import time
+import random
+import hashlib
+import datetime
+import threading
 import traceback
-from concurrent.futures import ThreadPoolExecutor
 from queue import Empty, Queue
 from typing import Callable, Union, Optional
+from concurrent.futures import ThreadPoolExecutor
 
-import bittensor as bt
 import requests
+import bittensor as bt
 from diskcache import Cache
-from huggingface_hub import HfApi
 from pydantic import BaseModel
+from huggingface_hub import HfApi
 
 from redteam_core.validator.models import MinerChallengeCommit
 
@@ -66,15 +66,18 @@ class StorageManager:
 
         # Sync data from Hugging Face Hub to local cache if required
         if sync_on_init:
-            bt.logging.info("[STORAGE] Syncing data from Hugging Face Hub to local cache")
+            bt.logging.info(
+                "[STORAGE] Syncing data from Hugging Face Hub to local cache"
+            )
             self.sync_storage_to_cache()
 
         # Squash the HF repo on init if requested to pressure to HF
         if squash_hf_repo_on_init:
             bt.logging.info("[STORAGE] Squashing history of Hugging Face repo")
             self.hf_api.super_squash_history(repo_id=self.hf_repo_id)
-            bt.logging.success("[STORAGE] Successfully squashed commit history of Hugging Face repo")
-
+            bt.logging.success(
+                "[STORAGE] Successfully squashed commit history of Hugging Face repo"
+            )
 
     # MARK: Sync Methods
     def sync_storage_to_cache(self):
@@ -120,7 +123,7 @@ class StorageManager:
             # First try to fetch state from centralized scoring server with a dummy body tp get latest state from centralized scoring server
             dummy_body = {"subnet": "Redteam"}
             response = requests.post(
-                url=f"{constants.STORAGE_URL}/fetch-validator-state",
+                url=f"{constants.STORAGE_API.URL}/fetch-validator-state",
                 headers=self.validator_request_header_fn(dummy_body),
                 json=dummy_body,
                 timeout=60,
@@ -133,7 +136,7 @@ class StorageManager:
                 )
 
                 response = requests.post(
-                    url=f"{constants.STORAGE_URL}/fetch-validator-state",
+                    url=f"{constants.STORAGE_API.URL}/fetch-validator-state",
                     headers=self.validator_request_header_fn(body),
                     json=body,
                     timeout=60,
@@ -157,7 +160,6 @@ class StorageManager:
             )
 
         return None
-
 
     # MARK: Update Methods
     def update_commit(
@@ -221,7 +223,7 @@ class StorageManager:
         # Step 2: Centralized Storage with retry
         def centralized_operation():
             response = requests.post(
-                url=f"{constants.STORAGE_URL}/upload-commit",
+                url=f"{constants.STORAGE_API.URL}/upload-commit",
                 headers=self.validator_request_header_fn(data_dict),
                 json=data_dict,
                 timeout=60,
@@ -245,7 +247,9 @@ class StorageManager:
             self.hf_api.upload_file(
                 path_or_fileobj=json.dumps(
                     commit.public_view().model_dump(), indent=4
-                ).encode("utf-8"),  # Hide sensitive data
+                ).encode(
+                    "utf-8"
+                ),  # Hide sensitive data
                 path_in_repo=hf_filepath,
                 repo_id=self.hf_repo_id,
                 commit_message=f"Update commit {hashed_cache_key}",
@@ -295,7 +299,9 @@ class StorageManager:
             try:
                 self.update_commit(commit, async_update=False)
             except Exception:
-                bt.logging.error(f"[STORAGE] Error updating commit: {traceback.format_exc()}")
+                bt.logging.error(
+                    f"[STORAGE] Error updating commit: {traceback.format_exc()}"
+                )
 
         with ThreadPoolExecutor(max_workers=5) as executor:
             executor.map(safe_update_commit, commits)
@@ -342,7 +348,7 @@ class StorageManager:
         # Step 2: Centralized Storage with retry
         def centralized_operation():
             response = requests.post(
-                url=f"{constants.STORAGE_URL}/upload-validator-state",
+                url=f"{constants.STORAGE_API.URL}/upload-validator-state",
                 headers=self.validator_request_header_fn(data),
                 json=data,
                 timeout=60,
@@ -371,7 +377,7 @@ class StorageManager:
         data = {"hf_repo_id": self.hf_repo_id}
         try:
             response = requests.post(
-                url=f"{constants.STORAGE_URL}/upload-hf-repo-id",
+                url=f"{constants.STORAGE_API.URL}/upload-hf-repo-id",
                 headers=self.validator_request_header_fn(data),
                 json=data,
                 timeout=60,

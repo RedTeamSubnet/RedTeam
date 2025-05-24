@@ -1,18 +1,18 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import os
+import json
+import time
 import argparse
 import datetime
-import json
-import os
 import threading
-import time
 import traceback
 from typing import Annotated
 
-import bittensor as bt
-import requests
 import uvicorn
+import requests
+import bittensor as bt
 from fastapi import Body, FastAPI
 from prometheus_fastapi_instrumentator import Instrumentator
 
@@ -24,9 +24,14 @@ from redteam_core.validator.models import (
     MinerChallengeCommit,
     ScoringLog,
 )
+
 from cache import ScoringLRUCache
 
-REWARD_APP_HOTKEY = os.getenv("REWARD_APP_HOTKEY")
+
+ENV_PREFIX = "RT_"
+ENV_PREFIX_REWARD_APP = f"{ENV_PREFIX}REWARD_APP_"
+
+REWARD_APP_HOTKEY = os.getenv(f"{ENV_PREFIX_REWARD_APP}HOTKEY")
 REWARD_APP_UID = -1
 
 
@@ -149,15 +154,17 @@ class RewardApp(Validator):
         self._update_validators_miner_commits()
         # Update (aggregate) miner commits
         self._update_miner_commits()
-        bt.logging.success(f"[CENTRALIZED SCORING] Miner commits updated for {date_time}")
+        bt.logging.success(
+            f"[CENTRALIZED SCORING] Miner commits updated for {date_time}"
+        )
 
         # Update miner infos
         for challenge_name, challenge_manager in self.challenge_managers.items():
             miner_commits_for_this_challenge = []
             for (uid, hotkey), commits in self.miner_commits.items():
-                    for _challenge_name, commit in commits.items():
-                        if _challenge_name == challenge_name:
-                            miner_commits_for_this_challenge.append(commit)
+                for _challenge_name, commit in commits.items():
+                    if _challenge_name == challenge_name:
+                        miner_commits_for_this_challenge.append(commit)
 
             challenge_manager.update_miner_infos(
                 miner_commits=miner_commits_for_this_challenge
@@ -427,7 +434,7 @@ class RewardApp(Validator):
         )
 
     def run(self):
-        bt.logging.info("Starting RewardApp loop.")
+        bt.logging.info("Starting reward app loop.")
         # Try set weights after initial sync
         try:
             bt.logging.info("Initializing weights")
@@ -436,32 +443,34 @@ class RewardApp(Validator):
             bt.logging.error(f"Initial set weights error: {traceback.format_exc()}")
 
         while True:
-            start_epoch = time.time()
-
-            try:
-                self.forward()
-            except Exception as e:
-                bt.logging.error(f"Forward error: {traceback.format_exc()}")
-
-            end_epoch = time.time()
-            elapsed = end_epoch - start_epoch
-            time_to_sleep = max(0, self.config.reward_app.epoch_length - elapsed)
-            bt.logging.info(f"Epoch finished. Sleeping for {time_to_sleep} seconds.")
-            time.sleep(time_to_sleep)
+            # Check if we need to start a new forward thread
+            if self.forward_thread is None or not self.forward_thread.is_alive():
+                # Start new forward thread
+                self.forward_thread = threading.Thread(
+                    target=self._run_forward,
+                    daemon=True,
+                    name="validator_forward_thread",
+                )
+                self.forward_thread.start()
+                bt.logging.info("Started new forward thread")
 
             try:
                 self.set_weights()
+                bt.logging.success("Set weights completed")
             except Exception:
                 bt.logging.error(f"Set weights error: {traceback.format_exc()}")
 
             try:
                 self.resync_metagraph()
+                bt.logging.success("Resync metagraph completed")
             except Exception:
                 bt.logging.error(f"Resync metagraph error: {traceback.format_exc()}")
-
             except KeyboardInterrupt:
                 bt.logging.success("Keyboard interrupt detected. Exiting validator.")
                 exit()
+
+            # Sleep until next weight update
+            time.sleep(constants.EPOCH_LENGTH)
 
     # MARK: Commit Management
     def _update_validators_miner_commits(self):
@@ -492,7 +501,7 @@ class RewardApp(Validator):
         for validator_uid, validator_hotkey in valid_validators:
             # Skip if request fails
             try:
-                endpoint = f"{constants.STORAGE_URL}/fetch-latest-miner-commits"
+                endpoint = f"{constants.STORAGE_API.URL}/fetch-latest-miner-commits"
                 data = {
                     "validator_uid": validator_uid,
                     "validator_hotkey": validator_hotkey,
@@ -562,7 +571,10 @@ class RewardApp(Validator):
                 miner_uid,
                 miner_hotkey,
             ), miner_commits_in_challenges in miner_commits_from_validator.items():
-                if not (miner_uid < len(self.metagraph.hotkeys) and miner_hotkey == self.metagraph.hotkeys[miner_uid]):
+                if not (
+                    miner_uid < len(self.metagraph.hotkeys)
+                    and miner_hotkey == self.metagraph.hotkeys[miner_uid]
+                ):
                     # Skip if miner hotkey is uid does not belong to this hotkey
                     continue
 
@@ -672,7 +684,7 @@ class RewardApp(Validator):
         challenge_names = (
             [challenge_name] if challenge_name else list(self.scoring_results.keys())
         )
-        endpoint = f"{constants.STORAGE_URL}/upload-centralized-score"
+        endpoint = f"{constants.STORAGE_API.URL}/upload-centralized-score"
 
         all_scoring_results = []
 
@@ -756,7 +768,7 @@ class RewardApp(Validator):
                 # Request the most recent entries for this challenge
                 entries_per_challenge = 256  # Match the LRU cache size
 
-                endpoint = f"{constants.STORAGE_URL}/fetch-centralized-score"
+                endpoint = f"{constants.STORAGE_API.URL}/fetch-centralized-score"
                 data = {
                     "challenge_names": [challenge_name],
                     "limit": entries_per_challenge,  # Get the most recent entries

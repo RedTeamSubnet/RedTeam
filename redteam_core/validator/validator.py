@@ -18,6 +18,7 @@ class BaseValidator(ABC):
         self.current_block = 0
         self.node = SubstrateInterface(url=self.config.subtensor.chain_endpoint)
         self.is_running = False
+        self.forward_thread: threading.Thread = None
 
     def setup_logging(self):
         bt.logging.enable_default()
@@ -96,13 +97,27 @@ class BaseValidator(ABC):
         if self.is_running:
             bt.logging.debug("Stopping validator in background thread.")
             self.should_exit = True
+            # Clean up when exiting
             self.thread.join(5)
+            if self.forward_thread and self.forward_thread.is_alive():
+                bt.logging.info("Waiting for forward thread to complete...")
+                self.forward_thread.join(timeout=5)  # Give thread 5 seconds to finish
             self.is_running = False
             bt.logging.debug("Stopped")
 
     @abstractmethod
     def forward(self):
         pass
+
+    def _run_forward(self):
+        """Run a single forward pass in a separate thread."""
+        try:
+            start_time = time.time()
+            self.forward()
+            elapsed = time.time() - start_time
+            bt.logging.success(f"Forward completed in {elapsed:.2f} seconds")
+        except Exception:
+            bt.logging.error(f"Forward error: {traceback.format_exc()}")
 
     def run(self):
         bt.logging.info("Starting validator loop.")
@@ -114,19 +129,12 @@ class BaseValidator(ABC):
             bt.logging.error(f"Initial set weights error: {traceback.format_exc()}")
 
         while True:
-            start_epoch = time.time()
-
-            try:
-                self.forward()
-                bt.logging.success("Forward completed")
-            except Exception:
-                bt.logging.error(f"Forward error: {traceback.format_exc()}")
-
-            end_epoch = time.time()
-            elapsed = end_epoch - start_epoch
-            time_to_sleep = max(0, constants.EPOCH_LENGTH - elapsed)
-            bt.logging.info(f"Epoch finished. Sleeping for {time_to_sleep} seconds.")
-            time.sleep(time_to_sleep)
+            # Check if we need to start a new forward thread
+            if self.forward_thread is None or not self.forward_thread.is_alive():
+                # Start new forward thread
+                self.forward_thread = threading.Thread(target=self._run_forward, daemon=True, name="validator_forward_thread")
+                self.forward_thread.start()
+                bt.logging.info("Started new forward thread")
 
             try:
                 self.set_weights()
@@ -139,10 +147,12 @@ class BaseValidator(ABC):
                 bt.logging.success("Resync metagraph completed")
             except Exception:
                 bt.logging.error(f"Resync metagraph error: {traceback.format_exc()}")
-
             except KeyboardInterrupt:
                 bt.logging.success("Keyboard interrupt detected. Exiting validator.")
                 exit()
+
+            # Sleep until next weight update
+            time.sleep(constants.EPOCH_LENGTH)
 
     @abstractmethod
     def set_weights(self):
