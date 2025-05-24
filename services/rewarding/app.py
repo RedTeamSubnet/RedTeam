@@ -13,6 +13,7 @@ from typing import Annotated
 import uvicorn
 import requests
 import bittensor as bt
+from dotenv import load_dotenv
 from fastapi import Body, FastAPI
 from prometheus_fastapi_instrumentator import Instrumentator
 
@@ -25,14 +26,16 @@ from redteam_core.validator.models import (
     ScoringLog,
 )
 
-from cache import ScoringLRUCache
+from .cache import ScoringLRUCache
+
+load_dotenv()
 
 
 ENV_PREFIX = "RT_"
 ENV_PREFIX_REWARD_APP = f"{ENV_PREFIX}REWARD_APP_"
 
 REWARD_APP_HOTKEY = os.getenv(f"{ENV_PREFIX_REWARD_APP}HOTKEY")
-REWARD_APP_UID = -1
+REWARD_APP_UID = int(os.getenv(f"{ENV_PREFIX_REWARD_APP}UID"))
 
 
 def get_reward_app_config() -> bt.Config:

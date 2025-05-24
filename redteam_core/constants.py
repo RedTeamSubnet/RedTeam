@@ -3,6 +3,7 @@ import datetime
 from typing import Type, Tuple, Optional
 from typing_extensions import Self
 
+from dotenv import load_dotenv
 from pydantic import Field, model_validator, AnyHttpUrl
 from pydantic_settings import (
     BaseSettings,
@@ -13,6 +14,7 @@ from pydantic_settings import (
 from .__version__ import __version__
 from .common import generate_constants_docs
 
+load_dotenv()
 
 ENV_PREFIX = "RT_"
 ENV_PREFIX_BT = f"{ENV_PREFIX}BT_"

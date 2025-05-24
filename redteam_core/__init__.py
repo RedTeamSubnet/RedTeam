@@ -5,7 +5,9 @@ from .protocol import Commit
 from .validator import BaseValidator
 from .common import generate_constants_docs
 from . import challenge_pool
+from dotenv import load_dotenv
 
+load_dotenv()
 constant_docs = generate_constants_docs(MainConfig)
 
 __all__ = [
