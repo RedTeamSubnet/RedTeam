@@ -69,10 +69,9 @@ class StorageApiConfig(BaseConfig):
 
 
 class RewardAppConfig(BaseConfig):
-    HTTP_SCHEME: str = Field(default="http")
-    HOST: str = Field(default="storage.redteam.technology")
-    PORT: int = Field(default=80)
-    BASE_PATH: str = Field(default="/rewarding")
+    HTTP_SCHEME: str = Field(default="https")
+    HOST: str = Field(default="scoring-api.theredteam.io")
+    PORT: int = Field(default=443)
 
     URL: Optional[AnyHttpUrl] = Field(
         default=None, description="URL for rewarding miners"
@@ -80,13 +79,12 @@ class RewardAppConfig(BaseConfig):
 
     @model_validator(mode="after")
     def _check_all(self) -> Self:
-        _reward_url_template = "{http_scheme}://{host}:{port}{base_path}"
+        _reward_url_template = "{http_scheme}://{host}:{port}"
         if not self.URL:
             self.URL = _reward_url_template.format(
                 http_scheme=self.HTTP_SCHEME,
                 host=self.HOST,
                 port=self.PORT,
-                base_path=self.BASE_PATH,
             )
 
         return self
