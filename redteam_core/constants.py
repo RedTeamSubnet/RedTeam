@@ -20,6 +20,7 @@ ENV_PREFIX = "RT_"
 ENV_PREFIX_BT = f"{ENV_PREFIX}BT_"
 ENV_PREFIX_STORAGE_API = f"{ENV_PREFIX}STORAGE_API_"
 ENV_PREFIX_REWARD_APP = f"{ENV_PREFIX}REWARD_APP_"
+ENV_PREFIX_VALIDATOR = f"{ENV_PREFIX}VALIDATOR_"
 
 
 ##-----------------------------------------------------------------------------
@@ -44,6 +45,13 @@ class FrozenBaseConfig(BaseConfig):
 
 
 ##-----------------------------------------------------------------------------
+
+
+class ValidatorConfig(BaseConfig):
+    UPDATE_RATE_MINUTES: int = Field(default=60, description="Update rate in minutes.")
+    UPDATE_BRANCH_NAME: str = Field(default="main", description="Update branch name.")
+
+    model_config = SettingsConfigDict(env_prefix=ENV_PREFIX_VALIDATOR)
 
 
 class StorageApiConfig(BaseConfig):
@@ -173,9 +181,7 @@ class MainConfig(BaseSettings):
 
     STORAGE_API: StorageApiConfig = Field(default_factory=StorageApiConfig)
     REWARD_APP: RewardAppConfig = Field(default_factory=RewardAppConfig)
-
-    UPDATE_RATE_MINUTES: int = Field(default=60, description="Update rate in minutes.")
-    UPDATE_BRANCH_NAME: str = Field(default="main", description="Update branch name.")
+    VALIDATOR: ValidatorConfig = Field(default_factory=ValidatorConfig)
 
     # Centralized API settings
     # STORAGE_URL: AnyUrl = Field(
