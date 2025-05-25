@@ -1,5 +1,20 @@
 # Changelog
 
+## v2.0.0 (2025-05-25)
+
+<!-- Release notes generated using configuration in .github/release.yml at v2.0.0 -->
+
+## What's Changed
+### 💬 Other
+* Hotfix/commit issues by @haihp02 in https://github.com/RedTeamSubnet/RedTeam/pull/61
+* Add auto-updater functionality for validator. by @ap-choji in https://github.com/RedTeamSubnet/RedTeam/pull/62
+* Migrate to new domain by @aliyuldashev in https://github.com/RedTeamSubnet/RedTeam/pull/63
+
+## New Contributors
+* @ap-choji made their first contribution in https://github.com/RedTeamSubnet/RedTeam/pull/62
+
+**Full Changelog**: https://github.com/RedTeamSubnet/RedTeam/compare/v1.0.2...v2.0.0
+
 ## v1.0.2 (2025-05-10)
 
 <!-- Release notes generated using configuration in .github/release.yml at v1.0.2 -->
