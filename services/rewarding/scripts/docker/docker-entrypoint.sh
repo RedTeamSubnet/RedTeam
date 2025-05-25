@@ -2,7 +2,7 @@
 set -euo pipefail
 
 
-echo "INFO: Running '${RT_REWARD_VALIDATOR_SLUG}' docker-entrypoint.sh..."
+echo "INFO: Running '${RT_REWARD_APP_SLUG}' docker-entrypoint.sh..."
 
 _doStart()
 {
@@ -42,16 +42,18 @@ _doStart()
 		done
 	fi
 
-	echo "INFO: Starting ${RT_REWARD_VALIDATOR_SLUG}..."
+	echo "INFO: Starting ${RT_REWARD_APP_SLUG}..."
 	exec sg docker "exec python -u ./services/rewarding/app.py \
-		--wallet.name \"${RT_REWARD_VALIDATOR_WALLET_NAME:-validator}\" \
+		--wallet.name \"${RT_REWARD_APP_WALLET_NAME:-validator}\" \
 		--wallet.path \"${RT_BTCLI_WALLET_DIR:-${RT_BTCLI_DATA_DIR:-/var/lib/sidecar.btcli}/wallets}\" \
 		--wallet.hotkey \"default\" \
-		--subtensor.network \"${RT_BT_SUBTENSOR_NETWORK:-ws://${RT_BT_SUBTENSOR_HOST:-subtensor}:${RT_BT_SUBTENSOR_WS_PORT:-9944}}\" \
+		--subtensor.network \"${RT_BT_SUBTENSOR_NETWORK:-${RT_BT_SUBTENSOR_WS_SCHEME:-ws}://${RT_BT_SUBTENSOR_HOST:-subtensor}:${RT_BT_SUBTENSOR_WS_PORT:-9944}}\" \
 		--network \"${RT_SUBTENSOR_NETWORK:-test}\" \
 		--netuid \"${RT_BT_SUBNET_NETUID:-2}\" \
-		--reward_app.port \"${RT_REWARD_VALIDATOR_PORT:-47920}\" \
-		--reward_app.epoch_length \"${RT_REWARD_VALIDATOR_EPOCH_LENGTH:-60}\"" || exit 2
+		--reward_app.port \"${RT_REWARD_APP_PORT:-47920}\" \
+		--reward_app.epoch_length \"${RT_REWARD_APP_EPOCH_LENGTH:-60}\" \
+		--validator.cache_dir \"${RT_REWARD_APP_DATA_DIR:-/var/lib/server.reward-app}/.cache\" \
+		--validator.hf_repo_id \"${RT_REWARD_APP_HF_REPO:-redteamsubnet61/server.reward-app}\"" || exit 2
 
 	exit 0
 }
@@ -60,14 +62,14 @@ _doStart()
 main()
 {
 	umask 0002 || exit 2
-	find "${RT_HOME_DIR}" "${RT_REWARD_VALIDATOR_DATA_DIR}" "${RT_REWARD_VALIDATOR_LOGS_DIR}" "${RT_REWARD_VALIDATOR_TMP_DIR}" -path "*/modules" -prune -o -name ".env" -o -print0 | sudo xargs -0 chown -c "${USER}:${GROUP}" || exit 2
-	find "${RT_REWARD_VALIDATOR_DIR}" "${RT_REWARD_VALIDATOR_DATA_DIR}" -type d -not -path "*/modules/*" -not -path "*/scripts/*" -exec sudo chmod 770 {} + || exit 2
-	find "${RT_REWARD_VALIDATOR_DIR}" "${RT_REWARD_VALIDATOR_DATA_DIR}" -type f -not -path "*/modules/*" -not -path "*/scripts/*" -not -name "*.sh" -exec sudo chmod 660 {} + || exit 2
-	find "${RT_REWARD_VALIDATOR_DIR}" "${RT_REWARD_VALIDATOR_DATA_DIR}" -type d -not -path "*/modules/*" -not -path "*/scripts/*" -exec sudo chmod ug+s {} + || exit 2
-	find "${RT_REWARD_VALIDATOR_LOGS_DIR}" "${RT_REWARD_VALIDATOR_TMP_DIR}" -type d -exec sudo chmod 775 {} + || exit 2
-	find "${RT_REWARD_VALIDATOR_LOGS_DIR}" "${RT_REWARD_VALIDATOR_TMP_DIR}" -type f -exec sudo chmod 664 {} + || exit 2
-	find "${RT_REWARD_VALIDATOR_LOGS_DIR}" "${RT_REWARD_VALIDATOR_TMP_DIR}" -type d -exec sudo chmod +s {} + || exit 2
-	chmod ug+x "${RT_REWARD_VALIDATOR_DIR}/services/rewarding/app.py" || exit 2
+	find "${RT_HOME_DIR}" "${RT_REWARD_APP_DATA_DIR}" "${RT_REWARD_APP_LOGS_DIR}" "${RT_REWARD_APP_TMP_DIR}" -path "*/modules" -prune -o -name ".env" -o -print0 | sudo xargs -0 chown -c "${USER}:${GROUP}" || exit 2
+	find "${RT_REWARD_APP_DIR}" "${RT_REWARD_APP_DATA_DIR}" -type d -not -path "*/modules/*" -not -path "*/scripts/*" -exec sudo chmod 770 {} + || exit 2
+	find "${RT_REWARD_APP_DIR}" "${RT_REWARD_APP_DATA_DIR}" -type f -not -path "*/modules/*" -not -path "*/scripts/*" -not -name "*.sh" -exec sudo chmod 660 {} + || exit 2
+	find "${RT_REWARD_APP_DIR}" "${RT_REWARD_APP_DATA_DIR}" -type d -not -path "*/modules/*" -not -path "*/scripts/*" -exec sudo chmod ug+s {} + || exit 2
+	find "${RT_REWARD_APP_LOGS_DIR}" "${RT_REWARD_APP_TMP_DIR}" -type d -exec sudo chmod 775 {} + || exit 2
+	find "${RT_REWARD_APP_LOGS_DIR}" "${RT_REWARD_APP_TMP_DIR}" -type f -exec sudo chmod 664 {} + || exit 2
+	find "${RT_REWARD_APP_LOGS_DIR}" "${RT_REWARD_APP_TMP_DIR}" -type d -exec sudo chmod +s {} + || exit 2
+	chmod ug+x "${RT_REWARD_APP_DIR}/services/rewarding/app.py" || exit 2
 	# echo "${USER} ALL=(ALL) ALL" | sudo tee -a "/etc/sudoers.d/${USER}" > /dev/null || exit 2
 	echo ""
 

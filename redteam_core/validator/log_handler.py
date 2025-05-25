@@ -1,12 +1,15 @@
+import queue
 import logging
-from logging.handlers import QueueHandler, QueueListener
-import requests
 import traceback
 import threading
-import queue
+from logging.handlers import QueueHandler, QueueListener
+
+import requests
 
 import bittensor as bt
+
 from redteam_core.constants import constants
+
 
 class BittensorLogHandler(logging.Handler):
     def __init__(self, api_key, buffer_size=100, level=logging.DEBUG):
@@ -55,23 +58,24 @@ class BittensorLogHandler(logging.Handler):
         if not logs:
             return
 
-        logging_endpoint = f"{constants.STORAGE_URL}/upload-log"
+        logging_endpoint = f"{constants.STORAGE_API.URL}/upload-log"
         payload = {"logs": logs}
-        headers = {
-            "Authorization": self.api_key,
-            "Content-Type": "application/json"
-        }
+        headers = {"Authorization": self.api_key, "Content-Type": "application/json"}
 
         try:
             response = requests.post(logging_endpoint, json=payload, headers=headers)
             response.raise_for_status()
         except requests.RequestException:
-            bt.logging.error(f"[LOG HANDLER] Failed to send logs: {traceback.format_exc()}")
+            bt.logging.error(
+                f"[LOG HANDLER] Failed to send logs: {traceback.format_exc()}"
+            )
 
         bt.logging.success(f"[LOG HANDLER] Successfully sent {len(logs)} logs")
 
     def close(self):
-        bt.logging.warning("[LOG HANDLER] Handler close() called, but we're ignoring it")
+        bt.logging.warning(
+            "[LOG HANDLER] Handler close() called, but we're ignoring it"
+        )
 
 
 def start_bittensor_log_listener(api_key, buffer_size=100):
@@ -88,7 +92,9 @@ def start_bittensor_log_listener(api_key, buffer_size=100):
     custom_handler = BittensorLogHandler(api_key, buffer_size)
 
     # Create our own listener that listens to the same queue
-    custom_listener = QueueListener(log_queue, custom_handler, respect_handler_level=True)
+    custom_listener = QueueListener(
+        log_queue, custom_handler, respect_handler_level=True
+    )
 
     # Start our custom listener
     custom_listener.start()

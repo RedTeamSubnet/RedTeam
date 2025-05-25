@@ -1,8 +1,11 @@
-from cryptography.fernet import Fernet
 import time
-from .constants import constants
-import bittensor as bt
 import copy
+
+import bittensor as bt
+from cryptography.fernet import Fernet
+
+from .constants import constants
+
 
 class Commit(bt.Synapse):
     """

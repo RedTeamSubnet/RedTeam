@@ -20,13 +20,13 @@ class AutoUpdater:
 
             try:
                 current_time = time.localtime()
-                if current_time.tm_min % constants.UPDATE_RATE_MINUTES == 0:
+                if current_time.tm_min % constants.VALIDATOR.UPDATE_RATE_MINUTES == 0:
                     self._check_for_updates()
                     time.sleep(60)
                 else:
                     sleep_minutes = (
-                        constants.UPDATE_RATE_MINUTES
-                        - current_time.tm_min % constants.UPDATE_RATE_MINUTES
+                        constants.VALIDATOR.UPDATE_RATE_MINUTES
+                        - current_time.tm_min % constants.VALIDATOR.UPDATE_RATE_MINUTES
                     )
                     bt.logging.info(f"Sleeping for {sleep_minutes} minutes")
                     time.sleep(sleep_minutes * 60 - current_time.tm_sec)
@@ -35,7 +35,9 @@ class AutoUpdater:
                 max_retries = 5
                 backoff_time = 1  # Start with 1 second
                 for attempt in range(1, max_retries + 1):
-                    bt.logging.info(f"Retrying in {backoff_time} seconds (attempt {attempt}/{max_retries})...")
+                    bt.logging.info(
+                        f"Retrying in {backoff_time} seconds (attempt {attempt}/{max_retries})..."
+                    )
                     time.sleep(backoff_time)
                     try:
                         self._check_for_updates()
@@ -56,7 +58,7 @@ class AutoUpdater:
 
             # Fetch latest changes
             repo.remotes.origin.fetch()
-            branch_name = constants.UPDATE_BRANCH_NAME
+            branch_name = constants.VALIDATOR.UPDATE_BRANCH_NAME
             new_version = repo.remotes.origin.refs[branch_name].commit.hexsha
 
             if current_version != new_version:
