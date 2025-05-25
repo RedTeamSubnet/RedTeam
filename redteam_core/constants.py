@@ -3,6 +3,7 @@ import datetime
 from typing import Type, Tuple, Optional
 from typing_extensions import Self
 
+from dotenv import load_dotenv
 from pydantic import Field, model_validator, AnyHttpUrl
 from pydantic_settings import (
     BaseSettings,
@@ -13,6 +14,7 @@ from pydantic_settings import (
 from .__version__ import __version__
 from .common import generate_constants_docs
 
+load_dotenv(override=True)
 
 ENV_PREFIX = "RT_"
 ENV_PREFIX_BT = f"{ENV_PREFIX}BT_"
@@ -45,10 +47,10 @@ class FrozenBaseConfig(BaseConfig):
 
 
 class StorageApiConfig(BaseConfig):
-    HTTP_SCHEME: str = Field(default="http")
-    HOST: str = Field(default="storage.redteam.technology")
-    PORT: int = Field(default=80)
-    BASE_PATH: str = Field(default="/storage")
+    HTTP_SCHEME: str = Field(default="https")
+    HOST: str = Field(default="storage-api.theredteam.io")
+    PORT: int = Field(default=443)
+    BASE_PATH: str = Field(default="")
 
     URL: Optional[AnyHttpUrl] = Field(
         default=None, description="URL for storing miners' work"
@@ -71,10 +73,10 @@ class StorageApiConfig(BaseConfig):
 
 
 class RewardAppConfig(BaseConfig):
-    HTTP_SCHEME: str = Field(default="http")
-    HOST: str = Field(default="storage.redteam.technology")
-    PORT: int = Field(default=80)
-    BASE_PATH: str = Field(default="/rewarding")
+    HTTP_SCHEME: str = Field(default="https")
+    HOST: str = Field(default="scoring-api.theredteam.io")
+    PORT: int = Field(default=443)
+    BASE_PATH: str = Field(default="")
 
     URL: Optional[AnyHttpUrl] = Field(
         default=None, description="URL for rewarding miners"
@@ -171,6 +173,9 @@ class MainConfig(BaseSettings):
 
     STORAGE_API: StorageApiConfig = Field(default_factory=StorageApiConfig)
     REWARD_APP: RewardAppConfig = Field(default_factory=RewardAppConfig)
+
+    UPDATE_RATE_MINUTES: int = Field(default=60, description="Update rate in minutes.")
+    UPDATE_BRANCH_NAME: str = Field(default="main", description="Update branch name.")
 
     # Centralized API settings
     # STORAGE_URL: AnyUrl = Field(
