@@ -31,8 +31,18 @@ class BittensorLogHandler(logging.Handler):
         if record.levelno < self.level:
             return
 
-        log_entry = self.format(record)  # Now JSON-formatted
-        self.log_queue.put(log_entry)
+        log_entry = {
+            "timestamp": record.created,
+            "level": record.levelname,
+            "message": record.getMessage(),
+            "name": record.name,
+            "module": record.module,
+            "filename": record.filename,
+            "lineno": record.lineno,
+            "process": {"name": record.processName, "id": record.process},
+            "thread": {"name": record.threadName, "id": record.thread},
+        }
+        self.log_queue.put(str(log_entry))
 
     def process_logs(self):
         """Daemon thread function: Collect logs and send in batches."""
