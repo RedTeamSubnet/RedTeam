@@ -135,12 +135,28 @@ class MinerManager:
         Uses square root transformation to reduce the impact of very high stakes, encourage small holders.
         """
         scores = np.zeros(n_uids)
-        # Apply square root transformation to reduce the impact of high stakes
         sqrt_alpha_stakes = np.sqrt(self.metagraph.alpha_stake)
-        total_sqrt_alpha_stakes = np.sum(sqrt_alpha_stakes)
-        if total_sqrt_alpha_stakes > 0:
-            # Normalize stakes to get scores between 0 and 1
-            scores = sqrt_alpha_stakes / total_sqrt_alpha_stakes
+
+        # Segment scores by coldkey
+        coldkey_to_uids = {}
+        for uid, coldkey in enumerate(self.metagraph.coldkeys):
+            if coldkey not in coldkey_to_uids:
+                coldkey_to_uids[coldkey] = []
+            coldkey_to_uids[coldkey].append(uid)
+
+        # Sum up sqrt stakes for each coldkey and assign to first UID
+        for coldkey, uids in coldkey_to_uids.items():
+            total_sqrt_stake = sum(sqrt_alpha_stakes[uid] for uid in uids)
+            scores[uids[0]] = total_sqrt_stake
+
+            # Zero out other UIDs for this coldkey
+            for uid in uids[1:]:
+                scores[uid] = 0
+
+        # Normalize scores
+        total_scores = np.sum(scores)
+        if total_scores > 0:
+            scores = scores / total_scores
 
         bt.logging.debug(f"[MINER MANAGER] Alpha stake scores: {scores.tolist()}")
 
