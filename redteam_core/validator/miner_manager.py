@@ -40,27 +40,39 @@ class MinerManager:
             np.ndarray: Aggregated and normalized scores for all miners
         """
         aggregated_scores = np.zeros(n_uids)
+        valid_weights_sum = 0.0
+        weights_to_redistribute = 0.0
+        valid_challenges = []
 
-        # Process each challenge
-        for _, challenge_manager in self.challenge_managers.items():
-            challenge_weight = challenge_manager.challenge_incentive_weight
-            challenge_scores = challenge_manager.get_challenge_scores()
+        # First pass to identify valid challenges and collect unused weights
+        for manager in self.challenge_managers.values():
+            challenge_scores = manager.get_challenge_scores()
+            score_sum = np.sum(challenge_scores)
 
+            if score_sum == 0:
+                weights_to_redistribute += manager.challenge_incentive_weight
+            else:
+                valid_weights_sum += manager.challenge_incentive_weight
+                valid_challenges.append(manager)
+
+        # Distribute leftover weights proportionally among valid challenges
+        for manager in valid_challenges:
+            adjusted_weight = manager.challenge_incentive_weight
+            if valid_weights_sum > 0:
+                adjusted_weight += (
+                    weights_to_redistribute
+                    * manager.challenge_incentive_weight
+                    / valid_weights_sum
+                )
+
+            challenge_scores = manager.get_challenge_scores()
             bt.logging.debug(
-                f"[MINER MANAGER] Challenge {challenge_manager.challenge_name} challenge_weight: {challenge_weight}\n "
-                f"Challenge scores: {challenge_scores.tolist()}\n "
+                f"[MINER MANAGER] Challenge {manager.challenge_name} challenge_scores: {challenge_scores.tolist()}, adjusted_weight: {adjusted_weight}"
             )
-
-            # Add weighted scores to aggregate
-            aggregated_scores += challenge_scores * challenge_weight
-
-        if np.sum(aggregated_scores) > 0:
-            aggregated_scores /= np.sum(aggregated_scores)
-
+            aggregated_scores += challenge_scores * adjusted_weight
         bt.logging.debug(
-            f"[MINER MANAGER] Aggregated challenge scores: {aggregated_scores.tolist()}"
+            f"[MINER MANAGER] Aggregated challenge scores: {aggregated_scores.tolist()}, valid_weights_sum: {valid_weights_sum}, weights_to_redistribute: {weights_to_redistribute}"
         )
-
         return aggregated_scores
 
     def _get_newly_registration_scores(self, n_uids: int) -> np.ndarray:
