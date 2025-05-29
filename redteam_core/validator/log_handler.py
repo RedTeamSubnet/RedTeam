@@ -32,17 +32,17 @@ class BittensorLogHandler(logging.Handler):
             return
 
         log_entry = {
+            "timestamp": record.created,
             "level": record.levelname,
             "message": record.getMessage(),
-            "timestamp": record.created,
             "name": record.name,
             "module": record.module,
-            "lineno": record.lineno,
             "filename": record.filename,
-            "pathname": record.pathname,
+            "lineno": record.lineno,
+            "process": {"name": record.processName, "id": record.process},
+            "thread": {"name": record.threadName, "id": record.thread},
         }
-
-        self.log_queue.put(log_entry)
+        self.log_queue.put(str(log_entry))
 
     def process_logs(self):
         """Daemon thread function: Collect logs and send in batches."""
