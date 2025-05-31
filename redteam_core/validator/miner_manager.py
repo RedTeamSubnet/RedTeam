@@ -222,7 +222,7 @@ class MinerManager:
         # registration_scores = self._get_newly_registration_scores(n_uids)
 
         # Get alpha stake scores
-        alpha_stake_scores = self._get_alpha_stake_scores(n_uids)
+        # alpha_stake_scores = self._get_alpha_stake_scores(n_uids)
 
         # Get alpha burn scores
         alpha_burn_scores = self._get_alpha_burn_scores(n_uids)
@@ -230,9 +230,9 @@ class MinerManager:
         # Combine scores using weights from constants
         final_scores = (
             challenge_scores * constants.CHALLENGE_SCORES_WEIGHT
-            # + registration_scores * constants.NEWLY_REGISTRATION_WEIGHT
-            + alpha_stake_scores * constants.ALPHA_STAKE_WEIGHT
             + alpha_burn_scores * constants.ALPHA_BURN_WEIGHT
+            # + registration_scores * constants.NEWLY_REGISTRATION_WEIGHT
+            # + alpha_stake_scores * constants.ALPHA_STAKE_WEIGHT
         )
 
         bt.logging.debug(
