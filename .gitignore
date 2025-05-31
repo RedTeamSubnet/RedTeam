@@ -522,3 +522,5 @@ logs/
 
 validator_env/
 miner_env/
+.rewardapp_cache/
+scoring_server_logs/
