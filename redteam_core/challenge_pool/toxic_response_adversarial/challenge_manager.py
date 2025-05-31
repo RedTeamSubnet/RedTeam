@@ -2,6 +2,7 @@ import numpy as np
 import time
 from redteam_core.validator.challenge_manager import ChallengeManager
 
+
 class ToxicResponseAdversarialChallengeManager(ChallengeManager):
     def get_challenge_scores(self):
         n_uids = int(self.metagraph.n)
@@ -15,7 +16,8 @@ class ToxicResponseAdversarialChallengeManager(ChallengeManager):
             if (
                 miner_state.miner_uid in uids
                 and miner_state.miner_hotkey in self.metagraph.hotkeys
-                and miner_state.miner_hotkey == self.metagraph.hotkeys[miner_state.miner_uid]
+                and miner_state.miner_hotkey
+                == self.metagraph.hotkeys[miner_state.miner_uid]
             ):
                 best_score = 0
 
@@ -27,7 +29,10 @@ class ToxicResponseAdversarialChallengeManager(ChallengeManager):
                     best_score = best_commit.score * decay_factor
 
                 # Compare with latest_commit if available
-                if miner_state.latest_commit is not None and miner_state.latest_commit.accepted:
+                if (
+                    miner_state.latest_commit is not None
+                    and miner_state.latest_commit.accepted
+                ):
                     latest_commit = miner_state.latest_commit
                     time_elapsed = current_time - latest_commit.scored_timestamp
                     decay_factor = max(0, 1 - (time_elapsed / decay_period))
@@ -38,10 +43,25 @@ class ToxicResponseAdversarialChallengeManager(ChallengeManager):
 
                 scores[miner_state.miner_uid] = best_score
 
-        # Apply softmax
-        temperature = self.challenge_info.get("temperature", 0.2)
-        scaled_scores = scores / temperature
-        scores_exp = np.exp(scaled_scores - np.max(scaled_scores))
-        softmax_scores = scores_exp / np.sum(scores_exp)
+        return self._apply_softmax(scores)
 
-        return softmax_scores
+    def _apply_softmax(self, scores):
+        """Apply softmax with custom temperature to scores."""
+
+        mask_nonzero = scores != 0
+
+        if not np.any(mask_nonzero):
+            return scores
+
+        nonzero_scores = scores[mask_nonzero]
+        nonzero_scores = np.clip(nonzero_scores, 0, None)
+        temperature = self.challenge_info.get("temperature", 0.2)
+        scaled_scores = nonzero_scores / temperature
+        max_score = np.max(scaled_scores)
+        scores_exp = np.exp(scaled_scores - max_score)
+        softmax_values = scores_exp / np.sum(scores_exp)
+
+        softmax_result = np.zeros_like(scores, dtype=float)
+        softmax_result[mask_nonzero] = softmax_values
+
+        return softmax_result

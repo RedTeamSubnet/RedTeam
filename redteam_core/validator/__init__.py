@@ -12,4 +12,5 @@ __all__ = [
     "ChallengeManager",
     "start_bittensor_log_listener",
     "ScoringLog",
+    "AutoUpdater",
 ]
