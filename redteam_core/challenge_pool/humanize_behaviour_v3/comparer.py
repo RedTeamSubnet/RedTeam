@@ -135,7 +135,7 @@ class HBComparer(Comparer):
                 or miner_commit.miner_hotkey == _other_miner_commit.miner_hotkey
             ):  # Same miner
                 bt.logging.debug(
-                    f"[COMPARER - HBComparer]Skipping comparing with batch {_other_miner_commit.batch_uid} for miner {miner_commit.miner_hotkey}"
+                    f"[COMPARER - HBComparer]Skipping comparing with batch {_other_miner_commit.miner_uid} for miner {miner_commit.miner_hotkey}"
                 )
                 continue
 
