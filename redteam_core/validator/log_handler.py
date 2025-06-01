@@ -1,3 +1,4 @@
+import datetime
 import queue
 import logging
 import traceback
@@ -30,15 +31,13 @@ class BittensorLogHandler(logging.Handler):
         """Capture log and enqueue it for asynchronous sending."""
         if record.levelno < self.level:
             return
-
         log_entry = {
-            "timestamp": record.created,
+            "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
             "level": record.levelname,
             "message": record.getMessage(),
             "name": record.name,
-            "module": record.module,
-            "filename": record.filename,
-            "lineno": record.lineno,
+            "file": record.filename,
+            "line": record.lineno,
             "process": {"name": record.processName, "id": record.process},
             "thread": {"name": record.threadName, "id": record.thread},
         }
