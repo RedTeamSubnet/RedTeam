@@ -143,14 +143,14 @@ class MainConfig(BaseSettings):
 
     # Weighting settings
     CHALLENGE_SCORES_WEIGHT: float = Field(
-        default=0.45, description="Weight of challenge scores."
+        default=0.5, description="Weight of challenge scores."
     )
     # NEWLY_REGISTRATION_WEIGHT: float = Field(
     #     default=0.05, description="Weight of newly registration scores."
     # )
-    ALPHA_STAKE_WEIGHT: float = Field(
-        default=0.05, description="Weight of alpha stake scores."
-    )
+    # ALPHA_STAKE_WEIGHT: float = Field(
+    #     default=0.05, description="Weight of alpha stake scores."
+    # )
     ALPHA_BURN_WEIGHT: float = Field(
         default=0.5, description="Weight of alpha burning."
     )

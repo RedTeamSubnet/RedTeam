@@ -24,19 +24,19 @@ We've introduced an exciting new way to score miners that rewards innovation and
 
 ### How the Score is Calculated
 
-When miners participate in challenges, their performance is evaluated based on their solutions. The scoring system has three key components, each designed to reward different aspects of participation:
+When miners participate in challenges, their performance is evaluated based on their solutions. The scoring system consists of three key components:
 
-1. **Challenge Score (75%)**: The majority of the score comes from how well the miner's solution performs in a challenge. The system compares each miner's solution with others and awards higher points for more innovative and effective solutions. Better solutions get a larger share of the points, thanks to the use of a softmax function.
+1. **Alpha Burn (50%)**: This mechanism reserves 50% of the alpha to maintain high subnet alpha and mitigate current inflation effects. Once the alpha reaches sufficient strength, the mechanism will be adjusted to incentivize staking miners. This approach helps maintain the subnet's value proposition.
 
-2. **Holding Alpha (15%)**: A small portion of the score is based on how much Alpha (our network's token) a participant is holding. This encourages participants to stay invested and engaged in the network, providing extra motivation to keep working on the challenges.
+2. **Decay Mechanism**: Submissions receive incentives for a limited period, requiring miners to regularly update their solutions to maintain their position in the subnet. Our comparison system identifies and penalizes duplicate submissions, encouraging continuous improvement and innovation.
 
-3. **New Participant Bonus (10%)**: We want to encourage newcomers to join and get involved, so we offer a bonus for newly registered participants. This bonus gradually decreases over time as the participants become more experienced and integrated into the community.
+3. **Fallback Mechanism**: When a new challenge is released, its weight allocation begins immediately. In cases where a challenge receives no valid submissions, its weights are automatically redistributed to other active challenges according to their respective weights, ensuring efficient resource allocation.
 
-Each of these components is normalized to ensure fairness, and then combined into one final score using the formula:
+The final score is calculated using a normalized formula that combines these components:
 
-- **Final Score = (75% * Challenge Score) + (15% * Alpha Holding Score) + (10% * New Participant Bonus)**
+- **Final Score = (50% * Challenge Score) + (50% * Alpha Burn)**
 
-This dynamic approach ensures that miners are rewarded for both their immediate contributions and long-term participation.
+This balanced approach ensures that miners are rewarded both for their technical solutions and their contribution to the subnet's stability.
 
 ## Validator Setup
 
