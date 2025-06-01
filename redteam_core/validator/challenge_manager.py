@@ -70,9 +70,9 @@ class ChallengeManager:
 
         # Track unique solutions set using cache keys
         self.max_unique_commits = challenge_info["max_unique_commits"]
-        self._unique_commits_heap: list[
-            tuple[float, str, str]
-        ] = []  # [(score, encrypted_commit, docker_hub_id)]
+        self._unique_commits_heap: list[tuple[float, str, str]] = (
+            []
+        )  # [(score, encrypted_commit, docker_hub_id)]
         self._unique_commits_set: set[str] = (
             set()
         )  # For O(1) lookup of existing commits
@@ -245,7 +245,8 @@ class ChallengeManager:
             if (
                 miner_state.miner_uid in uids
                 and miner_state.miner_hotkey in self.metagraph.hotkeys
-                and miner_state.miner_hotkey == self.metagraph.hotkeys[miner_state.miner_uid]
+                and miner_state.miner_hotkey
+                == self.metagraph.hotkeys[miner_state.miner_uid]
                 and miner_state.best_commit is not None
             ):
                 scores[miner_state.miner_uid] = miner_state.best_commit.score
@@ -330,3 +331,9 @@ class ChallengeManager:
         }
 
         return instance
+
+    def _validate_miner_in_metagraph(self, miner_uid: int, miner_hotkey: str) -> bool:
+        return (
+            miner_uid < len(self.metagraph.hotkeys)
+            and self.metagraph.hotkeys[miner_uid] == miner_hotkey
+        )
