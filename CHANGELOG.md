@@ -1,5 +1,20 @@
 # Changelog
 
+## v2.1.0 (2025-06-01)
+
+<!-- Release notes generated using configuration in .github/release.yml at v2.1.0 -->
+
+## What's Changed
+### ✨ Features
+* Feature/json log formatting by @renesweet24 in https://github.com/RedTeamSubnet/RedTeam/pull/65
+* feat(RT-127): Change weight distribution by @aliyuldashev in https://github.com/RedTeamSubnet/RedTeam/pull/66
+* Weighting system change by @aliyuldashev in https://github.com/RedTeamSubnet/RedTeam/pull/67
+
+## New Contributors
+* @renesweet24 made their first contribution in https://github.com/RedTeamSubnet/RedTeam/pull/65
+
+**Full Changelog**: https://github.com/RedTeamSubnet/RedTeam/compare/v2.0.0...v2.1.0
+
 ## v2.0.0 (2025-05-25)
 
 <!-- Release notes generated using configuration in .github/release.yml at v2.0.0 -->
