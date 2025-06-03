@@ -18,6 +18,42 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Download bump types
+        uses: actions/download-artifact@v4
+        with:
+          name: bump-types
+          path: bump-config/
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
+
+      - name: Get bump types
+        id: bump_types
+        run: |
+          echo "IMG_REGISTRY=${{ secrets.IMG_REGISTRY }}" >> ${GITHUB_ENV}
+          # Default values for tag-triggered builds
+          MINER_BUMP="minor"
+          VALIDATOR_BUMP="minor"
+          REWARD_VALIDATOR_BUMP="minor"
+
+          # Override with artifact values if available
+          if [ -f bump-config/miner_bump_type.txt ]; then
+            MINER_BUMP=$(cat bump-config/miner_bump_type.txt)
+          fi
+          if [ -f bump-config/validator_bump_type.txt ]; then
+            VALIDATOR_BUMP=$(cat bump-config/validator_bump_type.txt)
+          fi
+          if [ -f bump-config/reward_validator_bump_type.txt ]; then
+            REWARD_VALIDATOR_BUMP=$(cat bump-config/reward_validator_bump_type.txt)
+          fi
+
+          echo "miner_bump_type=${MINER_BUMP}" >> $GITHUB_OUTPUT
+          echo "validator_bump_type=${VALIDATOR_BUMP}" >> $GITHUB_OUTPUT
+          echo "reward_validator_bump_type=${REWARD_VALIDATOR_BUMP}" >> $GITHUB_OUTPUT
+
+          echo "Using bump types: miner=${MINER_BUMP}, validator=${VALIDATOR_BUMP}, reward_validator=${REWARD_VALIDATOR_BUMP}"
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -29,6 +65,40 @@ jobs:
       - name: Build the package
         run: |
           ./scripts/build.sh -c
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # Miner
+      - name: Build miner
+        run: |
+          ./neurons/miner/scripts/bump-version.sh --bump-type=${{ steps.bump_types.outputs.miner_bump_type }}
+          git add ./neurons/miner/VERSION.txt
+          ./neurons/miner/scripts/build.sh -c -u
+
+      # Validator
+      - name: Build validator
+        run: |
+          ./neurons/validator/scripts/bump-version.sh --bump-type=${{ steps.bump_types.outputs.validator_bump_type }}
+          git add ./neurons/validator/VERSION.txt
+          ./neurons/validator/scripts/build.sh -c -u
+
+      # Rewarding service
+      - name: Build reward-app
+        run: |
+          ./services/rewarding/scripts/bump-version.sh --bump-type=${{ steps.bump_types.outputs.reward_validator_bump_type }}
+          git add ./services/rewarding/VERSION.txt
+          ./services/rewarding/scripts/build.sh -c -u
+
+      - name: Update version
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git commit -m ":pushpin: Bump version to v$(./scripts/get-version.sh)"
+          git push
+
       - name: Create release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

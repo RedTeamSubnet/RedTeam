@@ -8,6 +8,24 @@ on:
         description: "Choose bump version type:"
         required: true
         options: ["patch", "minor", "major"]
+      miner_bump_type:
+        type: choice
+        description: "Miner bump version type:"
+        required: true
+        default: "patch"
+        options: ["patch", "minor", "major"]
+      validator_bump_type:
+        type: choice
+        description: "Validator bump version type:"
+        required: true
+        default: "patch"
+        options: ["patch", "minor", "major"]
+      reward_validator_bump_type:
+        type: choice
+        description: "Reward validator bump version type:"
+        required: true
+        default: "patch"
+        options: ["patch", "minor", "major"]
 
 jobs:
   # test:
@@ -40,6 +58,21 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Save bump types to artifacts
+        run: |
+          mkdir -p bump-config
+          echo "${{ inputs.miner_bump_type }}" > bump-config/miner_bump_type.txt
+          echo "${{ inputs.validator_bump_type }}" > bump-config/validator_bump_type.txt
+          echo "${{ inputs.reward_validator_bump_type }}" > bump-config/reward_validator_bump_type.txt
+
+      - name: Upload bump types
+        uses: actions/upload-artifact@v4
+        with:
+          name: bump-types
+          path: bump-config/
+          retention-days: 1
+
       - name: Bump version
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
