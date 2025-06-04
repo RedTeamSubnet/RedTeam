@@ -27,13 +27,13 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build reward-app
         run: |
-          ./services/rewarding/scripts/build.sh -c -u
+          ./services/rewarding/scripts/build.sh -c -u -g=${{ secrets.IMG_REGISTRY }}
       - name: Build validator
         run: |
-          ./neurons/validator/scripts/build.sh -c -u
+          ./neurons/validator/scripts/build.sh -c -u -g=${{ secrets.IMG_REGISTRY }}
       - name: Build miner
         run: |
-          ./neurons/miner/scripts/build.sh -c -u
+          ./neurons/miner/scripts/build.sh -c -u -g=${{ secrets.IMG_REGISTRY }}
       - name: Trigger release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
