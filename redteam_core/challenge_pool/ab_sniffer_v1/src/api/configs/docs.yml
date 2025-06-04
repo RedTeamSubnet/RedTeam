@@ -1,0 +1,15 @@
+api:
+  docs:
+    enabled: true
+    openapi_url: "{api_prefix}/openapi.json"
+    docs_url: "{api_prefix}/docs"
+    redoc_url: "{api_prefix}/redoc"
+    swagger_ui_oauth2_redirect_url: "{api_prefix}/docs/oauth2-redirect"
+    summary: "This is the API documentation for the Auto Browser Sniffer Challenge API."
+    openapi_tags:
+      - name: "Utils"
+        description: "Useful utility endpoints."
+      - name: "Challenge"
+        description: "Endpoints for challenge."
+    swagger_ui_parameters:
+      syntaxHighlight.theme: "nord"
