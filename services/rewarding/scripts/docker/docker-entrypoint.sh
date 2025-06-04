@@ -44,11 +44,10 @@ _doStart()
 
 	echo "INFO: Starting ${RT_REWARD_APP_SLUG}..."
 	exec sg docker "exec python -u ./services/rewarding/app.py \
-		--wallet.name \"${RT_REWARD_APP_WALLET_NAME:-validator}\" \
+		--wallet.name \"${RT_REWARD_APP_WALLET_NAME:-reward-app}\" \
 		--wallet.path \"${RT_BTCLI_WALLET_DIR:-${RT_BTCLI_DATA_DIR:-/var/lib/sidecar.btcli}/wallets}\" \
 		--wallet.hotkey \"default\" \
 		--subtensor.network \"${RT_BT_SUBTENSOR_NETWORK:-${RT_BT_SUBTENSOR_WS_SCHEME:-ws}://${RT_BT_SUBTENSOR_HOST:-subtensor}:${RT_BT_SUBTENSOR_WS_PORT:-9944}}\" \
-		--network \"${RT_SUBTENSOR_NETWORK:-test}\" \
 		--netuid \"${RT_BT_SUBNET_NETUID:-2}\" \
 		--reward_app.port \"${RT_REWARD_APP_PORT:-47920}\" \
 		--reward_app.epoch_length \"${RT_REWARD_APP_EPOCH_LENGTH:-60}\" \

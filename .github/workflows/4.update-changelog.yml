@@ -1,10 +1,13 @@
-name: 3. Update Changelog
+name: 4. Update Changelog
 
 on:
-  workflow_run:
-    workflows: ["2. Build and Publish"]
-    types:
-      - completed
+  # workflow_run:
+  #   workflows: ["3. Create Release"]
+  #   types:
+  #     - completed
+  #   branches:
+  #     - main
+  workflow_dispatch:
 
 jobs:
   build_publish:
