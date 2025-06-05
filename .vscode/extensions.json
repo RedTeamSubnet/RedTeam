@@ -5,7 +5,7 @@
 		"ms-toolsai.jupyter",
 		"ms-python.black-formatter",
 		"ms-vscode-remote.vscode-remote-extensionpack",
-		"ms-azuretools.vscode-docker",
+		"ms-azuretools.vscode-containers",
 		"ms-toolsai.datawrangler",
 		"njpwerner.autodocstring",
 		"editorconfig.editorconfig",
