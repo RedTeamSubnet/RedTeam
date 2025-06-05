@@ -1,0 +1,24 @@
+services:
+  challenger-api:
+    image: humanize_behaviour:0.0.1-241210
+    # volumes:
+    #   - "api-vscode-server:/home/wuc-user/.vscode-server"
+    # deploy:
+    #   replicas: 0
+    #   resources:
+    #     limits:
+    #       cpus: "0.5"
+    #       memory: 512M
+    # command: ["/bin/bash"]
+    # command: ["-b", "uvicorn main:app --host=0.0.0.0 --port=${HBC_API_PORT:-10001} --no-access-log --no-server-header --proxy-headers --forwarded-allow-ips='*'"]
+    # healthcheck:
+    #   test: ["CMD-SHELL", "curl -f http://localhost:${HBC_API_PORT:-10001}/ping"]
+    #   start_period: 30s
+    #   start_interval: 1s
+    #   interval: 5m
+    #   timeout: 5s
+    #   retries: 3
+
+
+# volumes:
+#   api-vscode-server:

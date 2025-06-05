@@ -1,0 +1,17 @@
+services:
+  bot:
+    image: bot:latest
+    build:
+      context: .
+      platforms:
+        - linux/amd64
+    environment:
+      TERM: ${TERM:-xterm}
+      TZ: UTC
+      HBC_WEB_URL: ${HBC_WEB_URL:-https://172.17.0.1:10001/_web}
+      HBC_ACTION_LIST: ${HBC_ACTION_LIST}
+      HBC_SESSION_COUNT: ${HBC_SESSION_COUNT}
+    env_file:
+      - path: .env
+        required: false
+    tty: true
