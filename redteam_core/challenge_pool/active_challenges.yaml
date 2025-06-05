@@ -106,3 +106,44 @@ humanize_behaviour_v3:
     - redteamsubnet61/base_hbv2_image4@sha256:6d2360ed9ff7310dbc31aee5ac61a9ebf60edbd4e85fd3077bfbdd42f7abd3f0
     - redteamsubnet61/base_hbv3_image1@sha256:14305b2d81d562a9549db0719ab4d8c19cc00dafc31fe826d28c5ab935fb3130
     - redteamsubnet61/base_hbv3_image2@sha256:fee9a54863c480c0088419e3b376b16ec99cf2fbdcf71211834b6e0bb155aefc
+
+ab_sniffer_v1:
+  name: "ab_sniffer_v1"
+  description: "Detect the driver type of the framework using a single detection.js script"
+  challenge_incentive_weight: 0.0
+  target: redteam_core.challenge_pool.ab_sniffer_v1.controller.ABSController
+  comparer: redteam_core.challenge_pool.ab_sniffer_v1.comparer.ABSComparer
+  challenge_manager: redteam_core.challenge_pool.ab_sniffer_v1.challenge_manager.ABSChallengeManager
+  max_unique_commits: 15
+  behavior_scaling_factor: 0.1
+  challenge_solve_timeout: 60
+  docker_run_timeout: 900
+  num_tasks: 1
+
+  challenge_container_run_kwargs:
+    name: "ab_sniffer_v1"
+    privileged: true
+    environment:
+      RT_CFG_RAND_SEED: "abcdef1234567890"
+
+  miner_container_run_kwargs:
+    cpu_count: 4
+    mem_limit: "12g"
+    network: "redteam_local"
+    environment:
+      CHALLENGE_NAME: "ab_sniffer_v1"
+
+  reset_challenge: true
+  protocols:
+    challenger: "http"
+    challenger_ssl_verify: false
+    miner: "http"
+    miner_ssl_verify: false
+  resource_limits:
+    num_cpus: 4
+    mem_limit: "12g"
+  environment:
+    ENV: "PRODUCTION"
+
+  baseline_reference_comparison_docker_hub_ids:
+    - redteamsubnet61/base_absv1_image1@sha256:63d7b294cd3b1ad6c798f47490c8b5f46cb5785867ec9d10159c0902d27ee6f4

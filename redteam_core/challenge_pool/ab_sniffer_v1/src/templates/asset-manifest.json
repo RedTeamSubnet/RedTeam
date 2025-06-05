@@ -1,0 +1,13 @@
+{
+	"files": {
+		"main.css": "/static/css/main.12db85a7.css",
+		"main.js": "/static/js/main.37eac1b4.js",
+		"detection.js": "/static/detection/detection.js",
+		"logo.light.svg": "/static/images/logo.light.svg",
+		"index.html": "/index.html"
+	},
+	"entrypoints": [
+		"static/css/main.12db85a7.css",
+		"static/js/main.37eac1b4.js"
+	]
+}
