@@ -1,0 +1,31 @@
+services:
+  challenger-api:
+    image: humanize_behaviour:latest
+    build:
+      context: .
+      platforms:
+        - linux/amd64
+    restart: unless-stopped
+    network_mode: bridge
+    platform: linux/amd64
+    privileged: true
+    ulimits:
+      nofile: 32768
+    environment:
+      TERM: ${TERM:-xterm}
+      TZ: UTC
+      HBC_API_PORT: ${HBC_API_PORT:-10001}
+    env_file:
+      - path: .env
+        required: false
+    volumes:
+      - "api-logs:${HBC_API_LOGS_DIR:-/var/log/rest.rt-hb-challenger}"
+      - "api-data:${HBC_API_DATA_DIR:-/var/lib/rest.rt-hb-challenger}"
+    ports:
+      - "${HBC_API_PORT:-10001}:${HBC_API_PORT:-10001}"
+    tty: true
+
+
+volumes:
+  api-logs:
+  api-data:
