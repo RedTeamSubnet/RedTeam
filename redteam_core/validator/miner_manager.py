@@ -67,11 +67,11 @@ class MinerManager:
 
             challenge_scores = manager.get_challenge_scores()
             bt.logging.debug(
-                f"[MINER MANAGER] Challenge {manager.challenge_name} challenge_scores: {challenge_scores.tolist()}, adjusted_weight: {adjusted_weight}"
+                f"Challenge {manager.challenge_name} challenge_scores: {challenge_scores.tolist()}, adjusted_weight: {adjusted_weight}"
             )
             aggregated_scores += challenge_scores * adjusted_weight
         bt.logging.debug(
-            f"[MINER MANAGER] Aggregated challenge scores: {aggregated_scores.tolist()}, valid_weights_sum: {valid_weights_sum}, weights_to_redistribute: {weights_to_redistribute}"
+            f"Aggregated challenge scores: {aggregated_scores.tolist()}, valid_weights_sum: {valid_weights_sum}, weights_to_redistribute: {weights_to_redistribute}"
         )
         return aggregated_scores
 
@@ -123,9 +123,7 @@ class MinerManager:
             bt.logging.error(f"Error fetching uids registration time: {e}")
             return np.zeros(n_uids)
 
-        bt.logging.debug(
-            f"[MINER MANAGER] Newly registration scores: {scores.tolist()}"
-        )
+        bt.logging.debug(f"Newly registration scores: {scores.tolist()}")
 
         return scores
 
@@ -158,7 +156,7 @@ class MinerManager:
         if total_scores > 0:
             scores = scores / total_scores
 
-        bt.logging.debug(f"[MINER MANAGER] Alpha stake scores: {scores.tolist()}")
+        bt.logging.debug(f"Alpha stake scores: {scores.tolist()}")
 
         return scores
 
@@ -199,7 +197,7 @@ class MinerManager:
             bt.logging.error(f"Error calculating alpha burn score: {e}")
             return np.zeros(n_uids)
 
-        bt.logging.debug(f"[MINER MANAGER] Alpha burn scores: {scores.tolist()}")
+        bt.logging.debug(f"Alpha burn scores: {scores.tolist()}")
 
         return scores
 
@@ -207,12 +205,10 @@ class MinerManager:
         """
         Returns a numpy array of weighted scores combining:
         1. Challenge scores (based on performance improvements)
-        2. Newly registration scores (favoring recently registered UIDs)
-        3. Alpha stake scores (based on stake amount)
+        2. Alpha burn scores (based on burn amount)
 
         Weights are defined in constants:
-        - CHALLENGE_SCORES_WEIGHT (45%)
-        - ALPHA_STAKE_WEIGHT (5%)
+        - CHALLENGE_SCORES_WEIGHT (50%)
         - ALPHA_BURN_WEIGHT (50%)
         """
         # Get challenge performance scores
@@ -227,16 +223,23 @@ class MinerManager:
         # Get alpha burn scores
         alpha_burn_scores = self._get_alpha_burn_scores(n_uids)
 
+        # fallback if no valid submissions in any challenges
+        if np.sum(challenge_scores) <= 0:
+            bt.logging.info("No challenge scores, giving all weight to alpha burn")
+            alpha_burn_weight = (
+                constants.ALPHA_BURN_WEIGHT + constants.CHALLENGE_SCORES_WEIGHT
+            )
+        else:
+            alpha_burn_weight = constants.ALPHA_BURN_WEIGHT
+
         # Combine scores using weights from constants
         final_scores = (
             challenge_scores * constants.CHALLENGE_SCORES_WEIGHT
-            + alpha_burn_scores * constants.ALPHA_BURN_WEIGHT
+            + alpha_burn_scores * alpha_burn_weight
             # + registration_scores * constants.NEWLY_REGISTRATION_WEIGHT
             # + alpha_stake_scores * constants.ALPHA_STAKE_WEIGHT
         )
 
-        bt.logging.debug(
-            f"[MINER MANAGER] Onchain final scores: {final_scores.tolist()}\n "
-        )
+        bt.logging.debug(f"Onchain final scores: {final_scores.tolist()}\n ")
 
         return final_scores

@@ -26,6 +26,8 @@ VERSION_FILE_PATH="${VERSION_FILE_PATH:-VERSION.txt}"
 
 
 _BUMP_TYPE=""
+# Flags:
+_IS_ADD=false
 ## --- Variables --- ##
 
 
@@ -39,9 +41,12 @@ main()
 				-b=* | --bump-type=*)
 					_BUMP_TYPE="${_input#*=}"
 					shift;;
+				-a | --add)
+					_IS_ADD=true
+					shift;;
 				*)
 					echoError "Failed to parsing input -> ${_input}"
-					echoInfo "USAGE: ${0} -b=*, --bump-type=* [major | minor | patch]"
+					echoInfo "USAGE: ${0} -b=*, --bump-type=* [major | minor | patch] | -a, --add"
 					exit 1;;
 			esac
 		done
@@ -57,6 +62,10 @@ main()
 	if [ "${_BUMP_TYPE}" != "major" ] && [ "${_BUMP_TYPE}" != "minor" ] && [ "${_BUMP_TYPE}" != "patch" ]; then
 		echo "Bump type '${_BUMP_TYPE}' is invalid, should be: 'major', 'minor' or 'patch'!"
 		exit 1
+	fi
+
+	if [ "${_IS_ADD}" == true ]; then
+		exitIfNoGit
 	fi
 
 
@@ -83,6 +92,10 @@ main()
 	# Update the version file with the new version:
 	echo "${_new_version}" > "${VERSION_FILE_PATH}" || exit 2
 	echoOk "New version: '${_new_version}'"
+
+	if [ "${_IS_ADD}" == true ]; then
+		git add "${VERSION_FILE_PATH}" || exit 2
+	fi
 }
 
 main "${@:-}"

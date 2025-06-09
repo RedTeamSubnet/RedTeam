@@ -101,11 +101,13 @@ class Validator(BaseValidator):
 
         # Remove challenges that are not active and setup the active challenges
         if datetime.datetime.now(datetime.timezone.utc) <= datetime.datetime(
-            2025, 4, 23, 14, 0, 0, 0, datetime.timezone.utc
+            2025, 6, 9, 14, 0, 0, 0, datetime.timezone.utc
         ):
-            all_challenges.pop("humanize_behaviour_v3", None)
+            all_challenges.pop("humanize_behaviour_v4", None)
         else:
-            all_challenges.pop("humanize_behaviour_v2", None)
+            all_challenges.pop("humanize_behaviour_v3", None)
+            all_challenges.pop("response_quality_adversarial_v4", None)
+            all_challenges.pop("toxic_response_adversarial", None)
 
         self.active_challenges = all_challenges
 
