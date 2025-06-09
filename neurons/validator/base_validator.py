@@ -106,6 +106,8 @@ class Validator(BaseValidator):
             all_challenges.pop("humanize_behaviour_v4", None)
         else:
             all_challenges.pop("humanize_behaviour_v3", None)
+            all_challenges.pop("response_quality_adversarial_v4", None)
+            all_challenges.pop("toxic_response_adversarial", None)
 
         self.active_challenges = all_challenges
 
