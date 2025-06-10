@@ -1,7 +1,7 @@
 ab_sniffer_v1:
   name: "ab_sniffer_v1"
   description: "Detect the driver type of the framework using a single detection.js script"
-  challenge_incentive_weight: 0.0
+  challenge_incentive_weight: 0.3
   target: redteam_core.challenge_pool.ab_sniffer_v1.controller.ABSController
   comparer: redteam_core.challenge_pool.ab_sniffer_v1.comparer.ABSComparer
   challenge_manager: redteam_core.challenge_pool.ab_sniffer_v1.challenge_manager.ABSChallengeManager
@@ -43,7 +43,7 @@ ab_sniffer_v1:
 humanize_behaviour_v4:
   name: "humanize_behaviour_v4"
   description: "Imitate human-like behaviour for given UI tasks"
-  challenge_incentive_weight: 1
+  challenge_incentive_weight: 0.7
   target: redteam_core.challenge_pool.humanize_behaviour_v4.controller.HBController
   comparer: redteam_core.challenge_pool.humanize_behaviour_v4.comparer.HBComparer
   challenge_manager: redteam_core.challenge_pool.humanize_behaviour_v4.challenge_manager.HBChallengeManager
