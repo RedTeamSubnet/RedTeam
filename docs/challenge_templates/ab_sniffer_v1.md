@@ -71,6 +71,10 @@ We maintain strict originality standards:
 - 100% similarity = zero score
 - Similarity above 60% will result in proportional score penalties based on the **detected similarity percentage**.
 
+### Testing Solutions
+
+You can see testing guidelines here in [ab_sniffer_v1/docs/testing_manual.md](../../redteam_core/challenge_pool/ab_sniffer_v1/docs/testing_manual.md). After testing you can process with [Submission guide documentation](../3.submission_guide.md) or [Submission guide](#submission-guide)
+
 ## Submission Guide
 
 Follow 1~6 steps to submit your SDK.
