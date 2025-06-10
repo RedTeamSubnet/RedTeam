@@ -1,0 +1,30 @@
+services:
+  challenger-api:
+    image: redteamsubnet61/ab_sniffer_v1:latest
+    build:
+      context: .
+      platforms:
+        - linux/amd64
+    restart: unless-stopped
+    platform: linux/amd64
+    privileged: true
+    ulimits:
+      nofile: 32768
+    environment:
+      TERM: ${TERM:-xterm}
+      TZ: UTC
+      ABSC_API_PORT: ${ABSC_API_PORT:-10001}
+    env_file:
+      - path: .env
+        required: false
+    volumes:
+      - "api-logs:${ABSC_API_LOGS_DIR:-/var/log/rest.rt-abs-challenger}"
+      - "api-data:${ABSC_API_DATA_DIR:-/var/lib/rest.rt-abs-challenger}"
+    ports:
+      - "${ABSC_API_PORT:-10001}:${ABSC_API_PORT:-10001}"
+    tty: true
+
+
+volumes:
+  api-logs:
+  api-data:

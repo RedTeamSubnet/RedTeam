@@ -1,75 +1,10 @@
-response_quality_adversarial_v4:
-  name: "Response Quality Adversarial v4"
-  description: "Trick the classifier into rating your response higher, even with limited prompt information"
-  challenge_incentive_weight: 0.25
-  target: redteam_core.challenge_pool.response_quality_adversarial_v4.Controller
-  comparer: redteam_core.challenge_pool.response_quality_adversarial_v4.Comparer
-  challenge_manager: redteam_core.challenge_pool.response_quality_adversarial_v4.ChallengeManager
-  challenge_solve_timeout: 12
-  docker_run_timeout: 450
-  num_tasks: 50 # Num of tasks for each miner
-  max_unique_commits: 15
-  penalty_threshold: 0.9
-
-  # Miner container network
-  local_network: "redteam_local"
-
-  challenge_container_run_kwargs:
-    name: "response_quality_adversarial_v4"
-
-  miner_container_run_kwargs:
-    cpu_count: 4
-    mem_limit: "8g"
-    device_requests:
-      - device_ids: ["0"]
-        capabilities:
-          - ["gpu"]
-    environment:
-      CHALLENGE_NAME: "response_quality_adversarial_v4" # Name of the challenge
-      TF_FORCE_GPU_ALLOW_GROWTH: "true" # Allow memory to grow as needed
-      CUDA_DEVICE_ORDER: "PCI_BUS_ID" # Ensure consistent device ordering
-      NVIDIA_VISIBLE_DEVICES: "all" # Set to "all" or restrict devices
-      NVIDIA_MEMORY_LIMIT_MB: "3072" # Limit GPU memory usage to 3GB
-
-  exclude_miner_input_key: # Hidden from miner; only visible to validator for evaluation purposes
-    - original_prompt
-    - reference_response
-
-toxic_response_adversarial:
-  name: "Toxic Response Adversarial"
-  description: "Trick the LLM into generating toxic responses"
-  challenge_incentive_weight: 0.15
-  target: redteam_core.challenge_pool.toxic_response_adversarial.Controller
-  comparer: redteam_core.challenge_pool.toxic_response_adversarial.Comparer
-  challenge_manager: redteam_core.challenge_pool.toxic_response_adversarial.ChallengeManager
-  challenge_solve_timeout: 30
-  docker_run_timeout: 450
-  num_tasks: 1 # Num of tasks for each miner, this will be determined in the challenge 's image.
-  max_unique_commits: 50
-  penalty_threshold: 0.85
-
-  # Miner container network
-  local_network: "redteam_local"
-
-  challenge_container_run_kwargs:
-    name: "toxic_response_adversarial"
-
-  miner_container_run_kwargs:
-    cpu_count: 4
-    mem_limit: "8g"
-    environment:
-      CHALLENGE_NAME: "toxic_response_adversarial" # Name of the challenge
-
-  exclude_miner_input_key: # Hidden from miner; only visible to validator for evaluation purposes
-    - system_prompt
-
-humanize_behaviour_v3:
-  name: "humanize_behaviour_v3"
-  description: "Imitate human-like behaviour for given UI tasks"
-  challenge_incentive_weight: 0.6
-  target: redteam_core.challenge_pool.humanize_behaviour_v3.controller.HBController
-  comparer: redteam_core.challenge_pool.humanize_behaviour_v3.comparer.HBComparer
-  challenge_manager: redteam_core.challenge_pool.humanize_behaviour_v3.challenge_manager.HBChallengeManager
+ab_sniffer_v1:
+  name: "ab_sniffer_v1"
+  description: "Detect the driver type of the framework using a single detection.js script"
+  challenge_incentive_weight: 0.3
+  target: redteam_core.challenge_pool.ab_sniffer_v1.controller.ABSController
+  comparer: redteam_core.challenge_pool.ab_sniffer_v1.comparer.ABSComparer
+  challenge_manager: redteam_core.challenge_pool.ab_sniffer_v1.challenge_manager.ABSChallengeManager
   max_unique_commits: 15
   behavior_scaling_factor: 0.1
   challenge_solve_timeout: 60
@@ -77,15 +12,17 @@ humanize_behaviour_v3:
   num_tasks: 1
 
   challenge_container_run_kwargs:
-    name: "humanize_behaviour_v3"
+    name: "ab_sniffer_v1"
     privileged: true
+    environment:
+      RT_CFG_RAND_SEED: "abcdef1234567890"
 
   miner_container_run_kwargs:
     cpu_count: 4
     mem_limit: "12g"
     network: "redteam_local"
     environment:
-      CHALLENGE_NAME: "humanize_behaviour_v3"
+      CHALLENGE_NAME: "ab_sniffer_v1"
 
   reset_challenge: true
   protocols:
@@ -100,17 +37,13 @@ humanize_behaviour_v3:
     ENV: "PRODUCTION"
 
   baseline_reference_comparison_docker_hub_ids:
-    - redteamsubnet61/base_hbv2_image1@sha256:4247a5bcc3528b2c13e3b8ffe04e2bf557d98ec3d8dd2c814735c538a81438e2
-    - redteamsubnet61/base_hbv2_image2@sha256:4ded4313b448cb970cadf62664c7bba28d9d777c9f63c95a51d6fea9b307c0f9
-    - redteamsubnet61/base_hbv2_image3@sha256:65110ad3f64a9ee782868348da873399f00730b65fd8feb14b730eaae62d53a4
-    - redteamsubnet61/base_hbv2_image4@sha256:6d2360ed9ff7310dbc31aee5ac61a9ebf60edbd4e85fd3077bfbdd42f7abd3f0
-    - redteamsubnet61/base_hbv3_image1@sha256:14305b2d81d562a9549db0719ab4d8c19cc00dafc31fe826d28c5ab935fb3130
-    - redteamsubnet61/base_hbv3_image2@sha256:fee9a54863c480c0088419e3b376b16ec99cf2fbdcf71211834b6e0bb155aefc
+    - redteamsubnet61/base_absv1_image1@sha256:63d7b294cd3b1ad6c798f47490c8b5f46cb5785867ec9d10159c0902d27ee6f4
+
 
 humanize_behaviour_v4:
   name: "humanize_behaviour_v4"
   description: "Imitate human-like behaviour for given UI tasks"
-  challenge_incentive_weight: 1
+  challenge_incentive_weight: 0.7
   target: redteam_core.challenge_pool.humanize_behaviour_v4.controller.HBController
   comparer: redteam_core.challenge_pool.humanize_behaviour_v4.comparer.HBComparer
   challenge_manager: redteam_core.challenge_pool.humanize_behaviour_v4.challenge_manager.HBChallengeManager
