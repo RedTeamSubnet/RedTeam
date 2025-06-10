@@ -1,4 +1,4 @@
-# AB Sniffer v1 Submission Guide (Active after June [x]th 2025 14:00 UTC)
+# AB Sniffer v1 Submission Guide (Active after June 10th 2025 14:00 UTC)
 
 ## Overview
 
