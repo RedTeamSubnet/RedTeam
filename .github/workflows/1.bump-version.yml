@@ -8,6 +8,24 @@ on:
         description: "Choose bump version type:"
         required: true
         options: ["patch", "minor", "major"]
+      reward_app_bump_type:
+        type: choice
+        description: "Reward app bump version type:"
+        required: true
+        default: "patch"
+        options: ["patch", "minor", "major"]
+      validator_bump_type:
+        type: choice
+        description: "Validator bump version type:"
+        required: true
+        default: "patch"
+        options: ["patch", "minor", "major"]
+      miner_bump_type:
+        type: choice
+        description: "Miner bump version type:"
+        required: true
+        default: "patch"
+        options: ["patch", "minor", "major"]
 
 jobs:
   # test:
@@ -40,6 +58,11 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Bump types
+        run: |
+          ./services/rewarding/scripts/bump-version.sh -b=${{ inputs.reward_app_bump_type }} -a
+          ./neurons/validator/scripts/bump-version.sh -b=${{ inputs.validator_bump_type }} -a
+          ./neurons/miner/scripts/bump-version.sh -b=${{ inputs.miner_bump_type }} -a
       - name: Bump version
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

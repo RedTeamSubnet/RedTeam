@@ -1,5 +1,18 @@
 # Changelog
 
+## v2.2.0 (2025-06-09)
+
+<!-- Release notes generated using configuration in .github/release.yml at v2.2.0 -->
+
+## What's Changed
+### 💥 Breaking Changes
+* :zap: new hb_v4 challenge by @BaratovSokhibjon in https://github.com/RedTeamSubnet/RedTeam/pull/68
+### ✨ Features
+* ⚡ new hb_v4 challenge by @BaratovSokhibjon in https://github.com/RedTeamSubnet/RedTeam/pull/70
+
+
+**Full Changelog**: https://github.com/RedTeamSubnet/RedTeam/compare/v2.1.0...v2.2.0
+
 ## v2.1.0 (2025-06-01)
 
 <!-- Release notes generated using configuration in .github/release.yml at v2.1.0 -->

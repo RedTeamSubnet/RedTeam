@@ -148,6 +148,7 @@ ab_sniffer_v1:
   baseline_reference_comparison_docker_hub_ids:
     - redteamsubnet61/base_absv1_image1@sha256:63d7b294cd3b1ad6c798f47490c8b5f46cb5785867ec9d10159c0902d27ee6f4
 
+
 humanize_behaviour_v4:
   name: "humanize_behaviour_v4"
   description: "Imitate human-like behaviour for given UI tasks"
