@@ -1,4 +1,4 @@
-# Humanize Behaviour v4 Submission Guide (Active after June [x]th 2025 14:00 UTC)
+# Humanize Behaviour v4 Submission Guide (Active after June 9th 2025 14:00 UTC)
 
 ## Overview
 
@@ -70,6 +70,7 @@ Your bot will be scored on these human-like behaviors:
 - Mouse Movement Count within the session
 - Mouse Movement Trajectory Linearity
 - Keypress Behavior Pattern (typing speed and variations)
+- **Scroll Path Linearity(Scroll should be linear in single coordinate)**
 
 ### Plagiarism Check
 
@@ -79,6 +80,10 @@ We maintain strict originality standards:
 - 100% similarity = zero score
 - Similarity above 60% will result in proportional score penalties based on the **detected similarity percentage**.
 - Note: Comparisons are only made against other miners submissions, not your own previous Humanize Behaviour v3 entries.
+
+### Testing Solutions
+
+You can see testing guidelines here in [humanize_behaviour_v4/docs/testing_manual.md](../../redteam_core/challenge_pool/humanize_behaviour_v4/docs/testing_manual.md). After testing you can process with [Submission guide documentation](../3.submission_guide.md) or [Submission guide](#submission-guide)
 
 ## Submission Guide
 
