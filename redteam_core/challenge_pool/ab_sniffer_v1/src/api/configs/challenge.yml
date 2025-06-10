@@ -1,0 +1,16 @@
+challenge:
+  docker_ulimit: 32768
+  allowed_pip_pkg_dt: "2025-01-01T00:00:00Z"
+  allowed_file_exts: [".py", ".json", ".yaml", ".yml", ".txt", ".pt", ".js"]
+  bot_timeout: 30
+  framework_count: 4
+  repeated_framework_count: 3
+  framework_images:
+    - framework_name: seleniumbase
+      image: redteamsubnet61/seleniumbase:latest@sha256:09e096913e8b03cd427dd7c83ceb8f896a6734afd00ccd23387d371e0c024c32
+    - framework_name: seleniumdriverless
+      image: redteamsubnet61/seleniumdriverless@sha256:ae47376ea050af7bc681ecd9d4b6909b3c5694f818e6a99c04db441fc8a73a99
+    - framework_name: patchright
+      image: redteamsubnet61/patchright@sha256:ed73e5710d9111ff0b780ddb606f440d0c640a5b1a288afb47da72896b18a150
+    - framework_name: nodriver
+      image: redteamsubnet61/nodriver@sha256:38c465bd76f2aadc3787a1ab147f7e26dc8d5ae6ec28cc0167b85d2625df7bb8
