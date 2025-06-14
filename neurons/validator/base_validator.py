@@ -598,10 +598,11 @@ class Validator(BaseValidator):
         hotkeys = [self.metagraph.hotkeys[i] for i in uids]
         dendrite = bt.dendrite(wallet=self.wallet)
         synapse = Commit()
-
+        bt.logging.set_info()
         responses: list[Commit] = dendrite.query(
             axons, synapse, timeout=constants.QUERY_TIMEOUT
         )
+        bt.logging.set_debug()
 
         # Update new miner commits to self.miner_commits
         for uid, hotkey, response in zip(uids, hotkeys, responses):
