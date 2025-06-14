@@ -483,6 +483,8 @@ zsdoc/data
 # Zunit tests' output
 /tests/_output/*
 !/tests/_output/.gitkeep
+.vscode/launch.json
+redteam_core/challenge_pool/ab_sniffer_v1/src/package-lock.json
 
 # End of https://www.toptal.com/developers/gitignore/api/zsh,xcode,windows,visualstudiocode,vim,sublimetext,ssh,python,macos,linux,jupyternotebooks,jetbrains+all,powershell
 
@@ -522,3 +524,5 @@ logs/
 
 validator_env/
 miner_env/
+.rewardapp_cache/
+redteam_core/challenge_pool/ab_sniffer_v1/src/node_modules/
