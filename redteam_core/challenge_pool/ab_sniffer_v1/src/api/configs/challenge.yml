@@ -13,4 +13,4 @@ challenge:
     - framework_name: patchright
       image: redteamsubnet61/patchright@sha256:ed73e5710d9111ff0b780ddb606f440d0c640a5b1a288afb47da72896b18a150
     - framework_name: nodriver
-      image: redteamsubnet61/nodriver@sha256:38c465bd76f2aadc3787a1ab147f7e26dc8d5ae6ec28cc0167b85d2625df7bb8
+      image: redteamsubnet61/nodriver@sha256:a75c830c8d875b71cdc27f23c15594d538d48ccc747c9995e0929c4be57f773f
