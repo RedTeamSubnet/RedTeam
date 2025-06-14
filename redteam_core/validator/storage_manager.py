@@ -529,10 +529,12 @@ class StorageManager:
         Background thread function to process storage tasks from the queue.
         All tasks are tuples of (data, method) where method is a string identifier.
         """
+        hour_count = 1
         while True:
             try:
-                data, method = self._storage_queue.get(timeout=1)  # Wait for a task
-
+                # Wait task for 1 hour, execute immediately if there is a task
+                data, method = self._storage_queue.get(timeout=3600)
+                hour_count = 0
                 if method == "update_commit":
                     self.update_commit(data, async_update=False)
                 elif method == "update_validator_state":
@@ -543,8 +545,9 @@ class StorageManager:
                     bt.logging.warning(f"[STORAGE] Unknown processing method: {method}")
             except Empty:
                 bt.logging.debug(
-                    "[STORAGE] No tasks in the queue, keeping the thread alive"
+                    f"[STORAGE] No tasks in the queue, keeping the thread alive for {hour_count} hours"
                 )
+                hour_count += 1
             except Exception:
                 bt.logging.warning(
                     f"[STORAGE] Error processing storage queue: {traceback.format_exc()} when processing task: {method}, abort this one"
