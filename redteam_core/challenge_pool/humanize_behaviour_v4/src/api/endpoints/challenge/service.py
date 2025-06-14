@@ -149,7 +149,7 @@ def get_task() -> MinerInput:
 def score(miner_output: MinerOutput) -> float:
     """Score the miner output"""
     _score = 0.0
-    _num_tasks = config.challenge.n_ch_per_epoch
+    _num_tasks = config.challenge.n_ch_per_epoch * config.challenge.n_run_per_ch
 
     # Reset the task manager if needed
     if not tm.has_remaining_tasks():
