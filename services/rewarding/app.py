@@ -578,7 +578,7 @@ class RewardApp(Validator):
                     miner_uid < len(self.metagraph.hotkeys)
                     and miner_hotkey == self.metagraph.hotkeys[miner_uid]
                 ):
-                    # Skip if miner hotkey is uid does not belong to this hotkey
+                    # Skip if miner hotkey is not in metagraph
                     continue
 
                 miner_key = (miner_uid, miner_hotkey)

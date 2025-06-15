@@ -1,5 +1,18 @@
 # Changelog
 
+## v2.3.0 (2025-06-11)
+
+<!-- Release notes generated using configuration in .github/release.yml at v2.3.0 -->
+
+## What's Changed
+### ✨ Features
+* :zap: new ab_sniffer_v1 challenge by @BaratovSokhibjon in https://github.com/RedTeamSubnet/RedTeam/pull/69
+### 💬 Other
+* ⚡ new ab_sniffer_v1 challenge by @BaratovSokhibjon in https://github.com/RedTeamSubnet/RedTeam/pull/71
+
+
+**Full Changelog**: https://github.com/RedTeamSubnet/RedTeam/compare/v2.2.0...v2.3.0
+
 ## v2.2.0 (2025-06-09)
 
 <!-- Release notes generated using configuration in .github/release.yml at v2.2.0 -->

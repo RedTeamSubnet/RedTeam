@@ -78,6 +78,8 @@ def score(miner_output: MinerOutput) -> float:
                 time.sleep(1)
                 if detected_driver:
                     if detected_driver == framework_image_name:
+                        if framework_image_name not in detection_dict:
+                            detection_dict[framework_image_name] = []
                         detection_dict[framework_image_name].append(
                             {"detected": True, "execution_time": _execution_time}
                         )
@@ -85,6 +87,8 @@ def score(miner_output: MinerOutput) -> float:
                             f"Successfully detected driver: {detected_driver}"
                         )
                 else:
+                    if framework_image_name not in detection_dict:
+                        detection_dict[framework_image_name] = []
                     detection_dict[framework_image_name].append(
                         {"detected": False, "execution_time": _execution_time}
                     )
