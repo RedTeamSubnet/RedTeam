@@ -32,7 +32,7 @@ ENV_PREFIX = "RT_"
 ENV_PREFIX_REWARD_APP = f"{ENV_PREFIX}REWARD_APP_"
 
 REWARD_APP_HOTKEY = os.getenv(f"{ENV_PREFIX_REWARD_APP}HOTKEY")
-REWARD_APP_UID = -1
+REWARD_APP_UID = int(os.getenv(f"{ENV_PREFIX_REWARD_APP}UID"))
 
 
 def get_reward_app_config() -> bt.Config:
@@ -571,7 +571,10 @@ class RewardApp(Validator):
                 miner_uid,
                 miner_hotkey,
             ), miner_commits_in_challenges in miner_commits_from_validator.items():
-                if not (miner_uid < len(self.metagraph.hotkeys) and miner_hotkey == self.metagraph.hotkeys[miner_uid]):
+                if not (
+                    miner_uid < len(self.metagraph.hotkeys)
+                    and miner_hotkey == self.metagraph.hotkeys[miner_uid]
+                ):
                     # Skip if miner hotkey is not in metagraph
                     continue
 
