@@ -714,6 +714,9 @@ class Validator(BaseValidator):
                         ].get_unique_scored_docker_hub_ids()
                     ):
                         # Only reveal unique docker hub ids in one pass, also ignore if docker_hub_id has been scored
+                        bt.logging.info(
+                            f"[GET REVEALED COMMITS] Skipping commit: Already revealed: {uid} - {hotkey}"
+                        )
                         continue
                     else:
                         commit.docker_hub_id = docker_hub_id
@@ -722,6 +725,10 @@ class Validator(BaseValidator):
                         bt.logging.info(
                             f"[GET REVEALED COMMITS] Revealed commit: {uid} - {hotkey} - {challenge_name} - {commit.encrypted_commit}"
                         )
+                else:
+                    bt.logging.info(
+                        f"[GET REVEALED COMMITS] Skipping commit: Not revealed yet: {uid} - {hotkey}"
+                    )
 
         return revealed_commits
 
