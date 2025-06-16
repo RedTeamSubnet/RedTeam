@@ -1,8 +1,12 @@
-import bittensor as bt
+import pathlib
 import time
-from typing import Tuple
 import threading
 from abc import ABC, abstractmethod
+from typing import Tuple
+
+import yaml
+import bittensor as bt
+
 from ..protocol import Commit
 from ..common import get_config
 
@@ -69,16 +73,17 @@ class BaseMiner(ABC):
         # Start  starts the miner's axon, making it active on the network.
         self.axon.start()
 
-
         while True:
-            RESYNC_INTERVAL = 600 # resync every 10 minutes
+            RESYNC_INTERVAL = 600  # resync every 10 minutes
             SLEEP_TIME = 30
 
             try:
                 if time.time() - last_sync > RESYNC_INTERVAL:
                     bt.logging.info("Resyncing metagraph...")
                     self.metagraph.sync(subtensor=self.subtensor)
-                    bt.logging.info(f"Resynced metagraph Block: {self.metagraph.block.item()}")
+                    bt.logging.info(
+                        f"Resynced metagraph Block: {self.metagraph.block.item()}"
+                    )
                     last_sync = time.time()
                 time.sleep(SLEEP_TIME)
 
@@ -136,10 +141,20 @@ class BaseMiner(ABC):
         """
         self.stop_run_thread()
 
-    @abstractmethod
-    def forward(self, synapse: Commit) -> Commit:
-        ...
+    def _get_active_challenges(self):
+        active_challenges_path = (
+            pathlib.Path(__file__).parent.parent
+            / "challenge_pool"
+            / "active_challenges.yaml"
+        )
+        with open(active_challenges_path, "r") as f:
+            active_challenges = yaml.load(f, yaml.FullLoader)
+        active_challenges = list(active_challenges.keys())
+        bt.logging.info(f"Active challenges: {active_challenges}")
+        return active_challenges
 
     @abstractmethod
-    def blacklist(self, synapse: Commit) -> Tuple[bool, str]:
-        ...
+    def forward(self, synapse: Commit) -> Commit: ...
+
+    @abstractmethod
+    def blacklist(self, synapse: Commit) -> Tuple[bool, str]: ...
