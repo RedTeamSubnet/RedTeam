@@ -1,6 +1,7 @@
 services:
   miner-api:
     image: rest.rt-abs-miner:latest
+    network_mode: host
     build:
       context: .
       platforms:
@@ -16,3 +17,5 @@ services:
     ports:
       - "${HBM_API_PORT:-10002}:${HBM_API_PORT:-10002}"
     tty: true
+    volumes:
+      - "./src:/app"

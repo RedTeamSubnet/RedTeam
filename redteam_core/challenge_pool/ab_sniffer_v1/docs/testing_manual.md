@@ -18,37 +18,26 @@ This manual provides instructions for testing the Auto Browser Sniffer v1 challe
 
 - Paste your detection script into [detection.js](../src/templates/static/detection/detection.js)
 
-### Step 2: Setup
+### Step 2: Setup Challenge Environment
+
+- Run the following commands in separate terminal and leave it as is to see the logs:
 
 ```bash
 # Clone the repository
 git clone https://github.com/RedTeamSubnet/RedTeam.git
 cd RedTeam/redteam_core/challenge_pool/ab_sniffer_v1
 
-# Copy and configure the compose override file
-cp ./templates/compose/compose.override.dev.yml ./compose.override.yml
+bash ./scripts/setup.sh
 ```
 
-### Step 3: Configure Docker
+#### Step 3: Setup Testing Environment
 
-Uncomment the following line in [compose.override.yml](../compose.override.yml):
-
-```yml
-command: ["/bin/bash"]
-```
-
-### Step 4: Start the Challenge Server
+- In a separate terminal, run the following commands:
 
 ```bash
-./compose.sh start -l
-./compose.sh enter
-```
+cd RedTeam/redteam_core/miner/commits/ab_sniffer_v1
 
-### Step 5: Run Endpoints
-
-```bash
-sudo service docker start
-sg docker "python -u ./main.py"
+bash ./scripts/setup.sh
 ```
 
 ### Step 6: Test Your Script

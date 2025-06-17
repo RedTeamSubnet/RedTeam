@@ -1,7 +1,0 @@
-#!/bin/bash
-
-set -euo pipefail
-
-curl -X 'GET' \
-  'http://127.0.0.1:10003/test-eslint' \
-  -H 'accept: application/json' | jq
