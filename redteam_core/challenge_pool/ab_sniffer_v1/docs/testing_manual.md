@@ -20,27 +20,32 @@ This manual provides instructions for testing the Auto Browser Sniffer v1 challe
 
 ### Step 2: Setup Challenge Environment
 
-- Run the following commands in separate terminal and leave it as is to see the logs:
+```bash
+git clone https://github.com/RedTeamSubnet/RedTeam.git
+cd RedTeam
+```
+
+- Run the following commands in **separate terminal** and leave it as is to see the logs:
 
 ```bash
-# Clone the repository
-git clone https://github.com/RedTeamSubnet/RedTeam.git
-cd RedTeam/redteam_core/challenge_pool/ab_sniffer_v1
-
-bash ./scripts/setup.sh
+bash ./redteam_core/challenge_pool/ab_sniffer_v1/scripts/setup.sh
 ```
 
 #### Step 3: Setup Testing Environment
 
-- In a separate terminal, run the following commands:
+- In a **separate terminal**, run the following commands to set up miner environment:
 
 ```bash
-cd RedTeam/redteam_core/miner/commits/ab_sniffer_v1
-
-bash ./scripts/setup.sh
+bash ./redteam_core/miner/commits/ab_sniffer_v1/scripts/setup.sh
 ```
 
-### Step 6: Test Your Script
+### Step 4: Test Your Script
+
+- Run the following command to eslint test and run your script to get the score:
+
+```bash
+bash ./redteam_core/miner/commits/ab_sniffer_v1/scripts/test-script.sh
+```
 
 - Run the following command to test your script to test your script if it can detect seleniumdriverless:
 

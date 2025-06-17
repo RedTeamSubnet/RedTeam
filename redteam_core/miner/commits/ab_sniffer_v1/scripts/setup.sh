@@ -1,18 +1,16 @@
 #!/bin/bash
-# Exit on any error
-set -e
+set -euo pipefail
 
-# Define variables
-HOST="${HOST:-0.0.0.0}"
-PORT="${PORT:-10002}"
+## --- Base --- ##
+# Getting path of this script file:
+_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
+_PROJECT_DIR="$(cd "${_SCRIPT_DIR}/.." >/dev/null 2>&1 && pwd)"
+cd "${_PROJECT_DIR}" || exit 2
 
-# Start the server
-echo "Starting uvicorn server on ${HOST}:${PORT}"
-cd src || exit 1
-uvicorn app:app \
-   --host="$HOST" \
-   --port="$PORT" \
-   --no-access-log \
-   --no-server-header \
-   --proxy-headers \
-   --forwarded-allow-ips="*"
+# Build and start services in detached mode
+if ! docker compose up -d --build; then
+	echo "Error: Failed to start Docker Compose services" >&2
+	exit 1
+fi
+
+echo "Services started successfully"
