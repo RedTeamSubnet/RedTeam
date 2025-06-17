@@ -28,7 +28,7 @@ cd RedTeam
 - Run the following commands in **separate terminal** and **leave it as is** to see the logs:
 
 ```bash
-bash ./redteam_core/challenge_pool/ab_sniffer_v1/scripts/setup.sh
+bash ./redteam_core/challenge_pool/ab_sniffer_v1/scripts/setup-testing.sh
 ```
 
 #### Step 3: Setup Testing Environment
@@ -36,7 +36,7 @@ bash ./redteam_core/challenge_pool/ab_sniffer_v1/scripts/setup.sh
 - In a **separate terminal**, run the following commands to set up miner environment:
 
 ```bash
-bash ./redteam_core/miner/commits/ab_sniffer_v1/scripts/setup.sh
+bash ./redteam_core/miner/commits/ab_sniffer_v1/scripts/setup-testing.sh
 ```
 
 ### Step 4: Test Your Script
