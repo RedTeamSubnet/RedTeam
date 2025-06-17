@@ -8,7 +8,7 @@ _PROJECT_DIR="$(cd "${_SCRIPT_DIR}/.." >/dev/null 2>&1 && pwd)"
 cd "${_PROJECT_DIR}" || exit 2
 
 # Build and start services in detached mode
-if ! docker compose up -d --build; then
+if ! docker compose up -d; then
 	echo "Error: Failed to start Docker Compose services" >&2
 	exit 1
 fi

@@ -1,6 +1,6 @@
 services:
   miner-api:
-    image: rest.rt-abs-miner:latest
+    image: redteamsubnet61/rest.rt-abs-miner:latest
     network_mode: host
     build:
       context: .
