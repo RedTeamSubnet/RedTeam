@@ -16,6 +16,8 @@ ab_sniffer_v1:
     privileged: true
     environment:
       RT_CFG_RAND_SEED: "abcdef1234567890"
+    volumes:
+      - "${RT_WORKSPACE_DIR}/redteam_core/challenge_pool/ab_sniffer_v1/volumes/storage/rest.rt-abs-challenger:/var/log/rest.rt-abs-challenger"
 
   miner_container_run_kwargs:
     cpu_count: 4
@@ -39,7 +41,6 @@ ab_sniffer_v1:
   baseline_reference_comparison_docker_hub_ids:
     - redteamsubnet61/base_absv1_image1@sha256:63d7b294cd3b1ad6c798f47490c8b5f46cb5785867ec9d10159c0902d27ee6f4
 
-
 humanize_behaviour_v4:
   name: "humanize_behaviour_v4"
   description: "Imitate human-like behaviour for given UI tasks"
@@ -56,6 +57,8 @@ humanize_behaviour_v4:
   challenge_container_run_kwargs:
     name: "humanize_behaviour_v4"
     privileged: true
+    volumes:
+      - "${RT_WORKSPACE_DIR}/redteam_core/challenge_pool/humanize_behaviour_v4/volumes/storage/rest.rt-hb-challenger:/var/log/rest.rt-hb-challenger"
 
   miner_container_run_kwargs:
     cpu_count: 4

@@ -1,5 +1,17 @@
 import importlib
 import os
+import json
+from pathlib import Path
+
+# Set workspace directory environment variable
+WORKSPACE_DIR = os.getenv("RT_WORKSPACE_DIR")
+if not WORKSPACE_DIR:
+    # Get the absolute path of the current file
+    current_file = Path(__file__).resolve()
+    # Navigate up to the RedTeam root directory (3 levels up from challenge_pool)
+    workspace_dir = current_file.parent.parent.parent
+    WORKSPACE_DIR = str(workspace_dir)
+    os.environ["RT_WORKSPACE_DIR"] = WORKSPACE_DIR
 
 import yaml
 
@@ -10,7 +22,7 @@ ACTIVE_CHALLENGES_FILE = os.getenv(
     "ACTIVE_CHALLENGES_FILE", "redteam_core/challenge_pool/active_challenges.yaml"
 )
 CHALLENGE_CONFIGS = yaml.load(open(ACTIVE_CHALLENGES_FILE), yaml.FullLoader)
-
+CHALLENGE_CONFIGS = json.loads(os.path.expandvars(json.dumps(CHALLENGE_CONFIGS)))
 print(CHALLENGE_CONFIGS)
 
 
