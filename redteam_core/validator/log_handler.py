@@ -79,7 +79,7 @@ class BittensorLogHandler(logging.Handler):
                 f"[LOG HANDLER] Failed to send logs: {traceback.format_exc()}"
             )
 
-        bt.logging.success(f"[LOG HANDLER] Successfully sent {len(logs)} logs")
+        bt.logging.debug(f"[LOG HANDLER] Successfully sent {len(logs)} logs")
 
     def close(self):
         bt.logging.warning(

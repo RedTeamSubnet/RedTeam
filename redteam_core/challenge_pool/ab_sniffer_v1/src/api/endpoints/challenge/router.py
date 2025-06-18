@@ -1,12 +1,17 @@
 # -*- coding: utf-8 -*-
 
+import pathlib
 from fastapi import APIRouter, Request, HTTPException, Body
 from fastapi.responses import HTMLResponse, JSONResponse
 
 from api.endpoints.challenge.schemas import MinerInput, MinerOutput
 from api.endpoints.challenge import service
 from api.logger import logger
+from pydantic import BaseModel
 
+import os
+import json
+import subprocess
 
 router = APIRouter(tags=["Challenge"])
 
@@ -134,6 +139,113 @@ def post_compare(
         raise HTTPException(status_code=500, detail="Error in comparison request")
 
     return {"similarity_score": _score}
+
+
+class ESLintRequest(BaseModel):
+    js_content: str
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "js_content": "// Your JavaScript detection code here\nconsole.log('Hello World');"
+            }
+        }
+
+
+@router.post(
+    "/eslint-check",
+    summary="ESLint check",
+    description="This endpoint checks if the provided JavaScript content passes ESLint checks.",
+    responses={422: {}, 500: {}},
+)
+def eslint_check(request: Request, eslint_request: ESLintRequest) -> JSONResponse:
+    detection_file = os.path.join(
+        "/",
+        "app",
+        "rest.rt-abs-challenger",
+        "templates",
+        "static",
+        "detection",
+        "detection.js",
+    )
+
+    try:
+        # Ensure the directory exists
+        os.makedirs(os.path.dirname(detection_file), exist_ok=True)
+
+        # Write the JavaScript content to the file
+        with open(detection_file, "w", encoding="utf-8") as f:
+            f.write(eslint_request.js_content)
+
+        logger.info(
+            f"[{request.state.request_id}] - Written JavaScript content to {detection_file}"
+        )
+
+        cmd = ["npx", "eslint", "--format", "json", detection_file]
+
+        logger.info(f"[{request.state.request_id}] - Running: {' '.join(cmd)}")
+
+        result = subprocess.run(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            check=False,
+            timeout=30,
+        )
+
+        # Handle case where ESLint output might be empty or malformed
+        if not result.stdout.strip():
+            logger.warning(f"[{request.state.request_id}] - ESLint produced no output")
+            return JSONResponse(
+                {
+                    "passed": False,
+                    "message": "ESLint produced no output - possible syntax error",
+                    "errors": 1,
+                    "warnings": 0,
+                    "details": [{"message": "No ESLint output - check syntax"}],
+                }
+            )
+
+        lint_result = json.loads(result.stdout)
+        error_count = lint_result[0].get("errorCount", 0)
+        warning_count = lint_result[0].get("warningCount", 0)
+
+        if error_count > 0:
+            logger.warning(
+                f"[{request.state.request_id}] - ESLint found {error_count} errors"
+            )
+            return JSONResponse(
+                {
+                    "passed": False,
+                    "message": f"ESLint found {error_count} errors, {warning_count} warnings",
+                    "errors": error_count,
+                    "warnings": warning_count,
+                    "details": lint_result[0].get("messages", []),
+                }
+            )
+
+        logger.success(f"[{request.state.request_id}] - ESLint passed")
+        return JSONResponse(
+            {
+                "passed": True,
+                "message": "ESLint check passed",
+                "errors": 0,
+                "warnings": warning_count,
+            }
+        )
+
+    except json.JSONDecodeError as e:
+        logger.error(f"[{request.state.request_id}] - ESLint JSON decode error: {e}")
+        logger.error(f"[{request.state.request_id}] - ESLint stdout: {result.stdout}")
+        logger.error(f"[{request.state.request_id}] - ESLint stderr: {result.stderr}")
+        raise HTTPException(status_code=500, detail="ESLint output parsing failed")
+    except IOError as e:
+        logger.error(f"[{request.state.request_id}] - File write error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to write detection file")
+    except Exception as e:
+        logger.error(f"[{request.state.request_id}] - ESLint error: {e}")
+        raise HTTPException(status_code=500, detail="ESLint check failed")
 
 
 __all__ = ["router"]

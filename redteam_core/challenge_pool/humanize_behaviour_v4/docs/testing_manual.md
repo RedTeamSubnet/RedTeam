@@ -20,43 +20,35 @@ This manual provides instructions for testing the Humanize Behaviour v4 challeng
 - Paste your bot script into [bot.py](../src/bot/src/core/bot.py)
 - Add your requirements to [requirements.txt](../src/bot/requirements.txt)
 
-### Step 2: Setup
+### Step 2: Setup Challenge Environment
 
 ```bash
-# Clone the repository
 git clone https://github.com/RedTeamSubnet/RedTeam.git
-cd RedTeam/redteam_core/challenge_pool/humanize_behaviour_v4
-
-# Copy and configure the compose override file
-cp ./templates/compose/compose.override.dev.yml ./compose.override.yml
+cd RedTeam
 ```
 
-### Step 3: Configure Docker
-
-Uncomment the following line in [compose.override.yml](../compose.override.yml):
-
-```yml
-command: ["/bin/bash"]
-```
-
-### Step 4: Start the Challenge Server
+- Run the following commands in **separate terminal** and **leave it as is** to see the logs:
 
 ```bash
-./compose.sh start -l
-./compose.sh enter
+bash ./redteam_core/challenge_pool/humanize_behaviour_v4/scripts/setup-testing.sh
 ```
 
-### Step 5: Run Endpoints
+#### Step 3: Setup Testing Environment
+
+- In a **separate terminal**, run the following commands to set up miner environment:
 
 ```bash
-sudo service docker start
-sg docker "python -u ./main.py"
+bash ./redteam_core/miner/commits/humanize_behaviour_v4/scripts/setup-testing.sh
 ```
 
-### Step 6: Test Your Bot
+### Step 4: Test Your Script
 
-- Visit <https://localhost:10001/docs>
-- Test your bot using the `/score` endpoint
+- Run the following command to eslint test and run your script to get the score by simulating staging environment
+- You can see the logs in the first terminal where you ran the setup script
+
+```bash
+bash ./redteam_core/miner/commits/humanize_behaviour_v4/scripts/test-script.sh
+```
 
 ## Important Notes
 

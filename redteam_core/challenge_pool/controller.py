@@ -86,9 +86,9 @@ class Controller(BaseController):
         challenge_inputs = self.seed_inputs.copy()
         remaining_tasks = max(0, num_task - len(challenge_inputs))
         if remaining_tasks > 0:
-            challenge_inputs.extend([
-                self._get_challenge_from_container() for _ in range(remaining_tasks)
-            ])
+            challenge_inputs.extend(
+                [self._get_challenge_from_container() for _ in range(remaining_tasks)]
+            )
 
         # Score baseline first if it exists
         if self.baseline_commit.docker_hub_id:
@@ -115,7 +115,9 @@ class Controller(BaseController):
             uid, hotkey = miner_commit.miner_uid, miner_commit.miner_hotkey
 
             try:
-                bt.logging.info(f"[CONTROLLER] Scoring miner {uid} - {hotkey} with commit {miner_commit.encrypted_commit}")
+                bt.logging.info(
+                    f"[CONTROLLER] Scoring miner {uid} - {hotkey} with commit {miner_commit.encrypted_commit}"
+                )
                 # 1. Validate and setup miner container
                 self._setup_miner_container(miner_commit)
 
@@ -153,7 +155,7 @@ class Controller(BaseController):
         docker_utils.remove_container(
             client=self.docker_client,
             container_name=self.challenge_name,
-            stop_timeout=360,
+            stop_timeout=10,
             force=True,
             remove_volumes=True,
         )
@@ -180,7 +182,7 @@ class Controller(BaseController):
         docker_utils.remove_container(
             client=self.docker_client,
             container_name=self.challenge_name,
-            stop_timeout=360,
+            stop_timeout=10,
             force=True,
             remove_volumes=True,
         )
