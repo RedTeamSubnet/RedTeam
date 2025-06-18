@@ -14,8 +14,6 @@ services:
     env_file:
       - path: .env
         required: false
-    ports:
-      - "${HBM_API_PORT:-10002}:${HBM_API_PORT:-10002}"
     tty: true
     volumes:
       - "./src:/app"

@@ -2,6 +2,7 @@
 
 import os
 import sys
+import json
 import logging
 import pathlib
 import requests
@@ -73,18 +74,18 @@ def solve(miner_input: MinerInput = Body(...)) -> MinerOutput:
 @app.get("/test-script")
 def test_script() -> float:
     try:
-        # Get the solve output first
-        miner_input = {"random_val": "a1b2c3d4e5f6g7h8"}
-        miner_output: MinerOutput = solve(miner_input=miner_input)
+        _miner_output = solve(miner_input=MinerInput(random_val="a1b2c3d4e5f6g7h8"))
 
-        # Send to score endpoint with correct format
-        response = requests.post(
-            "http://localhost:10001/score",
-            json={
-                "miner_input": miner_input,
-                "miner_output": miner_output.model_dump(),
-            },
+        _url = "http://localhost:10001/score"
+        _payload = json.dumps(
+            {
+                "miner_input": {"random_val": "a1b2c3d4e5f6g7h8"},
+                "miner_output": _miner_output.model_dump(),
+            }
         )
+        _headers = {"Content-Type": "application/json"}
+
+        response = requests.request("POST", _url, headers=_headers, data=_payload)
 
         score = response.json()
         if not isinstance(score, (int, float)):

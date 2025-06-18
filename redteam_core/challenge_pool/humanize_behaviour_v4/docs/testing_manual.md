@@ -50,11 +50,6 @@ bash ./redteam_core/miner/commits/humanize_behaviour_v4/scripts/setup-testing.sh
 bash ./redteam_core/miner/commits/humanize_behaviour_v4/scripts/test-script.sh
 ```
 
-### Step 5: Test Your Bot
-
-- Visit <https://localhost:10001/docs>
-- Test your bot using the `/score` endpoint
-
 ## Important Notes
 
 - The server runs on port 10001 by default
