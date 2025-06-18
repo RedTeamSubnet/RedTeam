@@ -7,7 +7,11 @@ import traceback
 import docker
 
 from redteam_core.challenge_pool.base import BaseComparer
-from redteam_core.validator.models import MinerChallengeCommit, ComparisonLog, ScoringLog
+from redteam_core.validator.models import (
+    MinerChallengeCommit,
+    ComparisonLog,
+    ScoringLog,
+)
 from redteam_core.challenge_pool import docker_utils
 from redteam_core.constants import constants
 
@@ -60,7 +64,7 @@ class Comparer(BaseComparer):
             docker_utils.remove_container(
                 client=self.docker_client,
                 container_name=self.challenge_name,
-                stop_timeout=360,
+                stop_timeout=10,
                 force=True,
                 remove_volumes=True,
             )
@@ -70,7 +74,7 @@ class Comparer(BaseComparer):
                 remove_images=True,
                 remove_networks=True,
                 prune_volumes=True,
-                prune_builds=True
+                prune_builds=True,
             )
 
         except Exception as e:
@@ -161,7 +165,7 @@ class Comparer(BaseComparer):
                         similarity_score = self._compare_outputs(
                             miner_input=miner_log.miner_input,  # Both used the same input
                             miner_output=miner_log.miner_output,
-                            reference_output=other_log.miner_output
+                            reference_output=other_log.miner_output,
                         )
 
                         # Create a comparison log with the inputs and outputs
@@ -190,7 +194,9 @@ class Comparer(BaseComparer):
 
             # If we found any matching inputs, add the comparison logs
             if comparison_logs:
-                miner_commit.comparison_logs[other_commit.docker_hub_id] = comparison_logs
+                miner_commit.comparison_logs[other_commit.docker_hub_id] = (
+                    comparison_logs
+                )
                 bt.logging.info(
                     f"[COMPARER] Added {len(comparison_logs)} comparison logs for commit {miner_commit.encrypted_commit} against docker_hub_id {other_commit.docker_hub_id}"
                 )
@@ -260,7 +266,7 @@ class Comparer(BaseComparer):
         docker_utils.remove_container(
             client=self.docker_client,
             container_name=self.challenge_name,
-            stop_timeout=360,
+            stop_timeout=10,
             force=True,
             remove_volumes=True,
         )

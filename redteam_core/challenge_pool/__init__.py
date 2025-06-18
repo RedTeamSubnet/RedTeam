@@ -47,9 +47,13 @@ ACTIVE_CHALLENGES = {
         "comparer": get_obj_from_str(
             CHALLENGE_CONFIGS[challenge_name].get("comparer", None)
         ),
-        "challenge_manager": get_obj_from_str(
-            CHALLENGE_CONFIGS[challenge_name].get("challenge_manager", None)
-        ) if CHALLENGE_CONFIGS[challenge_name].get("challenge_manager", None) else ChallengeManager,
+        "challenge_manager": (
+            get_obj_from_str(
+                CHALLENGE_CONFIGS[challenge_name].get("challenge_manager", None)
+            )
+            if CHALLENGE_CONFIGS[challenge_name].get("challenge_manager", None)
+            else ChallengeManager
+        ),
     }
     for challenge_name in CHALLENGE_CONFIGS
 }

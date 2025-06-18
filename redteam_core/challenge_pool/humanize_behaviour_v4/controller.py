@@ -211,7 +211,7 @@ class HBController(Controller):
         docker_utils.remove_container(
             client=self.docker_client,
             container_name=self.challenge_name,
-            stop_timeout=60,
+            stop_timeout=10,
             force=True,
             remove_volumes=True,
         )

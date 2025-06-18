@@ -176,7 +176,7 @@ def create_network(
 def remove_container(
     client: docker.DockerClient,
     container_name: str,
-    stop_timeout: int = 360,
+    stop_timeout: int = 10,
     force: bool = True,
     remove_volumes: bool = True,
     max_retries: int = 12,
@@ -187,7 +187,7 @@ def remove_container(
     Args:
         client: Docker client instance
         container_name: Name of the container to remove
-        stop_timeout: Timeout in seconds for stopping the container (default: 30)
+        stop_timeout: Timeout in seconds for stopping the container (default: 10)
         force: Whether to force remove the container (default: True)
         remove_volumes: Whether to remove associated volumes (default: True)
         max_retries: Maximum number of removal attempts (default: 3)
@@ -217,7 +217,9 @@ def remove_container(
         target_container.reload()
         if target_container.status != "exited":
             bt.logging.info(f"Stopping container '{container_name}'")
-            target_container.stop(timeout=stop_timeout)
+            subprocess.run(
+                ["sudo", "docker", "stop", "-t", str(stop_timeout), container_name],
+            )
     except (docker.errors.NotFound, docker.errors.APIError) as e:
         bt.logging.info(f"Container stop status: {str(e)}")
     except Exception as e:
