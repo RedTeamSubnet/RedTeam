@@ -1,6 +1,7 @@
 services:
   miner-api:
-    image: rest.rt-abs-miner:latest
+    image: redteamsubnet61/rest.rt-abs-miner:latest
+    network_mode: host
     build:
       context: .
       platforms:
@@ -13,6 +14,6 @@ services:
     env_file:
       - path: .env
         required: false
-    ports:
-      - "${HBM_API_PORT:-10002}:${HBM_API_PORT:-10002}"
     tty: true
+    volumes:
+      - "./src:/app"
