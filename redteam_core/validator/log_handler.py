@@ -1,5 +1,6 @@
 import datetime
 import queue
+import json
 import logging
 import traceback
 import threading
@@ -35,13 +36,14 @@ class BittensorLogHandler(logging.Handler):
             "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
             "level": record.levelname,
             "message": record.getMessage(),
+            "level_no": record.levelno,
             "name": record.name,
             "file": record.filename,
             "line": record.lineno,
             "process": {"name": record.processName, "id": record.process},
             "thread": {"name": record.threadName, "id": record.thread},
         }
-        self.log_queue.put(str(log_entry))
+        self.log_queue.put(json.dumps(log_entry))
 
     def process_logs(self):
         """Daemon thread function: Collect logs and send in batches."""
