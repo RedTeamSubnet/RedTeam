@@ -20,13 +20,10 @@ from api.logger import logger
 
 
 def gen_ran_framework_sequence() -> list:
-    _frameworks = [
-        (item.framework_name, item.image) for item in config.challenge.framework_images
-    ]
-    _frameworks = config.challenge.framework_images
-    _nm_frameworks = _frameworks * config.challenge.repeated_framework_count
-    random.shuffle(_nm_frameworks)
-    return _nm_frameworks
+    frameworks = config.challenge.framework_images
+    repeated_frameworks = frameworks * config.challenge.repeated_framework_count
+    random.shuffle(repeated_frameworks)
+    return repeated_frameworks
 
 
 @validate_call

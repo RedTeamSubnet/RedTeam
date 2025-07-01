@@ -1,10 +1,10 @@
-ab_sniffer_v1:
-  name: "ab_sniffer_v1"
+ab_sniffer_v2:
+  name: "ab_sniffer_v2"
   description: "Detect the driver type of the framework using a single detection.js script"
   challenge_incentive_weight: 0.3
-  target: redteam_core.challenge_pool.ab_sniffer_v1.controller.ABSController
-  comparer: redteam_core.challenge_pool.ab_sniffer_v1.comparer.ABSComparer
-  challenge_manager: redteam_core.challenge_pool.ab_sniffer_v1.challenge_manager.ABSChallengeManager
+  target: redteam_core.challenge_pool.ab_sniffer_v2.controller.ABSController
+  comparer: redteam_core.challenge_pool.ab_sniffer_v2.comparer.ABSComparer
+  challenge_manager: redteam_core.challenge_pool.ab_sniffer_v2.challenge_manager.ABSChallengeManager
   max_unique_commits: 15
   behavior_scaling_factor: 0.1
   challenge_solve_timeout: 60
@@ -12,19 +12,19 @@ ab_sniffer_v1:
   num_tasks: 1
 
   challenge_container_run_kwargs:
-    name: "ab_sniffer_v1"
+    name: "ab_sniffer_v2"
     privileged: true
     environment:
       RT_CFG_RAND_SEED: "abcdef1234567890"
     volumes:
-      - "${RT_WORKSPACE_DIR}/redteam_core/challenge_pool/ab_sniffer_v1/volumes/storage/rest.rt-abs-challenger:/var/log/rest.rt-abs-challenger"
+      - "${RT_WORKSPACE_DIR}/redteam_core/challenge_pool/ab_sniffer_v2/volumes/storage/rest.rt-abs-challenger:/var/log/rest.rt-abs-challenger"
 
   miner_container_run_kwargs:
     cpu_count: 4
     mem_limit: "12g"
     network: "redteam_local"
     environment:
-      CHALLENGE_NAME: "ab_sniffer_v1"
+      CHALLENGE_NAME: "ab_sniffer_v2"
 
   reset_challenge: true
   protocols:

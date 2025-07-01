@@ -62,6 +62,8 @@ docker run --network=host \
     - redteamsubnet61/seleniumbase
     - redteamsubnet61/nodriver
     - redteamsubnet61/patchright
+    - redteamsubnet61/zendriver
+    - redteamsubnet61/puppeteer-extra
 
 ## Important Notes
 
