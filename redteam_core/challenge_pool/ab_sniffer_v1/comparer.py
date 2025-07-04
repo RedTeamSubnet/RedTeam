@@ -45,7 +45,6 @@ class ABSComparer(Comparer):
                         f"[COMPARER] Skipping comparison log for miner {miner_commit.miner_hotkey} against {reference_docker_hub_id}"
                     )
                     continue
-
                 try:
 
                     similarity_score = self._compare_outputs(

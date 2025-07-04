@@ -2,6 +2,7 @@ import traceback
 import time
 
 import bittensor as bt
+import numpy as np
 import requests
 
 
@@ -196,11 +197,11 @@ class ABSController(Controller):
                 # 1. Validate and setup miner container
                 self._setup_miner_container(miner_commit)
 
-                # 2. Score with new inputs
-                self._score_miner_with_new_inputs(miner_commit, challenge_inputs)
-
-                # 3. Run reference comparisons
+                # 2. Run reference comparisons
                 self._run_reference_comparison_inputs(miner_commit, challenge_inputs)
+
+                # 3. Score with new inputs
+                self._score_miner_with_new_inputs(miner_commit, challenge_inputs)
 
             except Exception as e:
                 bt.logging.error(f"Error while processing miner {uid} - {hotkey}: {e}")
@@ -254,41 +255,37 @@ class ABSController(Controller):
         all_reference_comparison_commits = self.reference_comparison_commits + list(
             ABSController._baseline_reference_cache.values()
         )
+        miner_output, error_message = self._submit_challenge_to_miner(challenge_inputs)
 
-        _sorted_miner_commits = sorted(
-            [
-                x
-                for x in miner_commit.scoring_logs
-                if x.miner_output["log_time"] is not None
-            ],
-            key=lambda x: x.miner_output["log_time"],
-        )
-        if _sorted_miner_commits:
-
-            _latest_commit = (
-                _sorted_miner_commits[-1]
-                if _sorted_miner_commits
-                else miner_commit.scoring_logs[-1]
+        if miner_output is None or error_message:
+            bt.logging.warning(
+                f"[CONTROLLER - ABSController] Miner {miner_commit.miner_hotkey} failed to produce output for reference comparison: {error_message}"
             )
+            miner_commit.scoring_logs.insert(
+                0,
+                ScoringLog(
+                    miner_input=challenge_inputs,
+                    miner_output=None,
+                    error=error_message,
+                    log_time=time.time(),
+                ),
+            )
+            return
+        miner_commit.scoring_logs.insert(
+            0,
+            ScoringLog(
+                miner_input=challenge_inputs,
+                miner_output=miner_output,
+                error=error_message,
+                log_time=time.time(),
+            ),
+        )
 
         for reference_commit in all_reference_comparison_commits:
             bt.logging.info(
                 f"[CONTROLLER - ABSController] Running comparison with reference commit {reference_commit.miner_uid}"
             )
-
-            # Skip if already compared, or if mean score is less than behavior scaling factor, or if miner is the same
-            if (
-                not _latest_commit
-                or reference_commit.docker_hub_id in miner_commit.comparison_logs
-                or _latest_commit.score < self.behavior_scaling_factor
-            ):
-                bt.logging.warning(
-                    f"[CONTROLLER - ABSController] Skipping comparison with {reference_commit.docker_hub_id} for miner {miner_commit.miner_uid} because it has already been compared or the mean score is below the behavior scaling factor."
-                )
-                continue
-            else:
-                miner_commit.comparison_logs[reference_commit.docker_hub_id] = []
-
+            miner_commit.comparison_logs[reference_commit.docker_hub_id] = []
             # Process each input from the reference commit's scoring logs
             for _, reference_log in enumerate(reference_commit.scoring_logs):
                 if (
@@ -299,13 +296,18 @@ class ABSController(Controller):
                         f"[CONTROLLER - ABSController] Skipping comparison with {reference_commit.docker_hub_id} for miner because the reference log is missing input or output."
                     )
                     continue
-
+                _similarity_score = self._compare_outputs(
+                    miner_input=reference_log.miner_input,
+                    miner_output=miner_output,
+                    reference_output=reference_log.miner_output,
+                )
                 comparison_log = ComparisonLog(
                     miner_input=reference_log.miner_input,
-                    miner_output=_latest_commit.miner_output,
+                    miner_output=miner_output,
                     reference_output=reference_log.miner_output,
                     reference_hotkey=reference_commit.miner_hotkey,
                     reference_similarity_score=reference_commit.penalty,
+                    similarity_score=_similarity_score,
                 )
 
                 # Add to comparison logs
@@ -324,6 +326,7 @@ class ABSController(Controller):
             bt.logging.info(
                 f"[CONTROLLER - ABSController] Completed making `comparison_logs` with {reference_commit.docker_hub_id} for miner."
             )
+        return
 
     def _get_reference_outputs(
         self, miner_commit: MinerChallengeCommit, challenge_inputs
@@ -359,22 +362,75 @@ class ABSController(Controller):
     ):
         """Run and score miner with new challenge inputs."""
         for i, miner_input in enumerate(challenge_inputs):
-            miner_output, error_message = self._submit_challenge_to_miner(miner_input)
+            # skip if comparison result is high
+            _comparison_results = [
+                np.nanmax([log.similarity_score for log in logs] or [0.0])
+                for logs in miner_commit.comparison_logs.values()
+            ]
+            _highest_comparison_score = (
+                np.max(_comparison_results).item() if _comparison_results else 0
+            )
+            if _highest_comparison_score <= 0.6 and _highest_comparison_score > 0.0:
+                bt.logging.info(
+                    f"[CONTROLLER - ABSController] Skipping scoring for miner {miner_commit.miner_hotkey} on task {i} due to high comparison score: {_highest_comparison_score}"
+                )
+                continue
+
+            # Score miner commit
             score = (
                 self._score_challenge(
                     miner_input=miner_input,
-                    miner_output=miner_output,
+                    miner_output=miner_commit.scoring_logs[0].miner_output,
                     task_id=i,
                 )
-                if miner_output is not None
+                if miner_commit.scoring_logs[0].miner_output is not None
                 else 0.0
             )
-            miner_output["log_time"] = time.time()
 
-            log = ScoringLog(
-                miner_input=miner_input,
-                miner_output=miner_output,
-                score=score,
-                error=error_message,
+            miner_commit.scoring_logs[0].score = score
+
+    def _compare_outputs(
+        self, miner_input: dict, miner_output: dict, reference_output: dict
+    ) -> float:
+        """
+        Send comparison request to challenge container's /compare endpoint.
+
+        Args:
+            miner_input: The input used for both outputs
+            miner_output: The output from the current miner
+            reference_output: The output from the reference miner
+
+        Returns:
+            float: Comparison score between 0 and 1
+        """
+        _protocol, _ssl_verify = self._check_protocol(is_challenger=True)
+
+        try:
+            payload = {
+                "miner_input": miner_input,
+                "miner_output": miner_output,
+                "reference_output": reference_output,
+            }
+
+            response = requests.post(
+                f"{_protocol}://localhost:{constants.CHALLENGE_DOCKER_PORT}/compare",
+                timeout=self.challenge_info.get("challenge_compare_timeout", 60),
+                verify=_ssl_verify,
+                json=payload,
             )
-            miner_commit.scoring_logs.append(log)
+
+            response_data = response.json()
+            data = response_data.get("data", {})
+            similarity_score = data.get("similarity_score", 1.0)
+
+            # Normalize score to float between 0 and 1
+            if isinstance(similarity_score, int):
+                similarity_score = float(similarity_score)
+            elif not isinstance(similarity_score, float):
+                similarity_score = 1.0
+
+            return max(0.0, min(1.0, similarity_score))
+
+        except Exception as e:
+            bt.logging.error(f"Error in comparison request: {str(e)}")
+            return 0.0
