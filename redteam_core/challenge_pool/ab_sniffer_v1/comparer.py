@@ -46,7 +46,6 @@ class ABSComparer(Comparer):
                     )
                     continue
                 try:
-
                     similarity_score = self._compare_outputs(
                         miner_input=log.miner_input,
                         miner_output=log.miner_output,
@@ -118,13 +117,19 @@ class ABSComparer(Comparer):
                             miner_output=miner_log.miner_output,
                             reference_output=other_log.miner_output,
                         )
+
+                        # remove js code from comparison log because it is avaliable in `scoring_logs`
+                        _miner_output = miner_log.miner_output.copy()
+                        _reference_output = other_log.miner_output.copy()
+                        _miner_output["detection_js"] = None
+                        _reference_output["detection_js"] = None
+
                         # Create a comparison log with the inputs and outputs
-                        miner_log.miner_output["bot_py"] = None
                         comparison_log = ComparisonLog(
                             similarity_score=similarity_score,
                             miner_input=miner_log.miner_input,
-                            miner_output=miner_log.miner_output,
-                            reference_output=other_log.miner_output,
+                            miner_output=_miner_output,
+                            reference_output=_reference_output,
                             reference_hotkey=other_commit.miner_hotkey,
                         )
                         comparison_logs.append(comparison_log)
