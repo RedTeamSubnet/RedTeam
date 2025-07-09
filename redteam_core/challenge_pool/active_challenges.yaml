@@ -39,7 +39,10 @@ ab_sniffer_v2:
     ENV: "PRODUCTION"
 
   baseline_reference_comparison_docker_hub_ids:
-    - redteamsubnet61/base_absv1_image1@sha256:63d7b294cd3b1ad6c798f47490c8b5f46cb5785867ec9d10159c0902d27ee6f4
+    - redteamsubnet61/base_absv2_image1@sha256:31f9adbb696f8ec943b0b224924d202b2d566ce8e2b79f01e68a7ca77b47fd4a
+    - redteamsubnet61/base_absv2_image2@sha256:034e4ff8549d866d1ccfcdb0253897ebeaf49dbb67747bcc437361e4c5437122
+    - redteamsubnet61/base_absv2_image3@sha256:365075d506c326f48d41672f2b052238cd1867e694247e173f4efe5846cd8e1b
+    - redteamsubnet61/base_absv2_image4@sha256:87165fc7f880cca5751cd9196a290901af76081ddfee157284eb6f6cc39fd9eb
 
 humanize_behaviour_v4:
   name: "humanize_behaviour_v4"

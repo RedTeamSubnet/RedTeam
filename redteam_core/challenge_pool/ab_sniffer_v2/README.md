@@ -1,6 +1,6 @@
 # Auto Browser Sniffer v2 Challenge
 
-The **Auto Browser Sniffer v2 Challenge** is designed to test the skills of miners in developing a browser SDK that can accurately detect the driver type used by bots interacting with a webpage. Participants must create an SDK that can be installed on a website and automatically identify various bot drivers based on their behavior or technical characteristics.
+The **Auto Browser Sniffer v2 Challenge** is the next iteration of Auto Browser Sniffer challenge series which is  designed to test the skills of miners in developing a browser SDK that can accurately detect the driver type used by bots interacting with a webpage. **The new iteration has two more bot frameworks to be detected and more strict evaluation criteria.** Participants must create an SDK that can be installed on a website and automatically identify various bot drivers based on their behavior or technical characteristics.
 
 ![Auto Browser Sniffer v2 Landing Page](docs/images/landing_page.png)
 
