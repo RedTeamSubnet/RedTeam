@@ -82,3 +82,21 @@ def run_bot(
     except Exception as err:
         logger.error(f"Login failed: {err}")
         return False
+if __name__ == "__main__":
+    from selenium import webdriver
+
+    print("✅ Starting bot manually for testing...")
+
+    # Siapkan driver Chrome
+    options = webdriver.ChromeOptions()
+    options.add_argument("--headless")  # Jalankan tanpa GUI (opsional)
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+
+    driver = webdriver.Chrome(options=options)
+
+    # Jalankan bot
+    success = run_bot(driver, username="demo", password="demo")
+
+    print("🎉 Bot success:", success)
+    driver.quit()
