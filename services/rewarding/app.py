@@ -115,6 +115,9 @@ class RewardApp(Validator):
         bt.logging.info(
             f"FastAPI server is running on port {self.config.reward_app.port}!"
         )
+        bt.logging.info(
+            f"Reward app constant values: {constants.model_dump_json(indent=2)}"
+        )
 
     def setup_bittensor_objects(self):
         bt.logging.info("Setting up Bittensor objects.")

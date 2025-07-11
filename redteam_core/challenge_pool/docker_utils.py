@@ -95,22 +95,9 @@ def build_challenge_image(
         build_path: Path to the challenge Dockerfile directory
     """
     try:
-        try:
-            subprocess.run(
-                ["docker", "build", "--tag", challenge_name, "--rm", build_path],
-                check=True,
-                capture_output=True,
-                text=True,
-            )
-            bt.logging.success(f"Successfully built challenge image: {challenge_name}")
-        except subprocess.CalledProcessError as e:
-            bt.logging.error(
-                f"Failed to build challenge image with docker cli: {e.stderr}\nTrying with Docker SDK..."
-            )
-            res = client.images.build(path=build_path, tag=challenge_name, rm=True)
-
-            bt.logging.info(f"Successfully built challenge image: {challenge_name}")
-            bt.logging.info(res)
+        res = client.images.build(path=build_path, tag=challenge_name, rm=True)
+        bt.logging.info(f"Successfully built challenge image: {challenge_name}")
+        bt.logging.info(res)
     except Exception as e:
         bt.logging.error(f"Failed to build challenge image: {e}")
         raise

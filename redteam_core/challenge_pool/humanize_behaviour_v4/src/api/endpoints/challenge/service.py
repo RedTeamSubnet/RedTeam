@@ -374,7 +374,7 @@ def compare_outputs(miner_input, miner_output, reference_output) -> float:
             str_script_2=_reference_code,
         )
 
-        similarity_score = comparison_result.get("maximum_similarity", 0.0)
+        similarity_score = comparison_result.get("similarity_score", 0.0)
         logger.info(f"Computed similarity score: {similarity_score}")
 
         return max(0.0, min(1.0, similarity_score))

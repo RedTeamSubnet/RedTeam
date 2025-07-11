@@ -159,7 +159,7 @@ class ABSController(Controller):
 
                 self._generate_scoring_logs(miner_commit, challenge_inputs)
 
-                self._run_reference_comparison_inputs(miner_commit, challenge_inputs)
+                self._run_reference_comparison_inputs(miner_commit)
 
                 self._score_miner_with_new_inputs(miner_commit, challenge_inputs)
 
