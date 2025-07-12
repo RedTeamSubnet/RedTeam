@@ -43,10 +43,6 @@ class HBController(Controller):
             seed_inputs,
         )
 
-        self.behavior_scaling_factor = self.challenge_info.get(
-            "behavior_scaling_factor", 0.1
-        )
-
         # Get baseline reference comparison docker hub IDs from challenge info
         self.baseline_reference_comparison_docker_hub_ids = self.challenge_info.get(
             "baseline_reference_comparison_docker_hub_ids", []

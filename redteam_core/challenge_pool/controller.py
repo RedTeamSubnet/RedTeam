@@ -52,6 +52,9 @@ class Controller(BaseController):
 
         self.local_network = "redteam_local"
 
+        self.max_self_comparison_score = self.challenge_info.get(
+            "max_self_comparison_score", 0.9
+        )
         # Add baseline image to compare with miners
         baseline_image = self.challenge_info.get("baseline", None)
         self.baseline_commit = MinerChallengeCommit(
@@ -333,6 +336,15 @@ class Controller(BaseController):
                 )
 
                 self._exclude_output_keys(_miner_output, _reference_output)
+
+                if (
+                    miner_commit.miner_hotkey == reference_commit.miner_hotkey
+                    and _similarity_score < self.max_self_comparison_score
+                ):
+                    bt.logging.warning(
+                        f"[CONTROLLER] Skipping self-comparison for {miner_commit.miner_hotkey} with {reference_commit.miner_hotkey} due to low similarity score {_similarity_score}"
+                    )
+                    continue
 
                 comparison_log = ComparisonLog(
                     miner_input=reference_log.miner_input,
