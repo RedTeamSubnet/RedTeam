@@ -23,7 +23,7 @@ class ABSChallengeManager(ChallengeManager):
 
         self.max_similarity = 0.4
         self.min_similarity = 0
-        self.min_score = 0.1
+        self.min_score = 0.5
         self.break_point = 0.6
         self.max_input = 1.0
         self.min_value = 0

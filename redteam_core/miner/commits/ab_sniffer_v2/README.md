@@ -1,6 +1,6 @@
-# Auto Browser Sniffer V1 Challenge - Miner
+# Auto Browser Sniffer V2 Challenge - Miner
 
-This is miner detection script repo for the Auto Browser Sniffer V1 Challenge. This is sandboxed sample code for the challenge, you can use this code to test and dockerize your detection script.
+This is miner detection script repo for the Auto Browser Sniffer V2 Challenge. This is sandboxed sample code for the challenge, you can use this code to test and dockerize your detection script.
 
 ## ✨ Features
 
@@ -46,14 +46,14 @@ cd ~/workspaces/projects
 
 ```sh
 git clone https://github.com/RedTeamSubnet/RedTeam.git && \
-    cd RedTeam/redteam_core/miner/commits/ab_sniffer_v1
+    cd RedTeam/redteam_core/miner/commits/ab_sniffer_v2
 ```
 
 **OPTION B.** Clone the repository (for **DEVELOPMENT**: git + ssh key):
 
 ```sh
 git clone --recursive git@github.com:RedTeamSubnet/RedTeam.git && \
-    cd RedTeam/redteam_core/miner/commits/ab_sniffer_v1
+    cd RedTeam/redteam_core/miner/commits/ab_sniffer_v2
 ```
 
 ### 3. 📦 Install dependencies

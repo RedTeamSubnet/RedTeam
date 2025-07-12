@@ -19,7 +19,7 @@ class ABSController(Controller):
     )  # {docker_hub_id: MinerChallengeCommit}
 
     """
-    A specialized controller for the 'ab_sniffer_v1' challenge.
+    A specialized controller for the 'ab_sniffer_v2' challenge.
     Inherits from the base Controller and modifies specific logic.
     """
 
