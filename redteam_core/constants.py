@@ -253,6 +253,9 @@ class MainConfig(BaseSettings):
         Validator do scoring every day at SCORING_HOUR.
         So the commit time should be submitted before the previous day's SCORING_HOUR.
         """
+        if self.TESTNET:
+            return True
+
         today_closed_time = datetime.datetime.now(datetime.timezone.utc).replace(
             hour=self.SCORING_HOUR, minute=0, second=0, microsecond=0
         )
