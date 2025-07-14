@@ -16,9 +16,9 @@ ab_sniffer_v2:
     name: "ab_sniffer_v2"
     privileged: true
     environment:
-      RT_CFG_RAND_SEED: "abcdef1234567890"
+      RT_CFG_RAND_SEED: "${RT_CFG_RAND_SEED}"
     volumes:
-      - "${RT_WORKSPACE_DIR}/redteam_core/challenge_pool/ab_sniffer_v2/volumes/storage/rest.rt-abs-challenger:/var/log/rest.rt-abs-challenger"
+      - "${RT_ABS_CHALLENGE_LOG_DIR}:/var/log/rest.rt-abs-challenger"
 
   miner_container_run_kwargs:
     cpu_count: 4
@@ -63,10 +63,9 @@ humanize_behaviour_v4:
     name: "humanize_behaviour_v4"
     privileged: true
     volumes:
-      - "${RT_WORKSPACE_DIR}/redteam_core/challenge_pool/humanize_behaviour_v4/volumes/storage/rest.rt-hb-challenger:/var/log/rest.rt-hb-challenger"
+      - "${RT_HB_CHALLENGE_LOG_DIR}:/var/log/rest.rt-hb-challenger"
     environment:
-      RT_CFG_RAND_SEED: "abcdef1234567890"
-
+      RT_CFG_RAND_SEED: "${RT_CFG_RAND_SEED}"
   miner_container_run_kwargs:
     cpu_count: 4
     mem_limit: "12g"
