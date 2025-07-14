@@ -319,7 +319,8 @@ class Controller(BaseController):
                 if (
                     reference_log.miner_input is None
                     or reference_log.miner_output is None
-                    or miner_commit.scoring_logs is None
+                    or not miner_commit.scoring_logs
+                    or miner_commit.scoring_logs[0].miner_output is None
                 ):
                     bt.logging.warning(
                         f"[CONTROLLER] Skipping comparison with {reference_commit.docker_hub_id} for miner because the reference log is missing input or output."
@@ -392,7 +393,7 @@ class Controller(BaseController):
                         ),
                     ),
                 )
-                return
+                continue
             miner_commit.scoring_logs.insert(
                 0,
                 ScoringLog(
@@ -473,6 +474,12 @@ class Controller(BaseController):
                 verify=_ssl_verify,
                 json=miner_input,
             )
+
+            if not response.ok:
+                error_message = f"HTTP {response.status_code}: {response.text}"
+                bt.logging.warning(error_message)
+                return None, error_message
+
             return response.json(), error_message
         except requests.exceptions.Timeout:
             error_message = "Timeout occurred while trying to solve challenge."

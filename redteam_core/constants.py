@@ -145,12 +145,6 @@ class MainConfig(BaseSettings):
     CHALLENGE_SCORES_WEIGHT: float = Field(
         default=0.5, description="Weight of challenge scores."
     )
-    # NEWLY_REGISTRATION_WEIGHT: float = Field(
-    #     default=0.05, description="Weight of newly registration scores."
-    # )
-    # ALPHA_STAKE_WEIGHT: float = Field(
-    #     default=0.05, description="Weight of alpha stake scores."
-    # )
     ALPHA_BURN_WEIGHT: float = Field(
         default=0.5, description="Weight of alpha burning."
     )
@@ -182,16 +176,6 @@ class MainConfig(BaseSettings):
     STORAGE_API: StorageApiConfig = Field(default_factory=StorageApiConfig)
     REWARD_APP: RewardAppConfig = Field(default_factory=RewardAppConfig)
     VALIDATOR: ValidatorConfig = Field(default_factory=ValidatorConfig)
-
-    # Centralized API settings
-    # STORAGE_URL: AnyUrl = Field(
-    #     default="http://storage.redteam.technology/storage",
-    #     description="URL for storing miners' work",
-    # )
-    # REWARDING_URL: AnyUrl = Field(
-    #     default="http://storage.redteam.technology/rewarding",
-    #     description="URL for rewarding miners",
-    # )
 
     @model_validator(mode="after")
     def _check_all(self) -> Self:
@@ -225,28 +209,6 @@ class MainConfig(BaseSettings):
         env_nested_delimiter="__",
         extra="ignore",
     )
-
-    # @model_validator(mode="before")
-    # @classmethod
-    # def adjust_for_testnet(cls, values):
-    #     """
-    #     Adjusts certain constants based on whether TESTNET mode is enabled.
-
-    #     Args:
-    #         values: Dictionary of field values.
-
-    #     Returns:
-    #         dict: The adjusted values dictionary.
-    #     """
-    #     testnet = os.environ.get("TESTNET", "")
-    #     is_testnet = testnet.lower() in ("1", "true", "yes")
-    #     print(f"Testnet mode: {is_testnet}, {testnet}")
-    #     if is_testnet:
-    #         print("Adjusting constants for testnet mode.")
-    #         values["REVEAL_INTERVAL"] = 30
-    #         values["EPOCH_LENGTH"] = 30
-    #         values["MIN_VALIDATOR_STAKE"] = -1
-    #     return values
 
     def is_commit_on_time(self, commit_timestamp: float) -> bool:
         """
