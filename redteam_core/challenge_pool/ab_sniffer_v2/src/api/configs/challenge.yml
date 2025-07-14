@@ -2,8 +2,8 @@ challenge:
   docker_ulimit: 32768
   allowed_pip_pkg_dt: "2025-01-01T00:00:00Z"
   allowed_file_exts: [".py", ".json", ".yaml", ".yml", ".txt", ".pt", ".js"]
-  bot_timeout: 30
-  framework_count: 4
+  bot_timeout: 15
+  framework_count: 6
   repeated_framework_count: 3
   framework_images:
     - framework_name: seleniumbase

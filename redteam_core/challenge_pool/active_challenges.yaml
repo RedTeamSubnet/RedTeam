@@ -1,30 +1,30 @@
-ab_sniffer_v1:
-  name: "ab_sniffer_v1"
+ab_sniffer_v2:
+  name: "ab_sniffer_v2"
   description: "Detect the driver type of the framework using a single detection.js script"
   challenge_incentive_weight: 0.3
-  target: redteam_core.challenge_pool.ab_sniffer_v1.controller.ABSController
-  comparer: redteam_core.challenge_pool.ab_sniffer_v1.comparer.ABSComparer
-  challenge_manager: redteam_core.challenge_pool.ab_sniffer_v1.challenge_manager.ABSChallengeManager
+  target: redteam_core.challenge_pool.ab_sniffer_v2.controller.ABSController
+  comparer: redteam_core.challenge_pool.ab_sniffer_v2.comparer.ABSComparer
+  challenge_manager: redteam_core.challenge_pool.ab_sniffer_v2.challenge_manager.ABSChallengeManager
   max_unique_commits: 15
-  behavior_scaling_factor: 0.1
+  max_self_comparison_score: 0.9
   challenge_solve_timeout: 60
   docker_run_timeout: 900
   num_tasks: 1
 
   challenge_container_run_kwargs:
-    name: "ab_sniffer_v1"
+    name: "ab_sniffer_v2"
     privileged: true
     environment:
       RT_CFG_RAND_SEED: "abcdef1234567890"
     volumes:
-      - "${RT_WORKSPACE_DIR}/redteam_core/challenge_pool/ab_sniffer_v1/volumes/storage/rest.rt-abs-challenger:/var/log/rest.rt-abs-challenger"
+      - "${RT_WORKSPACE_DIR}/redteam_core/challenge_pool/ab_sniffer_v2/volumes/storage/rest.rt-abs-challenger:/var/log/rest.rt-abs-challenger"
 
   miner_container_run_kwargs:
     cpu_count: 4
     mem_limit: "12g"
     network: "redteam_local"
     environment:
-      CHALLENGE_NAME: "ab_sniffer_v1"
+      CHALLENGE_NAME: "ab_sniffer_v2"
 
   reset_challenge: true
   protocols:
@@ -39,7 +39,10 @@ ab_sniffer_v1:
     ENV: "PRODUCTION"
 
   baseline_reference_comparison_docker_hub_ids:
-    - redteamsubnet61/base_absv1_image1@sha256:63d7b294cd3b1ad6c798f47490c8b5f46cb5785867ec9d10159c0902d27ee6f4
+    - redteamsubnet61/base_absv2_image1@sha256:31f9adbb696f8ec943b0b224924d202b2d566ce8e2b79f01e68a7ca77b47fd4a
+    - redteamsubnet61/base_absv2_image2@sha256:034e4ff8549d866d1ccfcdb0253897ebeaf49dbb67747bcc437361e4c5437122
+    - redteamsubnet61/base_absv2_image3@sha256:365075d506c326f48d41672f2b052238cd1867e694247e173f4efe5846cd8e1b
+    - redteamsubnet61/base_absv2_image4@sha256:87165fc7f880cca5751cd9196a290901af76081ddfee157284eb6f6cc39fd9eb
 
 humanize_behaviour_v4:
   name: "humanize_behaviour_v4"
@@ -49,7 +52,7 @@ humanize_behaviour_v4:
   comparer: redteam_core.challenge_pool.humanize_behaviour_v4.comparer.HBComparer
   challenge_manager: redteam_core.challenge_pool.humanize_behaviour_v4.challenge_manager.HBChallengeManager
   max_unique_commits: 15
-  behavior_scaling_factor: 0.1
+  max_self_comparison_score: 0.9
   challenge_solve_timeout: 60
   docker_run_timeout: 900
   num_tasks: 1
@@ -59,6 +62,8 @@ humanize_behaviour_v4:
     privileged: true
     volumes:
       - "${RT_WORKSPACE_DIR}/redteam_core/challenge_pool/humanize_behaviour_v4/volumes/storage/rest.rt-hb-challenger:/var/log/rest.rt-hb-challenger"
+    environment:
+      RT_CFG_RAND_SEED: "abcdef1234567890"
 
   miner_container_run_kwargs:
     cpu_count: 4

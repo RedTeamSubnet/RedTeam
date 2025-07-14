@@ -43,35 +43,6 @@ class MinerOutput(BaseModel):
             "function detectDriver() { localStorage.setItem('driver', 'Chrome'); }"
         ],
     )
-    # system_deps: Optional[constr(strip_whitespace=True, min_length=2, max_length=2048)] = Field(  # type: ignore
-    #     default=None,
-    #     title="System Dependencies",
-    #     description="System dependencies (Debian/Ubuntu) that needs to be installed as space-separated string.",
-    #     examples=[None, "python3 python3-pip"],
-    # )
-    # pip_requirements: Optional[
-    #     List[constr(min_length=2, max_length=128)]  # type: ignore
-    # ] = Field(
-    #     default=None,
-    #     title="Pip Requirements",
-    #     description="Dependencies required for the bot.py as a list of strings.",
-    #     examples=[
-    #         ["pydantic[email,timezone]>=2.0.0,<3.0.0", "selenium>=4.16.0,<5.0.0"]
-    #     ],
-    # )
-    # extra_files: Optional[List[MinerFilePM]] = Field(
-    #     default=None,
-    #     title="Extra Files",
-    #     description="List of extra files to support the bot.py.",
-    #     examples=[
-    #         [
-    #             {
-    #                 "fname": "config.py",
-    #                 "content": "threshold = 0.5",
-    #             }
-    #         ]
-    #     ],
-    # )
 
 
 __all__ = [

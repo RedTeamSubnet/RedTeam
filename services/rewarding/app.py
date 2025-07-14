@@ -115,6 +115,9 @@ class RewardApp(Validator):
         bt.logging.info(
             f"FastAPI server is running on port {self.config.reward_app.port}!"
         )
+        bt.logging.info(
+            f"Reward app constant values: {constants.model_dump_json(indent=2)}"
+        )
 
     def setup_bittensor_objects(self):
         bt.logging.info("Setting up Bittensor objects.")
@@ -384,13 +387,6 @@ class RewardApp(Validator):
         )
         # Run challenge controller, the controller update commit 's scoring logs and reference comparison logs directly
         controller.start_challenge()
-
-        # 4. Do comparison for new commits with each other, we only compare with reference commits
-        self._compare_miner_commits(
-            challenge=challenge,
-            revealed_commits_list=new_commits,
-            compare_with_each_other=False,
-        )
 
     def _compare_miner_commits(
         self,

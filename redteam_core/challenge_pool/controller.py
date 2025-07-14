@@ -1,3 +1,4 @@
+from abc import abstractmethod
 import copy
 import time
 from typing import Union
@@ -51,6 +52,9 @@ class Controller(BaseController):
 
         self.local_network = "redteam_local"
 
+        self.max_self_comparison_score = self.challenge_info.get(
+            "max_self_comparison_score", 0.9
+        )
         # Add baseline image to compare with miners
         baseline_image = self.challenge_info.get("baseline", None)
         self.baseline_commit = MinerChallengeCommit(
@@ -209,31 +213,31 @@ class Controller(BaseController):
         )
 
         # Check challenge container health
-        self._check_container_alive(
-            self.challenge_container,
+        _protocol, _ssl_verify = self._check_protocol(is_challenger=True)
+        docker_utils.check_container_alive(
+            container=self.challenge_container,
             health_port=constants.CHALLENGE_DOCKER_PORT,
-            is_challenger=True,
+            protocol=_protocol,
+            ssl_verify=_ssl_verify,
         )
 
     def _setup_miner_container(self, miner_commit: MinerChallengeCommit):
         """Setup and validate miner container. Raises if validation or setup fails."""
-        # Validate image digest
-        if not docker_utils.validate_image_digest(miner_commit.docker_hub_id):
+
+        if not docker_utils.is_image_digest_format_valid(miner_commit.docker_hub_id):
             raise ValueError(
                 f"Invalid image format: {miner_commit.docker_hub_id}. Must include a SHA256 digest."
             )
 
-        # Remove any existing container
         docker_utils.remove_container_by_port(
             client=self.docker_client,
             port=constants.MINER_DOCKER_PORT,
         )
 
         bt.logging.info(
-            f"[CONTROLLER] Running miner {miner_commit.miner_uid}: {miner_commit.miner_hotkey} - {miner_commit.docker_hub_id}"
+            f"[CONTROLLER] Running miner {miner_commit.miner_uid} - {miner_commit.docker_hub_id}"
         )
 
-        # Run new container
         miner_start_time = (
             time.time()
             if miner_commit.miner_uid != self.baseline_commit.miner_uid
@@ -248,10 +252,12 @@ class Controller(BaseController):
         )
 
         # Check miner container health
-        self._check_container_alive(
+        _protocol, _ssl_verify = self._check_protocol(is_challenger=False)
+        docker_utils.check_container_alive(
             container=miner_container,
             health_port=constants.MINER_DOCKER_PORT,
-            is_challenger=False,
+            protocol=_protocol,
+            ssl_verify=_ssl_verify,
             timeout=self.challenge_info.get("docker_run_timeout", 600),
             start_time=miner_start_time,
         )
@@ -295,49 +301,155 @@ class Controller(BaseController):
     def _run_reference_comparison_inputs(self, miner_commit: MinerChallengeCommit):
         """
         Run miner with reference comparison commits inputs to compare performance.
-        For each reference commit, we run the current miner against the inputs that were
-        previously used to test that reference commit.
+        This method handles both baseline reference cache and similarity scoring.
         """
-        # Skip for baseline commit since it's used as reference
-        if miner_commit.miner_uid == self.baseline_commit.miner_uid:
-            return
 
-        for reference_commit in self.reference_comparison_commits:
+        # Get all reference commits including baseline cache if available
+        reference_commits = self._get_all_reference_commits()
+
+        for reference_commit in reference_commits:
             bt.logging.info(
                 f"[CONTROLLER] Running comparison with reference commit {reference_commit.docker_hub_id}"
             )
 
-            if reference_commit.docker_hub_id in miner_commit.comparison_logs:
-                # Already run this reference commit, skip
-                continue
-            else:
+            if not reference_commit.docker_hub_id in miner_commit.comparison_logs:
                 miner_commit.comparison_logs[reference_commit.docker_hub_id] = []
 
-            # Process each input from the reference commit's scoring logs
-            for i, reference_log in enumerate(reference_commit.scoring_logs):
-                if reference_log.miner_input is None:
+            for reference_log in reference_commit.scoring_logs:
+                if (
+                    reference_log.miner_input is None
+                    or reference_log.miner_output is None
+                    or not miner_commit.scoring_logs
+                    or miner_commit.scoring_logs[0].miner_output is None
+                ):
+                    bt.logging.warning(
+                        f"[CONTROLLER] Skipping comparison with {reference_commit.docker_hub_id} for miner because the reference log is missing input or output."
+                    )
                     continue
 
-                # Submit the same input to current miner
-                miner_output, error_message = self._submit_challenge_to_miner(
-                    reference_log.miner_input
+                _miner_output = miner_commit.scoring_logs[0].miner_output.copy()
+                _reference_output = reference_log.miner_output.copy()
+
+                _similarity_score = self._compare_outputs(
+                    miner_input=reference_log.miner_input,
+                    miner_output=_miner_output,
+                    reference_output=_reference_output,
                 )
 
-                # Create comparison log
+                self._exclude_output_keys(_miner_output, _reference_output)
+
+                if (
+                    miner_commit.miner_hotkey == reference_commit.miner_hotkey
+                    and _similarity_score < self.max_self_comparison_score
+                ):
+                    bt.logging.warning(
+                        f"[CONTROLLER] Skipping self-comparison for {miner_commit.miner_hotkey} with {reference_commit.miner_hotkey} due to low similarity score {_similarity_score}"
+                    )
+                    continue
+
                 comparison_log = ComparisonLog(
                     miner_input=reference_log.miner_input,
-                    miner_output=miner_output,
-                    reference_output=reference_log.miner_output,
-                    error=error_message,
+                    miner_output=_miner_output,
+                    reference_output=_reference_output,
                     reference_hotkey=reference_commit.miner_hotkey,
+                    reference_similarity_score=reference_commit.penalty,
+                    similarity_score=_similarity_score,
                 )
 
-                # Add to comparison logs
                 miner_commit.comparison_logs[reference_commit.docker_hub_id].append(
                     comparison_log
                 )
 
-    def _submit_challenge_to_miner(self, challenge) -> tuple[dict, str]:
+            if (
+                reference_commit.docker_hub_id in miner_commit.comparison_logs
+                and not miner_commit.comparison_logs[reference_commit.docker_hub_id]
+            ):
+                bt.logging.info(
+                    f"[CONTROLLER] Removing empty comparison logs for {reference_commit.docker_hub_id} for miner."
+                )
+                del miner_commit.comparison_logs[reference_commit.docker_hub_id]
+        return
+
+    def _generate_scoring_logs(
+        self, miner_commit: MinerChallengeCommit, challenge_inputs
+    ):
+        """Run and score miner with new challenge inputs."""
+        for miner_input in challenge_inputs:
+            miner_output, error_message = self._submit_challenge_to_miner(miner_input)
+
+            if miner_output is None or error_message:
+                bt.logging.warning(
+                    f"[CONTROLLER - ABSController] Miner {miner_commit.miner_hotkey} failed to produce output for reference comparison: {error_message}"
+                )
+                miner_commit.scoring_logs.insert(
+                    0,
+                    ScoringLog(
+                        miner_input=miner_input,
+                        miner_output=None,
+                        error=(
+                            f"[Not Accepted] {error_message}"
+                            if error_message
+                            else "[Not Accepted] No output from miner"
+                        ),
+                    ),
+                )
+                continue
+            miner_commit.scoring_logs.insert(
+                0,
+                ScoringLog(
+                    miner_input=miner_input,
+                    miner_output=miner_output,
+                    error=error_message,
+                ),
+            )
+
+    def _compare_outputs(
+        self, miner_input: dict, miner_output: dict, reference_output: dict
+    ) -> float:
+        """
+        Send comparison request to challenge container's /compare endpoint.
+
+        Args:
+            miner_input: The input used for both outputs
+            miner_output: The output from the current miner
+            reference_output: The output from the reference miner
+
+        Returns:
+            float: Comparison score between 0 and 1
+        """
+        _protocol, _ssl_verify = self._check_protocol(is_challenger=True)
+
+        try:
+            payload = {
+                "miner_input": miner_input,
+                "miner_output": miner_output,
+                "reference_output": reference_output,
+            }
+
+            response = requests.post(
+                f"{_protocol}://localhost:{constants.CHALLENGE_DOCKER_PORT}/compare",
+                timeout=self.challenge_info.get("challenge_compare_timeout", 60),
+                verify=_ssl_verify,
+                json=payload,
+            )
+
+            response_data = response.json()
+            data = response_data.get("data", {})
+            similarity_score = data.get("similarity_score", 1.0)
+
+            # Normalize score to float between 0 and 1
+            if isinstance(similarity_score, int):
+                similarity_score = float(similarity_score)
+            elif not isinstance(similarity_score, float):
+                similarity_score = 1.0
+
+            return max(0.0, min(1.0, similarity_score))
+
+        except Exception as e:
+            bt.logging.error(f"Error in comparison request: {str(e)}")
+            return 0.0
+
+    def _submit_challenge_to_miner(self, challenge_input) -> tuple[dict, str]:
         """
         Sends the challenge input to a miner by making an HTTP POST request to a local endpoint.
         The request submits the input, and the miner returns the generated output.
@@ -350,7 +462,7 @@ class Controller(BaseController):
         """
 
         error_message = ""
-        miner_input = copy.deepcopy(challenge)
+        miner_input = copy.deepcopy(challenge_input)
         exclude_miner_input_key = self.challenge_info.get("exclude_miner_input_key", [])
         for key in exclude_miner_input_key:
             miner_input[key] = None
@@ -362,6 +474,12 @@ class Controller(BaseController):
                 verify=_ssl_verify,
                 json=miner_input,
             )
+
+            if not response.ok:
+                error_message = f"HTTP {response.status_code}: {response.text}"
+                bt.logging.warning(error_message)
+                return None, error_message
+
             return response.json(), error_message
         except requests.exceptions.Timeout:
             error_message = "Timeout occurred while trying to solve challenge."
@@ -371,24 +489,6 @@ class Controller(BaseController):
             error_message = f"Submit challenge to miner failed: {str(ex)}"
             bt.logging.error(error_message)
             return None, error_message
-
-    def _check_alive(self, port=10001, is_challenger=True) -> bool:
-        """
-        Checks if the challenge container is still running.
-        """
-
-        _protocol, _ssl_verify = self._check_protocol(is_challenger=is_challenger)
-
-        try:
-            response = requests.get(
-                f"{_protocol}://localhost:{port}/health",
-                verify=_ssl_verify,
-            )
-            if response.status_code == 200:
-                return True
-        except requests.exceptions.ConnectionError:
-            return False
-        return False
 
     def _get_challenge_from_container(self) -> dict:
         """
@@ -497,32 +597,19 @@ class Controller(BaseController):
 
         return _protocol, _ssl_verify
 
-    def _check_container_alive(
-        self,
-        container: docker.models.containers.Container,
-        health_port,
-        is_challenger=True,
-        timeout=None,
-        start_time=None,
-    ):
-        """Check when the container is running successfully"""
-        if not start_time:
-            start_time = time.time()
-        while not self._check_alive(port=health_port, is_challenger=is_challenger) and (
-            not timeout or time.time() - start_time < timeout
-        ):
-            container.reload()
-            if container.status in ["exited", "dead"]:
-                container_logs = container.logs().decode("utf-8", errors="ignore")
-                bt.logging.error(
-                    f"[CONTROLLER] Container {container} failed with status: {container.status}"
-                )
-                bt.logging.error(f"[CONTROLLER] Container logs:\n{container_logs}")
-                raise RuntimeError(
-                    f"[CONTROLLER] Container failed to start. Status: {container.status}. Container logs: {container_logs}"
-                )
-            else:
-                bt.logging.info(
-                    f"[CONTROLLER] Waiting for container to start. {container.status}"
-                )
-                time.sleep(5)
+    @abstractmethod
+    def _get_all_reference_commits(self) -> list[MinerChallengeCommit]:
+        """
+        Get all reference commits including baseline cache if available.
+        Override in specialized controllers to add their baseline cache.
+        """
+        return self.reference_comparison_commits
+
+    @abstractmethod
+    def _exclude_output_keys(self, miner_output: dict, reference_output: dict):
+        """
+        Exclude specific keys from outputs to prevent database bloat.
+        Override in specialized controllers to specify which keys to exclude.
+        """
+        # Default implementation - no exclusions
+        pass

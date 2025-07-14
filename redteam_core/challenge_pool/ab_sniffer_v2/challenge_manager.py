@@ -23,7 +23,7 @@ class ABSChallengeManager(ChallengeManager):
 
         self.max_similarity = 0.4
         self.min_similarity = 0
-        self.min_score = 0.1
+        self.min_score = 0.5
         self.break_point = 0.6
         self.max_input = 1.0
         self.min_value = 0
@@ -43,34 +43,19 @@ class ABSChallengeManager(ChallengeManager):
         )
 
         for miner_commit in miner_commits:
-            if miner_commit.docker_hub_id in self._unique_scored_docker_hub_ids:
-                continue  # Skip if already scored
-
-            if not miner_commit.scoring_logs:
-                continue  # Skip if no scoring logs
+            if (
+                miner_commit.docker_hub_id in self._unique_scored_docker_hub_ids
+                or not miner_commit.scoring_logs
+            ):
+                continue
 
             try:
-                # Compute mean score
-                score = np.nanmax(
-                    [scoring_log.score for scoring_log in miner_commit.scoring_logs]
-                ).item()
-                if np.isnan(score):
-                    miner_commit.score = 0.0
-                else:
-                    miner_commit.score = float(score)
-
-                # Compute penalty
+                score = miner_commit.get_higest_scoring_score()
+                miner_commit.score = float(score)
 
                 if miner_commit.comparison_logs:
-                    penalty_values = [
-                        np.nanmax([log.similarity_score for log in logs] or [0.0])
-                        for logs in miner_commit.comparison_logs.values()
-                    ]
-                    penalty = np.max(penalty_values).item() if penalty_values else 0
-                    if np.isnan(penalty):
-                        miner_commit.penalty = 0.0
-                    else:
-                        miner_commit.penalty = float(penalty)
+                    penalty = miner_commit.get_higest_comparison_score()
+                    miner_commit.penalty = float(penalty)
                 else:
                     miner_commit.penalty = 0.0
 
@@ -93,7 +78,6 @@ class ABSChallengeManager(ChallengeManager):
                 miner_commit.score, miner_commit.penalty
             )
 
-            # Update miner's best submission
             miner_commit.scored_timestamp = time.time()
 
             miner_state = self.miner_states[miner_commit.miner_uid]
@@ -103,7 +87,6 @@ class ABSChallengeManager(ChallengeManager):
                     f"Updated best commit for miner {miner_commit.miner_uid}"
                 )
 
-            # Add to unique solutions if accepted
             if miner_commit.accepted and miner_commit.encrypted_commit:
                 bt.logging.info(
                     f"[CHALLENGE MANAGER - ABSChallengeManager] Adding miner commit `{miner_commit.miner_uid}` to unique commit set"
@@ -114,7 +97,6 @@ class ABSChallengeManager(ChallengeManager):
                     docker_hub_id=miner_commit.docker_hub_id,
                 )
 
-            # Mark as scored
             self._unique_scored_docker_hub_ids.add(miner_commit.docker_hub_id)
 
     def get_challenge_scores(self):

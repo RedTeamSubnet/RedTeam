@@ -433,14 +433,14 @@ class Validator(BaseValidator):
                 bt.logging.info(
                     f"[FORWARD LOCAL SCORING] Running comparer for challenge: {challenge}"
                 )
-                comparer = self.active_challenges[challenge]["comparer"](
-                    challenge_name=challenge,
-                    challenge_info=self.active_challenges[challenge],
-                    miner_commits=commits,
-                    compare_with_each_other=True,
-                )
-                # Run comparison, the comparer update commit 's penalty and comparison logs directly
-                comparer.start_comparison()
+                # comparer = self.active_challenges[challenge]["comparer"](
+                #     challenge_name=challenge,
+                #     challenge_info=self.active_challenges[challenge],
+                #     miner_commits=commits,
+                #     compare_with_each_other=True,
+                # )
+                # # Run comparison, the comparer update commit 's penalty and comparison logs directly
+                # comparer.start_comparison()
 
                 # 4. Update scores and penalties to challenge manager
                 self.challenge_managers[challenge].update_miner_scores(commits)

@@ -83,7 +83,7 @@ def test_eslint() -> JSONResponse:
 
     except Exception as e:
         logger.error(f"Failed to test ESLint: {e}")
-        raise HTTPException(status_code=500, detail="Failed to test ESLint")
+        raise HTTPException(status_code=500, detail=f"Failed to test ESLint: {e}")
 
 
 def _load_detection_js() -> str:

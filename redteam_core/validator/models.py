@@ -109,3 +109,24 @@ class MinerChallengeCommit(BaseModel):
             penalty=self.penalty,
             accepted=self.accepted,
         )
+
+    def get_higest_comparison_score(self) -> float:
+        """Get the minimum and maximum similarity score from all comparison logs."""
+        if not self.comparison_logs:
+            return 0.0
+
+        all_scores = [
+            log.similarity_score
+            for logs in self.comparison_logs.values()
+            for log in logs
+            if log.similarity_score is not None
+        ]
+        return max(all_scores) if all_scores else 0.0
+
+    def get_higest_scoring_score(self) -> float:
+        """Get the maximum score from all scoring logs."""
+        if not self.scoring_logs:
+            return 0.0
+
+        all_scores = [log.score for log in self.scoring_logs if log.score is not None]
+        return max(all_scores) if all_scores else 0.0

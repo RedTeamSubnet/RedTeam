@@ -13,14 +13,13 @@ from redteam_core.validator.models import (
 )
 
 
-class HBController(Controller):
-    # Class-level cache for baseline reference comparison commits
+class ABSController(Controller):
     _baseline_reference_cache: dict[str, MinerChallengeCommit] = (
         {}
     )  # {docker_hub_id: MinerChallengeCommit}
 
     """
-    A specialized controller for the 'humanize_behaviour_v3' challenge.
+    A specialized controller for the 'ab_sniffer_v2' challenge.
     Inherits from the base Controller and modifies specific logic.
     """
 
@@ -33,7 +32,7 @@ class HBController(Controller):
         seed_inputs: list[dict] = [],
     ):
         """
-        Initializes the HBController, extending the original Controller.
+        Initializes the ABSController, extending the original Controller.
         """
         super().__init__(
             challenge_name,
@@ -55,12 +54,12 @@ class HBController(Controller):
 
         for docker_hub_id in self.baseline_reference_comparison_docker_hub_ids:
             # Check if this docker_hub_id is already in the class cache
-            if docker_hub_id in HBController._baseline_reference_cache:
-                cached_commit = HBController._baseline_reference_cache[docker_hub_id]
+            if docker_hub_id in ABSController._baseline_reference_cache:
+                cached_commit = ABSController._baseline_reference_cache[docker_hub_id]
                 # Verify it has scoring logs (i.e., has been successfully scored)
                 if cached_commit.scoring_logs:
                     bt.logging.info(
-                        f"[CONTROLLER - HBController] Reference commit {docker_hub_id} has already been scored, skipping"
+                        f"[CONTROLLER - ABSController] Reference commit {docker_hub_id} has already been scored, skipping"
                     )
                     continue
 
@@ -91,10 +90,8 @@ class HBController(Controller):
         The method ensures that each miner's submission is evaluated against the challenge inputs,
         and comparison logs are generated to assess performance relative to reference commits.
         """
-        # Setup challenge, get challenge container and network ready
         self._setup_challenge()
 
-        # Generate new input to score miners
         num_task = self.challenge_info.get(
             "num_tasks", constants.N_CHALLENGES_PER_EPOCH
         )
@@ -106,10 +103,18 @@ class HBController(Controller):
                 [self._get_challenge_from_container() for _ in range(remaining_tasks)]
             )
 
+        bt.logging.debug(
+            f"[CONTROLLER - ABSController] Generated {len(challenge_inputs)} challenge inputs"
+        )
+
+        bt.logging.info(
+            f"[CONTROLLER - ABSController] Starting baseline reference scoring for {len(self.baseline_reference_comparison_commits_to_score)} references"
+        )
+
         for reference_commit in self.baseline_reference_comparison_commits_to_score:
             try:
                 bt.logging.info(
-                    f"[CONTROLLER - HBController] Getting baseline reference: {reference_commit.docker_hub_id}"
+                    f"[CONTROLLER - ABSController] Scoring baseline reference: {reference_commit.docker_hub_id}"
                 )
                 self._setup_miner_container(reference_commit)
 
@@ -126,10 +131,9 @@ class HBController(Controller):
                 )
 
                 bt.logging.info(
-                    f"[CONTROLLER - HBController] Baseline reference scoring logs: {len(reference_commit.scoring_logs)}"
+                    f"[CONTROLLER - ABSController] Baseline reference scoring logs: {len(reference_commit.scoring_logs)}"
                 )
-
-                HBController._baseline_reference_cache[
+                ABSController._baseline_reference_cache[
                     reference_commit.docker_hub_id
                 ] = reference_commit
 
@@ -139,7 +143,10 @@ class HBController(Controller):
                 )
                 bt.logging.error(traceback.format_exc())
 
-        # Score commits and build comparison logs
+        bt.logging.debug(
+            f"[CONTROLLER - ABSController] Starting miner scoring for {len(self.miner_commits)} miners"
+        )
+
         for miner_commit in self.miner_commits:
             uid, hotkey = miner_commit.miner_uid, miner_commit.miner_hotkey
 
@@ -165,7 +172,6 @@ class HBController(Controller):
                         )
                     )
 
-            # Clean up miner container
             docker_utils.remove_container_by_port(
                 client=self.docker_client,
                 port=constants.MINER_DOCKER_PORT,
@@ -176,7 +182,10 @@ class HBController(Controller):
                 remove_images=False,
             )
 
-        # Clean up challenge container
+        bt.logging.debug(
+            f"[CONTROLLER - ABSController] Challenge completed, cleaning up challenge container"
+        )
+
         docker_utils.remove_container(
             client=self.docker_client,
             container_name=self.challenge_name,
@@ -195,16 +204,18 @@ class HBController(Controller):
     ):
         """Run and score miner with new challenge inputs."""
         for i, miner_input in enumerate(challenge_inputs):
-            # Skip if comparison result is high
+
             _higest_comparison_score = miner_commit.get_higest_comparison_score()
+
             if _higest_comparison_score >= 0.6 or _higest_comparison_score == 0.0:
                 bt.logging.info(
-                    f"[CONTROLLER - HBController] Skipping scoring for miner {miner_commit.miner_hotkey} on task {i} due to high comparison score: {_higest_comparison_score}"
+                    f"[CONTROLLER - ABSController] Skipping scoring for miner {miner_commit.miner_hotkey} on task {i} due to high comparison score: {_higest_comparison_score}"
                 )
                 miner_commit.scoring_logs[0].score = 0.0
                 miner_commit.scoring_logs[0].error = (
                     "[Not Accepted]High comparison score, skipping scoring"
                 )
+
                 continue
 
             score = (
@@ -221,10 +232,9 @@ class HBController(Controller):
 
     def _get_all_reference_commits(self):
         return self.reference_comparison_commits + list(
-            HBController._baseline_reference_cache.values()
+            ABSController._baseline_reference_cache.values()
         )
 
     def _exclude_output_keys(self, miner_output: dict, reference_output: dict):
-        miner_output["bot_py"] = None
-        reference_output["bot_py"] = None
-        return
+        miner_output["detection_js"] = None
+        reference_output["detection_js"] = None

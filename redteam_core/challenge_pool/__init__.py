@@ -17,9 +17,9 @@ import yaml
 
 from redteam_core.validator.challenge_manager import ChallengeManager
 
-
+current_dir = Path(__file__).parent.resolve()
 ACTIVE_CHALLENGES_FILE = os.getenv(
-    "ACTIVE_CHALLENGES_FILE", "redteam_core/challenge_pool/active_challenges.yaml"
+    "ACTIVE_CHALLENGES_FILE", f"{current_dir}/active_challenges.yaml"
 )
 CHALLENGE_CONFIGS = yaml.load(open(ACTIVE_CHALLENGES_FILE), yaml.FullLoader)
 CHALLENGE_CONFIGS = json.loads(os.path.expandvars(json.dumps(CHALLENGE_CONFIGS)))
