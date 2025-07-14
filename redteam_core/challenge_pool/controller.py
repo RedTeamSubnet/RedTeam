@@ -52,7 +52,7 @@ class Controller(BaseController):
 
         self.local_network = "redteam_local"
 
-        self.max_self_comparison_score = self.challenge_info.get(
+        self.max_self_comparison_score = self.challenge_info["comparison_config"].get(
             "max_self_comparison_score", 0.9
         )
         # Add baseline image to compare with miners
