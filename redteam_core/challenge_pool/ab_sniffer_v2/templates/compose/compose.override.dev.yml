@@ -1,0 +1,23 @@
+services:
+  challenger-api:
+    volumes:
+      - "./volumes/storage/rest.rt-abs-challenger/logs:${ABSC_API_LOGS_DIR:-/var/log/rest.rt-abs-challenger}"
+      - "./volumes/storage/rest.rt-abs-challenger/data:${ABSC_API_DATA_DIR:-/var/lib/rest.rt-abs-challenger}"
+      - "./scripts/docker/docker-entrypoint.sh:/usr/local/bin/docker-entrypoint.sh"
+      - "./src:/app/rest.rt-abs-challenger"
+      - "./volumes/.vscode-server:/home/wuc-user/.vscode-server"
+    # deploy:
+    #   replicas: 0
+    #   resources:
+    #     limits:
+    #       cpus: "0.5"
+    #       memory: 512M
+    # command: ["/bin/bash"]
+    command: ["-b", "sudo service docker start && sleep 3 && sg docker \"uvicorn main:app --host=0.0.0.0 --port=${ABSC_API_PORT:-10001} --no-access-log --no-server-header --proxy-headers --forwarded-allow-ips='*' --reload --reload-include='*.yml' --reload-include='.env'\""]
+    # healthcheck:
+    #   test: ["CMD-SHELL", "curl -f http://localhost:${ABSC_API_PORT:-10001}/ping"]
+    #   start_period: 30s
+    #   start_interval: 1s
+    #   interval: 5m
+    #   timeout: 5s
+    #   retries: 3

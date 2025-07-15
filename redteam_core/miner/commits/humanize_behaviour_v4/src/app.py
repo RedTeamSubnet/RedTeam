@@ -2,8 +2,10 @@
 
 import os
 import sys
+import json
 import logging
 import pathlib
+import requests
 from typing import Union, List
 
 from fastapi import FastAPI, Body, HTTPException
@@ -67,6 +69,37 @@ def solve(miner_input: MinerInput = Body(...)) -> MinerOutput:
         )
 
     return _miner_output
+
+
+@app.get("/test-script")
+def test_script() -> float:
+    try:
+        _miner_output = solve(miner_input=MinerInput(random_val="a1b2c3d4e5f6g7h8"))
+
+        _url = "http://localhost:10001/score"
+        _payload = json.dumps(
+            {
+                "miner_input": {"random_val": "a1b2c3d4e5f6g7h8"},
+                "miner_output": _miner_output.model_dump(),
+            }
+        )
+        _headers = {"Content-Type": "application/json"}
+
+        response = requests.request("POST", _url, headers=_headers, data=_payload)
+
+        score = response.json()
+        if not isinstance(score, (int, float)):
+            logger.error(f"Expected numeric score, got: {type(score)}")
+            raise HTTPException(
+                status_code=500, detail="Score service returned non-numeric value"
+            )
+
+        logger.info(f"Received Score: {score}")
+        return score
+
+    except Exception as err:
+        logger.error(f"Failed to retrieve score: {err}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve score")
 
 
 ___all___ = ["app"]

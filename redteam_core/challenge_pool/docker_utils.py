@@ -62,18 +62,17 @@ def run_container(
     Returns:
         Container instance
     """
-    # Create copy to avoid modifying original kwargs
-    run_kwargs = copy.deepcopy(container_run_kwargs)
+    _run_kwargs = copy.deepcopy(container_run_kwargs)
 
     # Prepare DeviceRequest
-    if "device_requests" in run_kwargs:
-        device_requests = run_kwargs.pop("device_requests")
-        run_kwargs["device_requests"] = [
+    if "device_requests" in _run_kwargs:
+        _device_requests = _run_kwargs.pop("device_requests")
+        _run_kwargs["device_requests"] = [
             docker.types.DeviceRequest(**device_request)
-            for device_request in device_requests
+            for device_request in _device_requests
         ]
 
-    return client.containers.run(image, **run_kwargs)
+    return client.containers.run(image, **_run_kwargs)
 
 
 # MARK: SETUP
@@ -173,10 +172,11 @@ def create_network(
 
 # MARK: CLEANING
 
+
 def remove_container(
     client: docker.DockerClient,
     container_name: str,
-    stop_timeout: int = 360,
+    stop_timeout: int = 10,
     force: bool = True,
     remove_volumes: bool = True,
     max_retries: int = 12,
@@ -187,7 +187,7 @@ def remove_container(
     Args:
         client: Docker client instance
         container_name: Name of the container to remove
-        stop_timeout: Timeout in seconds for stopping the container (default: 30)
+        stop_timeout: Timeout in seconds for stopping the container (default: 10)
         force: Whether to force remove the container (default: True)
         remove_volumes: Whether to remove associated volumes (default: True)
         max_retries: Maximum number of removal attempts (default: 3)
@@ -217,7 +217,9 @@ def remove_container(
         target_container.reload()
         if target_container.status != "exited":
             bt.logging.info(f"Stopping container '{container_name}'")
-            target_container.stop(timeout=stop_timeout)
+            subprocess.run(
+                ["sudo", "docker", "stop", "-t", str(stop_timeout), container_name],
+            )
     except (docker.errors.NotFound, docker.errors.APIError) as e:
         bt.logging.info(f"Container stop status: {str(e)}")
     except Exception as e:
@@ -319,10 +321,7 @@ def clean_docker_resources(
         bt.logging.error(f"Error cleaning Docker resources: {e}")
 
 
-# MARK: UTILS
-
-
-def validate_image_digest(image: str) -> bool:
+def is_image_digest_format_valid(image: str) -> bool:
     """
     Validates that a Docker image includes a SHA256 digest.
 
@@ -339,3 +338,45 @@ def validate_image_digest(image: str) -> bool:
         )
         return False
     return True
+
+
+def check_container_alive(
+    container,
+    health_port,
+    protocol="http",
+    ssl_verify=None,
+    timeout=None,
+    start_time=None,
+):
+    """Check when the container is running successfully"""
+    if not start_time:
+        start_time = time.time()
+    while not is_container_alive(
+        port=health_port, protocol=protocol, ssl_verify=ssl_verify
+    ) and (not timeout or time.time() - start_time < timeout):
+        container.reload()
+        if container.status in ["exited", "dead"]:
+            container_logs = container.logs().decode("utf-8", errors="ignore")
+            bt.logging.error(
+                f"Container {container} failed with status: {container.status}"
+            )
+            bt.logging.error(f"Container logs:\n{container_logs}")
+            raise RuntimeError(
+                f"Container failed to start. Status: {container.status}. Container logs: {container_logs}"
+            )
+        else:
+            bt.logging.info(f"Waiting for container to start. {container.status}")
+            time.sleep(5)
+
+
+def is_container_alive(port=10001, protocol="http", ssl_verify=None):
+    try:
+        response = requests.get(
+            f"{protocol}://localhost:{port}/health",
+            verify=ssl_verify,
+        )
+        if response.status_code == 200:
+            return True
+    except requests.exceptions.ConnectionError:
+        return False
+    return False

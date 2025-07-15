@@ -433,14 +433,14 @@ class Validator(BaseValidator):
                 bt.logging.info(
                     f"[FORWARD LOCAL SCORING] Running comparer for challenge: {challenge}"
                 )
-                comparer = self.active_challenges[challenge]["comparer"](
-                    challenge_name=challenge,
-                    challenge_info=self.active_challenges[challenge],
-                    miner_commits=commits,
-                    compare_with_each_other=True,
-                )
-                # Run comparison, the comparer update commit 's penalty and comparison logs directly
-                comparer.start_comparison()
+                # comparer = self.active_challenges[challenge]["comparer"](
+                #     challenge_name=challenge,
+                #     challenge_info=self.active_challenges[challenge],
+                #     miner_commits=commits,
+                #     compare_with_each_other=True,
+                # )
+                # # Run comparison, the comparer update commit 's penalty and comparison logs directly
+                # comparer.start_comparison()
 
                 # 4. Update scores and penalties to challenge manager
                 self.challenge_managers[challenge].update_miner_scores(commits)
@@ -598,10 +598,13 @@ class Validator(BaseValidator):
         hotkeys = [self.metagraph.hotkeys[i] for i in uids]
         dendrite = bt.dendrite(wallet=self.wallet)
         synapse = Commit()
-
+        if bt.logging.get_level() < 20:
+            bt.logging.set_info()
         responses: list[Commit] = dendrite.query(
             axons, synapse, timeout=constants.QUERY_TIMEOUT
         )
+        if bt.logging.get_level() < 20:
+            bt.logging.set_debug()
 
         # Update new miner commits to self.miner_commits
         for uid, hotkey, response in zip(uids, hotkeys, responses):
@@ -713,6 +716,9 @@ class Validator(BaseValidator):
                         ].get_unique_scored_docker_hub_ids()
                     ):
                         # Only reveal unique docker hub ids in one pass, also ignore if docker_hub_id has been scored
+                        bt.logging.info(
+                            f"[GET REVEALED COMMITS] Skipping commit: Already revealed: {uid} - {hotkey}"
+                        )
                         continue
                     else:
                         commit.docker_hub_id = docker_hub_id
@@ -721,6 +727,10 @@ class Validator(BaseValidator):
                         bt.logging.info(
                             f"[GET REVEALED COMMITS] Revealed commit: {uid} - {hotkey} - {challenge_name} - {commit.encrypted_commit}"
                         )
+                else:
+                    bt.logging.info(
+                        f"[GET REVEALED COMMITS] Skipping commit: Not revealed yet: {uid} - {hotkey}"
+                    )
 
         return revealed_commits
 

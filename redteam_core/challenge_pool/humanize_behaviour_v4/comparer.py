@@ -47,20 +47,11 @@ class HBComparer(Comparer):
                     continue
 
                 try:
-                    # Send to /compare endpoint
-                    _sorted_miner_commits = sorted(
-                        [
-                            commit
-                            for commit in miner_commit.scoring_logs
-                            if commit.miner_output["log_time"] is not None
-                        ],
-                        key=lambda x: x.miner_output["log_time"],
-                    )
 
                     _latest_commit = (
-                        _sorted_miner_commits[-1]
-                        if _sorted_miner_commits
-                        else miner_commit.scoring_logs[-1]
+                        miner_commit.scoring_logs[0]
+                        if miner_commit.scoring_logs
+                        else None
                     )
 
                     similarity_score = self._compare_outputs(
@@ -118,24 +109,23 @@ class HBComparer(Comparer):
         if not miner_commit.scoring_logs:
             return
 
-        # Group scoring logs by input hash for efficient matching
         _current_miner_logs_by_hash: dict[str, ScoringLog] = {}
         for log in miner_commit.scoring_logs:
             if log.input_hash and log.miner_output:
                 _current_miner_logs_by_hash[log.input_hash] = log
 
-        for _other_miner_commit in self.miner_commits:
-            ### Check if we should compare with this commit
+        for other_miner_commit in self.miner_commits:
             if (
-                _other_miner_commit.commit_timestamp
+                other_miner_commit.commit_timestamp
                 > miner_commit.commit_timestamp  # Newer commit
-                or _other_miner_commit.docker_hub_id
+                or other_miner_commit.docker_hub_id
                 in miner_commit.comparison_logs  # Already compared
-                or not _other_miner_commit.scoring_logs  # No scoring logs
-                or miner_commit.miner_hotkey == _other_miner_commit.miner_hotkey
-            ):  # Same miner
+                or not other_miner_commit.scoring_logs  # No scoring logs
+                or miner_commit.miner_hotkey
+                == other_miner_commit.miner_hotkey  # Same miner
+            ):
                 bt.logging.debug(
-                    f"[COMPARER - HBComparer]Skipping comparing with batch {_other_miner_commit.miner_uid} for miner {miner_commit.miner_hotkey}"
+                    f"[COMPARER - HBComparer]Skipping comparing with batch {other_miner_commit.miner_uid} for miner {miner_commit.miner_hotkey}"
                 )
                 continue
 
@@ -143,17 +133,18 @@ class HBComparer(Comparer):
             comparison_logs = []
 
             # Check each scoring log in the other commit to find matching inputs
-            for _other_log in _other_miner_commit.scoring_logs:
+            for other_log in other_miner_commit.scoring_logs:
 
                 # skip if no input hash or miner output
-                if not _other_log.input_hash or not _other_log.miner_output:
+                if not other_log.input_hash or not other_log.miner_output:
                     continue
 
                 # If we have a matching input hash, we can compare outputs
-                if _other_log.input_hash in _current_miner_logs_by_hash:
-                    miner_log = _current_miner_logs_by_hash[_other_log.input_hash]
+                if other_log.input_hash in _current_miner_logs_by_hash:
+                    miner_log = _current_miner_logs_by_hash[other_log.input_hash]
                     try:
-                        _miner_output = miner_log.miner_output
+                        _miner_output = miner_log.miner_output.copy()
+                        _other_log = other_log.miner_output.copy()
 
                         if not _miner_output:
                             bt.logging.warning(
@@ -166,21 +157,20 @@ class HBComparer(Comparer):
                         similarity_score = self._compare_outputs(
                             miner_input=miner_log.miner_input,  # Both used the same input
                             miner_output=_miner_output,
-                            reference_output=_other_log.miner_output,
+                            reference_output=_other_log,
                         )
                         # Remove huge bot.py from `outputs` to save size
-                        if "bot_py" in _miner_output:
-                            _miner_output["bot_py"] = None
-                        if "bot_py" in _other_log.miner_output:
-                            _other_log.miner_output["bot_py"] = None
+
+                        _miner_output["bot_py"] = None
+                        _other_log["bot_py"] = None
 
                         # Create a comparison log with the inputs and outputs
                         comparison_log = ComparisonLog(
                             similarity_score=similarity_score,
                             miner_input=miner_log.miner_input,
                             miner_output=None,
-                            reference_output=_other_log.miner_output,
-                            reference_hotkey=_other_miner_commit.miner_hotkey,
+                            reference_output=_other_log,
+                            reference_hotkey=other_miner_commit.miner_hotkey,
                         )
                         comparison_logs.append(comparison_log)
 
@@ -188,30 +178,33 @@ class HBComparer(Comparer):
                         bt.logging.error(
                             f"[COMPARER - HBComparer] Error comparing outputs with matching inputs for miner {miner_commit.miner_hotkey}: {str(e)}"
                         )
-                        if miner_log and _other_log:
-                            miner_log.miner_output["bot_py"] = None
-                            _other_log.miner_output["bot_py"] = None
+                        if miner_log and other_log:
+                            _miner_output = miner_log.miner_output.copy()
+                            _other_log = other_log.miner_output.copy()
+
+                            _miner_output["bot_py"] = None
+                            _other_log["bot_py"] = None
                             comparison_log = ComparisonLog(
                                 error=str(e),
                                 similarity_score=0.0,
                                 miner_input=miner_log.miner_input,
-                                miner_output=miner_log.miner_output,
-                                reference_output=_other_log.miner_output,
-                                reference_hotkey=_other_miner_commit.miner_hotkey,
+                                miner_output=_miner_output,
+                                reference_output=_other_log,
+                                reference_hotkey=other_miner_commit.miner_hotkey,
                             )
                             comparison_logs.append(comparison_log)
 
             # If we found any matching inputs, add the comparison logs
             if comparison_logs:
-                miner_commit.comparison_logs[_other_miner_commit.docker_hub_id] = (
+                miner_commit.comparison_logs[other_miner_commit.docker_hub_id] = (
                     comparison_logs
                 )
                 bt.logging.info(
-                    f"[COMPARER] Added {len(comparison_logs)} comparison logs for commit {miner_commit.encrypted_commit} against docker_hub_id {_other_miner_commit.docker_hub_id}"
+                    f"[COMPARER] Added {len(comparison_logs)} comparison logs for commit {miner_commit.encrypted_commit} against docker_hub_id {other_miner_commit.docker_hub_id}"
                 )
             else:
                 bt.logging.warning(
-                    f"[COMPARER] No matching inputs found for comparison between commit {miner_commit.encrypted_commit} and docker_hub_id {_other_miner_commit.docker_hub_id}"
+                    f"[COMPARER] No matching inputs found for comparison between commit {miner_commit.encrypted_commit} and docker_hub_id {other_miner_commit.docker_hub_id}"
                 )
 
     def _compare_outputs(

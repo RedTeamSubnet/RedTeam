@@ -15,11 +15,16 @@ class HBChallengeManager(ChallengeManager):
         super().__init__(challenge_info, metagraph)
 
         emission_config = self.challenge_info.get("emission_config", {})
+        comparison_config = self.challenge_info.get("comparison_config", {})
+
         self.stable_period_days = emission_config.get("stable_period_days", 10)
         self.expiration_days = emission_config.get("expiration_days", 15)
         self.alpha = emission_config.get("alpha", 0.002)
         self.t_max = emission_config.get("t_max", 10)
         self.reward_temperature = emission_config.get("reward_temperature", 0.2)
+        self.comparison_min_acceptable_score = comparison_config.get(
+            "min_acceptable_score", 0.7
+        )
 
         self.max_similarity = 0.4
         self.min_similarity = 0
@@ -43,33 +48,19 @@ class HBChallengeManager(ChallengeManager):
         )
 
         for miner_commit in miner_commits:
-            if miner_commit.docker_hub_id in self._unique_scored_docker_hub_ids:
-                continue  # Skip if already scored
-
-            if not miner_commit.scoring_logs:
-                continue  # Skip if no scoring logs
+            if (
+                miner_commit.docker_hub_id in self._unique_scored_docker_hub_ids
+                or not miner_commit.scoring_logs
+            ):
+                continue
 
             try:
-                # Compute mean score
-                score = np.nanmax(
-                    [scoring_log.score for scoring_log in miner_commit.scoring_logs]
-                ).item()
-                if np.isnan(score):
-                    miner_commit.score = 0.0
-                else:
-                    miner_commit.score = float(score)
+                score = miner_commit.get_higest_scoring_score()
+                miner_commit.score = float(score)
 
-                # Compute penalty
                 if miner_commit.comparison_logs:
-                    penalty_values = [
-                        np.nanmax([log.similarity_score for log in logs] or [0.0])
-                        for logs in miner_commit.comparison_logs.values()
-                    ]
-                    penalty = np.max(penalty_values).item() if penalty_values else 0
-                    if np.isnan(penalty):
-                        miner_commit.penalty = 0.0
-                    else:
-                        miner_commit.penalty = float(penalty)
+                    penalty = miner_commit.get_higest_comparison_score()
+                    miner_commit.penalty = float(penalty)
                 else:
                     miner_commit.penalty = 0.0
 
@@ -83,7 +74,7 @@ class HBChallengeManager(ChallengeManager):
             # Acceptance criteria
             miner_commit.accepted = (
                 miner_commit.penalty >= self.min_similarity
-                and miner_commit.penalty <= self.break_point
+                and miner_commit.penalty <= self.comparison_min_acceptable_score
                 and miner_commit.score >= self.min_score
             )
 

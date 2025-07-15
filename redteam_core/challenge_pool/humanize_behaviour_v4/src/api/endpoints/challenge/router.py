@@ -201,27 +201,4 @@ def post_compare(
     return {"similarity_score": _score}
 
 
-@router.post(
-    "/analyse",
-    summary="Compare miner outputs",
-    description="This endpoints returns output of the miner.",
-    response_class=JSONResponse,
-    responses={500: {}},
-)
-def post_analyse(request: Request, miner_output: dict = Body(...)):
-    _request_id = request.state.request_id
-    logger.info(f"[{_request_id}] - Analyzing miner outputs...")
-
-    try:
-        _analyzation_result = service.analyse_output(
-            miner_output=miner_output,
-        )
-        logger.success(f"[{_request_id}] - Successfully analysed miner outputs.")
-    except Exception as err:
-        logger.error(f"[{_request_id}] - Error analyzing miner outputs: {str(err)}")
-        raise HTTPException(status_code=500, detail="Error in analyzing miner output")
-
-    return {"analyzed_output": _analyzation_result}
-
-
 __all__ = ["router"]

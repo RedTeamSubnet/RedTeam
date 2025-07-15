@@ -7,7 +7,11 @@ import traceback
 import docker
 
 from redteam_core.challenge_pool.base import BaseComparer
-from redteam_core.validator.models import MinerChallengeCommit, ComparisonLog, ScoringLog
+from redteam_core.validator.models import (
+    MinerChallengeCommit,
+    ComparisonLog,
+    ScoringLog,
+)
 from redteam_core.challenge_pool import docker_utils
 from redteam_core.constants import constants
 
@@ -60,7 +64,7 @@ class Comparer(BaseComparer):
             docker_utils.remove_container(
                 client=self.docker_client,
                 container_name=self.challenge_name,
-                stop_timeout=360,
+                stop_timeout=10,
                 force=True,
                 remove_volumes=True,
             )
@@ -70,7 +74,7 @@ class Comparer(BaseComparer):
                 remove_images=True,
                 remove_networks=True,
                 prune_volumes=True,
-                prune_builds=True
+                prune_builds=True,
             )
 
         except Exception as e:
@@ -161,7 +165,7 @@ class Comparer(BaseComparer):
                         similarity_score = self._compare_outputs(
                             miner_input=miner_log.miner_input,  # Both used the same input
                             miner_output=miner_log.miner_output,
-                            reference_output=other_log.miner_output
+                            reference_output=other_log.miner_output,
                         )
 
                         # Create a comparison log with the inputs and outputs
@@ -190,7 +194,9 @@ class Comparer(BaseComparer):
 
             # If we found any matching inputs, add the comparison logs
             if comparison_logs:
-                miner_commit.comparison_logs[other_commit.docker_hub_id] = comparison_logs
+                miner_commit.comparison_logs[other_commit.docker_hub_id] = (
+                    comparison_logs
+                )
                 bt.logging.info(
                     f"[COMPARER] Added {len(comparison_logs)} comparison logs for commit {miner_commit.encrypted_commit} against docker_hub_id {other_commit.docker_hub_id}"
                 )
@@ -260,7 +266,7 @@ class Comparer(BaseComparer):
         docker_utils.remove_container(
             client=self.docker_client,
             container_name=self.challenge_name,
-            stop_timeout=360,
+            stop_timeout=10,
             force=True,
             remove_volumes=True,
         )
@@ -287,29 +293,13 @@ class Comparer(BaseComparer):
         )
 
         # Check challenge container health
-        self._check_container_alive(
+        _protocol, _ssl_verify = self._check_protocol(is_challenger=True)
+        docker_utils.check_container_alive(
             self.challenge_container,
             health_port=constants.CHALLENGE_DOCKER_PORT,
-            is_challenger=True,
+            protocol=_protocol,
+            ssl_verify=_ssl_verify,
         )
-
-    def _check_alive(self, port=10001, is_challenger=True) -> bool:
-        """
-        Checks if the challenge container is still running.
-        """
-
-        _protocol, _ssl_verify = self._check_protocol(is_challenger=is_challenger)
-
-        try:
-            response = requests.get(
-                f"{_protocol}://localhost:{port}/health",
-                verify=_ssl_verify,
-            )
-            if response.status_code == 200:
-                return True
-        except requests.exceptions.ConnectionError:
-            return False
-        return False
 
     def _check_protocol(
         self, is_challenger: bool = True
@@ -344,33 +334,3 @@ class Comparer(BaseComparer):
                     _ssl_verify = _protocols["miner_ssl_verify"]
 
         return _protocol, _ssl_verify
-
-    def _check_container_alive(
-        self,
-        container: docker.models.containers.Container,
-        health_port,
-        is_challenger=True,
-        timeout=None,
-        start_time=None,
-    ):
-        """Check when the container is running successfully"""
-        if not start_time:
-            start_time = time.time()
-        while not self._check_alive(port=health_port, is_challenger=is_challenger) and (
-            not timeout or time.time() - start_time < timeout
-        ):
-            container.reload()
-            if container.status in ["exited", "dead"]:
-                container_logs = container.logs().decode("utf-8", errors="ignore")
-                bt.logging.error(
-                    f"[COMPARER] Container {container} failed with status: {container.status}"
-                )
-                bt.logging.error(f"[COMPARER] Container logs:\n{container_logs}")
-                raise RuntimeError(
-                    f"[COMPARER] Container failed to start. Status: {container.status}. Container logs: {container_logs}"
-                )
-            else:
-                bt.logging.info(
-                    f"[COMPARER] Waiting for container to start. {container.status}"
-                )
-                time.sleep(5)

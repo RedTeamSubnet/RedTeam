@@ -15,6 +15,7 @@ from redteam_core import BaseMiner, Commit, constants
 class Miner(BaseMiner):
     def __init__(self):
         super().__init__()
+        self.active_challenges = self._get_active_challenges()
         self.synapse_commit = self._load_synapse_commit()
 
     def forward(self, synapse: Commit) -> Commit:
@@ -52,8 +53,40 @@ class Miner(BaseMiner):
 
     def _load_active_commit(self) -> list:
         commit_file = "neurons/miner/active_commit.yaml"
-        commit = yaml.load(open(commit_file), yaml.FullLoader)
-        return commit
+        commits = yaml.load(open(commit_file), yaml.FullLoader)
+        if commits is None:
+            return []
+        valid_commits = self._check_format_commits(commits)
+        return valid_commits
+
+    def _check_format_commits(self, commits: list) -> list[str]:
+        # Validate commit format
+        valid_commits = []
+        for commit in commits:
+            if not isinstance(commit, str):
+                bt.logging.warning(f"Invalid commit format (not a string): {commit}")
+                continue
+
+            # Check if commit follows the format: challenge_name---dockerhub_id@sha256:hash
+            if not commit.count("---") == 1 or not commit.count("@sha256:") == 1:
+                bt.logging.warning(f"Invalid commit format: {commit}")
+                continue
+
+            challenge_name, docker_info = commit.split("---")
+            docker_id, sha = docker_info.split("@sha256:")
+
+            if not challenge_name or not docker_id or not sha:
+                bt.logging.warning(f"Invalid commit format (missing parts): {commit}")
+                continue
+
+            if challenge_name not in self.active_challenges:
+                bt.logging.warning(
+                    f"Invalid commit format (challenge not active): {commit}"
+                )
+                continue
+
+            valid_commits.append(commit)
+        return valid_commits
 
 
 if __name__ == "__main__":

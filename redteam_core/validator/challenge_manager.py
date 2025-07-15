@@ -69,7 +69,9 @@ class ChallengeManager:
         self.metagraph = metagraph
 
         # Track unique solutions set using cache keys
-        self.max_unique_commits = challenge_info["max_unique_commits"]
+        self.max_unique_commits = challenge_info["comparison_config"][
+            "max_unique_commits"
+        ]
         self._unique_commits_heap: list[tuple[float, str, str]] = (
             []
         )  # [(score, encrypted_commit, docker_hub_id)]
