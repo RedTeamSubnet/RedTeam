@@ -7,7 +7,7 @@ challenge:
   repeated_framework_count: 3
   framework_images:
     - framework_name: seleniumbase
-      image: redteamsubnet61/seleniumbase:latest@sha256:cd603dcd06d205ff311e682bbca06b1719e4521adeff65b766ce64bc7bc13ab2
+      image: redteamsubnet61/seleniumbase:latest@sha256:09e096913e8b03cd427dd7c83ceb8f896a6734afd00ccd23387d371e0c024c32
     - framework_name: seleniumdriverless
       image: redteamsubnet61/seleniumdriverless@sha256:afdb31623f6b3db47262ef35e59e713447c0693a736133ec85d29b0ee6337739
     - framework_name: patchright
