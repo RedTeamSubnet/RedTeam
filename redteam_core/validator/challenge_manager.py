@@ -40,7 +40,11 @@ class MinerChallengeInfo(BaseModel):
         if not miner_commit.accepted:
             return
 
-        if self.best_commit is None or miner_commit.score > self.best_commit.score:
+        if (
+            self.best_commit is None
+            or miner_commit.score > self.best_commit.score
+            or miner_commit.score == 1.0
+        ):
             self.best_commit = miner_commit
 
     def public_view(self) -> "MinerChallengeInfo":
