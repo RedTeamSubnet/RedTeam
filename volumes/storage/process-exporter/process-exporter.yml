@@ -1,0 +1,7 @@
+process_names:
+  - name: "nginx"
+    cmdline: ["^nginx:.*"]
+  - name: "mongo"
+    cmdline: ["^/usr/bin/mongod .*"]
+  - name: "{{.Comm}}" # fallback: everything else
+    cmdline: [".+"]

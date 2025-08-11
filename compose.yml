@@ -105,6 +105,43 @@ services:
         - "miner-logs:${RT_MINER_LOGS_DIR:-/var/log/agent.miner}"
         - "miner-data:${RT_MINER_DATA_DIR:-/var/lib/agent.miner}"
       tty: true
+  fluent-bit:
+    image: cr.fluentbit.io/fluent/fluent-bit:latest
+    depends_on:
+      - loki
+    restart: unless-stopped
+    volumes:
+      - "./volumes/storage/server.agent.miner/logs:/var/log/server.agent.miner"
+      - "./volumes/storage/fluent-bit/conf.d:/fluent-bit/etc"
+    tty: true
+
+  process-exporter:
+    image: ncabatoff/process-exporter
+    pid: host
+    ports: ["9256:9256"]
+    volumes:
+      - /proc:/host_proc:ro
+      - ./volumes/storage/process-exporter/process-exporter.yml:/config/process-exporter.yml:ro
+    command:
+      - --procfs=/host_proc
+      - --config.path=/config/process-exporter.yml
+    restart: unless-stopped
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor
+    container_name: cadvisor
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    privileged: true
+    devices:
+      - /dev/kmsg
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
 
 volumes:
   subtensor-data:
@@ -115,3 +152,5 @@ volumes:
   reward-app-data:
   miner-logs:
   miner-data:
+  process-exporter-data:
+  cadvisor-data:
