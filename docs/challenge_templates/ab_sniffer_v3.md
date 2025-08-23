@@ -2,7 +2,7 @@
 
 ## Overview
 
-**AB Sniffer v3** is the next iteration of **AB Sniffer v1** challenge which tests participants' ability to develop a SDK that can detect and correctly identify automation frameworks by name. The challenge evaluates how well the SDK can analyze automation behavior and identify unique characteristics or "leaks" from different automation tools interacting with a web page. With the new iteration, we are introducing two more frameworks to be detected which are **Zendriver** and **Puppeteer-Extra**
+**AB Sniffer v3** is the next iteration of **AB Sniffer** challenge which tests participants' ability to develop a SDK that can detect and correctly identify automation frameworks by name. The challenge evaluates how well the SDK can analyze automation behavior and identify unique characteristics or "leaks" from different automation tools interacting with a web page. With the new iteration, we are introducing one more frameworks to be detected which is **Camoufox**
 
 Participants must demonstrate precise detection capabilities across multiple automation frameworks while maintaining reliability across different execution headless mode.
 
