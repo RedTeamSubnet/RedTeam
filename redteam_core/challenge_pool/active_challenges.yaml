@@ -1,10 +1,10 @@
-ab_sniffer_v2:
-  name: "ab_sniffer_v2"
+ab_sniffer_v3:
+  name: "ab_sniffer_v3"
   description: "Detect the driver type of the framework using a single detection.js script"
   challenge_incentive_weight: 0.3
-  target: redteam_core.challenge_pool.ab_sniffer_v2.controller.ABSController
-  comparer: redteam_core.challenge_pool.ab_sniffer_v2.comparer.ABSComparer
-  challenge_manager: redteam_core.challenge_pool.ab_sniffer_v2.challenge_manager.ABSChallengeManager
+  target: redteam_core.challenge_pool.ab_sniffer_v3.controller.ABSController
+  comparer: redteam_core.challenge_pool.ab_sniffer_v3.comparer.ABSComparer
+  challenge_manager: redteam_core.challenge_pool.ab_sniffer_v3.challenge_manager.ABSChallengeManager
   challenge_solve_timeout: 60
   docker_run_timeout: 900
   num_tasks: 1
@@ -13,7 +13,7 @@ ab_sniffer_v2:
     max_self_comparison_score: 0.9
     min_acceptable_score: 0.7
   challenge_container_run_kwargs:
-    name: "ab_sniffer_v2"
+    name: "ab_sniffer_v3"
     privileged: true
     environment:
       RT_CFG_RAND_SEED: "${RT_CFG_RAND_SEED}"
@@ -25,7 +25,7 @@ ab_sniffer_v2:
     mem_limit: "12g"
     network: "redteam_local"
     environment:
-      CHALLENGE_NAME: "ab_sniffer_v2"
+      CHALLENGE_NAME: "ab_sniffer_v3"
 
   reset_challenge: true
   protocols:

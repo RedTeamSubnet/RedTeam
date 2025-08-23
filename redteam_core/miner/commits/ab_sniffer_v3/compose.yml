@@ -1,0 +1,19 @@
+services:
+  miner-api:
+    image: redteamsubnet61/rest.rt-abs-miner:latest
+    network_mode: host
+    build:
+      context: .
+      platforms:
+        - linux/amd64
+    restart: unless-stopped
+    environment:
+      TERM: ${TERM:-xterm}
+      TZ: UTC
+      HBM_API_PORT: ${HBM_API_PORT:-8000}
+    env_file:
+      - path: .env
+        required: false
+    tty: true
+    volumes:
+      - "./src:/app"

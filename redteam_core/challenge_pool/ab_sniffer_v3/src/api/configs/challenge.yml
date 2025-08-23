@@ -1,0 +1,22 @@
+challenge:
+  docker_ulimit: 32768
+  allowed_pip_pkg_dt: "2025-01-01T00:00:00Z"
+  allowed_file_exts: [".py", ".json", ".yaml", ".yml", ".txt", ".pt", ".js"]
+  bot_timeout: 15
+  framework_count: 7
+  repeated_framework_count: 3
+  framework_images:
+    - framework_name: seleniumbase
+      image: redteamsubnet61/seleniumbase@sha256:617c872e14364c1eaf84c0583b7b4f250d8d93846eed1a8c1d5d5cdfdf42802a
+    - framework_name: seleniumdriverless
+      image: redteamsubnet61/seleniumdriverless@sha256:afdb31623f6b3db47262ef35e59e713447c0693a736133ec85d29b0ee6337739
+    - framework_name: patchright
+      image: redteamsubnet61/patchright@sha256:df1d11fb3f806b6a69fd064c4281b52584b28f7b28d224569bf76f8f9b12db98
+    - framework_name: nodriver
+      image: redteamsubnet61/nodriver@sha256:65675845c8e63c311d80af5271616d55b821ad0e114d8c73958d0f449137c8ca
+    - framework_name: puppeteerextra
+      image: redteamsubnet61/puppeteerextra@sha256:cd603dcd06d205ff311e682bbca06b1719e4521adeff65b766ce64bc7bc13ab2
+    - framework_name: zendriver
+      image: redteamsubnet61/zendriver@sha256:5c5b81b94b46d6fa77cee7570ca5285c1046dfb0bcca53a6c80d2eb0fb2dec53
+    - framework_name: camoufox
+      image: redteamsubnet61/camoufox@sha256:4703f30c759771cb67b4d0e498af5ec0533c6086c153f489a76a6583aca556aa
