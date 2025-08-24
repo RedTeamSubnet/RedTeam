@@ -40,10 +40,10 @@ ab_sniffer_v3:
     ENV: "PRODUCTION"
 
   baseline_reference_comparison_docker_hub_ids:
-    - redteamsubnet61/base_absv2_image1@sha256:31f9adbb696f8ec943b0b224924d202b2d566ce8e2b79f01e68a7ca77b47fd4a
-    - redteamsubnet61/base_absv2_image2@sha256:034e4ff8549d866d1ccfcdb0253897ebeaf49dbb67747bcc437361e4c5437122
-    - redteamsubnet61/base_absv2_image3@sha256:365075d506c326f48d41672f2b052238cd1867e694247e173f4efe5846cd8e1b
-    - redteamsubnet61/base_absv2_image4@sha256:87165fc7f880cca5751cd9196a290901af76081ddfee157284eb6f6cc39fd9eb
+    - redteamsubnet61/base_absv3_image1@sha256:dc3a539c9b8abc43fc84a2ea48e0b9e2abcecdbe87d5708e7d1412b5959aa48c
+    - redteamsubnet61/base_absv3_image2@sha256:cb4854c285218fb0410149209369f44538ee101614a5e7c9d2aa1c85d710ad92
+    - redteamsubnet61/base_absv3_image3@sha256:183682d255db9aa1793371ed53e3e0f08b3c7cd8926f3104f76798ac12274b3f
+    - redteamsubnet61/base_absv3_image4@sha256:1b96fd5ce681df293b975dd1150fee027138c69929baf51ec93fae91fc794871
 
 humanize_behaviour_v4:
   name: "humanize_behaviour_v4"
