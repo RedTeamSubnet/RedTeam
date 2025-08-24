@@ -1,13 +1,10 @@
-import hashlib
-import time
 import datetime
 import queue
-import json
 import logging
 import traceback
 import threading
 from logging.handlers import QueueHandler, QueueListener
-
+import json
 import requests
 
 import bittensor as bt
@@ -16,64 +13,19 @@ from redteam_core.constants import constants
 
 
 class BittensorLogHandler(logging.Handler):
-    def __init__(
-        self,
-        validator_uid,
-        validator_hotkey,
-        keypair,
-        buffer_size=100,
-        level=logging.DEBUG,
-    ):
+    def __init__(self, api_key, buffer_size=100, level=logging.DEBUG):
         super().__init__(level)
-        self.validator_uid = validator_uid
-        self.validator_hotkey = validator_hotkey
-        self.keypair = keypair
+        self.api_key = api_key
         self.buffer_size = buffer_size
         self.log_queue = queue.Queue()
         self.stop_event = threading.Event()  # Used to stop the thread gracefully
 
-        self.api_key = None
-        self.api_key_lock = threading.Lock()
-
-        self._refresh_api_key()
-
+        # Use the optimized JSON formatter for network logs
         self.setFormatter(bt.logging._file_formatter)
 
         # Start the daemon thread for sending logs
         self.sender_thread = threading.Thread(target=self.process_logs, daemon=True)
         self.sender_thread.start()
-
-    def _refresh_api_key(self):
-        """Get a fresh API key from the storage server."""
-        try:
-            endpoint = f"{constants.STORAGE_API.URL}/get-api-key"
-            data = {
-                "validator_uid": self.validator_uid,
-                "validator_hotkey": self.validator_hotkey,
-            }
-            body_hash = hashlib.sha256(json.dumps(data).encode("utf-8")).hexdigest()
-
-            # Create signed headers for the API key request
-            timestamp = str(int(time.time_ns()))
-            signature = "0x" + self.keypair.sign(f"{body_hash}.{timestamp}").hex()
-
-            headers = {
-                "validator-uid": str(self.validator_uid),
-                "validator-hotkey": self.validator_hotkey,
-                "timestamp": timestamp,
-                "signature": signature,
-            }
-
-            response = requests.post(endpoint, json=data, headers=headers, timeout=30)
-            response.raise_for_status()
-
-            with self.api_key_lock:
-                self.api_key = response.json()["api_key"]
-
-            bt.logging.success(f"[LOG HANDLER] Successfully refreshed API key")
-
-        except Exception as e:
-            bt.logging.error(f"[LOG HANDLER] Failed to refresh API key: {e}")
 
     def emit(self, record):
         """Capture log and enqueue it for asynchronous sending."""
@@ -111,67 +63,23 @@ class BittensorLogHandler(logging.Handler):
                     buffer.clear()
 
     def flush_logs(self, logs):
-        """Send logs to the logging server with auto-retry on 401."""
+        """Send logs to the logging server."""
         if not logs:
             return
 
         logging_endpoint = f"{constants.STORAGE_API.URL}/upload-log"
         payload = {"logs": logs}
-
-        # Use current API key
-        with self.api_key_lock:
-            current_api_key = self.api_key
-
-        if not current_api_key:
-            bt.logging.warning(
-                "[LOG HANDLER] No API key available, skipping log upload"
-            )
-            return
-
-        headers = {"Authorization": current_api_key, "Content-Type": "application/json"}
+        headers = {"Authorization": self.api_key, "Content-Type": "application/json"}
 
         try:
-            response = requests.post(
-                logging_endpoint, json=payload, headers=headers, timeout=30
-            )
+            response = requests.post(logging_endpoint, json=payload, headers=headers)
             response.raise_for_status()
-            bt.logging.debug(f"[LOG HANDLER] Successfully sent {len(logs)} logs")
-
-        except requests.exceptions.HTTPError as e:
-            if e.response.status_code == 401:
-                # API key expired/invalid, refresh and retry once
-                bt.logging.warning("[LOG HANDLER] API key expired (401), refreshing...")
-                self._refresh_api_key()
-
-                # Retry with new key
-                with self.api_key_lock:
-                    new_api_key = self.api_key
-
-                if new_api_key:
-                    headers["Authorization"] = new_api_key
-                    try:
-                        retry_response = requests.post(
-                            logging_endpoint, json=payload, headers=headers, timeout=30
-                        )
-                        retry_response.raise_for_status()
-                        bt.logging.debug(
-                            f"[LOG HANDLER] Successfully sent {len(logs)} logs after API key refresh"
-                        )
-                    except Exception as retry_e:
+        except requests.RequestException:
                         bt.logging.error(
-                            f"[LOG HANDLER] Failed to send logs even after API key refresh: {retry_e}"
-                        )
-                else:
-                    bt.logging.error(
-                        "[LOG HANDLER] Failed to refresh API key, logs will be lost"
+                f"[LOG HANDLER] Failed to send logs: {traceback.format_exc()}"
                     )
-            else:
-                bt.logging.error(
-                    f"[LOG HANDLER] HTTP error {e.response.status_code}: {e}"
-                )
 
-        except requests.RequestException as e:
-            bt.logging.error(f"[LOG HANDLER] Failed to send logs: {e}")
+        bt.logging.debug(f"[LOG HANDLER] Successfully sent {len(logs)} logs")
 
     def close(self):
         bt.logging.warning(
@@ -179,9 +87,7 @@ class BittensorLogHandler(logging.Handler):
         )
 
 
-def start_bittensor_log_listener(
-    validator_uid, validator_hotkey, keypair, buffer_size=100
-):
+def start_bittensor_log_listener(api_key, buffer_size=100):
     """
     Starts a separate QueueListener that listens to Bittensor's logging queue.
     """
@@ -192,9 +98,7 @@ def start_bittensor_log_listener(
     bt_logger.addHandler(QueueHandler(log_queue))
 
     # Create our custom log handler
-    custom_handler = BittensorLogHandler(
-        validator_uid, validator_hotkey, keypair, buffer_size
-    )
+    custom_handler = BittensorLogHandler(api_key, buffer_size)
 
     # Create our own listener that listens to the same queue
     custom_listener = QueueListener(

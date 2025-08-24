@@ -59,14 +59,10 @@ class Validator(BaseValidator):
         )
 
         # Get the storage API key
-        # storage_api_key = self._get_storage_api_key()
+        storage_api_key = self._get_storage_api_key()
 
         # Start the Bittensor log listener
-        start_bittensor_log_listener(
-            validator_uid=self.uid,
-            validator_hotkey=self.metagraph.hotkeys[self.uid],
-            keypair=self.wallet.hotkey,
-        )
+        start_bittensor_log_listener(api_key=storage_api_key)
 
         # Setup storage manager and publish public hf_repo_id for storage
         self.storage_manager = StorageManager(
