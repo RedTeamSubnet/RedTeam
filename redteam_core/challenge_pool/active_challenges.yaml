@@ -48,7 +48,7 @@ ab_sniffer_v3:
 humanize_behaviour_v4:
   name: "humanize_behaviour_v4"
   description: "Imitate human-like behaviour for given UI tasks"
-  challenge_incentive_weight: 0.7
+  challenge_incentive_weight: 0.1
   target: redteam_core.challenge_pool.humanize_behaviour_v4.controller.HBController
   comparer: redteam_core.challenge_pool.humanize_behaviour_v4.comparer.HBComparer
   challenge_manager: redteam_core.challenge_pool.humanize_behaviour_v4.challenge_manager.HBChallengeManager
