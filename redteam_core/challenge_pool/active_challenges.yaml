@@ -41,7 +41,7 @@ ab_sniffer_v3:
 
   baseline_reference_comparison_docker_hub_ids:
     - redteamsubnet61/base_absv3_image1@sha256:dc3a539c9b8abc43fc84a2ea48e0b9e2abcecdbe87d5708e7d1412b5959aa48c
-    - redteamsubnet61/base_absv3_image2@sha256:cb4854c285218fb0410149209369f44538ee101614a5e7c9d2aa1c85d710ad92
+    - redteamsubnet61/base_absv3_image2@sha256:737db67da0c562b1c7e35aa6263eb643d8d8ed9e621df7ae125f90eef924d9c2
     - redteamsubnet61/base_absv3_image3@sha256:183682d255db9aa1793371ed53e3e0f08b3c7cd8926f3104f76798ac12274b3f
     - redteamsubnet61/base_absv3_image4@sha256:1b96fd5ce681df293b975dd1150fee027138c69929baf51ec93fae91fc794871
 
