@@ -1,5 +1,20 @@
 # Changelog
 
+## v2.4.0 (2025-08-24)
+
+<!-- Release notes generated using configuration in .github/release.yml at v2.4.0 -->
+
+## What's Changed
+### 💥 Breaking Changes
+* Adding auto browser sniffer v3 by @aliyuldashev in https://github.com/RedTeamSubnet/RedTeam/pull/76
+### ✨ Features
+* testing environment for ab_sniffer_v1 and humanize_behaviour_v4 by @BaratovSokhibjon in https://github.com/RedTeamSubnet/RedTeam/pull/72
+* Feat/change logic by @aliyuldashev in https://github.com/RedTeamSubnet/RedTeam/pull/74
+* New Auto-Browser-Sniffer challenge and Core logic update by @aliyuldashev in https://github.com/RedTeamSubnet/RedTeam/pull/75
+
+
+**Full Changelog**: https://github.com/RedTeamSubnet/RedTeam/compare/v2.3.0...v2.4.0
+
 ## v2.3.0 (2025-06-11)
 
 <!-- Release notes generated using configuration in .github/release.yml at v2.3.0 -->
