@@ -28,7 +28,7 @@ cd RedTeam
 - Run the following commands in **separate terminal** and **leave it as is** to see the logs:
 
 ```bash
-bash ./redteam_core/challenge_pool/ab_sniffer_v2/scripts/setup-testing.sh
+bash ./redteam_core/challenge_pool/ab_sniffer_v3/scripts/setup-testing.sh
 ```
 
 #### Step 3: Setup Testing Environment
@@ -36,7 +36,7 @@ bash ./redteam_core/challenge_pool/ab_sniffer_v2/scripts/setup-testing.sh
 - In a **separate terminal**, run the following commands to set up miner environment:
 
 ```bash
-bash ./redteam_core/miner/commits/ab_sniffer_v2/scripts/setup-testing.sh
+bash ./redteam_core/miner/commits/ab_sniffer_v3/scripts/setup-testing.sh
 ```
 
 ### Step 4: Test Your Script
@@ -45,7 +45,7 @@ bash ./redteam_core/miner/commits/ab_sniffer_v2/scripts/setup-testing.sh
 - You can see the logs in the first terminal where you ran the setup script
 
 ```bash
-bash ./redteam_core/miner/commits/ab_sniffer_v2/scripts/test-script.sh
+bash ./redteam_core/miner/commits/ab_sniffer_v3/scripts/test-script.sh
 ```
 
 - Run the following command to test your script if it can detect driver specific bots:
@@ -79,4 +79,4 @@ If you encounter issues:
 2. Verify port 10001 is not in use
 3. Check Docker logs using `docker compose logs`
 4. Ensure you have proper permissions to run Docker commands
-5. You can also check the logs in `/var/lib/docker/volumes/ab_sniffer_v2_api-logs/_data`
+5. You can also check the logs in `/var/lib/docker/volumes/ab_sniffer_v3_api-logs/_data`

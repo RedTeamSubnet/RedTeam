@@ -167,29 +167,9 @@ class MinerManager:
         # Find owner 's hotkey
         scores = np.zeros(n_uids)
         try:
-            public_key_bytes = self.metagraph.owner_hotkey[0]
-            # Convert to bytes
-            public_key_bytes = bytes(public_key_bytes)
-            # Prefix for Substrate address
-            prefix = 42
-            prefix_bytes = bytes([prefix])
+            owner_hotkey = self.metagraph.owner_hotkey
 
-            input_bytes = prefix_bytes + public_key_bytes
-
-            # Calculate checksum (blake2b-512)
-            blake2b = hashlib.blake2b(digest_size=64)
-            blake2b.update(b"SS58PRE" + input_bytes)
-            checksum = blake2b.digest()
-            checksum_bytes = checksum[:2]  # Take first two bytes of checksum
-
-            # Final bytes = prefix + public key + checksum
-            final_bytes = input_bytes + checksum_bytes
-
-            # Convert to base58
-            owner_hotkey_base58 = base58.b58encode(final_bytes).decode()
-
-            # Get the index of the owner hotkey
-            owner_hotkey_index = self.metagraph.hotkeys.index(owner_hotkey_base58)
+            owner_hotkey_index = self.metagraph.hotkeys.index(owner_hotkey)
 
             # Set alpha burn score to 1.0
             scores[owner_hotkey_index] = 1.0

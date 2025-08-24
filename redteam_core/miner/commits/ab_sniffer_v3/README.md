@@ -46,14 +46,14 @@ cd ~/workspaces/projects
 
 ```sh
 git clone https://github.com/RedTeamSubnet/RedTeam.git && \
-    cd RedTeam/redteam_core/miner/commits/ab_sniffer_v2
+    cd RedTeam/redteam_core/miner/commits/ab_sniffer_v3
 ```
 
 **OPTION B.** Clone the repository (for **DEVELOPMENT**: git + ssh key):
 
 ```sh
 git clone --recursive git@github.com:RedTeamSubnet/RedTeam.git && \
-    cd RedTeam/redteam_core/miner/commits/ab_sniffer_v2
+    cd RedTeam/redteam_core/miner/commits/ab_sniffer_v3
 ```
 
 ### 3. 📦 Install dependencies

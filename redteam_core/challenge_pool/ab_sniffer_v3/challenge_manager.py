@@ -125,15 +125,8 @@ class ABSChallengeManager(ChallengeManager):
             # Set initial scores
             scores[miner_state.miner_uid] = best_commit.score
 
-            # Track the latest evaluation timestamp
-            if (
-                evaluation_timestamp is None
-                or best_commit.scored_timestamp > evaluation_timestamp
-            ):
-                evaluation_timestamp = best_commit.scored_timestamp
-
         # Step 2: If no valid timestamp found, return unmodified scores
-        if evaluation_timestamp is None:
+        if scores.sum() == 0:
             bt.logging.warning(
                 "No valid scored_timestamp found, cannot apply time decay"
             )
@@ -150,6 +143,7 @@ class ABSChallengeManager(ChallengeManager):
                 continue  # Skip invalid miners
 
             commit_timestamp = best_commit.scored_timestamp
+            evaluation_timestamp = time.time()
             days_elapsed = (evaluation_timestamp - commit_timestamp) / 86400
 
             # Apply decay and adjustment

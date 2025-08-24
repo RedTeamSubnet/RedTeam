@@ -59,10 +59,14 @@ class Validator(BaseValidator):
         )
 
         # Get the storage API key
-        storage_api_key = self._get_storage_api_key()
+        # storage_api_key = self._get_storage_api_key()
 
         # Start the Bittensor log listener
-        start_bittensor_log_listener(api_key=storage_api_key)
+        start_bittensor_log_listener(
+            validator_uid=self.uid,
+            validator_hotkey=self.metagraph.hotkeys[self.uid],
+            keypair=self.wallet.hotkey,
+        )
 
         # Setup storage manager and publish public hf_repo_id for storage
         self.storage_manager = StorageManager(
@@ -717,7 +721,7 @@ class Validator(BaseValidator):
                     ):
                         # Only reveal unique docker hub ids in one pass, also ignore if docker_hub_id has been scored
                         bt.logging.info(
-                            f"[GET REVEALED COMMITS] Skipping commit: Already revealed: {uid} - {hotkey}"
+                            f"[GET REVEALED COMMITS] Skipping commit, Already revealed: {uid} - {hotkey}"
                         )
                         continue
                     else:
