@@ -388,6 +388,9 @@ class RewardApp(Validator):
         # Run challenge controller, the controller update commit 's scoring logs and reference comparison logs directly
         controller.start_challenge()
 
+        # Update commits with challenge_managers
+        self.challenge_managers[challenge].update_miner_scores(controller.miner_commits)
+
     def _compare_miner_commits(
         self,
         challenge: str,
