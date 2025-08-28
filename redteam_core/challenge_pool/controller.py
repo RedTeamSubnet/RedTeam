@@ -305,7 +305,12 @@ class Controller(BaseController):
         """
 
         # Get all reference commits including baseline cache if available
-        reference_commits = self._get_all_reference_commits()
+        current_commits_to_compare = self._get_current_commits_to_compare(
+            miner_commit=miner_commit
+        )
+        reference_commits = (
+            self._get_all_reference_commits() + current_commits_to_compare
+        )
 
         for reference_commit in reference_commits:
             bt.logging.info(
@@ -596,6 +601,15 @@ class Controller(BaseController):
                     _ssl_verify = _protocols["miner_ssl_verify"]
 
         return _protocol, _ssl_verify
+
+    def _get_current_commits_to_compare(
+        self, miner_commit: MinerChallengeCommit = None
+    ) -> list[MinerChallengeCommit]:
+        _all_current_commits = []
+        for commit in self.miner_commits:
+            if commit.scoring_logs and (commit.miner_uid != miner_commit.miner_uid):
+                _all_current_commits.append(commit)
+        return _all_current_commits
 
     @abstractmethod
     def _get_all_reference_commits(self) -> list[MinerChallengeCommit]:
