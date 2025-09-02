@@ -117,25 +117,18 @@ class HBChallengeManager(ChallengeManager):
         for miner_state in self.miner_states.values():
             best_commit = miner_state.best_commit
 
-            if best_commit is None or not (
-                miner_state.miner_uid < len(self.metagraph.hotkeys)
-                and miner_state.miner_hotkey
-                == self.metagraph.hotkeys[miner_state.miner_uid]
+            if (
+                best_commit is None
+                or miner_state.miner_uid >= n_uids
+                or miner_state.miner_hotkey not in self.metagraph.hotkeys
             ):
                 continue
 
             # Set initial scores
             scores[miner_state.miner_uid] = best_commit.score
 
-            # Track the latest evaluation timestamp
-            if (
-                evaluation_timestamp is None
-                or best_commit.scored_timestamp > evaluation_timestamp
-            ):
-                evaluation_timestamp = best_commit.scored_timestamp
-
         # Step 2: If no valid timestamp found, return unmodified scores
-        if evaluation_timestamp is None:
+        if scores.sum() == 0:
             bt.logging.warning(
                 "No valid scored_timestamp found, cannot apply time decay"
             )
@@ -144,14 +137,15 @@ class HBChallengeManager(ChallengeManager):
         # Step 3: Apply decay and adjustment
         for miner_state in self.miner_states.values():
             best_commit = miner_state.best_commit
-            if best_commit is None or not (
-                miner_state.miner_uid < len(self.metagraph.hotkeys)
-                and miner_state.miner_hotkey
-                == self.metagraph.hotkeys[miner_state.miner_uid]
+            if (
+                best_commit is None
+                or miner_state.miner_uid >= n_uids
+                or miner_state.miner_hotkey not in self.metagraph.hotkeys
             ):
                 continue  # Skip invalid miners
 
             commit_timestamp = best_commit.scored_timestamp
+            evaluation_timestamp = time.time()
             days_elapsed = (evaluation_timestamp - commit_timestamp) / 86400
 
             # Apply decay and adjustment
@@ -229,24 +223,14 @@ class HBChallengeManager(ChallengeManager):
 
     def _apply_softmax(self, scores):
         """Apply softmax with custom temperature to scores."""
-
-        scores = np.asarray(scores)
-        mask_nonzero = scores != 0
-
-        if not np.any(mask_nonzero):
+        scores = np.asarray(scores)  # Convert to NumPy array
+        if np.sum(scores) == 0:
             return scores
-
-        nonzero_scores = scores[mask_nonzero]
-        nonzero_scores = np.clip(nonzero_scores, 0, None)
-        scaled_scores = nonzero_scores / self.reward_temperature
+        scores = np.clip(scores, 0, None)
+        scaled_scores = scores / self.reward_temperature
         max_score = np.max(scaled_scores)
         scores_exp = np.exp(scaled_scores - max_score)
-        softmax_values = scores_exp / np.sum(scores_exp)
-
-        softmax_result = np.zeros_like(scores, dtype=float)
-        softmax_result[mask_nonzero] = softmax_values
-
-        return softmax_result
+        return scores_exp / np.sum(scores_exp)
 
     def _inverse_easePolyOut_exponent(self, y: float, exponent: float = 0.600) -> float:
         """Inverse of the polynomial ease-out function, y must be in the range [0, 1]."""
