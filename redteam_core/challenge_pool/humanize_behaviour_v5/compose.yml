@@ -1,6 +1,6 @@
 services:
   challenger-api:
-    image: redteamsubnet61/humanize_behaviour_v4:latest
+    image: redteamsubnet61/humanize_behaviour_v5:latest
     build:
       context: .
       platforms:

@@ -1,6 +1,6 @@
-# Humanize Behaviour v4 Testing Manual
+# Humanize Behaviour v5 Testing Manual
 
-This manual provides instructions for testing the Humanize Behaviour v4 challenge using Docker.
+This manual provides instructions for testing the Humanize Behaviour v5 challenge using Docker.
 
 ## Overview
 
@@ -30,7 +30,7 @@ cd RedTeam
 - Run the following commands in **separate terminal** and **leave it as is** to see the logs:
 
 ```bash
-bash ./redteam_core/challenge_pool/humanize_behaviour_v4/scripts/setup-testing.sh
+bash ./redteam_core/challenge_pool/humanize_behaviour_v5/scripts/setup-testing.sh
 ```
 
 #### Step 3: Setup Testing Environment
@@ -38,7 +38,7 @@ bash ./redteam_core/challenge_pool/humanize_behaviour_v4/scripts/setup-testing.s
 - In a **separate terminal**, run the following commands to set up miner environment:
 
 ```bash
-bash ./redteam_core/miner/commits/humanize_behaviour_v4/scripts/setup-testing.sh
+bash ./redteam_core/miner/commits/humanize_behaviour_v5/scripts/setup-testing.sh
 ```
 
 ### Step 4: Test Your Script
@@ -47,7 +47,7 @@ bash ./redteam_core/miner/commits/humanize_behaviour_v4/scripts/setup-testing.sh
 - You can see the logs in the first terminal where you ran the setup script
 
 ```bash
-bash ./redteam_core/miner/commits/humanize_behaviour_v4/scripts/test-script.sh
+bash ./redteam_core/miner/commits/humanize_behaviour_v5/scripts/test-script.sh
 ```
 
 ## Important Notes

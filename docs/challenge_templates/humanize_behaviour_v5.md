@@ -1,8 +1,8 @@
-# Humanize Behaviour v4 Submission Guide (Active after June 9th 2025 14:00 UTC)
+# Humanize Behaviour v5 Submission Guide (Active after June 9th 2025 14:00 UTC)
 
 ## Overview
 
-**Humanize Behaviour v4** tests bot scripts' ability to mimic human interaction with a web UI form with dynamic movements accross different sessions. It evaluates how well a bot navigates UI elements, interacts with form fields, and submits data without being caught by the bot detection system, based on  **mouse movement**, **keyboard interaction analysis.** and **mouse movement similarities over sessions**
+**Humanize Behaviour v5** tests bot scripts' ability to mimic human interaction with a web UI form with dynamic movements accross different sessions. It evaluates how well a bot navigates UI elements, interacts with form fields, and submits data without being caught by the bot detection system, based on  **mouse movement**, **keyboard interaction analysis.** and **mouse movement similarities over sessions**
 
 Miners must demonstrate precise, human-like interactions through their bot scripts when completing the form. And also they have to keep in mind their bots should not make same mouse movement trajectory in each iteration
 
@@ -10,7 +10,7 @@ Miners must demonstrate precise, human-like interactions through their bot scrip
 
 ## Example Code and Submission Instructions
 
-Example codes for the Humanize Behaviour v4 can be found in the [`redteam_core/miner/commits/humanize_behaviour_v4/`](https://github.com/RedTeamSubnet/RedTeam/blob/main/redteam_core/miner/commits/humanize_behaviour_v4/) directory.
+Example codes for the Humanize Behaviour v5 can be found in the [`redteam_core/miner/commits/humanize_behaviour_v5/`](https://github.com/RedTeamSubnet/RedTeam/blob/main/redteam_core/miner/commits/humanize_behaviour_v5/) directory.
 
 ### Technical Requirements
 
@@ -20,7 +20,7 @@ Example codes for the Humanize Behaviour v4 can be found in the [`redteam_core/m
 
 ### Core Requirements
 
-1. Use our template from [`redteam_core/miner/commits/humanize_behaviour_v4/src/bot/bot.py`](https://github.com/RedTeamSubnet/RedTeam/blob/main/redteam_core/miner/commits/humanize_behaviour_v4/src/bot/bot.py)
+1. Use our template from [`redteam_core/miner/commits/humanize_behaviour_v5/src/bot/bot.py`](https://github.com/RedTeamSubnet/RedTeam/blob/main/redteam_core/miner/commits/humanize_behaviour_v5/src/bot/bot.py)
 2. Keep the `run_bot()` function signature unchanged
 3. Your bot must:
    - Work with the provided Selenium driver
@@ -52,7 +52,7 @@ Example codes for the Humanize Behaviour v4 can be found in the [`redteam_core/m
     - Implement randomization strategies that mimic natural human variability
 - **Technical Setup**:
     - Enable headless mode
-    - List dependencies in [`pip_requirements`](https://github.com/RedTeamSubnet/RedTeam/blob/main/redteam_core/miner/commits/humanize_behaviour_v4/src/bot/requirements.txt). See the limitations for dependencies below.
+    - List dependencies in [`pip_requirements`](https://github.com/RedTeamSubnet/RedTeam/blob/main/redteam_core/miner/commits/humanize_behaviour_v5/src/bot/requirements.txt). See the limitations for dependencies below.
     - Use amd64 architecture (ARM64 at your own risk)
     - If your script requires system-level dependencies, add them to `system_deps` field as ubuntu packages (concatenate with space if multiple packages are needed `"package1 package2"`) in `/solve` endpoint reponse.
 - **Limitations**
@@ -79,11 +79,11 @@ We maintain strict originality standards:
 - All submissions are compared against other miners' script
 - 100% similarity = zero score
 - Similarity above 60% will result in proportional score penalties based on the **detected similarity percentage**.
-- Note: Comparisons are only made against other miners submissions, not your own previous Humanize Behaviour v3 entries.
+- Note: Comparisons are only made against other miners submissions, not your own previous Humanize Behaviour v4 entries.
 
 ### Testing Solutions
 
-You can see testing guidelines here in [humanize_behaviour_v4/docs/testing_manual.md](../../redteam_core/challenge_pool/humanize_behaviour_v4/docs/testing_manual.md). After testing you can process with [Submission guide documentation](../3.submission_guide.md) or [Submission guide](#submission-guide)
+You can see testing guidelines here in [humanize_behaviour_v5/docs/testing_manual.md](../../redteam_core/challenge_pool/humanize_behaviour_v5/docs/testing_manual.md). After testing you can process with [Submission guide documentation](../3.submission_guide.md) or [Submission guide](#submission-guide)
 
 ## Submission Guide
 
@@ -92,18 +92,18 @@ Follow 1~6 steps to submit your script.
 1. **Navigate to the Humanize Behaviour v4 Commit Directory**
 
     ```bash
-    cd redteam_core/miner/commits/humanize_behaviour_v4
+    cd redteam_core/miner/commits/humanize_behaviour_v5
     ```
 
 2. **Build the Docker Image**
 
-    To build the Docker image for the Humanize Behaviour v4 submission, run:
+    To build the Docker image for the Humanize Behaviour v5 submission, run:
 
     ```bash
-    docker build -t my_hub/humanize_behaviour_v4-miner:0.0.1 .
+    docker build -t my_hub/humanize_behaviour_v5-miner:0.0.1 .
 
     # For MacOS (Apple Silicon) to build AMD64:
-    DOCKER_BUILDKIT=1 docker build --platform linux/amd64 -t myhub/humanize_behaviour_v4-miner:0.0.1 .
+    DOCKER_BUILDKIT=1 docker build --platform linux/amd64 -t myhub/humanize_behaviour_v5-miner:0.0.1 .
     ```
 
 3. **Log in to Docker**
@@ -121,7 +121,7 @@ Follow 1~6 steps to submit your script.
     Push the tagged image to your Docker Hub repository:
 
     ```bash
-    docker push myhub/humanize_behaviour_v4:0.0.1
+    docker push myhub/humanize_behaviour_v5:0.0.1
     ```
 
 5. **Retrieve the SHA256 Digest**
@@ -129,7 +129,7 @@ Follow 1~6 steps to submit your script.
     After pushing the image, retrieve the digest by running:
 
     ```bash
-    docker inspect --format='{{index .RepoDigests 0}}' myhub/humanize_behaviour_v4:0.0.1
+    docker inspect --format='{{index .RepoDigests 0}}' myhub/humanize_behaviour_v5:0.0.1
     ```
 
 6. **Update active_commit.yaml**
@@ -137,7 +137,7 @@ Follow 1~6 steps to submit your script.
     Finally, go to the `neurons/miner/active_commit.yaml` file and update it with the new image tag:
 
     ```yaml
-    - humanize_behaviour_v4---myhub/humanize_behaviour_v4@<sha256:digest>
+    - humanize_behaviour_v5---myhub/humanize_behaviour_v5@<sha256:digest>
     ```
 
 ---
