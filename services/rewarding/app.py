@@ -220,29 +220,29 @@ class RewardApp(Validator):
 
         # 4. Finalize validator's daily state
         # Get current time info
-        # today = datetime.datetime.now(datetime.timezone.utc)
-        # today_key = today.strftime("%Y-%m-%d")
-        # current_hour = today.hour
+        today = datetime.datetime.now(datetime.timezone.utc)
+        today_key = today.strftime("%Y-%m-%d")
+        current_hour = today.hour
 
-        # validate_scoring_hour = current_hour >= constants.SCORING_HOUR
-        # validate_scoring_date = today_key not in self.scoring_dates
+        validate_scoring_hour = current_hour >= constants.SCORING_HOUR
+        validate_scoring_date = today_key not in self.scoring_dates
 
-        # if validate_scoring_hour and validate_scoring_date:
-        #     # At this point, all commits should be scored and compared against previous unique commits already, we now need to compare new commits with each other
-        #     for challenge in revealed_commits:
-        #         if revealed_commits[challenge]:
-        #             self._compare_miner_commits(
-        #                 challenge=challenge,
-        #                 revealed_commits_list=revealed_commits[challenge],
-        #                 compare_with_each_other=True,
-        #             )
+        if validate_scoring_hour and validate_scoring_date:
+            #     # At this point, all commits should be scored and compared against previous unique commits already, we now need to compare new commits with each other
+            #     for challenge in revealed_commits:
+            #         if revealed_commits[challenge]:
+            #             self._compare_miner_commits(
+            #                 challenge=challenge,
+            #                 revealed_commits_list=revealed_commits[challenge],
+            #                 compare_with_each_other=True,
+            #             )
 
-        #     # Update scores and penalties to challenge manager and mark challenge as done
-        #     for challenge in revealed_commits:
-        #         self.challenge_managers[challenge].update_miner_scores(
-        #             miner_commits=revealed_commits[challenge]
-        #         )
-        #         self.is_scoring_done[challenge] = True
+            #     # Update scores and penalties to challenge manager and mark challenge as done
+            for challenge in revealed_commits:
+                # self.challenge_managers[challenge].update_miner_scores(
+                #     miner_commits=revealed_commits[challenge]
+                # )
+                self.is_scoring_done[challenge] = True
 
         #         # Store commits and scoring cache from this challenge
         #         self._store_miner_commits(
