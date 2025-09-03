@@ -1,4 +1,4 @@
-# Humanize Behaviour v5 Submission Guide (Active after June 9th 2025 14:00 UTC)
+# Humanize Behaviour v5 Submission Guide (Active after September 4th 2025 10:00 UTC)
 
 ## Overview
 
@@ -50,6 +50,11 @@ Example codes for the Humanize Behaviour v5 can be found in the [`redteam_core/m
     - While click targets remain the same, mouse trajectories should vary naturally between sessions
     - Similar movement patterns across sessions will be flagged as bot-like behavior
     - Implement randomization strategies that mimic natural human variability
+- **Bezier Curve Detection**:
+    - The system includes highly sensitive bezier curve detection
+    - Even a single bezier curve in your mouse movements may result in a low score
+    - Avoid smooth, mathematically perfect curves in your mouse trajectories
+    - Use more natural, slightly irregular movement patterns that humans would produce
 - **Technical Setup**:
     - Enable headless mode
     - List dependencies in [`pip_requirements`](https://github.com/RedTeamSubnet/RedTeam/blob/main/redteam_core/miner/commits/humanize_behaviour_v5/src/bot/requirements.txt). See the limitations for dependencies below.
@@ -69,6 +74,7 @@ Your bot will be scored on these human-like behaviors:
 - Mouse Movement Granularity (average pixel per movement)
 - Mouse Movement Count within the session
 - Mouse Movement Trajectory Linearity
+- **Bezier Curve Detection (avoid smooth mathematical curves)**
 - Keypress Behavior Pattern (typing speed and variations)
 - **Scroll Path Linearity(Scroll should be linear in single coordinate)**
 
@@ -83,7 +89,7 @@ We maintain strict originality standards:
 
 ### Testing Solutions
 
-You can see testing guidelines here in [humanize_behaviour_v5/docs/testing_manual.md](../../redteam_core/challenge_pool/humanize_behaviour_v5/docs/testing_manual.md). After testing you can process with [Submission guide documentation](../3.submission_guide.md) or [Submission guide](#submission-guide)
+You can see testing guidelines here in [humanize_behaviour_v5/docs/testing_manual.md](./testing_guides/testing_manual_humanize_behaviour.md). After testing you can process with [Submission guide documentation](../3.submission_guide.md) or [Submission guide](#submission-guide)
 
 ## Submission Guide
 

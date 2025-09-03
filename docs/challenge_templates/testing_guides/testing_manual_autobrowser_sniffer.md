@@ -1,6 +1,6 @@
-# Auto Browser Sniffer v2 Testing Manual
+# Auto Browser Sniffer v3 Testing Manual
 
-This manual provides instructions for testing the Auto Browser Sniffer v2 challenge using Docker.
+This manual provides instructions for testing the Auto Browser Sniffer v3 challenge using Docker.
 
 ## Overview
 
@@ -16,7 +16,7 @@ This manual provides instructions for testing the Auto Browser Sniffer v2 challe
 
 ### Step 1: Provide Your Scripts
 
-- Paste your detection script into [detection.js](../src/templates/static/detection/detection.js)
+- Paste your detection script into [detection.js](../../../redteam_core/challenge_pool/ab_sniffer_v3/src/templates/static/detection/detection.js)
 
 ### Step 2: Setup Challenge Environment
 

@@ -17,8 +17,8 @@ This manual provides instructions for testing the Humanize Behaviour v5 challeng
 
 ### Step 1: Provide Your Scripts
 
-- Paste your bot script into [bot.py](../src/bot/src/core/bot.py)
-- Add your requirements to [requirements.txt](../src/bot/requirements.txt)
+- Paste your bot script into [bot.py](../../../redteam_core/challenge_pool/humanize_behaviour_v5/src/bot/src/core/bot.py)
+- Add your requirements to [requirements.txt](../../../redteam_core/challenge_pool/humanize_behaviour_v5/src/bot/requirements.txt)
 
 ### Step 2: Setup Challenge Environment
 
