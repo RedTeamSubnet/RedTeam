@@ -1,5 +1,17 @@
 # Changelog
 
+## v2.5.0 (2025-09-04)
+
+<!-- Release notes generated using configuration in .github/release.yml at v2.5.0 -->
+
+## What's Changed
+### ✨ Features
+* New challenge & scoring order by @aliyuldashev in https://github.com/RedTeamSubnet/RedTeam/pull/77
+* New challenge & scoring order by @aliyuldashev in https://github.com/RedTeamSubnet/RedTeam/pull/78
+
+
+**Full Changelog**: https://github.com/RedTeamSubnet/RedTeam/compare/v2.4.0...v2.5.0
+
 ## v2.4.0 (2025-08-24)
 
 <!-- Release notes generated using configuration in .github/release.yml at v2.4.0 -->
