@@ -1,6 +1,6 @@
-# Humanize Behaviour v4 Challenge
+# Humanize Behaviour v5 Challenge
 
-**Humanize Behaviour v4** is an enhanced iteration of **Humanize Behaviour v3**, designed to more rigorously evaluate a bot script's ability to simulate human-like interaction with a web UI form.
+**Humanize Behaviour v5** is an enhanced iteration of **Humanize Behaviour**, designed to more rigorously evaluate a bot script's ability to simulate human-like interaction with a web UI form.
 
 ### Key Improvements:
 
@@ -12,7 +12,7 @@
 
 ### Objective:
 
-The core goal of **Humanize Behaviour v4** is to test how effectively a bot can interact with a form in a way that mimics real human behavior, including natural input, varied motion patterns, and complete session flow.
+The core goal of **Humanize Behaviour v5** is to test how effectively a bot can interact with a form in a way that mimics real human behavior, including natural input, varied motion patterns, and complete session flow.
 
 
 ## ✨ Features
@@ -63,14 +63,14 @@ cd ~/workspaces/projects
 
 ```sh
 git clone https://github.com/RedTeamSubnet/RedTeam.git && \
-    cd RedTeam/redteam_core/challenge_pool/humanize_behaviour_v4
+    cd RedTeam/redteam_core/challenge_pool/humanize_behaviour_v5
 ```
 
 **OPTION B.** Clone the repository (for **DEVELOPMENT**: git + ssh key):
 
 ```sh
 git clone --recursive git@github.com:RedTeamSubnet/RedTeam.git && \
-    cd RedTeam/redteam_core/challenge_pool/humanize_behaviour_v4 && \
+    cd RedTeam/redteam_core/challenge_pool/humanize_behaviour_v5 && \
     git submodule update --init --recursive && \
     git submodule foreach --recursive git checkout main
 ```

@@ -228,38 +228,38 @@ class RewardApp(Validator):
         validate_scoring_date = today_key not in self.scoring_dates
 
         if validate_scoring_hour and validate_scoring_date:
-            # At this point, all commits should be scored and compared against previous unique commits already, we now need to compare new commits with each other
-            for challenge in revealed_commits:
-                if revealed_commits[challenge]:
-                    self._compare_miner_commits(
-                        challenge=challenge,
-                        revealed_commits_list=revealed_commits[challenge],
-                        compare_with_each_other=True,
-                    )
+            #     # At this point, all commits should be scored and compared against previous unique commits already, we now need to compare new commits with each other
+            #     for challenge in revealed_commits:
+            #         if revealed_commits[challenge]:
+            #             self._compare_miner_commits(
+            #                 challenge=challenge,
+            #                 revealed_commits_list=revealed_commits[challenge],
+            #                 compare_with_each_other=True,
+            #             )
 
-            # Update scores and penalties to challenge manager and mark challenge as done
+            #     # Update scores and penalties to challenge manager and mark challenge as done
             for challenge in revealed_commits:
-                self.challenge_managers[challenge].update_miner_scores(
-                    miner_commits=revealed_commits[challenge]
-                )
+                # self.challenge_managers[challenge].update_miner_scores(
+                #     miner_commits=revealed_commits[challenge]
+                # )
                 self.is_scoring_done[challenge] = True
 
-                # Store commits and scoring cache from this challenge
-                self._store_miner_commits(
-                    miner_commits={challenge: revealed_commits[challenge]}
-                )
-                self._store_centralized_scoring(challenge_name=challenge)
+        #         # Store commits and scoring cache from this challenge
+        #         self._store_miner_commits(
+        #             miner_commits={challenge: revealed_commits[challenge]}
+        #         )
+        #         self._store_centralized_scoring(challenge_name=challenge)
 
-            self.scoring_dates.append(today_key)
+        #     self.scoring_dates.append(today_key)
 
-            # Store reward app state, this can be viewed by other validators, so we need to make it public view
-            self.storage_manager.update_validator_state(
-                data=self.export_state(public_view=True), async_update=True
-            )
-        else:
-            bt.logging.info(
-                f"[CENTRALIZED FORWARD] Not time to finalize daily result. Hour: {current_hour}, Date: {today_key}"
-            )
+        #     # Store reward app state, this can be viewed by other validators, so we need to make it public view
+        #     self.storage_manager.update_validator_state(
+        #         data=self.export_state(public_view=True), async_update=True
+        #     )
+        # else:
+        #     bt.logging.info(
+        #         f"[CENTRALIZED FORWARD] Not time to finalize daily result. Hour: {current_hour}, Date: {today_key}"
+        #     )
 
     def _score_and_compare_new_miner_commits(
         self, challenge: str, revealed_commits_list: list[MinerChallengeCommit]
@@ -387,6 +387,9 @@ class RewardApp(Validator):
         )
         # Run challenge controller, the controller update commit 's scoring logs and reference comparison logs directly
         controller.start_challenge()
+
+        # Update commits with challenge_managers
+        self.challenge_managers[challenge].update_miner_scores(controller.miner_commits)
 
     def _compare_miner_commits(
         self,

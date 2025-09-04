@@ -1,6 +1,6 @@
-# Humanize Behaviour V4 Challenge - Miner
+# Humanize Behaviour V5 Challenge - Miner
 
-This is miner bot script repo for the Humanize Behaviour v4 Challenge. This is sandboxed sample code for the challenge, you can use this code to test your bot script.
+This is miner bot script repo for the Humanize Behaviour v5 Challenge. This is sandboxed sample code for the challenge, you can use this code to test your bot script.
 
 ## ✨ Features
 
@@ -45,14 +45,14 @@ cd ~/workspaces/projects
 
 ```sh
 git clone https://github.com/RedTeamSubnet/RedTeam.git && \
-    cd RedTeam/redteam_core/miner/commits/humanize_behaviour_v4
+    cd RedTeam/redteam_core/miner/commits/humanize_behaviour_v5
 ```
 
 **OPTION B.** Clone the repository (for **DEVELOPMENT**: git + ssh key):
 
 ```sh
 git clone --recursive git@github.com:RedTeamSubnet/RedTeam.git && \
-    cd RedTeam/redteam_core/miner/commits/humanize_behaviour_v4
+    cd RedTeam/redteam_core/miner/commits/humanize_behaviour_v5
 ```
 
 ### 3. 📦 Install dependencies
