@@ -10,28 +10,28 @@
       
       
       
-        <link rel="canonical" href="https://docs.theredteam.io/4.validator_custom/">
+        <link rel="canonical" href="https://docs.theredteam.io/challenge_templates/testing_guides/testing_manual_humanize_behaviour/">
       
       
-        <link rel="prev" href="../3.submission_guide/">
+        <link rel="prev" href="../testing_manual_autobrowser_sniffer/">
       
       
-        <link rel="next" href="../5.docker/">
+        <link rel="next" href="../../../diagrams/humanize_behaviour/flow.general/">
       
       
-      <link rel="icon" href="../assets/images/logo.dark.svg">
+      <link rel="icon" href="../../../assets/images/logo.dark.svg">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.18">
     
     
       
-        <title>Validator Custom - RedTeam Subnet</title>
+        <title>Humanize Behaviour v5 Testing Manual - RedTeam Subnet</title>
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.7e37652d.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.7e37652d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
       
       
 
@@ -50,11 +50,11 @@
       
     
     
-      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
     
-      <link rel="stylesheet" href="../assets/css/extra.css">
+      <link rel="stylesheet" href="../../../assets/css/extra.css">
     
-    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#validator-custom" class="md-skip">
+        <a href="#humanize-behaviour-v5-testing-manual" class="md-skip">
           Skip to content
         </a>
       
@@ -94,9 +94,9 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href=".." title="RedTeam Subnet" class="md-header__button md-logo" aria-label="RedTeam Subnet" data-md-component="logo">
+    <a href="../../.." title="RedTeam Subnet" class="md-header__button md-logo" aria-label="RedTeam Subnet" data-md-component="logo">
       
-  <img src="../assets/images/logo.light.svg" alt="logo">
+  <img src="../../../assets/images/logo.light.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -113,7 +113,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Validator Custom
+              Humanize Behaviour v5 Testing Manual
             
           </span>
         </div>
@@ -236,7 +236,7 @@
   
   
     <li class="md-tabs__item">
-      <a href=".." class="md-tabs__link">
+      <a href="../../.." class="md-tabs__link">
         
   
   
@@ -255,7 +255,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../1.validator/" class="md-tabs__link">
+      <a href="../../../1.validator/" class="md-tabs__link">
         
   
   
@@ -274,7 +274,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../2.miner/" class="md-tabs__link">
+      <a href="../../../2.miner/" class="md-tabs__link">
         
   
   
@@ -293,7 +293,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../3.submission_guide/" class="md-tabs__link">
+      <a href="../../../3.submission_guide/" class="md-tabs__link">
         
   
   
@@ -310,11 +310,9 @@
   
   
   
-    
   
-  
-    <li class="md-tabs__item md-tabs__item--active">
-      <a href="./" class="md-tabs__link">
+    <li class="md-tabs__item">
+      <a href="../../../4.validator_custom/" class="md-tabs__link">
         
   
   
@@ -333,7 +331,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../5.docker/" class="md-tabs__link">
+      <a href="../../../5.docker/" class="md-tabs__link">
         
   
   
@@ -352,7 +350,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../FAQ/" class="md-tabs__link">
+      <a href="../../../FAQ/" class="md-tabs__link">
         
   
   
@@ -369,11 +367,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../challenge_templates/ab_sniffer_v3/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../ab_sniffer_v3/" class="md-tabs__link">
           
   
   
@@ -402,7 +402,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../diagrams/humanize_behaviour/flow.general/" class="md-tabs__link">
+        <a href="../../../diagrams/humanize_behaviour/flow.general/" class="md-tabs__link">
           
   
   
@@ -430,9 +430,7 @@
           
             
               
-                
-              
-              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" hidden>
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
                 <div class="md-sidebar__scrollwrap">
                   <div class="md-sidebar__inner">
                     
@@ -443,9 +441,9 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href=".." title="RedTeam Subnet" class="md-nav__button md-logo" aria-label="RedTeam Subnet" data-md-component="logo">
+    <a href="../../.." title="RedTeam Subnet" class="md-nav__button md-logo" aria-label="RedTeam Subnet" data-md-component="logo">
       
-  <img src="../assets/images/logo.light.svg" alt="logo">
+  <img src="../../../assets/images/logo.light.svg" alt="logo">
 
     </a>
     RedTeam Subnet
@@ -472,7 +470,7 @@
   
   
     <li class="md-nav__item">
-      <a href=".." class="md-nav__link">
+      <a href="../../.." class="md-nav__link">
         
   
   
@@ -494,7 +492,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../1.validator/" class="md-nav__link">
+      <a href="../../../1.validator/" class="md-nav__link">
         
   
   
@@ -516,7 +514,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../2.miner/" class="md-nav__link">
+      <a href="../../../2.miner/" class="md-nav__link">
         
   
   
@@ -538,7 +536,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../3.submission_guide/" class="md-nav__link">
+      <a href="../../../3.submission_guide/" class="md-nav__link">
         
   
   
@@ -557,32 +555,10 @@
       
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Validator Custom
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../../4.validator_custom/" class="md-nav__link">
         
   
   
@@ -593,35 +569,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#custom-setup-for-specific-challenges" class="md-nav__link">
-    <span class="md-ellipsis">
-      Custom Setup for Specific Challenges
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -633,7 +580,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../5.docker/" class="md-nav__link">
+      <a href="../../../5.docker/" class="md-nav__link">
         
   
   
@@ -655,7 +602,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../FAQ/" class="md-nav__link">
+      <a href="../../../FAQ/" class="md-nav__link">
         
   
   
@@ -674,8 +621,10 @@
       
   
   
+    
   
   
+  
     
     
       
@@ -691,17 +640,20 @@
     
     
       
+        
+        
+      
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" checked>
         
           
-          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="">
             
   
   
@@ -714,7 +666,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_8">
             <span class="md-nav__icon md-icon"></span>
             Challenge templates
@@ -728,7 +680,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../challenge_templates/ab_sniffer_v3/" class="md-nav__link">
+      <a href="../../ab_sniffer_v3/" class="md-nav__link">
         
   
   
@@ -751,7 +703,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../challenge_templates/humanize_behaviour_v5/" class="md-nav__link">
+      <a href="../../humanize_behaviour_v5/" class="md-nav__link">
         
   
   
@@ -833,7 +785,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../challenge_templates/deprecated/ab_sniffer_v1/" class="md-nav__link">
+      <a href="../../deprecated/ab_sniffer_v1/" class="md-nav__link">
         
   
   
@@ -856,7 +808,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../challenge_templates/deprecated/ab_sniffer_v2/" class="md-nav__link">
+      <a href="../../deprecated/ab_sniffer_v2/" class="md-nav__link">
         
   
   
@@ -879,7 +831,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../challenge_templates/deprecated/humanize_behaviour_v1/" class="md-nav__link">
+      <a href="../../deprecated/humanize_behaviour_v1/" class="md-nav__link">
         
   
   
@@ -902,7 +854,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../challenge_templates/deprecated/humanize_behaviour_v2/" class="md-nav__link">
+      <a href="../../deprecated/humanize_behaviour_v2/" class="md-nav__link">
         
   
   
@@ -925,7 +877,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../challenge_templates/deprecated/humanize_behaviour_v3/" class="md-nav__link">
+      <a href="../../deprecated/humanize_behaviour_v3/" class="md-nav__link">
         
   
   
@@ -948,7 +900,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../challenge_templates/deprecated/response_quality_adversarial_v2/" class="md-nav__link">
+      <a href="../../deprecated/response_quality_adversarial_v2/" class="md-nav__link">
         
   
   
@@ -971,7 +923,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../challenge_templates/deprecated/response_quality_ranker_v2/" class="md-nav__link">
+      <a href="../../deprecated/response_quality_ranker_v2/" class="md-nav__link">
         
   
   
@@ -994,7 +946,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../challenge_templates/deprecated/text_detection/" class="md-nav__link">
+      <a href="../../deprecated/text_detection/" class="md-nav__link">
         
   
   
@@ -1022,8 +974,10 @@
                 
   
   
+    
   
   
+  
     
     
       
@@ -1038,11 +992,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_4" checked>
         
           
           <label class="md-nav__link" for="__nav_8_4" id="__nav_8_4_label" tabindex="0">
@@ -1058,7 +1012,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_4_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_4_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_8_4">
             <span class="md-nav__icon md-icon"></span>
             Testing guides
@@ -1072,7 +1026,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../challenge_templates/testing_guides/testing_manual_autobrowser_sniffer/" class="md-nav__link">
+      <a href="../testing_manual_autobrowser_sniffer/" class="md-nav__link">
         
   
   
@@ -1092,10 +1046,32 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../challenge_templates/testing_guides/testing_manual_humanize_behaviour/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Humanize Behaviour v5 Testing Manual
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1106,6 +1082,119 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quick-start-guide" class="md-nav__link">
+    <span class="md-ellipsis">
+      Quick Start Guide
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Quick Start Guide">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      Prerequisites
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-1-provide-your-scripts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 1: Provide Your Scripts
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-setup-challenge-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 2: Setup Challenge Environment
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 2: Setup Challenge Environment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-3-setup-testing-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 3: Setup Testing Environment
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4-test-your-script" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 4: Test Your Script
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#important-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Important Notes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Troubleshooting
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1225,7 +1314,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../diagrams/humanize_behaviour/flow.general/" class="md-nav__link">
+      <a href="../../../diagrams/humanize_behaviour/flow.general/" class="md-nav__link">
         
   
   
@@ -1248,7 +1337,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../diagrams/humanize_behaviour/flow.small/" class="md-nav__link">
+      <a href="../../../diagrams/humanize_behaviour/flow.small/" class="md-nav__link">
         
   
   
@@ -1287,8 +1376,6 @@
             
             
               
-                
-              
               <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
                 <div class="md-sidebar__scrollwrap">
                   <div class="md-sidebar__inner">
@@ -1308,9 +1395,93 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#custom-setup-for-specific-challenges" class="md-nav__link">
+  <a href="#overview" class="md-nav__link">
     <span class="md-ellipsis">
-      Custom Setup for Specific Challenges
+      Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quick-start-guide" class="md-nav__link">
+    <span class="md-ellipsis">
+      Quick Start Guide
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Quick Start Guide">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      Prerequisites
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-1-provide-your-scripts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 1: Provide Your Scripts
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-setup-challenge-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 2: Setup Challenge Environment
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 2: Setup Challenge Environment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-3-setup-testing-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 3: Setup Testing Environment
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4-test-your-script" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 4: Test Your Script
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#important-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Important Notes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Troubleshooting
     </span>
   </a>
   
@@ -1329,42 +1500,68 @@
               <article class="md-content__inner md-typeset">
                 
                   
-  
-
 
 
   
   
 
 
-<h1 id="validator-custom">Validator Custom</h1>
-<h2 id="custom-setup-for-specific-challenges">Custom Setup for Specific Challenges</h2>
-<p>Some challenges include using LLM models to generate responses. We setup a vLLM server to serve the these challenges and use it in default so your validator can run the challenges without hosting one. In case you want to host your own vLLM server, you can follow the instructions below.</p>
-<p>To set up the environment for the <strong>Response Quality Ranker</strong> challenges and <strong>Response Quality Adversarial V2-V3</strong> challenges, you will need to create a vLLM server.</p>
-<ol>
-<li>Create a virtual environment and install the required dependencies:</li>
-</ol>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>python<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>vllm
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nb">source</span><span class="w"> </span>vllm/bin/activate
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="nv">vllm</span><span class="o">==</span><span class="m">0</span>.6.2
+<h1 id="humanize-behaviour-v5-testing-manual">Humanize Behaviour v5 Testing Manual</h1>
+<p>This manual provides instructions for testing the Humanize Behaviour v5 challenge using Docker.</p>
+<h2 id="overview">Overview</h2>
+<ul>
+<li>Tests bot script's ability to mimic human interaction with a Web UI form</li>
+<li>Includes trajectory similarity check between sessions</li>
+<li>Uses Docker for easy submission and testing</li>
+</ul>
+<h2 id="quick-start-guide">Quick Start Guide</h2>
+<h3 id="prerequisites">Prerequisites</h3>
+<ul>
+<li>Docker and Docker Compose installed</li>
+<li>Git (for cloning the repository)</li>
+</ul>
+<h3 id="step-1-provide-your-scripts">Step 1: Provide Your Scripts</h3>
+<ul>
+<li>Paste your bot script into <a href="../../../redteam_core/challenge_pool/humanize_behaviour_v5/src/bot/src/core/bot.py">bot.py</a></li>
+<li>Add your requirements to <a href="../../../redteam_core/challenge_pool/humanize_behaviour_v5/src/bot/requirements.txt">requirements.txt</a></li>
+</ul>
+<h3 id="step-2-setup-challenge-environment">Step 2: Setup Challenge Environment</h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/RedTeamSubnet/RedTeam.git
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nb">cd</span><span class="w"> </span>RedTeam
 </span></code></pre></div>
-<ol>
-<li>Run the vLLM server with the appropriate model:</li>
-</ol>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nv">HF_TOKEN</span><span class="o">=</span>&lt;your-huggingface-token&gt;
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>python<span class="w"> </span>-m<span class="w"> </span>vllm.entrypoints.openai.api_server<span class="w"> </span>--model<span class="w"> </span>unsloth/Meta-Llama-3.1-8B-Instruct<span class="w"> </span>--max-model-len<span class="w"> </span><span class="m">4096</span><span class="w"> </span>--port<span class="w"> </span>&lt;your-vllm-port&gt;<span class="w"> </span>--gpu_memory_utilization<span class="w"> </span>&lt;your-gpu-memory-utilization&gt;
+<ul>
+<li>Run the following commands in <strong>separate terminal</strong> and <strong>leave it as is</strong> to see the logs:</li>
+</ul>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>bash<span class="w"> </span>./redteam_core/challenge_pool/humanize_behaviour_v5/scripts/setup-testing.sh
 </span></code></pre></div>
-<ol>
-<li>Set the necessary environment variables in Dockerfile:</li>
-</ol>
-<div class="language-Dockerfile highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">ENV</span><span class="w"> </span><span class="nv">VLLM_URL</span><span class="o">=</span><span class="s2">&quot;http://127.0.0.1:8000/v1&quot;</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="k">ENV</span><span class="w"> </span><span class="nv">VLLM_API_KEY</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="k">ENV</span><span class="w"> </span><span class="nv">VLLM_MODEL</span><span class="o">=</span><span class="s2">&quot;unsloth/Meta-Llama-3.1-8B-Instruct&quot;</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="k">ENV</span><span class="w"> </span><span class="nv">OPENAI_API_KEY</span><span class="o">=</span><span class="s2">&quot;your-api-key&quot;</span>
+<h4 id="step-3-setup-testing-environment">Step 3: Setup Testing Environment</h4>
+<ul>
+<li>In a <strong>separate terminal</strong>, run the following commands to set up miner environment:</li>
+</ul>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>bash<span class="w"> </span>./redteam_core/miner/commits/humanize_behaviour_v5/scripts/setup-testing.sh
 </span></code></pre></div>
-<p>You can find these Dockerfile in each challenge folder in the challenge_pool folders:
-    - <a href="https://github.com/RedTeamSubnet/RedTeam/blob/main/redteam_core/challenge_pool/response_quality_adversarial_v4/Dockerfile">redteam_core/challenge_pool/response_quality_adversarial_v4/Dockerfile</a>
-    - <a href="https://github.com/RedTeamSubnet/RedTeam/blob/main/redteam_core/challenge_pool/toxic_response_adversarial/Dockerfile">redteam_core/challenge_pool/toxic_response_adversarial/Dockerfile</a></p>
+<h3 id="step-4-test-your-script">Step 4: Test Your Script</h3>
+<ul>
+<li>Run the following command to eslint test and run your script to get the score by simulating staging environment</li>
+<li>You can see the logs in the first terminal where you ran the setup script</li>
+</ul>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>bash<span class="w"> </span>./redteam_core/miner/commits/humanize_behaviour_v5/scripts/test-script.sh
+</span></code></pre></div>
+<h2 id="important-notes">Important Notes</h2>
+<ul>
+<li>The server runs on port 10001 by default</li>
+<li>Make sure port 10001 is available on your system</li>
+<li>The challenge includes trajectory similarity checks between sessions</li>
+<li>All interactions are logged for analysis</li>
+</ul>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<p>If you encounter issues:</p>
+<ol>
+<li>Check if Docker is running</li>
+<li>Verify port 10001 is not in use</li>
+<li>Check Docker logs using <code>docker compose logs</code></li>
+<li>Ensure you have proper permissions to run Docker commands</li>
+</ol>
 
 
 
@@ -1372,13 +1569,8 @@
 
 
 
-  
-  
 
 
-
-
-  
 
 
 
@@ -1402,12 +1594,10 @@
   
     
       
-        
-      
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../3.submission_guide/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Submission Guide">
+          <a href="../testing_manual_autobrowser_sniffer/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Auto Browser Sniffer v3 Testing Manual">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -1417,20 +1607,20 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                Submission Guide
+                Auto Browser Sniffer v3 Testing Manual
               </div>
             </div>
           </a>
         
         
           
-          <a href="../5.docker/" class="md-footer__link md-footer__link--next" aria-label="Next: Docker Guide">
+          <a href="../../../diagrams/humanize_behaviour/flow.general/" class="md-footer__link md-footer__link--next" aria-label="Next: Humanize behavior challenge (General)">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Docker Guide
+                Humanize behavior challenge (General)
               </div>
             </div>
             <div class="md-footer__button md-icon">
@@ -1466,10 +1656,10 @@
     
     
       
-      <script id="__config" type="application/json">{"base": "..", "features": ["navigation.indexes", "navigation.tracking", "navigation.tabs", "navigation.top", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate"], "search": "../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.indexes", "navigation.tracking", "navigation.tabs", "navigation.top", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate"], "search": "../../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.92b07e13.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.92b07e13.min.js"></script>
       
     
   </body>
