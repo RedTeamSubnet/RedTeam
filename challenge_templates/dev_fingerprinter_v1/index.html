@@ -10,28 +10,28 @@
       
       
       
-        <link rel="canonical" href="https://docs.theredteam.io/challenge_templates/testing_guides/testing_manual_autobrowser_sniffer/">
+        <link rel="canonical" href="https://docs.theredteam.io/challenge_templates/dev_fingerprinter_v1/">
       
       
-        <link rel="prev" href="../../deprecated/text_detection/">
+        <link rel="prev" href="../ab_sniffer_v3/">
       
       
-        <link rel="next" href="../testing_manual_humanize_behaviour/">
+        <link rel="next" href="../humanize_behaviour_v5/">
       
       
-      <link rel="icon" href="../../../assets/images/logo.dark.svg">
+      <link rel="icon" href="../../assets/images/logo.dark.svg">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.19">
     
     
       
-        <title>Auto Browser Sniffer v3 Testing Manual - RedTeam Subnet</title>
+        <title>Device Fingerprinter v1 Submission Guide (Active after September [x]th 2025 10:00 UTC) - RedTeam Subnet</title>
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.7e37652d.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.7e37652d.min.css">
       
         
-        <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
       
       
 
@@ -50,11 +50,11 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
     
-      <link rel="stylesheet" href="../../../assets/css/extra.css">
+      <link rel="stylesheet" href="../../assets/css/extra.css">
     
-    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#auto-browser-sniffer-v3-testing-manual" class="md-skip">
+        <a href="#device-fingerprinter-v1-submission-guide-active-after-september-xth-2025-1000-utc" class="md-skip">
           Skip to content
         </a>
       
@@ -94,9 +94,9 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../.." title="RedTeam Subnet" class="md-header__button md-logo" aria-label="RedTeam Subnet" data-md-component="logo">
+    <a href="../.." title="RedTeam Subnet" class="md-header__button md-logo" aria-label="RedTeam Subnet" data-md-component="logo">
       
-  <img src="../../../assets/images/logo.light.svg" alt="logo">
+  <img src="../../assets/images/logo.light.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -113,7 +113,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Auto Browser Sniffer v3 Testing Manual
+              Device Fingerprinter v1 Submission Guide (Active after September [x]th 2025 10:00 UTC)
             
           </span>
         </div>
@@ -236,7 +236,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../.." class="md-tabs__link">
+      <a href="../.." class="md-tabs__link">
         
   
   
@@ -255,7 +255,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../../1.validator/" class="md-tabs__link">
+      <a href="../../1.validator/" class="md-tabs__link">
         
   
   
@@ -274,7 +274,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../../2.miner/" class="md-tabs__link">
+      <a href="../../2.miner/" class="md-tabs__link">
         
   
   
@@ -293,7 +293,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../../3.submission_guide/" class="md-tabs__link">
+      <a href="../../3.submission_guide/" class="md-tabs__link">
         
   
   
@@ -312,7 +312,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../../4.validator_custom/" class="md-tabs__link">
+      <a href="../../4.validator_custom/" class="md-tabs__link">
         
   
   
@@ -331,7 +331,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../../5.docker/" class="md-tabs__link">
+      <a href="../../5.docker/" class="md-tabs__link">
         
   
   
@@ -350,7 +350,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../../FAQ/" class="md-tabs__link">
+      <a href="../../FAQ/" class="md-tabs__link">
         
   
   
@@ -373,7 +373,7 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="../../ab_sniffer_v3/" class="md-tabs__link">
+        <a href="../ab_sniffer_v3/" class="md-tabs__link">
           
   
   
@@ -402,7 +402,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../../diagrams/humanize_behaviour/flow.general/" class="md-tabs__link">
+        <a href="../../diagrams/humanize_behaviour/flow.general/" class="md-tabs__link">
           
   
   
@@ -441,9 +441,9 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../../.." title="RedTeam Subnet" class="md-nav__button md-logo" aria-label="RedTeam Subnet" data-md-component="logo">
+    <a href="../.." title="RedTeam Subnet" class="md-nav__button md-logo" aria-label="RedTeam Subnet" data-md-component="logo">
       
-  <img src="../../../assets/images/logo.light.svg" alt="logo">
+  <img src="../../assets/images/logo.light.svg" alt="logo">
 
     </a>
     RedTeam Subnet
@@ -470,7 +470,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../.." class="md-nav__link">
+      <a href="../.." class="md-nav__link">
         
   
   
@@ -492,7 +492,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../1.validator/" class="md-nav__link">
+      <a href="../../1.validator/" class="md-nav__link">
         
   
   
@@ -514,7 +514,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../2.miner/" class="md-nav__link">
+      <a href="../../2.miner/" class="md-nav__link">
         
   
   
@@ -536,7 +536,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../3.submission_guide/" class="md-nav__link">
+      <a href="../../3.submission_guide/" class="md-nav__link">
         
   
   
@@ -558,7 +558,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../4.validator_custom/" class="md-nav__link">
+      <a href="../../4.validator_custom/" class="md-nav__link">
         
   
   
@@ -580,7 +580,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../5.docker/" class="md-nav__link">
+      <a href="../../5.docker/" class="md-nav__link">
         
   
   
@@ -602,7 +602,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../FAQ/" class="md-nav__link">
+      <a href="../../FAQ/" class="md-nav__link">
         
   
   
@@ -682,7 +682,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ab_sniffer_v3/" class="md-nav__link">
+      <a href="../ab_sniffer_v3/" class="md-nav__link">
         
   
   
@@ -702,10 +702,32 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../dev_fingerprinter_v1/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Device Fingerprinter v1 Submission Guide (Active after September [x]th 2025 10:00 UTC)
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -716,6 +738,104 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#example-code-and-submission-instructions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example Code and Submission Instructions
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Example Code and Submission Instructions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#technical-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      Technical Requirements
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#core-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      Core Requirements
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-guidelines" class="md-nav__link">
+    <span class="md-ellipsis">
+      Key Guidelines
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#plagiarism-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      Plagiarism Check
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#submission-guide" class="md-nav__link">
+    <span class="md-ellipsis">
+      Submission Guide
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    <span class="md-ellipsis">
+      📑 References
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -728,7 +848,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../humanize_behaviour_v5/" class="md-nav__link">
+      <a href="../humanize_behaviour_v5/" class="md-nav__link">
         
   
   
@@ -810,7 +930,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../deprecated/ab_sniffer_v1/" class="md-nav__link">
+      <a href="../deprecated/ab_sniffer_v1/" class="md-nav__link">
         
   
   
@@ -833,7 +953,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../deprecated/ab_sniffer_v2/" class="md-nav__link">
+      <a href="../deprecated/ab_sniffer_v2/" class="md-nav__link">
         
   
   
@@ -856,7 +976,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../deprecated/humanize_behaviour_v1/" class="md-nav__link">
+      <a href="../deprecated/humanize_behaviour_v1/" class="md-nav__link">
         
   
   
@@ -879,7 +999,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../deprecated/humanize_behaviour_v2/" class="md-nav__link">
+      <a href="../deprecated/humanize_behaviour_v2/" class="md-nav__link">
         
   
   
@@ -902,7 +1022,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../deprecated/humanize_behaviour_v3/" class="md-nav__link">
+      <a href="../deprecated/humanize_behaviour_v3/" class="md-nav__link">
         
   
   
@@ -925,7 +1045,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../deprecated/response_quality_adversarial_v2/" class="md-nav__link">
+      <a href="../deprecated/response_quality_adversarial_v2/" class="md-nav__link">
         
   
   
@@ -948,7 +1068,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../deprecated/response_quality_ranker_v2/" class="md-nav__link">
+      <a href="../deprecated/response_quality_ranker_v2/" class="md-nav__link">
         
   
   
@@ -971,7 +1091,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../deprecated/text_detection/" class="md-nav__link">
+      <a href="../deprecated/text_detection/" class="md-nav__link">
         
   
   
@@ -999,10 +1119,8 @@
                 
   
   
-    
   
   
-  
     
     
       
@@ -1017,11 +1135,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_5" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_5" >
         
           
           <label class="md-nav__link" for="__nav_8_5" id="__nav_8_5_label" tabindex="0">
@@ -1037,7 +1155,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_5_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_5_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_8_5">
             <span class="md-nav__icon md-icon"></span>
             Testing guides
@@ -1048,32 +1166,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Auto Browser Sniffer v3 Testing Manual
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../testing_guides/testing_manual_autobrowser_sniffer/" class="md-nav__link">
         
   
   
@@ -1084,119 +1180,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
-    <span class="md-ellipsis">
-      Overview
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#quick-start-guide" class="md-nav__link">
-    <span class="md-ellipsis">
-      Quick Start Guide
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Quick Start Guide">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#prerequisites" class="md-nav__link">
-    <span class="md-ellipsis">
-      Prerequisites
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-1-provide-your-scripts" class="md-nav__link">
-    <span class="md-ellipsis">
-      Step 1: Provide Your Scripts
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-2-setup-challenge-environment" class="md-nav__link">
-    <span class="md-ellipsis">
-      Step 2: Setup Challenge Environment
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Step 2: Setup Challenge Environment">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#step-3-setup-testing-environment" class="md-nav__link">
-    <span class="md-ellipsis">
-      Step 3: Setup Testing Environment
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-4-test-your-script" class="md-nav__link">
-    <span class="md-ellipsis">
-      Step 4: Test Your Script
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#important-notes" class="md-nav__link">
-    <span class="md-ellipsis">
-      Important Notes
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#troubleshooting" class="md-nav__link">
-    <span class="md-ellipsis">
-      Troubleshooting
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1209,7 +1192,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../testing_manual_humanize_behaviour/" class="md-nav__link">
+      <a href="../testing_guides/testing_manual_humanize_behaviour/" class="md-nav__link">
         
   
   
@@ -1339,7 +1322,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../diagrams/humanize_behaviour/flow.general/" class="md-nav__link">
+      <a href="../../diagrams/humanize_behaviour/flow.general/" class="md-nav__link">
         
   
   
@@ -1362,7 +1345,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../diagrams/humanize_behaviour/flow.small/" class="md-nav__link">
+      <a href="../../diagrams/humanize_behaviour/flow.small/" class="md-nav__link">
         
   
   
@@ -1429,61 +1412,46 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#quick-start-guide" class="md-nav__link">
+  <a href="#example-code-and-submission-instructions" class="md-nav__link">
     <span class="md-ellipsis">
-      Quick Start Guide
+      Example Code and Submission Instructions
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Quick Start Guide">
+    <nav class="md-nav" aria-label="Example Code and Submission Instructions">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#prerequisites" class="md-nav__link">
+  <a href="#technical-requirements" class="md-nav__link">
     <span class="md-ellipsis">
-      Prerequisites
+      Technical Requirements
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#step-1-provide-your-scripts" class="md-nav__link">
+  <a href="#core-requirements" class="md-nav__link">
     <span class="md-ellipsis">
-      Step 1: Provide Your Scripts
+      Core Requirements
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#step-2-setup-challenge-environment" class="md-nav__link">
+  <a href="#key-guidelines" class="md-nav__link">
     <span class="md-ellipsis">
-      Step 2: Setup Challenge Environment
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Step 2: Setup Challenge Environment">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#step-3-setup-testing-environment" class="md-nav__link">
-    <span class="md-ellipsis">
-      Step 3: Setup Testing Environment
+      Key Guidelines
     </span>
   </a>
   
 </li>
         
-      </ul>
-    </nav>
-  
-</li>
-        
           <li class="md-nav__item">
-  <a href="#step-4-test-your-script" class="md-nav__link">
+  <a href="#plagiarism-check" class="md-nav__link">
     <span class="md-ellipsis">
-      Step 4: Test Your Script
+      Plagiarism Check
     </span>
   </a>
   
@@ -1495,18 +1463,18 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#important-notes" class="md-nav__link">
+  <a href="#submission-guide" class="md-nav__link">
     <span class="md-ellipsis">
-      Important Notes
+      Submission Guide
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#troubleshooting" class="md-nav__link">
+  <a href="#references" class="md-nav__link">
     <span class="md-ellipsis">
-      Troubleshooting
+      📑 References
     </span>
   </a>
   
@@ -1531,79 +1499,117 @@
   
 
 
-<h1 id="auto-browser-sniffer-v3-testing-manual">Auto Browser Sniffer v3 Testing Manual</h1>
-<p>This manual provides instructions for testing the Auto Browser Sniffer v3 challenge using Docker.</p>
+<h1 id="device-fingerprinter-v1-submission-guide-active-after-september-xth-2025-1000-utc">Device Fingerprinter v1 Submission Guide (Active after September [x]th 2025 10:00 UTC)</h1>
+<p><img alt="thumnail" src="../../assets/images/challenges/dev_fingerprinter_v1/thumbnail.png" /></p>
 <h2 id="overview">Overview</h2>
+<p><strong>Device Fingerprinter v1</strong> tests miners' ability to develop a browser SDK that can accurately detect the driver type used by bots interacting with a webpage.</p>
+<p>Miners must create a JavaScript fingerprinter that can distinguish between different devices through device fingerprinting techniques, analyzing browser properties, behavior patterns, and technical signatures.</p>
+<hr />
+<h2 id="example-code-and-submission-instructions">Example Code and Submission Instructions</h2>
+<p>Example codes for the Device Fingerprinter v1 can be found in the <a href="https://github.com/RedTeamSubnet/RedTeam/blob/main/redteam_core/miner/commits/dev_fingerprinter_v1/"><code>redteam_core/miner/commits/dev_fingerprinter_v1/</code></a> directory.</p>
+<h3 id="technical-requirements">Technical Requirements</h3>
 <ul>
-<li>Build a single script which should detect the type of the driver bot is using</li>
-<li>Uses Docker for easy submission and testing</li>
+<li>JavaScript (ES6+)</li>
+<li>Ubuntu 24.04</li>
+<li>Docker container support</li>
 </ul>
-<h2 id="quick-start-guide">Quick Start Guide</h2>
-<h3 id="prerequisites">Prerequisites</h3>
+<h3 id="core-requirements">Core Requirements</h3>
+<ol>
+<li>Use our template from <a href="https://github.com/RedTeamSubnet/RedTeam/blob/main/redteam_core/miner/commits/dev_fingerprinter_v1/src/fingerprinter/fingerprinter.js"><code>redteam_core/miner/commits/dev_fingerprinter_v1/src/fingerprinter/fingerprinter.js</code></a></li>
+<li>Keep the <code>runFingerprinting()</code> function signature and export unchanged</li>
+<li>Your fingerprinter must:</li>
+<li>Collect device and browser fingerprint data</li>
+<li>Generate a unique fingerprint hash</li>
+<li>Send results to the designated endpoint</li>
+<li>Complete without errors</li>
+</ol>
+<h3 id="key-guidelines">Key Guidelines</h3>
 <ul>
-<li>Docker and Docker Compose installed</li>
-<li>Git (for cloning the repository)</li>
+<li><strong>Detection Accuracy</strong>: Your fingerprinter must accurately identify different devices and provide consistent hash values for the same device across multiple runs.</li>
+<li><strong>Fingerprint Collection</strong>:<ul>
+<li>Collect comprehensive browser and device properties</li>
+<li>Analyze WebDriver signatures and automation artifacts</li>
 </ul>
-<h3 id="step-1-provide-your-scripts">Step 1: Provide Your Scripts</h3>
-<ul>
-<li>Paste your detection script into <a href="../../../redteam_core/challenge_pool/ab_sniffer_v3/src/templates/static/detection/detection.js">detection.js</a></li>
+</li>
+<li><strong>Data Processing</strong>:<ul>
+<li>Generate unique, consistent fingerprint hashes</li>
+<li>Process collected data efficiently</li>
 </ul>
-<h3 id="step-2-setup-challenge-environment">Step 2: Setup Challenge Environment</h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/RedTeamSubnet/RedTeam.git
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nb">cd</span><span class="w"> </span>RedTeam
-</span></code></pre></div>
-<ul>
-<li>Run the following commands in <strong>separate terminal</strong> and <strong>leave it as is</strong> to see the logs:</li>
+</li>
+<li><strong>API Integration</strong>:<ul>
+<li>Follow the provided API endpoint structure</li>
+<li>Send properly formatted JSON payloads</li>
+<li>Handle errors gracefully</li>
 </ul>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>bash<span class="w"> </span>./redteam_core/challenge_pool/ab_sniffer_v3/scripts/setup-testing.sh
-</span></code></pre></div>
-<h4 id="step-3-setup-testing-environment">Step 3: Setup Testing Environment</h4>
-<ul>
-<li>In a <strong>separate terminal</strong>, run the following commands to set up miner environment:</li>
+</li>
+<li><strong>Technical Setup</strong>:<ul>
+<li>Use modern JavaScript (ES6+) features</li>
+<li>List dependencies in <a href="https://github.com/RedTeamSubnet/RedTeam/blob/main/redteam_core/miner/commits/dev_fingerprinter_v1/requirements.txt"><code>requirements.txt</code></a></li>
+<li>Use <strong>amd64</strong> architecture</li>
 </ul>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>bash<span class="w"> </span>./redteam_core/miner/commits/ab_sniffer_v3/scripts/setup-testing.sh
-</span></code></pre></div>
-<h3 id="step-4-test-your-script">Step 4: Test Your Script</h3>
-<ul>
-<li>Run the following command to eslint test and run your script to get the score by simulating staging environment</li>
-<li>You can see the logs in the first terminal where you ran the setup script</li>
-</ul>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>bash<span class="w"> </span>./redteam_core/miner/commits/ab_sniffer_v3/scripts/test-script.sh
-</span></code></pre></div>
-<ul>
-<li>Run the following command to test your script if it can detect driver specific bots:</li>
-</ul>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>docker<span class="w"> </span>run<span class="w"> </span>--network<span class="o">=</span>host<span class="w"> </span><span class="se">\ </span><span class="w">                                                           </span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span>-e<span class="w"> </span><span class="nv">ABS_WEB_URL</span><span class="o">=</span>http://127.0.0.1:10001/_web<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span>redteamsubnet61/seleniumdriverless
-</span></code></pre></div>
-<ul>
-<li>Change the driver type in the URL to test different scenarios:</li>
-<li>For example you can change the image name to available drivers:<ul>
-<li>redteamsubnet61/seleniumdriverless</li>
-<li>redteamsubnet61/seleniumbase</li>
-<li>redteamsubnet61/nodriver</li>
-<li>redteamsubnet61/patchright</li>
-<li>redteamsubnet61/zendriver</li>
-<li>redteamsubnet61/puppeteer-extra</li>
+</li>
+<li><strong>Limitations</strong><ul>
+<li>Your script must not exceed 2,000 lines. If it does, it will be considered invalid, and you will receive a score of zero.</li>
+<li>Your dependencies must be older than January 1, 2025. Any package released on or after this date will not be accepted, and your script will not be processed.</li>
 </ul>
 </li>
 </ul>
-<h2 id="important-notes">Important Notes</h2>
+<h3 id="plagiarism-check">Plagiarism Check</h3>
+<p>We maintain strict originality standards:</p>
 <ul>
-<li>The server runs on port 10001 by default and the miner-api runs on port 10002</li>
-<li>Make sure port 10001 and 10002 are available on your system</li>
-<li>All interactions are logged for analysis</li>
+<li>All submissions are compared against other miners' scripts</li>
+<li>100% similarity = zero score</li>
+<li>Similarity above 60% will result in proportional score penalties based on the <strong>detected similarity percentage</strong>.</li>
+<li>Note: Comparisons are only made against other miners submissions, not your own previous challenge entries.</li>
 </ul>
-<h2 id="troubleshooting">Troubleshooting</h2>
-<p>If you encounter issues:</p>
+<h2 id="submission-guide">Submission Guide</h2>
+<p>Follow 1~6 steps to submit your script.</p>
 <ol>
-<li>Check if Docker is running</li>
-<li>Verify port 10001 is not in use</li>
-<li>Check Docker logs using <code>docker compose logs</code></li>
-<li>Ensure you have proper permissions to run Docker commands</li>
-<li>You can also check the logs in <code>/var/lib/docker/volumes/ab_sniffer_v3_api-logs/_data</code></li>
+<li>
+<p><strong>Navigate to the Device Fingerprinter v1 Commit Directory</strong></p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">cd</span><span class="w"> </span>redteam_core/miner/commits/dev_fingerprinter_v1
+</span></code></pre></div>
+</li>
+<li>
+<p><strong>Build the Docker Image</strong></p>
+<p>To build the Docker image for the Device Fingerprinter v1 submission, run:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </span>my_hub/dev_fingerprinter_v1-miner:0.0.1<span class="w"> </span>.
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="c1"># For MacOS (Apple Silicon) to build AMD64:</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="nv">DOCKER_BUILDKIT</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>docker<span class="w"> </span>build<span class="w"> </span>--platform<span class="w"> </span>linux/amd64<span class="w"> </span>-t<span class="w"> </span>myhub/dev_fingerprinter_v1-miner:0.0.1<span class="w"> </span>.
+</span></code></pre></div>
+</li>
+<li>
+<p><strong>Log in to Docker</strong></p>
+<p>Log in to your Docker Hub account using the following command:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>docker<span class="w"> </span>login
+</span></code></pre></div>
+<p>Enter your Docker Hub credentials when prompted.</p>
+</li>
+<li>
+<p><strong>Push the Docker Image</strong></p>
+<p>Push the tagged image to your Docker Hub repository:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>docker<span class="w"> </span>push<span class="w"> </span>myhub/dev_fingerprinter_v1:0.0.1
+</span></code></pre></div>
+</li>
+<li>
+<p><strong>Retrieve the SHA256 Digest</strong></p>
+<p>After pushing the image, retrieve the digest by running:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>docker<span class="w"> </span>inspect<span class="w"> </span>--format<span class="o">=</span><span class="s1">&#39;{{index .RepoDigests 0}}&#39;</span><span class="w"> </span>myhub/dev_fingerprinter_v1:0.0.1
+</span></code></pre></div>
+</li>
+<li>
+<p><strong>Update active_commit.yaml</strong></p>
+<p>Finally, go to the <code>neurons/miner/active_commit.yaml</code> file and update it with the new image tag:</p>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dev_fingerprinter_v1---myhub/dev_fingerprinter_v1@&lt;sha256:digest&gt;</span>
+</span></code></pre></div>
+</li>
 </ol>
+<hr />
+<h2 id="references">📑 References</h2>
+<ul>
+<li>Docker - <a href="https://docs.docker.com">https://docs.docker.com</a></li>
+</ul>
 
 
 
@@ -1639,7 +1645,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../../deprecated/text_detection/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Text Detection Submission Guide (Deprecated)">
+          <a href="../ab_sniffer_v3/" class="md-footer__link md-footer__link--prev" aria-label="Previous: AB Sniffer v3 Submission Guide (Active after Aug 24th 2025 14:00 UTC)">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -1649,20 +1655,20 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                Text Detection Submission Guide (Deprecated)
+                AB Sniffer v3 Submission Guide (Active after Aug 24th 2025 14:00 UTC)
               </div>
             </div>
           </a>
         
         
           
-          <a href="../testing_manual_humanize_behaviour/" class="md-footer__link md-footer__link--next" aria-label="Next: Humanize Behaviour v5 Testing Manual">
+          <a href="../humanize_behaviour_v5/" class="md-footer__link md-footer__link--next" aria-label="Next: Humanize Behaviour v5 Submission Guide (Active after September 4th 2025 10:00 UTC)">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Humanize Behaviour v5 Testing Manual
+                Humanize Behaviour v5 Submission Guide (Active after September 4th 2025 10:00 UTC)
               </div>
             </div>
             <div class="md-footer__button md-icon">
@@ -1698,10 +1704,10 @@
     
     
       
-      <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.indexes", "navigation.tracking", "navigation.tabs", "navigation.top", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate"], "search": "../../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.indexes", "navigation.tracking", "navigation.tabs", "navigation.top", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.92b07e13.min.js"></script>
+      <script src="../../assets/javascripts/bundle.92b07e13.min.js"></script>
       
     
   </body>
