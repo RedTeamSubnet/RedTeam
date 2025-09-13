@@ -1,0 +1,28 @@
+[
+	{
+		"id": 1,
+		"ts_node_id": "wB1hd3YgktwgwMBU",
+		"ts_name": "my-iphone.tail123.ts.net",
+		"ts_ip": "100.64.0.1",
+		"pushcut_id": "my-iphone",
+		"pushcut_api_key": "jPH2Lacs7ygioCEX",
+		"pushcut_server_id": "12345678-1234-1234-1234-123456789012",
+		"device_model": "my-iphone-model",
+		"fingerprint": null,
+		"state": "NOT_SET",
+		"status": "INACTIVE"
+	},
+	{
+		"id": 2,
+		"ts_node_id": "ts-node-id-here",
+		"ts_name": "ts-name-here",
+		"ts_ip": "ts-ip-here",
+		"pushcut_id": "pushcut-id-here",
+		"pushcut_api_key": "pushcut-api-key-here",
+		"pushcut_server_id": "pushcut-server-id-here",
+		"device_model": "device-model-here",
+		"fingerprint": null,
+		"state": "NOT_SET",
+		"status": "ACTIVE"
+	}
+]

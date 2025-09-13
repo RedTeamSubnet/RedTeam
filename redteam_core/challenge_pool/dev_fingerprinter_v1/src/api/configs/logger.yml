@@ -1,0 +1,52 @@
+logger:
+  app_name: "{api_slug}"
+  level: "INFO"
+  use_diagnose: false
+  stream:
+    format_str: "[<c>{time:YYYY-MM-DD HH:mm:ss.SSS Z}</c> | <level>{level_short:<5}</level> | <w>{name}:{line}</w>]: <level>{message}</level>"
+    # format_str: "[<c>{time:YYYY-MM-DD HH:mm:ss.SSS Z:!UTC}</c> | <level>{level_short:<5}</level> | <w>{name}:{line}</w>]: <level>{message}</level>"
+    std_handler:
+      enabled: true
+  file:
+    logs_dir: "../logs"
+    rotate_size: 10000000 # 10MB
+    rotate_time: "00:00:00"
+    backup_count: 90
+    log_handlers:
+      enabled: true
+      format_str: "[{time:YYYY-MM-DD HH:mm:ss.SSS Z} | {level_short:<5} | {name}:{line}]: {message}"
+      # format_str: "[{time:YYYY-MM-DD HH:mm:ss.SSS Z:!UTC} | {level_short:<5} | {name}:{line}]: {message}"
+      log_path: "{app_name}.std.all.log"
+      err_path: "{app_name}.std.err.log"
+    json_handlers:
+      enabled: true
+      use_custom: false
+      log_path: "json/{app_name}.json.all.log"
+      err_path: "json/{app_name}.json.err.log"
+  intercept:
+    auto_load:
+      enabled: true
+      only_base: false
+      ignore_modules: []
+    include_modules: []
+    mute_modules: [
+        "uvicorn.access",
+        # "uvicorn.error",
+        "multipart",
+        "watchfiles",
+        "watchfiles.main",
+        "watchfiles.watcher",
+      ]
+  extra:
+    http_std_msg_format: '<n><w>[{request_id}]</w></n> {client_host} {user_id} "<u>{method} {url_path}</u> HTTP/{http_version}" {status_code} {content_length}B {response_time}ms'
+    http_std_error_format: '<n><w>[{request_id}]</w></n> {client_host} {user_id} "<u>{method} {url_path}</u> HTTP/{http_version}" <n>{status_code}</n>'
+    http_std_debug_format: '<n>[{request_id}]</n> {client_host} {user_id} "<u>{method} {url_path}</u> HTTP/{http_version}"'
+    http_file_enabled: true
+    http_file_format: '{client_host} {request_id} {user_id} [{datetime}] "{method} {url_path} HTTP/{http_version}" {status_code} {content_length} "{h_referer}" "{h_user_agent}" {response_time}'
+    http_file_tz: "localtime"
+    # http_file_tz: "UTC"
+    http_log_path: "http/{app_name}.http.access.log"
+    http_err_path: "http/{app_name}.http.err.log"
+    http_json_enabled: true
+    http_json_path: "json.http/{app_name}.json.http.access.log"
+    http_json_err_path: "json.http/{app_name}.json.http.err.log"
