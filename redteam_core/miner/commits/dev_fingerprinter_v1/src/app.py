@@ -144,4 +144,4 @@ def solve(miner_input: MinerInput = Body(...)) -> MinerOutput:
     return _miner_output
 
 
-___all___ = ["app"]
+__all__ = ["app"]
