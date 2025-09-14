@@ -168,7 +168,7 @@ def now_ts(unit: TSUnitEnum = TSUnitEnum.SECONDS) -> int:
     if unit == TSUnitEnum.SECONDS:
         _now_ts = int(time.time())
     elif unit == TSUnitEnum.MILLISECONDS:
-        _now_ts = int(_now_ts * 1000)
+        _now_ts = int(time.time() * 1000)
     elif unit == TSUnitEnum.MICROSECONDS:
         _now_ts = int(time.time_ns() / 1000)
     elif unit == TSUnitEnum.NANOSECONDS:
