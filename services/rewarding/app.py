@@ -330,8 +330,14 @@ class RewardApp(Validator):
             )
             return
         else:
+            _sorted_new_miner_commits = sorted(
+                new_commits,
+                key=lambda x: (
+                    x.commit_timestamp if x.commit_timestamp else float("inf")
+                ),
+            )
             bt.logging.info(
-                f"[CENTRALIZED SCORING] {len(new_commits)} new commits to score for challenge: {challenge}"
+                f"[CENTRALIZED SCORING] {len(_sorted_new_miner_commits)} new commits to score for challenge: {challenge}"
             )
 
         bt.logging.info(
@@ -373,14 +379,14 @@ class RewardApp(Validator):
             f"[CENTRALIZED SCORING] Running controller for challenge: {challenge}"
         )
         bt.logging.info(
-            f"[CENTRALIZED SCORING] Going to score {len(new_commits)} commits for challenge: {challenge}"
+            f"[CENTRALIZED SCORING] Going to score {len(_sorted_new_miner_commits)} commits for challenge: {challenge}"
         )
         # This challenge controll will run with new inputs and reference commit input
         # Reference commits are collected from yesterday, so if same docker_hub_id commited same day, they can share comparison_logs field, and of course, scoring_logs field
         # If same docker_hub_id commited different day, the later one expected to be ignored anyway
         controller = self.active_challenges[challenge]["controller"](
             challenge_name=challenge,
-            miner_commits=new_commits,
+            miner_commits=_sorted_new_miner_commits,
             reference_comparison_commits=unique_commits_cached_data,
             challenge_info=self.active_challenges[challenge],
             seed_inputs=seed_inputs,
