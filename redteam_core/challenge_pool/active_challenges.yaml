@@ -48,7 +48,7 @@ ab_sniffer_v3:
 humanize_behaviour_v5:
   name: "humanize_behaviour_v5"
   description: "Imitate human-like behaviour for given UI tasks"
-  challenge_incentive_weight: 0.7
+  challenge_incentive_weight: 0.4
   target: redteam_core.challenge_pool.humanize_behaviour_v5.controller.HBController
   comparer: redteam_core.challenge_pool.humanize_behaviour_v5.comparer.HBComparer
   challenge_manager: redteam_core.challenge_pool.humanize_behaviour_v5.challenge_manager.HBChallengeManager
@@ -95,7 +95,7 @@ humanize_behaviour_v5:
 dev_fingerprinter_v1:
   name: "dev_fingerprinter_v1"
   description: "Detect fingerprint of a device when a request is received with a single fingerprinter.js script."
-  challenge_incentive_weight: 0.0
+  challenge_incentive_weight: 0.3
   target: redteam_core.challenge_pool.dev_fingerprinter_v1.controller.DFPController
   comparer: redteam_core.challenge_pool.dev_fingerprinter_v1.comparer.DFPComparer
   challenge_manager: redteam_core.challenge_pool.dev_fingerprinter_v1.challenge_manager.DFPChallengeManager
