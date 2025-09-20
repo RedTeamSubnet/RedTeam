@@ -1,0 +1,15 @@
+{
+	"configurations": [
+		{
+			"name": "Debug dfp Challenger container",
+			"type": "debugpy",
+			"request": "launch",
+			"module": "src.api",
+			"console": "integratedTerminal",
+			"args": [],
+			"cwd": "${workspaceFolder}/redteam_core/challenge_pool/dev_fingerprinter_v1",
+			"env": {},
+			"justMyCode": false
+		}
+	]
+}

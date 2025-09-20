@@ -1,0 +1,26 @@
+challenge:
+  fp_js_fname: "fingerprinter.js"
+  ts_device_tag: "tag:devices"
+  ts_static_ip: "100.100.200.100"
+  change_ts_ip: false
+  pushcut_shortcut: "rt-dfp"
+  pushcut_timeout: 15
+  n_repeat: 3
+  random_seed: null
+  fp_timeout: 10
+  proxy_inter_base_url: "http://localhost:8000"
+  proxy_exter_base_url: "http://dfp-proxy:8000"
+  devices_fname: "devices.json"
+  devices: []
+  scoring:
+    weights:
+      fragmentation: 0.3
+      soft_collision: 0.15
+      hard_collision: 0.55
+    thresholds:
+      fragmentation:
+        inconsistency_pct: 0.25
+        frag_pct: 0.2
+      collision:
+        soft_pct: 0.35
+        hard_pct: 0.15

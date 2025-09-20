@@ -14,4 +14,4 @@ fastapi[all]~=0.110.1
 docker~=7.1.0
 ./requirements/vault_unlock-0.1.0-cp310-abi3-manylinux_2_34_x86_64.whl
 ./requirements/rt_hb_score_binary-4.3.2-py3-none-any.whl
-./requirements/cfg_analyser_binary-1.6.0-py3-none-any.whl
+./requirements/cfg_analyser_binary-2.0.0-py3-none-any.whl

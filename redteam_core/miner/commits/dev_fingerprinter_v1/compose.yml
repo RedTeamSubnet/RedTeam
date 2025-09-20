@@ -1,0 +1,19 @@
+services:
+  miner-api:
+    image: redteamsubnet61/rest.dfp-miner:latest
+    network_mode: host
+    build:
+      context: .
+      platforms:
+        - linux/amd64
+    restart: unless-stopped
+    environment:
+      TERM: ${TERM:-xterm}
+      TZ: UTC
+      DFP_API_PORT: ${DFP_API_PORT:-8000}
+    env_file:
+      - path: .env
+        required: false
+    tty: true
+    volumes:
+      - "./src:/app"

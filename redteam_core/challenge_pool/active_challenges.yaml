@@ -48,7 +48,7 @@ ab_sniffer_v3:
 humanize_behaviour_v5:
   name: "humanize_behaviour_v5"
   description: "Imitate human-like behaviour for given UI tasks"
-  challenge_incentive_weight: 0.7
+  challenge_incentive_weight: 0.4
   target: redteam_core.challenge_pool.humanize_behaviour_v5.controller.HBController
   comparer: redteam_core.challenge_pool.humanize_behaviour_v5.comparer.HBComparer
   challenge_manager: redteam_core.challenge_pool.humanize_behaviour_v5.challenge_manager.HBChallengeManager
@@ -91,3 +91,55 @@ humanize_behaviour_v5:
     - redteamsubnet61/base_hbv2_image4@sha256:6d2360ed9ff7310dbc31aee5ac61a9ebf60edbd4e85fd3077bfbdd42f7abd3f0
     - redteamsubnet61/base_hbv3_image1@sha256:14305b2d81d562a9549db0719ab4d8c19cc00dafc31fe826d28c5ab935fb3130
     - redteamsubnet61/base_hbv3_image2@sha256:fee9a54863c480c0088419e3b376b16ec99cf2fbdcf71211834b6e0bb155aefc
+
+dev_fingerprinter_v1:
+  name: "dev_fingerprinter_v1"
+  description: "Detect fingerprint of a device when a request is received with a single fingerprinter.js script."
+  challenge_incentive_weight: 0.3
+  target: redteam_core.challenge_pool.dev_fingerprinter_v1.controller.DFPController
+  comparer: redteam_core.challenge_pool.dev_fingerprinter_v1.comparer.DFPComparer
+  challenge_manager: redteam_core.challenge_pool.dev_fingerprinter_v1.challenge_manager.DFPChallengeManager
+  challenge_solve_timeout: 60
+  docker_run_timeout: 900
+  num_tasks: 1
+  comparison_config:
+    max_unique_commits: 15
+    max_self_comparison_score: 0.9
+    min_acceptable_score: 0.7
+  challenge_container_run_kwargs:
+    name: "dev_fingerprinter_v1"
+    environment:
+      RT_COMPARER_RANDOM_SEED: "${RT_COMPARER_RANDOM_SEED}"
+      DFP_CHALLENGE_API_KEY: "${DFP_CHALLENGE_API_KEY}"
+      DFP_CHALLENGE_TS_TAILNET: "${DFP_CHALLENGE_TS_TAILNET}"
+      DFP_CHALLENGE_TS_API_TOKEN: "${DFP_CHALLENGE_TS_API_TOKEN}"
+      DFP_CHALLENGE_PUSHCUT_API_KEY: "${DFP_CHALLENGE_PUSHCUT_API_KEY}"
+      DFP_CHALLENGE_PROXY_INTER_BASE_URL: "${DFP_CHALLENGE_PROXY_INTER_BASE_URL}"
+      DFP_CHALLENGE_PROXY_EXTER_BASE_URL: "${DFP_CHALLENGE_PROXY_EXTER_BASE_URL}"
+    volumes:
+      - "${RT_DFP_CHALLENGE_LOG_DIR}:/var/log/rest.dfp-challenger"
+      - "${RT_DFP_CHALLENGE_DEVICES_JSON_PATH}:/etc/rest.dfp-challenger/devices.json"
+
+  miner_container_run_kwargs:
+    cpu_count: 4
+    mem_limit: "12g"
+    network: "redteam_local"
+    environment:
+      CHALLENGE_NAME: "dev_fingerprinter_v1"
+
+  reset_challenge: true
+  protocols:
+    challenger: "http"
+    challenger_ssl_verify: false
+    miner: "http"
+    miner_ssl_verify: false
+  resource_limits:
+    num_cpus: 4
+    mem_limit: "12g"
+  environment:
+    ENV: "PRODUCTION"
+
+  baseline_reference_comparison_docker_hub_ids:
+    - redteamsubnet61/base_dfpv1_image1@sha256:5cf2a129834f8093a4ed6637c5c6f8d2df5072678d8f5760b9995dcea01159e1
+    - redteamsubnet61/base_dfpv1_image2@sha256:e91d3eeb15880f8461ced2972481a7c472136f982e47fba2b254360eb57569a1
+    - redteamsubnet61/base_dfpv1_image3@sha256:2edb2f13969f2dd28f6727551c1d5bdc2314a48e79ba6ff1de00d4d8db2d9a6d
