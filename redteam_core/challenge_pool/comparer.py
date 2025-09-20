@@ -207,7 +207,7 @@ class Comparer(BaseComparer):
 
     def _compare_outputs(
         self, miner_input: dict, miner_output: dict, reference_output: dict
-    ) -> float:
+    ) -> dict:
         """
         Send comparison request to challenge container's /compare endpoint.
 
@@ -217,7 +217,7 @@ class Comparer(BaseComparer):
             reference_output: The output from the reference miner
 
         Returns:
-            float: Comparison score between 0 and 1
+            dict: Comparison score between 0 and 1, and reason for the score
         """
         _protocol, _ssl_verify = self._check_protocol(is_challenger=True)
 
@@ -235,7 +235,9 @@ class Comparer(BaseComparer):
                 json=payload,
             )
 
-            similarity_score = response.json()
+            _result = response.json().get("data", {})
+            similarity_score = _result.get("similarity_score", 0.0)
+            similarity_reason = _result.get("reason", "Unknown")
 
             # Normalize score to float between 0 and 1
             if isinstance(similarity_score, int):
@@ -243,11 +245,14 @@ class Comparer(BaseComparer):
             elif not isinstance(similarity_score, float):
                 similarity_score = 0.0
 
-            return max(0.0, min(1.0, similarity_score))
+            return {
+                "similarity_score": max(0.0, min(1.0, similarity_score)),
+                "reason": similarity_reason,
+            }
 
         except Exception as e:
             bt.logging.error(f"Error in comparison request: {str(e)}")
-            return 0.0
+            return {"similarity_score": 0.0, "reason": f"Error: {str(e)}"}
 
     def _setup_challenge(self):
         """
