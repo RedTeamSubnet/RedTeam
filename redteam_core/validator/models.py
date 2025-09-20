@@ -39,6 +39,7 @@ class ComparisonLog(BaseModel):
     reference_output: Optional[dict] = None
     error: Optional[str] = None
     input_hash: Optional[str] = None
+    reason: Optional[str] = None
 
     reference_hotkey: Optional[str] = None
     reference_similarity_score: Optional[float] = None
@@ -57,6 +58,7 @@ class ComparisonLog(BaseModel):
             miner_input=None,
             miner_output=None,
             reference_output=None,
+            reason=self.reason,
             error=self.error,
             reference_hotkey=self.reference_hotkey,
             reference_similarity_score=self.reference_similarity_score,

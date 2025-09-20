@@ -138,7 +138,7 @@ def post_compare(
         logger.error(f"[{_request_id}] - Error comparing miner outputs: {str(err)}")
         raise HTTPException(status_code=500, detail="Error in comparison request")
 
-    return {"similarity_score": _score}
+    return _score
 
 
 class ESLintRequest(BaseModel):

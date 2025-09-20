@@ -126,7 +126,8 @@ ipython_config.py
 .LSOverride
 
 # Icon must end with two \r
-Icon
+Icon
+
 
 # Thumbnails
 ._*
@@ -670,6 +671,7 @@ volumes/**
 
 redteam_core.egg-info/
 ./.cache/
+.cache_*
 
 data/
 logs/

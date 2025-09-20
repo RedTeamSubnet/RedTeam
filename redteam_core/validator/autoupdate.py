@@ -92,7 +92,9 @@ class AutoUpdater:
                 self._stop_flag.set()
                 self._restart_process()
             else:
-                bt.logging.info("Already up to date.")
+                bt.logging.info(
+                    f"Already up to date. Branch: `{branch_name}` Version: {current_version}"
+                )
         except Exception as e:
             bt.logging.error(f"Update check failed: {e}")
 

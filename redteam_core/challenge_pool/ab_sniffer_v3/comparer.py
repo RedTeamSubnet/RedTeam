@@ -112,11 +112,13 @@ class ABSComparer(Comparer):
                             log.error = "miner_output is None"
                             log.similarity_score = 0.0
                         # Use the comparison API to compare outputs
-                        similarity_score = self._compare_outputs(
+                        compare_result = self._compare_outputs(
                             miner_input=miner_log.miner_input,  # Both used the same input
                             miner_output=miner_log.miner_output,
                             reference_output=other_log.miner_output,
                         )
+                        similarity_score = compare_result.get("similarity_score", 1.0)
+                        reason = compare_result.get("reason", "Unknown")
 
                         # remove js code from comparison log because it is avaliable in `scoring_logs`
                         _miner_output = miner_log.miner_output.copy()
@@ -131,6 +133,7 @@ class ABSComparer(Comparer):
                             miner_output=_miner_output,
                             reference_output=_reference_output,
                             reference_hotkey=other_commit.miner_hotkey,
+                            reason=reason,
                         )
                         comparison_logs.append(comparison_log)
 

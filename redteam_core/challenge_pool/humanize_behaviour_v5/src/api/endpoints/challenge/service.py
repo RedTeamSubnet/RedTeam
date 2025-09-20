@@ -347,7 +347,7 @@ def eval_bot(data: str) -> None:
     return
 
 
-def compare_outputs(miner_input, miner_output, reference_output) -> float:
+def compare_outputs(miner_input, miner_output, reference_output) -> dict:
     """
     Compare miner's output against a reference output using CFGAnalyser and CFGComparer.
 
@@ -357,7 +357,7 @@ def compare_outputs(miner_input, miner_output, reference_output) -> float:
         reference_output (dict): The reference output.
 
     Returns:
-        float: Similarity score between 0 and 1.
+        dict: Similarity score and reason.
     """
     try:
         logger.info("Analyzing miner output...")
@@ -367,21 +367,31 @@ def compare_outputs(miner_input, miner_output, reference_output) -> float:
 
         if not _miner_code or not _reference_code:
             logger.error("Missing bot_py in miner_output or reference_output.")
-            return 0.0
+            return {
+                "similarity_score": 0.0,
+                "reason": "Missing bot_py in miner_output or reference_output",
+            }
 
         comparison_result = CFGManager().compare_raw_bot_scripts(
-            str_script_1=_miner_code,
-            str_script_2=_reference_code,
+            miner_script=_miner_code,
+            reference_script=_reference_code,
         )
 
-        similarity_score = comparison_result.get("similarity_score", 0.0)
-        logger.info(f"Computed similarity score: {similarity_score}")
+        _similarity_score = comparison_result.get("similarity_score", 0.0)
+        _reason = comparison_result.get("reason", "Unknown")
+        logger.info(f"Similarity Score: {_similarity_score}")
+        logger.info(f"Similarity Reason: {_reason}")
 
-        return max(0.0, min(1.0, similarity_score))
+        try:
+            _similarity_score = float(_similarity_score)
+        except Exception:
+            _similarity_score = 0.0
+
+        return {"similarity_score": _similarity_score, "reason": _reason}
 
     except Exception as err:
         logger.error(f"Error in compare_outputs function: {str(err)}")
-        return 0.0
+        return {"similarity_score": 0.0, "reason": str(err)}
 
 
 __all__ = [

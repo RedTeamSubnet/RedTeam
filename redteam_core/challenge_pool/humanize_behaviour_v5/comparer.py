@@ -154,11 +154,14 @@ class HBComparer(Comparer):
                             log.similarity_score = 0.0
 
                         # Use the comparison API to compare outputs
-                        similarity_score = self._compare_outputs(
+                        compare_result = self._compare_outputs(
                             miner_input=miner_log.miner_input,  # Both used the same input
                             miner_output=_miner_output,
                             reference_output=_other_log,
                         )
+                        similarity_score = compare_result.get("similarity_score", 1.0)
+                        reason = compare_result.get("reason", "Unknown")
+
                         # Remove huge bot.py from `outputs` to save size
 
                         _miner_output["bot_py"] = None
@@ -171,6 +174,7 @@ class HBComparer(Comparer):
                             miner_output=None,
                             reference_output=_other_log,
                             reference_hotkey=other_miner_commit.miner_hotkey,
+                            reason=reason,
                         )
                         comparison_logs.append(comparison_log)
 

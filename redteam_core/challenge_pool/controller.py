@@ -335,11 +335,13 @@ class Controller(BaseController):
                 _miner_output = miner_commit.scoring_logs[0].miner_output.copy()
                 _reference_output = reference_log.miner_output.copy()
 
-                _similarity_score = self._compare_outputs(
+                _compare_result = self._compare_outputs(
                     miner_input=reference_log.miner_input,
                     miner_output=_miner_output,
                     reference_output=_reference_output,
                 )
+                _similarity_score = _compare_result.get("similarity_score", 1.0)
+                _similarity_reason = _compare_result.get("reason", "Unknown")
 
                 self._exclude_output_keys(_miner_output, _reference_output)
 
@@ -359,6 +361,7 @@ class Controller(BaseController):
                     reference_hotkey=reference_commit.miner_hotkey,
                     reference_similarity_score=reference_commit.penalty,
                     similarity_score=_similarity_score,
+                    reason=_similarity_reason,
                 )
 
                 miner_commit.comparison_logs[reference_commit.docker_hub_id].append(
