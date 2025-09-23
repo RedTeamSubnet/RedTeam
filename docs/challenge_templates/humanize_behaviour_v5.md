@@ -1,3 +1,6 @@
+---
+title: Humanize Behaviour v5
+---
 # Humanize Behaviour v5 Submission Guide (Active after September 4th 2025 10:00 UTC)
 
 ## Overview

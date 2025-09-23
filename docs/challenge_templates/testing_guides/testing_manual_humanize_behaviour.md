@@ -12,8 +12,9 @@ This manual provides instructions for testing the Humanize Behaviour v5 challeng
 
 ### Prerequisites
 
-- Docker and Docker Compose installed
-- Git (for cloning the repository)
+!!! warning "Requirements"
+    - Docker and Docker Compose installed
+    - Git (for cloning the repository)
 
 ### Step 1: Provide Your Scripts
 
@@ -52,16 +53,18 @@ bash ./redteam_core/miner/commits/humanize_behaviour_v5/scripts/test-script.sh
 
 ## Important Notes
 
-- The server runs on port 10001 by default
-- Make sure port 10001 is available on your system
-- The challenge includes trajectory similarity checks between sessions
-- All interactions are logged for analysis
+!!! note "Configuration"
+    - The server runs on port 10001 by default
+    - Make sure port 10001 is available on your system
+    - The challenge includes trajectory similarity checks between sessions
+    - All interactions are logged for analysis
 
 ## Troubleshooting
 
-If you encounter issues:
+!!! tip "Common Issues"
+    If you encounter issues:
 
-1. Check if Docker is running
-2. Verify port 10001 is not in use
-3. Check Docker logs using `docker compose logs`
-4. Ensure you have proper permissions to run Docker commands
+    1. Check if Docker is running
+    2. Verify port 10001 is not in use
+    3. Check Docker logs using `docker compose logs`
+    4. Ensure you have proper permissions to run Docker commands

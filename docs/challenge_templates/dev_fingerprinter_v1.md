@@ -1,3 +1,6 @@
+---
+title: Device Fingerprinter v1
+---
 # Device Fingerprinter v1 Submission Guide (Active after September [20]th 2025 10:00 UTC)
 
 ![thumnail](../assets/images/challenges/dev_fingerprinter_v1/thumbnail.png)
