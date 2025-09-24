@@ -945,6 +945,3 @@ def run_bot(driver: WebDriver, username: str = "username", password: str = "pass
     except Exception as err:
         _logger.error(f"Automation sequence terminated with error: {err}")
         return False
-
-
-
