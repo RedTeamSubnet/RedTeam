@@ -2,86 +2,94 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://docs.theredteam.io/</loc>
-         <lastmod>2025-09-20</lastmod>
+         <lastmod>2025-09-24</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/1.validator/</loc>
-         <lastmod>2025-09-20</lastmod>
+         <lastmod>2025-09-24</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/2.miner/</loc>
-         <lastmod>2025-09-20</lastmod>
+         <lastmod>2025-09-24</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/3.submission_guide/</loc>
-         <lastmod>2025-09-20</lastmod>
+         <lastmod>2025-09-24</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.docker/</loc>
-         <lastmod>2025-09-20</lastmod>
+         <lastmod>2025-09-24</lastmod>
     </url>
     <url>
-         <loc>https://docs.theredteam.io/FAQ/</loc>
-         <lastmod>2025-09-20</lastmod>
+         <loc>https://docs.theredteam.io/challenge_templates/FAQ/</loc>
+         <lastmod>2025-09-24</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/challenge_templates/ab_sniffer_v3/</loc>
-         <lastmod>2025-09-20</lastmod>
+         <lastmod>2025-09-24</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/challenge_templates/dev_fingerprinter_v1/</loc>
-         <lastmod>2025-09-20</lastmod>
+         <lastmod>2025-09-24</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.theredteam.io/challenge_templates/device_fingerprinting_overview/</loc>
+         <lastmod>2025-09-24</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/challenge_templates/humanize_behaviour_v5/</loc>
-         <lastmod>2025-09-20</lastmod>
+         <lastmod>2025-09-24</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/challenge_templates/deprecated/ab_sniffer_v1/</loc>
-         <lastmod>2025-09-20</lastmod>
+         <lastmod>2025-09-24</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/challenge_templates/deprecated/ab_sniffer_v2/</loc>
-         <lastmod>2025-09-20</lastmod>
+         <lastmod>2025-09-24</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/challenge_templates/deprecated/humanize_behaviour_v1/</loc>
-         <lastmod>2025-09-20</lastmod>
+         <lastmod>2025-09-24</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/challenge_templates/deprecated/humanize_behaviour_v2/</loc>
-         <lastmod>2025-09-20</lastmod>
+         <lastmod>2025-09-24</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/challenge_templates/deprecated/humanize_behaviour_v3/</loc>
-         <lastmod>2025-09-20</lastmod>
+         <lastmod>2025-09-24</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/challenge_templates/deprecated/response_quality_adversarial_v2/</loc>
-         <lastmod>2025-09-20</lastmod>
+         <lastmod>2025-09-24</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/challenge_templates/deprecated/response_quality_ranker_v2/</loc>
-         <lastmod>2025-09-20</lastmod>
+         <lastmod>2025-09-24</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/challenge_templates/deprecated/text_detection/</loc>
-         <lastmod>2025-09-20</lastmod>
+         <lastmod>2025-09-24</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/challenge_templates/testing_guides/testing_manual_autobrowser_sniffer/</loc>
-         <lastmod>2025-09-20</lastmod>
+         <lastmod>2025-09-24</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.theredteam.io/challenge_templates/testing_guides/testing_manual_dfp_challenge/</loc>
+         <lastmod>2025-09-24</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/challenge_templates/testing_guides/testing_manual_humanize_behaviour/</loc>
-         <lastmod>2025-09-20</lastmod>
+         <lastmod>2025-09-24</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/diagrams/humanize_behaviour/flow.general/</loc>
-         <lastmod>2025-09-20</lastmod>
+         <lastmod>2025-09-24</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/diagrams/humanize_behaviour/flow.small/</loc>
-         <lastmod>2025-09-20</lastmod>
+         <lastmod>2025-09-24</lastmod>
     </url>
 </urlset>
