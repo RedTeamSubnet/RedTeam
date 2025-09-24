@@ -12,4 +12,4 @@ onion-config[pydantic-settings]~=5.1.1
 aiohttp~=3.10.2
 fastapi[all]~=0.110.1
 docker~=7.1.0
-./requirements/rt_comparer_binary-0.1.4-py3-none-any.whl
+./requirements/rt_comparer_binary-1.0.0-py3-none-any.whl
