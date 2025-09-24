@@ -126,14 +126,12 @@ async function audioFingerprint() {
 			osc.start(0);
 			setTimeout(async () => {
 				osc.stop();
-				const fp = `${ctx.sampleRate}|${comp.threshold?.value ?? ""},${
-					comp.knee?.value ?? ""
-				},${comp.ratio?.value ?? ""},${comp.attack?.value ?? ""},${
-					comp.release?.value ?? ""
-				}`;
+				const fp = `${ctx.sampleRate}|${comp.threshold?.value ?? ""},${comp.knee?.value ?? ""
+					},${comp.ratio?.value ?? ""},${comp.attack?.value ?? ""},${comp.release?.value ?? ""
+					}`;
 				try {
 					await ctx.close();
-				} catch {}
+				} catch { }
 				resolve(hashStringFast(fp));
 			}, 150);
 		});
@@ -172,11 +170,11 @@ function getTechnicalInfoSync() {
 	};
 	const conn = n.connection
 		? {
-				downlink: n.connection.downlink,
-				effectiveType: n.connection.effectiveType,
-				rtt: n.connection.rtt,
-				saveData: n.connection.saveData,
-		  }
+			downlink: n.connection.downlink,
+			effectiveType: n.connection.effectiveType,
+			rtt: n.connection.rtt,
+			saveData: n.connection.saveData,
+		}
 		: null;
 	const clipboard = !!navigator.clipboard;
 	const storage = {
@@ -306,7 +304,7 @@ async function getWebRTCIPHints() {
 			const timer = setTimeout(() => {
 				try {
 					pc.close();
-				} catch {}
+				} catch { }
 				resolve();
 			}, 1500);
 			pc.onicecandidate = (evt) => {
@@ -324,7 +322,7 @@ async function getWebRTCIPHints() {
 					clearTimeout(timer);
 					try {
 						pc.close();
-					} catch {}
+					} catch { }
 					resolve();
 				}
 			};
@@ -340,16 +338,101 @@ async function getWebRTCIPHints() {
 	}
 }
 
+// ---------- Fonts: local() + canvas fallback ----------
+async function tryLocalFont(name) {
+	if (!("FontFace" in window)) return false;
+	try {
+		// Attempt to load a face that references local system font
+		const ff = new FontFace("__probe__", `local("${name}")`);
+		await ff.load(); // If this resolves, the OS likely has the font
+		return true;
+	} catch {
+		return false;
+	}
+}
+
+function canvasHasFont(name) {
+	const canvas = document.createElement("canvas");
+	canvas.width = 512; canvas.height = 128;
+	const ctx = canvas.getContext("2d");
+	if (!ctx) return false;
+
+	const text = 'abcdefghijklmNOPQRSTUVWXYZ 0123456789 ~!@#$%^&*()_+-=[]{}|;:",.<>/?';
+	const families = ["monospace", "serif", "sans-serif"];
+
+	const measure = (family) => {
+		ctx.font = `32px ${family}`;
+		const m = ctx.measureText(text);
+		return [
+			m.width.toFixed(2),
+			(m.actualBoundingBoxAscent ?? 0).toFixed(2),
+			(m.actualBoundingBoxDescent ?? 0).toFixed(2),
+		].join("|");
+	};
+
+	const base = Object.fromEntries(families.map(f => [f, measure(f)]));
+	for (const f of families) {
+		const test = measure(`"${name}", ${f}`);
+		if (test !== base[f]) return true; // different metrics => font likely present
+	}
+	return false;
+}
+
+const FONT_CANDIDATES = [
+	// common cross-platform + a few platform-specifics
+	"Arial", "Arial Black", "Verdana", "Tahoma", "Trebuchet MS", "Impact",
+	"Times New Roman", "Georgia", "Palatino", "Garamond", "Bookman", "Comic Sans MS",
+	"Courier New", "Lucida Console", "Lucida Sans Unicode", "Segoe UI", "Segoe UI Emoji",
+	"Consolas", "Calibri", "Cambria", "Candara", "Didot", "American Typewriter", "Optima",
+	"Helvetica", "Helvetica Neue", "Avenir", "Avenir Next", "Menlo", "Monaco",
+	"Roboto", "Noto Sans", "Noto Serif", "Noto Sans Mono", "Ubuntu", "DejaVu Sans",
+	"DejaVu Serif", "DejaVu Sans Mono", "Liberation Sans", "Liberation Serif", "Liberation Mono",
+];
+
+async function detectFontsAdvanced(candidates = FONT_CANDIDATES) {
+	try {
+		if (document.fonts && document.fonts.ready) {
+			try { await document.fonts.ready; } catch { }
+		}
+
+		// Probe in small batches to avoid flooding
+		const results = [];
+		const batchSize = 12;
+
+		for (let i = 0; i < candidates.length; i += batchSize) {
+			const batch = candidates.slice(i, i + batchSize);
+			const checks = batch.map(async (name) => {
+				// Prefer local() probe; fall back to canvas metrics
+				let present = await tryLocalFont(name);
+				if (!present) present = canvasHasFont(name);
+				return present ? name : null;
+			});
+			const found = await Promise.all(checks);
+			for (const n of found) if (n) results.push(n);
+		}
+
+		return {
+			available: results,
+			count: results.length,
+			hash: hashStringFast(results.join("\n")),
+		};
+	} catch {
+		return { available: [], count: 0, hash: null };
+	}
+}
+
+
 // ---------- Collector ----------
 async function collectFingerprint() {
 	const [gl, sys] = [getWebGLInfo(), getSystemInfo()];
 	const techSync = getTechnicalInfoSync();
 
 	// Run network/bot/audio in parallel
-	const [ipInfoRes, webrtcHints, audio] = await Promise.all([
+	const [ipInfoRes, webrtcHints, audio, fontInfo] = await Promise.all([
 		getPublicIPInfo(),
 		getWebRTCIPHints(),
 		audioFingerprint(),
+		detectFontsAdvanced(),
 	]);
 
 	const ipInfo = ipInfoRes.ok ? ipInfoRes.data : null;
@@ -357,21 +440,10 @@ async function collectFingerprint() {
 	const payload = {
 		driver: { type: gl.driverType || null, webgl: gl },
 		system: sys,
-		technical: { ...techSync, audioHash: audio },
+		technical: { ...techSync, audioHash: audio, fontInfo },
 		network: {
 			publicIP: ipInfo?.ip || null,
-			geo: ipInfo
-				? {
-						country: ipInfo.country ?? null,
-						region: ipInfo.region ?? null,
-						city: ipInfo.city ?? null,
-						timezone: ipInfo.timezone ?? null,
-						latitude: ipInfo.latitude ?? null,
-						longitude: ipInfo.longitude ?? null,
-						asn: ipInfo.asn ?? null,
-						org: ipInfo.org ?? null,
-				  }
-				: null,
+			geo: ipInfo ?? null,
 			ipProviderHadError: ipInfoRes.ok
 				? null
 				: ipInfoRes.error || "unknown",
