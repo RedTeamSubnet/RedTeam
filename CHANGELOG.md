@@ -1,5 +1,18 @@
 # Changelog
 
+## v2.5.1 (2025-09-24)
+
+<!-- Release notes generated using configuration in .github/release.yml at v2.5.1 -->
+
+## What's Changed
+### ✨ Features
+* Comparison & DFP Documentation by @aliyuldashev in https://github.com/RedTeamSubnet/RedTeam/pull/80
+### 💬 Other
+* New challenge - dev_fingerprinter_v1 (Device Fingerprinting Challenge) by @BaratovSokhibjon in https://github.com/RedTeamSubnet/RedTeam/pull/79
+
+
+**Full Changelog**: https://github.com/RedTeamSubnet/RedTeam/compare/v2.5.0...v2.5.1
+
 ## v2.5.0 (2025-09-04)
 
 <!-- Release notes generated using configuration in .github/release.yml at v2.5.0 -->
