@@ -19,7 +19,7 @@ This manual provides instructions for testing the Digital Fingerprinting (DFP) c
 ### Step 1: Clone the Repository
 
 ```bash
-git https://github.com/RedTeamSubnet/rest.dfp-proxy.git
+git clone https://github.com/RedTeamSubnet/rest.dfp-proxy.git
 cd rest.dfp-proxy.git
 ```
 
