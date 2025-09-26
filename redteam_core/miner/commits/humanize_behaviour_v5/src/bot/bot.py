@@ -1,8 +1,454 @@
-# Python obfuscation by freecodingtools.org
+import json
+import logging
+import time
+import random
+import math
+from typing import List, Dict
+from time import sleep
 
-_ = lambda __: __import__("zlib").decompress(__import__("base64").b64decode(__[::-1]))
-exec(
-    (_)(
-        b"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"
-    )
-)
+import numpy as np
+import scipy.stats
+import pytweening
+from selenium.webdriver import Chrome, Firefox, Edge, Safari
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.remote.webdriver import WebDriver
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+
+# -----------------------------
+# Helpers for Humanization
+# -----------------------------
+def apply_velocity_profile(points, tween=pytweening.easeInOutQuad):
+    n = len(points)
+    new_points = []
+    for i in range(n):
+        t = i / (n - 1)
+        t = tween(t)
+        idx = int(t * (n - 1))
+        new_points.append(points[idx])
+    return new_points
+
+
+def add_human_jitter(points, intensity=2, pause_chance=0.05):
+    jittered = []
+    for x, y in points:
+        x += random.randint(-intensity, intensity)
+        y += random.randint(-intensity, intensity)
+        jittered.append((x, y))
+        if random.random() < pause_chance:
+            jittered.append((x, y))  # simulate hesitation
+    return jittered
+
+
+def random_curve_variant(from_point, to_point, knots):
+    """
+    Always generate a Bezier curve using provided knots.
+    Adds randomness to simulate human arcs.
+    """
+    n_points = random.randint(60, 150)  # number of points along the curve
+    # Insert random midpoints if not enough knots
+    if len(knots) < 2:
+        mid_x = (from_point[0] + to_point[0]) // 2
+        mid_y = (from_point[1] + to_point[1]) // 2 + random.randint(-50, 50)
+        knots.append((mid_x, mid_y))
+    full_points = [from_point] + knots + [to_point]
+    return BezierCalculator.calculate_points_in_curve(n_points, full_points)
+
+
+# -----------------------------
+# Bezier Calculator
+# -----------------------------
+class BezierCalculator:
+    @staticmethod
+    def binomial(n, k):
+        return math.factorial(n) / (math.factorial(k) * math.factorial(n - k))
+
+    @staticmethod
+    def bernstein_polynomial_point(x, i, n):
+        return BezierCalculator.binomial(n, i) * (x**i) * ((1 - x) ** (n - i))
+
+    @staticmethod
+    def bernstein_polynomial(points):
+        def bernstein(t):
+            n = len(points) - 1
+            x = y = 0
+            for i, p in enumerate(points):
+                bern = BezierCalculator.bernstein_polynomial_point(t, i, n)
+                x += p[0] * bern
+                y += p[1] * bern
+            return x, y
+
+        return bernstein
+
+    @staticmethod
+    def calculate_points_in_curve(n, points):
+        curve_points = []
+        bernstein_poly = BezierCalculator.bernstein_polynomial(points)
+        for i in range(n):
+            t = i / (n - 1)
+            curve_points.append(bernstein_poly(t))
+        return curve_points
+
+
+# -----------------------------
+# Calculate and Randomize
+# -----------------------------
+class CalculateAndRandomize:
+    @staticmethod
+    def generate_random_curve_parameters(
+        driver,
+        pre_origin,
+        post_destination,
+        steady,
+        window_width=1920,
+        window_height=1080,
+        tweening_method=None,
+    ):
+        isWeb = isinstance(driver, (Chrome, Firefox, Edge, Safari))
+        if isWeb:
+            window_width, window_height = driver.get_window_size().values()
+
+        offset_boundary_x = random.randint(20, 100)
+        offset_boundary_y = random.randint(20, 100)
+        knots_count = 2 if not steady else 3
+        tween = tweening_method or pytweening.easeInOutCubic
+        x1, y1 = pre_origin
+        x2, y2 = post_destination
+        distance = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+        pxl_2_distance = max(1, distance // 13)
+        target_points = int(distance // pxl_2_distance)
+        return (offset_boundary_x, offset_boundary_y, knots_count, tween, target_points)
+
+
+# -----------------------------
+# Humanize Mouse Trajectory
+# -----------------------------
+class HumanizeMouseTrajectory:
+    def __init__(self, from_point, to_point, **kwargs):
+        self.from_point = from_point
+        self.to_point = to_point
+        self.points = self.generate_curve(**kwargs)
+
+    def generate_curve(self, **kwargs):
+        offset_boundary_x = kwargs.get("offset_boundary_x", 80)
+        offset_boundary_y = kwargs.get("offset_boundary_y", 80)
+        knots_count = kwargs.get("knots_count", 2)
+        tween = kwargs.get("tween", pytweening.easeOutQuad)
+        target_points = kwargs.get("target_points", 100)
+        knots = [
+            (random.randint(0, offset_boundary_x), random.randint(0, offset_boundary_y))
+            for _ in range(knots_count)
+        ]
+        raw_points = random_curve_variant(self.from_point, self.to_point, knots)
+        curved = apply_velocity_profile(raw_points, tween)
+        distorted = add_human_jitter(curved, intensity=2, pause_chance=0.07)
+        return [(int(x), int(y)) for x, y in distorted]
+
+
+# -----------------------------
+# Typing Metrics
+# -----------------------------
+class TypingMetrics:
+    def __init__(
+        self,
+        interkey_mean=180,
+        interkey_std=70,
+        interkey_min=50,
+        interkey_max=500,
+        hold_mean=80,
+        hold_std=25,
+        hold_min=30,
+        hold_max=200,
+    ):
+        self.interkey_mean, self.interkey_std, self.interkey_min, self.interkey_max = (
+            interkey_mean,
+            interkey_std,
+            interkey_min,
+            interkey_max,
+        )
+        self.hold_mean, self.hold_std, self.hold_min, self.hold_max = (
+            hold_mean,
+            hold_std,
+            hold_min,
+            hold_max,
+        )
+        self._create_distributions()
+
+    def _create_bounded_distribution(self, min_val, max_val, mean, std):
+        scale = max_val - min_val
+        location = min_val
+        unscaled_mean = (mean - min_val) / scale
+        unscaled_var = (std / scale) ** 2
+        t = unscaled_mean / (1 - unscaled_mean + 1e-9)
+        beta = ((t / unscaled_var) - (t**2) - (2 * t) - 1) / (
+            (t**3) + (3 * t**2) + (3 * t) + 1
+        )
+        alpha = beta * t
+        alpha = max(alpha, 0.1)
+        beta = max(beta, 0.1)
+        return scipy.stats.beta(alpha, beta, scale=scale, loc=location)
+
+    def _create_distributions(self):
+        self.interkey_dist = self._create_bounded_distribution(
+            self.interkey_min, self.interkey_max, self.interkey_mean, self.interkey_std
+        )
+        self.hold_dist = self._create_bounded_distribution(
+            self.hold_min, self.hold_max, self.hold_mean, self.hold_std
+        )
+
+    def generate_patterns(self, text_length):
+        interkey_latencies = self.interkey_dist.rvs(size=text_length - 1)
+        hold_times = self.hold_dist.rvs(size=text_length)
+        return [int(x) for x in interkey_latencies], [int(x) for x in hold_times]
+
+
+class KeyboardProfile:
+    DEFAULTS = {
+        "default": {
+            "interkey_mean": 254,
+            "interkey_std": 224,
+            "interkey_min": 1,
+            "interkey_max": 1700,
+            "hold_mean": 77,
+            "hold_std": 36,
+            "hold_min": 24,
+            "hold_max": 175,
+        },
+        "slow": {
+            "interkey_mean": 300,
+            "interkey_std": 150,
+            "interkey_min": 50,
+            "interkey_max": 2000,
+            "hold_mean": 100,
+            "hold_std": 50,
+            "hold_min": 30,
+            "hold_max": 200,
+        },
+    }
+
+    def __init__(self, profile_name="default"):
+        params = self.DEFAULTS.get(profile_name, None)
+        self.metrics = TypingMetrics(**params) if params else TypingMetrics()
+
+    def generate_events_with_time_intervals(self, text: str) -> List[Dict]:
+        interkey, hold = self.metrics.generate_patterns(len(text))
+        events, current_time = [], 0
+        for idx, char in enumerate(text):
+            events.append({"type": "keydown", "char": char, "timing": current_time})
+            events.append(
+                {"type": "keyup", "char": char, "timing": current_time + hold[idx]}
+            )
+            if idx < len(text) - 1:
+                current_time += interkey[idx]
+        prev_time = 0
+        for e in events:
+            e["wait_time"] = float(max(0, e["timing"] - prev_time))
+            prev_time = e["timing"]
+        return events
+
+
+# -----------------------------
+# Adjuster and WebCursor
+# -----------------------------
+class Adjuster:
+    def __init__(self, driver):
+        self.driver = driver
+        self.action = ActionChains(driver)
+        self.origin_coordinate = [0, 0]
+
+    def type_text(self, text, profile="default", typo_chance=0.2):
+        """
+        Type text with optional random typos.
+        typo_chance: probability of making a typo per key press (0-1)
+        """
+        keyboard_profile = KeyboardProfile(profile)
+        events = keyboard_profile.generate_events_with_time_intervals(text)
+
+        for e in events:
+            if e["type"] == "keydown":
+                # Introduce random typo
+                if random.random() < typo_chance:
+                    wrong_char = random.choice("abcdefghijklmnopqrstuvwxyz")
+                    self.action.key_down(wrong_char).key_up(wrong_char).pause(
+                        random.uniform(0.05, 0.2)
+                    )
+                    # Backspace to correct typo
+                    self.action.key_down("\\ue003").key_up("\\ue003").pause(
+                        random.uniform(0.05, 0.15)
+                    )
+
+                self.action.key_down(e["char"])
+            else:
+                self.action.key_up(e["char"])
+
+            self.action.pause(e["wait_time"] / 1000)
+
+        self.action.perform()
+
+    def move_to(
+        self,
+        element_or_pos,
+        absolute_offset=False,
+        relative_position=None,
+        steady=False,
+    ):
+        origin = self.origin_coordinate[:]
+        if isinstance(element_or_pos, list):
+            x, y = (
+                element_or_pos
+                if not absolute_offset
+                else [element_or_pos[0] + origin[0], element_or_pos[1] + origin[1]]
+            )
+        else:
+            dest = self.driver.execute_script(
+                "return arguments[0].getBoundingClientRect();", element_or_pos
+            )
+            x_off = element_or_pos.size["width"] * (
+                relative_position[0] if relative_position else 0.5
+            )
+            y_off = element_or_pos.size["height"] * (
+                relative_position[1] if relative_position else 0.5
+            )
+            x, y = dest["x"] + x_off, dest["y"] + y_off
+
+        params = CalculateAndRandomize.generate_random_curve_parameters(
+            self.driver, origin, [x, y], steady
+        )
+        human_curve = HumanizeMouseTrajectory(
+            origin,
+            [x, y],
+            offset_boundary_x=params[0],
+            offset_boundary_y=params[1],
+            knots_count=params[2],
+            tween=params[3],
+            target_points=params[4],
+        )
+        total_offset = [0, 0]
+        window = self.driver.get_window_size()
+        max_x, max_y = window["width"] - 1, window["height"] - 1
+        safe_points = [
+            (max(0, min(px, max_x)), max(0, min(py, max_y)))
+            for px, py in human_curve.points
+        ]
+
+        for px, py in safe_points[1:]:
+            dx, dy = px - origin[0], py - origin[1]
+            try:
+                self.action.move_by_offset(dx, dy)
+            except:
+                continue
+            origin = [px, py]
+            total_offset[0] += dx
+            total_offset[1] += dy
+            self.action.pause(random.uniform(0.005, 0.03))
+
+        self.action.perform()
+        self.origin_coordinate = [
+            self.origin_coordinate[0] + total_offset[0],
+            self.origin_coordinate[1] + total_offset[1],
+        ]
+        return self.origin_coordinate
+
+
+class WebCursor:
+    def __init__(self, driver):
+        self.driver = driver
+        self.human = Adjuster(driver)
+
+    def move_to(
+        self,
+        element_or_pos,
+        relative_position=None,
+        absolute_offset=False,
+        steady=False,
+    ):
+        return self.human.move_to(
+            element_or_pos, absolute_offset, relative_position, steady
+        )
+
+    def click_on(
+        self,
+        element_or_pos,
+        number_of_clicks=1,
+        click_duration=0,
+        relative_position=None,
+        absolute_offset=False,
+        steady=False,
+    ):
+        self.move_to(element_or_pos, relative_position, absolute_offset, steady)
+        for _ in range(number_of_clicks):
+            if click_duration:
+                self.human.action.click_and_hold().pause(click_duration).release()
+            else:
+                self.human.action.click()
+            self.human.action.pause(random.uniform(0.05, 0.25))
+        self.human.action.perform()
+
+    def type(self, text, profile="default"):
+        self.human.type_text(text, profile)
+
+
+# -----------------------------
+# Bot Runner
+# -----------------------------
+def run_bot(driver: WebDriver) -> bool:
+    try:
+        _wait = WebDriverWait(driver, 15)
+        _cursor = WebCursor(driver)
+        config = json.loads(driver.execute_script("return window.ACTIONS_LIST;"))
+        for i, _action in enumerate(config):
+            try:
+                if _action["type"] == "click":
+                    x, y = (
+                        _action["args"]["location"]["x"],
+                        _action["args"]["location"]["y"],
+                    )
+                    _cursor.click_on([x, y], steady=True)
+                if _action["type"] == "input":
+                    field_id = _action["selector"]["id"]
+                    text = _action["args"]["text"]
+                    input_field = driver.find_element(By.ID, field_id)
+                    input_field.clear()
+                    _cursor.click_on(
+                        input_field, steady=True, relative_position=[0.5, 0.5]
+                    )
+                    _cursor.type(text, profile="default")
+                    sleep(random.uniform(0.4, 0.9))
+            except Exception as e:
+                logger.error(f"Failed action {i+1}: {e}")
+                continue
+
+        sleep(random.uniform(1.0, 3.0))
+        login_button = _wait.until(
+            EC.presence_of_element_located((By.ID, "login-button"))
+        )
+        _cursor.move_to(login_button, steady=True)
+        _cursor.click_on(login_button)
+
+        last_count = 0
+        while True:
+            page_len = driver.execute_script("return document.body.scrollHeight")
+            if page_len == last_count:
+                break
+            driver.execute_script("window.scrollTo(0,document.body.scrollHeight);")
+            last_count = page_len
+            sleep(1)
+        end_session = _wait.until(
+            EC.presence_of_element_located((By.CLASS_NAME, "end-session"))
+        )
+        driver.execute_script(
+            "arguments[0].scrollIntoView({behavior:'smooth',block:'center'});",
+            end_session,
+        )
+        sleep(1)
+        end_session.click()
+        sleep(3)
+        return True
+    except Exception as err:
+        logger.error(f"Bot failed: {err}")
+        return False
