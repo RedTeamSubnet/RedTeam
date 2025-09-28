@@ -154,7 +154,7 @@ def set_fingerprint(order_id: int, fingerprint: str) -> None:
     return
 
 
-def compare_outputs(miner_input, miner_output, reference_output) -> float:
+def compare_outputs(miner_input, miner_output, reference_output) -> dict:
     """
     Compare miner's output against a reference output using CFGAnalyser and CFGComparer.
 
