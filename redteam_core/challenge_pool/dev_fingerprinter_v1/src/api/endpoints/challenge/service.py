@@ -174,29 +174,35 @@ def compare_outputs(miner_input, miner_output, reference_output) -> float:
         reference_code = reference_output["fingerprinter_js"]
 
         if not miner_code or not reference_code:
-            logger.error("Missing detection_js in miner_output or reference_output.")
-            return 0.0
+            logger.error(
+                "Missing fingerprinter_js in miner_output or reference_output."
+            )
+            return {
+                "similarity_score": 0.0,
+                "reason": "Missing fingerprinter_js in miner_output or reference_output",
+            }
 
         _result = RTComparer().compare(
             challenge="dev_fingerprinter",
-            str_script_1=miner_code,
-            str_script_2=reference_code,
+            miner_script=miner_code,
+            reference_script=reference_code,
         )
 
-        similarity_score = _result.get("similarity_score", 0.0)
-        logger.info(f"Similarity Score: {similarity_score}")
-        logger.info(f"Comparison Result: {_result}")
+        _similarity_score = _result.get("similarity_score", 0.0)
+        _reason = _result.get("reason", "Unknown")
+        logger.info(f"Similarity Score: {_similarity_score}")
+        logger.info(f"Similarity Reason: {_reason}")
 
         try:
-            similarity_score = float(similarity_score)
+            _similarity_score = max(0.0, min(1.0, _similarity_score))
         except Exception:
-            similarity_score = 0.0
+            _similarity_score = 0.0
 
-        return max(0.0, min(1.0, similarity_score))
+        return {"similarity_score": _similarity_score, "reason": _reason}
 
     except Exception as err:
         logger.error(f"Error in compare_outputs function: {str(err)}")
-        return 0.0
+        return {"similarity_score": 0.0, "reason": str(err)}
 
 
 __all__ = [

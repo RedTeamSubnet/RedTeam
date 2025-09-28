@@ -11,7 +11,7 @@ from pydantic import validate_call
 from fastapi import Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
-from cfg_analyser import CFGManager
+from rt_comparer import RTComparer
 
 try:
     from modules.rt_hb_score import MetricsProcessor  # type: ignore
@@ -372,13 +372,14 @@ def compare_outputs(miner_input, miner_output, reference_output) -> dict:
                 "reason": "Missing bot_py in miner_output or reference_output",
             }
 
-        comparison_result = CFGManager().compare_raw_bot_scripts(
+        _result = RTComparer().compare(
+            challenge="humanize_behaviour",
             miner_script=_miner_code,
             reference_script=_reference_code,
         )
 
-        _similarity_score = comparison_result.get("similarity_score", 0.0)
-        _reason = comparison_result.get("reason", "Unknown")
+        _similarity_score = _result.get("similarity_score", 0.0)
+        _reason = _result.get("reason", "Unknown")
         logger.info(f"Similarity Score: {_similarity_score}")
         logger.info(f"Similarity Reason: {_reason}")
 

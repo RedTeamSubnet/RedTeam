@@ -82,7 +82,7 @@ def post_score(request: Request, miner_input: MinerInput, miner_output: MinerOut
     "/compare",
     summary="Compare miner outputs",
     description="This endpoint compares a miner's output to a reference output.",
-    responses={422: {}},
+    responses={422: {}, 500: {}},
 )
 def post_compare(
     request: Request,
@@ -104,7 +104,7 @@ def post_compare(
         logger.error(f"[{_request_id}] - Error comparing miner outputs: {str(err)}")
         raise HTTPException(status_code=500, detail="Error in comparison request")
 
-    return {"similarity_score": _score}
+    return _score
 
 
 @router.post(
