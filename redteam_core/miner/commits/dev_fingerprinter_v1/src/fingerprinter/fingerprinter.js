@@ -65,19 +65,21 @@ function getSystemInfo() {
 	const n = navigator;
 
 	const platform = n.platform || null;
-	const lang = n.language || null;
-	const languages = n.languages || null;
 	const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || null;
 	const hardwareConcurrency = n.hardwareConcurrency ?? null;
 	const deviceMemory = n.deviceMemory ?? null;
+	const maxTouchPoints = n.maxTouchPoints ?? null;
+	const cookieEnabled = n.cookieEnabled ?? null;
+	const onLine = n.onLine ?? null;
 
 	return {
 		platform,
-		lang,
-		languages,
 		timeZone,
 		hardwareConcurrency,
 		deviceMemory,
+		maxTouchPoints,
+		onLine,
+		cookieEnabled,
 	};
 }
 
@@ -168,14 +170,6 @@ function getTechnicalInfoSync() {
 			.createElement("audio")
 			.canPlayType('audio/mp4; codecs="mp4a.40.2"'),
 	};
-	const conn = n.connection
-		? {
-			downlink: n.connection.downlink,
-			effectiveType: n.connection.effectiveType,
-			rtt: n.connection.rtt,
-			saveData: n.connection.saveData,
-		}
-		: null;
 	const clipboard = !!navigator.clipboard;
 	const storage = {
 		localStorage: (function () {
@@ -201,7 +195,7 @@ function getTechnicalInfoSync() {
 		indexedDB: !!window.indexedDB,
 	};
 	const canvas = canvasFingerprint();
-	return { media, codecs, conn, clipboard, storage, canvas };
+	return { media, codecs, clipboard, storage, canvas };
 }
 
 // ---------- NEW: helpers for IP fetching ----------
@@ -338,101 +332,16 @@ async function getWebRTCIPHints() {
 	}
 }
 
-// ---------- Fonts: local() + canvas fallback ----------
-async function tryLocalFont(name) {
-	if (!("FontFace" in window)) return false;
-	try {
-		// Attempt to load a face that references local system font
-		const ff = new FontFace("__probe__", `local("${name}")`);
-		await ff.load(); // If this resolves, the OS likely has the font
-		return true;
-	} catch {
-		return false;
-	}
-}
-
-function canvasHasFont(name) {
-	const canvas = document.createElement("canvas");
-	canvas.width = 512; canvas.height = 128;
-	const ctx = canvas.getContext("2d");
-	if (!ctx) return false;
-
-	const text = 'abcdefghijklmNOPQRSTUVWXYZ 0123456789 ~!@#$%^&*()_+-=[]{}|;:",.<>/?';
-	const families = ["monospace", "serif", "sans-serif"];
-
-	const measure = (family) => {
-		ctx.font = `32px ${family}`;
-		const m = ctx.measureText(text);
-		return [
-			m.width.toFixed(2),
-			(m.actualBoundingBoxAscent ?? 0).toFixed(2),
-			(m.actualBoundingBoxDescent ?? 0).toFixed(2),
-		].join("|");
-	};
-
-	const base = Object.fromEntries(families.map(f => [f, measure(f)]));
-	for (const f of families) {
-		const test = measure(`"${name}", ${f}`);
-		if (test !== base[f]) return true; // different metrics => font likely present
-	}
-	return false;
-}
-
-const FONT_CANDIDATES = [
-	// common cross-platform + a few platform-specifics
-	"Arial", "Arial Black", "Verdana", "Tahoma", "Trebuchet MS", "Impact",
-	"Times New Roman", "Georgia", "Palatino", "Garamond", "Bookman", "Comic Sans MS",
-	"Courier New", "Lucida Console", "Lucida Sans Unicode", "Segoe UI", "Segoe UI Emoji",
-	"Consolas", "Calibri", "Cambria", "Candara", "Didot", "American Typewriter", "Optima",
-	"Helvetica", "Helvetica Neue", "Avenir", "Avenir Next", "Menlo", "Monaco",
-	"Roboto", "Noto Sans", "Noto Serif", "Noto Sans Mono", "Ubuntu", "DejaVu Sans",
-	"DejaVu Serif", "DejaVu Sans Mono", "Liberation Sans", "Liberation Serif", "Liberation Mono",
-];
-
-async function detectFontsAdvanced(candidates = FONT_CANDIDATES) {
-	try {
-		if (document.fonts && document.fonts.ready) {
-			try { await document.fonts.ready; } catch { }
-		}
-
-		// Probe in small batches to avoid flooding
-		const results = [];
-		const batchSize = 12;
-
-		for (let i = 0; i < candidates.length; i += batchSize) {
-			const batch = candidates.slice(i, i + batchSize);
-			const checks = batch.map(async (name) => {
-				// Prefer local() probe; fall back to canvas metrics
-				let present = await tryLocalFont(name);
-				if (!present) present = canvasHasFont(name);
-				return present ? name : null;
-			});
-			const found = await Promise.all(checks);
-			for (const n of found) if (n) results.push(n);
-		}
-
-		return {
-			available: results,
-			count: results.length,
-			hash: hashStringFast(results.join("\n")),
-		};
-	} catch {
-		return { available: [], count: 0, hash: null };
-	}
-}
-
-
 // ---------- Collector ----------
 async function collectFingerprint() {
 	const [gl, sys] = [getWebGLInfo(), getSystemInfo()];
 	const techSync = getTechnicalInfoSync();
 
 	// Run network/bot/audio in parallel
-	const [ipInfoRes, webrtcHints, audio, fontInfo] = await Promise.all([
+	const [ipInfoRes, webrtcHints, audio] = await Promise.all([
 		getPublicIPInfo(),
 		getWebRTCIPHints(),
 		audioFingerprint(),
-		detectFontsAdvanced(),
 	]);
 
 	const ipInfo = ipInfoRes.ok ? ipInfoRes.data : null;
@@ -440,7 +349,7 @@ async function collectFingerprint() {
 	const payload = {
 		driver: { type: gl.driverType || null, webgl: gl },
 		system: sys,
-		technical: { ...techSync, audioHash: audio, fontInfo },
+		technical: { ...techSync, audioHash: audio },
 		network: {
 			publicIP: ipInfo?.ip || null,
 			geo: ipInfo ?? null,
