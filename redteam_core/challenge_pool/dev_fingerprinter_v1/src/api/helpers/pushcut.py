@@ -50,7 +50,8 @@ class Pushcut:
                 raise KeyError("Invalid response format from Pushcut.io API!")
 
             if not _devices:
-                raise ValueError("No devices found from Pushcut.io API!")
+                logger.warning("No devices found from Pushcut.io API!")
+                return []
 
             logger.debug(
                 f"Successfully retrieved {len(_devices)} device(s) from Pushcut.io API."
@@ -92,7 +93,8 @@ class Pushcut:
                 raise KeyError("Invalid response format from Pushcut.io API!")
 
             if not _servers:
-                raise ValueError("No servers found from Pushcut.io API!")
+                logger.warning("No servers found from Pushcut.io API!")
+                return []
 
             logger.debug(
                 f"Successfully retrieved {len(_servers)} server(s) from Pushcut.io API."
@@ -113,7 +115,8 @@ class Pushcut:
         indentifier: Optional[str] = None,
         server_id: Optional[str] = None,
         api_key: Optional[SecretStr] = None,
-    ) -> None:
+        raise_on_error: bool = False,
+    ) -> bool:
         """Execute a shortcut on Pushcut.io with the provided input URL.
 
         Args:
@@ -124,6 +127,9 @@ class Pushcut:
             indentifier (Optional[str]      , optional): For delayed execution, an identifier for the execution. Defaults to None.
             server_id   (Optional[str]      , optional): The ID of the server to execute the shortcut on. Defaults to None.
             api_key     (Optional[SecretStr], optional): The API key for Pushcut.io. Defaults to None.
+            raise_on_error (bool               , optional): If True, raises exception on error. If False, logs error and returns False. Defaults to False.
+        Returns:
+            bool: True if execution was successful, False otherwise.
 
         Raises:
             ValueError: If `shortcut` argument value is empty.
@@ -168,13 +174,14 @@ class Pushcut:
             logger.debug(
                 f"Successfully executed '{shortcut}' shortcut with '{input_url}' input URL on Pushcut.io!"
             )
+            return True
         except Exception:
             logger.error(
                 f"Failed to execute '{shortcut}' shortcut with '{input_url}' input URL on Pushcut.io!"
             )
-            raise
-
-        return
+            if raise_on_error:
+                raise
+            return False
 
     ### ATTRIBUTES ###
     ## api_key ##
