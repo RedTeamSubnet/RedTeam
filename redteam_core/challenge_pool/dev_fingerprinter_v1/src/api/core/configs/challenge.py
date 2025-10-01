@@ -30,6 +30,7 @@ class DeviceStateEnum(str, Enum):
     TIMEOUT = "TIMEOUT"
     FAILED = "FAILED"
     COMPLETED = "COMPLETED"
+    ERROR = "ERROR"
 
 
 class DevicePM(BaseModel):
