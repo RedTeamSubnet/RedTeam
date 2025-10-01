@@ -91,13 +91,25 @@ def score(request_id: str, miner_output: MinerOutput) -> float:
             f"[{request_id}] - Executing input '{_web_url}' URL for device with {{'order_id': {_i}, 'id': {_target_device.id}}} ..."
         )
         _target_device.state = DeviceStateEnum.RUNNING
-        pushcut.execute(
+        success = pushcut.execute(
             shortcut=config.challenge.pushcut_shortcut,
             input_url=_web_url,
             timeout=config.challenge.pushcut_timeout,
             server_id=_target_device.pushcut_server_id,
             api_key=_target_device.pushcut_api_key,
+            raise_on_error=False,  # Don't raise exception, just return False
         )
+
+        if not success:
+            _target_device.state = DeviceStateEnum.ERROR
+            logger.error(
+                f"[{request_id}] - Could not execute pushcut for device with {{'order_id': {_i}, 'id': {_target_device.id}}} (server unavailable or request failed)"
+            )
+            logger.debug(
+                f"[{request_id}] - Device {{'order_id': {_i}, 'id': {_target_device.id}}} marked as ERROR and will be excluded from scoring. No request sent to external proxy."
+            )
+            continue
+
         logger.info(
             f"[{request_id}] - Successfully executed input '{_web_url}' URL for device with {{'order_id': {_i}, 'id': {_target_device.id}}}."
         )

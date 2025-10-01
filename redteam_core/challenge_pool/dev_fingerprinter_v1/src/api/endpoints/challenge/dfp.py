@@ -117,12 +117,35 @@ class DFPManager:
         weights = sc_config.weights
         thresholds = sc_config.thresholds
 
+        # Filter out devices with ERROR state
+        total_target_devices = len(self.target_devices)
+        error_devices = [
+            r for r in self.target_devices if r.state == DeviceStateEnum.ERROR
+        ]
+        valid_devices = [
+            r for r in self.target_devices if r.state == DeviceStateEnum.COMPLETED
+        ]
+
+        logger.info(f"Scoring: Total target devices: {total_target_devices}")
+        if error_devices:
+            error_device_ids = [
+                {"id": r.id, "device_model": r.device_model} for r in error_devices
+            ]
+            logger.warning(
+                f"Scoring: Found {len(error_devices)} device(s) with ERROR state that will be excluded from scoring: {error_device_ids}"
+            )
+        logger.info(f"Scoring: Valid devices for scoring: {len(valid_devices)}")
+
+        if not valid_devices:
+            logger.warning("No valid devices to score (all devices have ERROR state).")
+            return 0.0
+
         # Aggregate data
         device_fingerprints: Dict[int, List[Optional[str]]] = defaultdict(list)
         device_models: Dict[int, Optional[str]] = {}
         fingerprint_to_devices: Dict[str, Set[int]] = defaultdict(set)
 
-        for r in self.target_devices:
+        for r in valid_devices:
             device_fingerprints[r.id].append(r.fingerprint)
             device_models.setdefault(r.id, r.device_model)
             if r.fingerprint:
@@ -229,8 +252,14 @@ class DFPManager:
         logger.info(
             f"Hard collisions: {hard_collision_count}/{hard_collision_limit} -> {hard_collision_score:.3f}"
         )
+        logger.info(
+            f"Final total score: {total_score:.3f} (before clamping to [0.0, 1.0])"
+        )
 
-        return max(0.0, min(1.0, total_score))
+        final_score = max(0.0, min(1.0, total_score))
+        logger.info(f"Scoring complete: Final score = {final_score:.3f}")
+
+        return final_score
 
     ### ATTRIBUTES ###
     ## fp_js ##
