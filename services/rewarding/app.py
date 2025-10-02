@@ -749,15 +749,6 @@ class RewardApp(Validator):
                         f"Failed to send scoring results to storage: {traceback.format_exc()}"
                     )
 
-        if all_scoring_results:
-            try:
-                with open("scoring_results.json", "w") as f:
-                    json.dump(all_scoring_results, f)
-            except Exception:
-                bt.logging.error(
-                    f"Failed to save scoring results to file: {traceback.format_exc()}"
-                )
-
     def _initialize_scoring_cache(self):
         """
         Initialize the scoring LRU cache with the most recent data from centralized storage.

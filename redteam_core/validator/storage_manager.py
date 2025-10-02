@@ -246,10 +246,11 @@ class StorageManager:
         def decentralized_operation():
             self.hf_api.upload_file(
                 path_or_fileobj=json.dumps(
-                    commit.public_view().model_dump(), indent=4
+                    commit.public_view().anonymize_docker_hub_ids().model_dump(),
+                    indent=4,
                 ).encode(
                     "utf-8"
-                ),  # Hide sensitive data
+                ),  # Hide sensitive data and docker hub ids
                 path_in_repo=hf_filepath,
                 repo_id=self.hf_repo_id,
                 commit_message=f"Update commit {hashed_cache_key}",
