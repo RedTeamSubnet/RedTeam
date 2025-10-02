@@ -154,7 +154,7 @@ class MinerChallengeCommit(BaseModel):
             anonymized_docker_hub_id = extract_sha_from_docker_hub_id(
                 self.docker_hub_id, self.miner_uid
             )
-
+        anonymized_commit = None
         if self.commit:
             # If commit is a docker_hub_id, anonymize it too
             anonymized_commit = extract_sha_from_docker_hub_id(
