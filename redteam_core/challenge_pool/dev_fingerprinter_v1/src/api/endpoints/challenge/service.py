@@ -91,13 +91,25 @@ def score(request_id: str, miner_output: MinerOutput) -> float:
             f"[{request_id}] - Executing input '{_web_url}' URL for device with {{'order_id': {_i}, 'id': {_target_device.id}}} ..."
         )
         _target_device.state = DeviceStateEnum.RUNNING
-        pushcut.execute(
+        success = pushcut.execute(
             shortcut=config.challenge.pushcut_shortcut,
             input_url=_web_url,
             timeout=config.challenge.pushcut_timeout,
             server_id=_target_device.pushcut_server_id,
             api_key=_target_device.pushcut_api_key,
+            raise_on_error=False,  # Don't raise exception, just return False
         )
+
+        if not success:
+            _target_device.state = DeviceStateEnum.ERROR
+            logger.error(
+                f"[{request_id}] - Could not execute pushcut for device with {{'order_id': {_i}, 'id': {_target_device.id}}} (server unavailable or request failed)"
+            )
+            logger.debug(
+                f"[{request_id}] - Device {{'order_id': {_i}, 'id': {_target_device.id}}} marked as ERROR and will be excluded from scoring. No request sent to external proxy."
+            )
+            continue
+
         logger.info(
             f"[{request_id}] - Successfully executed input '{_web_url}' URL for device with {{'order_id': {_i}, 'id': {_target_device.id}}}."
         )
@@ -154,7 +166,7 @@ def set_fingerprint(order_id: int, fingerprint: str) -> None:
     return
 
 
-def compare_outputs(miner_input, miner_output, reference_output) -> float:
+def compare_outputs(miner_input, miner_output, reference_output) -> dict:
     """
     Compare miner's output against a reference output using CFGAnalyser and CFGComparer.
 
@@ -174,29 +186,35 @@ def compare_outputs(miner_input, miner_output, reference_output) -> float:
         reference_code = reference_output["fingerprinter_js"]
 
         if not miner_code or not reference_code:
-            logger.error("Missing detection_js in miner_output or reference_output.")
-            return 0.0
+            logger.error(
+                "Missing fingerprinter_js in miner_output or reference_output."
+            )
+            return {
+                "similarity_score": 0.0,
+                "reason": "Missing fingerprinter_js in miner_output or reference_output",
+            }
 
         _result = RTComparer().compare(
             challenge="dev_fingerprinter",
-            str_script_1=miner_code,
-            str_script_2=reference_code,
+            miner_script=miner_code,
+            reference_script=reference_code,
         )
 
-        similarity_score = _result.get("similarity_score", 0.0)
-        logger.info(f"Similarity Score: {similarity_score}")
-        logger.info(f"Comparison Result: {_result}")
+        _similarity_score = _result.get("similarity_score", 0.0)
+        _reason = _result.get("reason", "Unknown")
+        logger.info(f"Similarity Score: {_similarity_score}")
+        logger.info(f"Similarity Reason: {_reason}")
 
         try:
-            similarity_score = float(similarity_score)
+            _similarity_score = max(0.0, min(1.0, _similarity_score))
         except Exception:
-            similarity_score = 0.0
+            _similarity_score = 0.0
 
-        return max(0.0, min(1.0, similarity_score))
+        return {"similarity_score": _similarity_score, "reason": _reason}
 
     except Exception as err:
         logger.error(f"Error in compare_outputs function: {str(err)}")
-        return 0.0
+        return {"similarity_score": 0.0, "reason": str(err)}
 
 
 __all__ = [

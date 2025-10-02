@@ -9,13 +9,13 @@ from fastapi import Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from pydantic import validate_call
+from rt_comparer import RTComparer
 
 from api.core.exceptions import BaseHTTPException
 from api.config import config
 from api.endpoints.challenge.schemas import MinerInput, MinerOutput
 from api.endpoints.challenge import utils as ch_utils
 from api.logger import logger
-from cfg_analyser import CFGManager
 
 # Define source directory - the root of the project
 _src_dir = pathlib.Path(__file__).parent.parent.parent.parent.resolve()
@@ -151,12 +151,14 @@ def compare_outputs(miner_input, miner_output, reference_output) -> dict:
                 "reason": "Missing detection_js in miner_output or reference_output",
             }
 
-        comparison_result = CFGManager().compare_raw_scripts(
-            miner_script=miner_code, reference_script=reference_code
+        _result = RTComparer().compare(
+            challenge="ab_sniffer",
+            miner_script=miner_code,
+            reference_script=reference_code,
         )
 
-        _similarity_score = comparison_result.get("similarity_score", 0.0)
-        _reason = comparison_result.get("reason", "Unknown")
+        _similarity_score = _result.get("similarity_score", 0.0)
+        _reason = _result.get("reason", "Unknown")
         logger.info(f"Similarity Score: {_similarity_score}")
         logger.info(f"Similarity Reason: {_reason}")
 

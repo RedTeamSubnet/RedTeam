@@ -132,3 +132,60 @@ class MinerChallengeCommit(BaseModel):
 
         all_scores = [log.score for log in self.scoring_logs if log.score is not None]
         return max(all_scores) if all_scores else 0.0
+
+    def anonymize_docker_hub_ids(self) -> "MinerChallengeCommit":
+        """Returns a new instance with docker hub IDs replaced with miner_uid---sha format."""
+
+        def extract_sha_from_docker_hub_id(docker_hub_id: str, miner_uid: int) -> str:
+            if not docker_hub_id:
+                return docker_hub_id
+
+            # Extract SHA256 hash after @sha256:
+            if "@sha256:" in docker_hub_id:
+                sha_part = docker_hub_id.split("@sha256:")[1]
+                return f"{miner_uid}---{sha_part}"
+            else:
+                # If no @sha256: found, return original format
+                return docker_hub_id
+
+        # Create anonymized docker_hub_id for this commit
+        anonymized_docker_hub_id = None
+        if self.docker_hub_id and self.miner_uid is not None:
+            anonymized_docker_hub_id = extract_sha_from_docker_hub_id(
+                self.docker_hub_id, self.miner_uid
+            )
+
+        if self.commit:
+            # If commit is a docker_hub_id, anonymize it too
+            anonymized_commit = extract_sha_from_docker_hub_id(
+                self.commit, self.miner_uid
+            )
+            anonymized_commit = f"{self.challenge_name}---{anonymized_commit}"
+
+        # Create mapping for comparison_logs keys (reference docker_hub_ids)
+        anonymized_comparison_logs = {}
+        for ref_docker_hub_id, logs in self.comparison_logs.items():
+            # Use a generic UID for reference commits since we don't have their miner_uid
+            if "@sha256:" in ref_docker_hub_id:
+                sha_part = ref_docker_hub_id.split("@sha256:")[1]
+                anonymized_ref_id = f"ref---{sha_part}"
+            else:
+                anonymized_ref_id = ref_docker_hub_id
+            anonymized_comparison_logs[anonymized_ref_id] = logs
+
+        return MinerChallengeCommit(
+            miner_uid=self.miner_uid,
+            miner_hotkey=self.miner_hotkey,
+            challenge_name=self.challenge_name,
+            docker_hub_id=anonymized_docker_hub_id,
+            commit_timestamp=self.commit_timestamp,
+            encrypted_commit=self.encrypted_commit,
+            key=self.key,
+            commit=anonymized_commit,
+            scoring_logs=self.scoring_logs,
+            comparison_logs=anonymized_comparison_logs,
+            scored_timestamp=self.scored_timestamp,
+            score=self.score,
+            penalty=self.penalty,
+            accepted=self.accepted,
+        )
