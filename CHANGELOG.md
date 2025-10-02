@@ -1,5 +1,13 @@
 # Changelog
 
+## v2.6.1 (2025-10-02)
+
+<!-- Release notes generated using configuration in .github/release.yml at v2.6.1 -->
+
+
+
+**Full Changelog**: https://github.com/RedTeamSubnet/RedTeam/compare/v2.6.0...v2.6.1
+
 ## v2.6.0 (2025-10-02)
 
 <!-- Release notes generated using configuration in .github/release.yml at v2.6.0 -->
