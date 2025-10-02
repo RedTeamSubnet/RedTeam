@@ -1,5 +1,16 @@
 # Changelog
 
+## v2.6.0 (2025-10-02)
+
+<!-- Release notes generated using configuration in .github/release.yml at v2.6.0 -->
+
+## What's Changed
+### ✨ Features
+* Update the comparison and anonymize the Docker Hub ID. by @aliyuldashev in https://github.com/RedTeamSubnet/RedTeam/pull/81
+
+
+**Full Changelog**: https://github.com/RedTeamSubnet/RedTeam/compare/v2.5.1...v2.6.0
+
 ## v2.5.1 (2025-09-24)
 
 <!-- Release notes generated using configuration in .github/release.yml at v2.5.1 -->
