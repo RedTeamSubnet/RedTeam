@@ -421,7 +421,6 @@ class Validator(BaseValidator):
 
         Args:
             challenge_name: Name of the challenge
-            revealed_commits: List of revealed commits (used for logging only)
 
         Returns:
             List of ALL scored MinerChallengeCommit objects with scoring data
