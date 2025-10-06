@@ -259,64 +259,20 @@ class Validator(BaseValidator):
         validate_scoring_hour = current_hour >= constants.SCORING_HOUR
         validate_scoring_date = today_key not in self.scoring_dates
         # Validate if scoring is due
-        if validate_scoring_hour and validate_scoring_date and revealed_commits:
-            # Initialize a dictionary to track if scoring is done for each challenge
-            is_scoring_done = {
-                challenge_name: False for challenge_name in revealed_commits.keys()
-            }
+        if validate_scoring_hour and validate_scoring_date:
+            for challenge_name in self.active_challenges.keys():
+                try:
+                    bt.logging.info(
+                        f"[FORWARD CENTRALIZED SCORING] Getting scored commits from centralized scoring endpoint for challenge: {challenge_name} ..."
+                    )
+                    self.get_centralized_scoring_results(challenge_name)
 
-            # Loop until all challenges have finished scoring
-            while True:
-                for challenge, commits in revealed_commits.items():
-                    # Skip if challenge is not active
-                    if challenge not in self.active_challenges:
-                        continue
-
-                    # Skip if there are no commits for the challenge
-                    if not commits:
-                        bt.logging.info(
-                            f"[FORWARD CENTRALIZED SCORING] No commits for challenge: {challenge}"
-                        )
-                        is_scoring_done[challenge] = True
-                        continue
-
-                    # Skip if scoring is already done for the challenge
-                    if is_scoring_done[challenge]:
-                        continue
-
-                    try:
-                        bt.logging.info(
-                            f"[FORWARD CENTRALIZED SCORING] Getting scored commits from centralized scoring endpoint for challenge: {challenge} ..."
-                        )
-                        commits, is_done = self.get_centralized_scoring_results(
-                            challenge, commits
-                        )
-                        is_scoring_done[challenge] = is_done
-
-                        if is_done:
-                            bt.logging.info(
-                                f"[FORWARD CENTRALIZED SCORING] Scoring for challenge: {challenge} has been completed for {today_key}"
-                            )
-                            self.challenge_managers[challenge].update_miner_scores(
-                                commits
-                            )
-                        else:
-                            bt.logging.warning(
-                                f"[FORWARD CENTRALIZED SCORING] Scoring for challenge: {challenge} is not done yet"
-                            )
-                    except Exception:
-                        # Continue to next challenge if error occurs
-                        bt.logging.error(
-                            f"[FORWARD CENTRALIZED SCORING] Error getting scored commits and update scores for challenge: {challenge}: {traceback.format_exc()}"
-                        )
-                        continue
-
-                # Break if all challenges have finished scoring
-                if all(is_scoring_done.values()):
-                    break
-                # Sleep for a period before checking again
-                time.sleep(60 * 10)
-
+                except Exception:
+                    # Continue to next challenge if error occurs
+                    bt.logging.error(
+                        f"[FORWARD CENTRALIZED SCORING] Error getting scored commits and update scores for challenge: {challenge_name}: {traceback.format_exc()}"
+                    )
+                    continue
             bt.logging.info(
                 f"[FORWARD CENTRALIZED SCORING] All tasks: Scoring completed for {today_key}"
             )
@@ -324,14 +280,8 @@ class Validator(BaseValidator):
         else:
             bt.logging.warning(
                 f"[FORWARD CENTRALIZED SCORING] Skipping scoring for {today_key}"
-            )
-            bt.logging.info(
                 f"[FORWARD CENTRALIZED SCORING] Current hour: {current_hour}, Scoring hour: {constants.SCORING_HOUR}"
-            )
-            bt.logging.info(
                 f"[FORWARD CENTRALIZED SCORING] Scoring dates: {self.scoring_dates}"
-            )
-            bt.logging.info(
                 f"[FORWARD CENTRALIZED SCORING] Revealed commits: {str(revealed_commits)[:100]}..."
             )
 
@@ -433,14 +383,6 @@ class Validator(BaseValidator):
                 bt.logging.info(
                     f"[FORWARD LOCAL SCORING] Running comparer for challenge: {challenge}"
                 )
-                # comparer = self.active_challenges[challenge]["comparer"](
-                #     challenge_name=challenge,
-                #     challenge_info=self.active_challenges[challenge],
-                #     miner_commits=commits,
-                #     compare_with_each_other=True,
-                # )
-                # # Run comparison, the comparer update commit 's penalty and comparison logs directly
-                # comparer.start_comparison()
 
                 # 4. Update scores and penalties to challenge manager
                 self.challenge_managers[challenge].update_miner_scores(commits)
@@ -469,76 +411,88 @@ class Validator(BaseValidator):
     def get_centralized_scoring_results(
         self,
         challenge_name: str,
-        revealed_commits: list[MinerChallengeCommit],
-    ) -> tuple[list[MinerChallengeCommit], bool]:
+    ) -> list[MinerChallengeCommit]:
         """
-        Get scored commits from centralized server and determine if scoring is complete for all revealed commits in challenge.
+        Get ALL scored commits from Storage API for a challenge.
+
+        Fetches all commits with validator_uid=-1 (Reward App's scored data).
+        Only returns commits that have scoring_logs populated (actually scored).
+        This ensures all validators get the same scored commits, preventing divergence.
 
         Args:
             challenge_name: Name of the challenge
-            revealed_commits: List of MinerChallengeCommit objects
 
         Returns:
-            tuple: (scored_commits, is_scoring_done)
-                - scored_commits: List of MinerChallengeCommit objects
-                - is_scoring_done: True if all revealed commits have scores, this will be determined by the server.
+            List of ALL scored MinerChallengeCommit objects with scoring data
         """
         try:
-            if not revealed_commits:
-                return [], True
+            bt.logging.info(
+                f"[CENTRALIZED SCORING] Fetching ALL scored commits for challenge: {challenge_name}"
+            )
 
-            # Extract encrypted commits
-            encrypted_commits = [commit.encrypted_commit for commit in revealed_commits]
-            encrypted_commits_set = set(encrypted_commits)
+            # Query Storage API
+            endpoint = f"{constants.STORAGE_API.URL}/fetch-rewarder-challenge-state"
+            data = {"challenge_name": challenge_name}
 
-            # Query centralized scoring server
-            endpoint = f"{constants.REWARD_APP.URL}/get_scoring_result"
             response = requests.post(
                 endpoint,
-                json={
-                    "challenge_name": challenge_name,
-                    "encrypted_commits": encrypted_commits,
-                },
-                timeout=60,
+                json=data,
+                headers=self.validator_request_header_fn(data),
+                timeout=120,
             )
             response.raise_for_status()
-            data = response.json().get("data", {})
 
-            # Update commits with results
-            scored_commits: list[MinerChallengeCommit] = []
-            scored_encrypted_commits_set = set()
-            for commit in revealed_commits:
-                if not commit.encrypted_commit:
+            # Parse response - Storage returns list of dicts (MongoDB documents)
+            storage_results = response.json()
+
+            if not isinstance(storage_results, list):
+                bt.logging.error(
+                    f"[CENTRALIZED SCORING] Invalid response format, expected list"
+                )
+                return []
+
+            bt.logging.info(
+                f"[CENTRALIZED SCORING] Received {len(storage_results)} total commits from Storage"
+            )
+
+            # Validate and filter commits that have scoring_logs
+            scored_commits = []
+            for raw_commit in storage_results:
+                try:
+                    # Validate with Pydantic model
+                    validated_commit = MinerChallengeCommit.model_validate(raw_commit)
+
+                    # Only include commits that have been scored (have scoring_logs)
+                    if validated_commit.scoring_logs:
+                        scored_commits.append(validated_commit)
+
+                except Exception as e:
+                    bt.logging.warning(
+                        f"[CENTRALIZED SCORING] Failed to validate commit: {e}"
+                    )
                     continue
 
-                result = data.get("commits", {}).get(commit.encrypted_commit)
-                if result:
-                    # Update commit with scoring results
-                    commit.scoring_logs = [
-                        ScoringLog.model_validate(scoring_log)
-                        for scoring_log in result.get("scoring_logs", [])
-                    ]
-                    commit.comparison_logs = {
-                        docker_hub_id: [
-                            ComparisonLog.model_validate(comparison_log)
-                            for comparison_log in _comparison_logs
-                        ]
-                        for docker_hub_id, _comparison_logs in result.get(
-                            "comparison_logs", {}
-                        ).items()
-                    }
-                    scored_commits.append(commit)
-                    scored_encrypted_commits_set.add(commit.encrypted_commit)
+            bt.logging.success(
+                f"[CENTRALIZED SCORING] Validated {len(scored_commits)} scored commits "
+                f"(filtered from {len(storage_results)} total)"
+            )
 
-            return scored_commits, data.get("is_done", False) or len(
-                encrypted_commits_set
-            ) == len(scored_encrypted_commits_set)
+            # Update challenge manager with ALL scored commits
+            if scored_commits:
+                self.challenge_managers[challenge_name].update_miner_scores(
+                    scored_commits
+                )
+                bt.logging.success(
+                    f"[CENTRALIZED SCORING] Updated scores for challenge: {challenge_name}"
+                )
+
+            return scored_commits
 
         except Exception:
             bt.logging.error(
-                f"Error getting centralized scoring results: {traceback.format_exc()}"
+                f"[CENTRALIZED SCORING] Error getting scored commits: {traceback.format_exc()}"
             )
-            return [], False
+            return []
 
     def set_weights(self) -> None:
         """
@@ -861,21 +815,6 @@ class Validator(BaseValidator):
         # 1. They change quickly and is taking up lots space.
         # 2. They are already inside challenge_managers 's state, miner_state.latest_commit if updated successfully.
 
-        # miner_commits: list[dict] = []
-        # for (uid, ss58), commits in self.miner_commits.items():
-        #     miner_commits.append(
-        #         {
-        #             "uid": uid,
-        #             "ss58": ss58,
-        #             "commits": {
-        #                 challenge_name: commit.public_view().model_dump()
-        #                 if public_view
-        #                 else commit.model_dump()
-        #                 for challenge_name, commit in commits.items()
-        #             },
-        #         }
-        #     )
-
         challenge_managers: dict[str, dict] = {
             challenge_name: manager.export_state(public_view=public_view)
             for challenge_name, manager in self.challenge_managers.items()
@@ -900,16 +839,6 @@ class Validator(BaseValidator):
         # Load scoring dates
         self.scoring_dates = state.get("scoring_dates", [])
 
-        # Load miner commits (no longer load directly since we removed it from export_state)
-        # self.miner_commits = {}
-        # for miner_data in state.get("miner_commits", []):
-        #     uid = miner_data["uid"]
-        #     ss58 = miner_data["ss58"]
-        #     self.miner_commits[(uid, ss58)] = {
-        #         challenge_name: MinerChallengeCommit.model_validate(commit_data)
-        #         for challenge_name, commit_data in miner_data["commits"].items()
-        #     }
-
         # Load challenge managers state using their load_state class method
         for challenge_name, manager_state in state.get(
             "challenge_managers", {}
@@ -931,10 +860,3 @@ class Validator(BaseValidator):
                     self.miner_commits.setdefault(
                         (miner_state.miner_uid, miner_state.miner_hotkey), {}
                     )[challenge_name] = miner_state.latest_commit
-
-
-if __name__ == "__main__":
-    with Validator(get_config()) as validator:
-        while True:
-            bt.logging.info("Validator is running...")
-            time.sleep(constants.EPOCH_LENGTH // 4)
