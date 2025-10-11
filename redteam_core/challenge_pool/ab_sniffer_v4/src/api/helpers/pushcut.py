@@ -110,7 +110,7 @@ class Pushcut:
         input_url: AnyHttpUrl,
         timeout: int | str | None = None,
         delay: Optional[str] = None,
-        indentifier: Optional[str] = None,
+        identifier: Optional[str] = None,
         server_id: Optional[str] = None,
         api_key: Optional[SecretStr] = None,
     ) -> None:

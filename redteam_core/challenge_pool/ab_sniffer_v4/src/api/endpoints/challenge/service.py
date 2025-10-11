@@ -169,7 +169,6 @@ def score(miner_output: MinerOutput) -> float:
                     f"Error testing framework {framework_image_name}: {str(err)}"
                 )
 
-        _score = 0
         logger.info("Calculating score from detection results...")
 
         # Reorganize results by driver type
@@ -204,7 +203,20 @@ def score(miner_output: MinerOutput) -> float:
             )
             logger.info(f"- {framework_name}: {success_rate*100:.1f}% success rate")
 
-        logger.info(f"Final score: {_score}")
+        # Calculate the actual score based on detection results
+        total_detections = 0
+        successful_detections = 0
+        for results in framework_results.values():
+            for result in results:
+                total_detections += 1
+                if result["detected"]:
+                    successful_detections += 1
+        _score = (
+            successful_detections / total_detections if total_detections > 0 else 0.0
+        )
+        logger.info(
+            f"Final score: {_score} ({successful_detections}/{total_detections} successful detections)"
+        )
 
     except Exception as err:
         if isinstance(err, BaseHTTPException):
