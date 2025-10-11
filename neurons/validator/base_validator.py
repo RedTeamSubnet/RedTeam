@@ -397,14 +397,8 @@ class Validator(BaseValidator):
         else:
             bt.logging.warning(
                 f"[FORWARD LOCAL SCORING] Skipping scoring for {today_key}"
-            )
-            bt.logging.info(
                 f"[FORWARD LOCAL SCORING] Current hour: {current_hour}, Scoring hour: {constants.SCORING_HOUR}"
-            )
-            bt.logging.info(
                 f"[FORWARD LOCAL SCORING] Scoring dates: {self.scoring_dates}"
-            )
-            bt.logging.info(
                 f"[FORWARD LOCAL SCORING] Revealed commits: {str(revealed_commits)[:100]}..."
             )
 
