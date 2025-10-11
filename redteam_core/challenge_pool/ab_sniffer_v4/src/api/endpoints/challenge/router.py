@@ -113,6 +113,41 @@ def _get_web(request: Request):
 
 
 @router.post(
+    "/human-score",
+    description="This endpoint posts the human score.",
+    responses={422: {}},
+)
+def post_human_score(
+    request: Request,
+    driver: str = Body(..., embed=False),
+):
+    _request_id = request.state.request_id
+    logger.info(f"[{_request_id}] - Posting human score...")
+    try:
+        service.post_human_score(driver, _request_id)
+        logger.success(f"[{_request_id}] - Successfully posted human score.")
+    except Exception as err:
+        logger.error(f"[{_request_id}] - Error posting human score: {str(err)}")
+        raise HTTPException(status_code=500, detail="Error in posting human score")
+
+    return
+
+
+@router.get("/results", response_class=JSONResponse)
+def get_results(request: Request):
+    _request_id = request.state.request_id
+    logger.info(f"[{_request_id}] - Getting results...")
+    try:
+        results = service.get_results()
+        logger.success(f"[{_request_id}] - Successfully got results.")
+    except Exception as err:
+        logger.error(f"[{_request_id}] - Error getting results: {str(err)}")
+        raise HTTPException(status_code=500, detail="Error in getting results")
+
+    return JSONResponse(content=results)
+
+
+@router.post(
     "/compare",
     summary="Compare miner outputs",
     description="This endpoint compares a miner's output to a reference output.",
@@ -145,7 +180,7 @@ class ESLintRequest(BaseModel):
     js_content: str
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "js_content": "// Your JavaScript detection code here\nconsole.log('Hello World');"
             }
