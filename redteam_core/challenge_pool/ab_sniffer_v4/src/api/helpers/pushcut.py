@@ -156,8 +156,8 @@ class Pushcut:
             if delay:
                 _payload["delay"] = delay
 
-            if indentifier:
-                _payload["identifier"] = indentifier
+            if identifier:
+                _payload["identifier"] = identifier
 
             if server_id:
                 _payload["serverId"] = server_id
