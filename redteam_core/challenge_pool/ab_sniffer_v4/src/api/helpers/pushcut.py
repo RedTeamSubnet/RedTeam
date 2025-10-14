@@ -110,7 +110,7 @@ class Pushcut:
         input_url: AnyHttpUrl,
         timeout: int | str | None = None,
         delay: Optional[str] = None,
-        indentifier: Optional[str] = None,
+        identifier: Optional[str] = None,
         server_id: Optional[str] = None,
         api_key: Optional[SecretStr] = None,
     ) -> None:
@@ -156,8 +156,8 @@ class Pushcut:
             if delay:
                 _payload["delay"] = delay
 
-            if indentifier:
-                _payload["identifier"] = indentifier
+            if identifier:
+                _payload["identifier"] = identifier
 
             if server_id:
                 _payload["serverId"] = server_id
