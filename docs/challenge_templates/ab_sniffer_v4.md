@@ -1,7 +1,7 @@
 ---
 title: Auto Browser Sniffer v4
 ---
-# AB Sniffer v4 Submission Guide (Active after Oct [x]th 2025 14:00 UTC)
+# AB Sniffer v4 Submission Guide (Active after Oct 16th 2025 10:00 UTC)
 
 ## Overview
 
