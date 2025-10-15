@@ -65,7 +65,7 @@ Your SDK will be scored based on:
 - **Detection Accuracy**: Correctly identifying automation frameworks by name
 - **Consistency**: Maintaining accuracy across multiple test runs
 - **Coverage**: Number of frameworks successfully detected
-- **Minimum Requirement**: Must detect at least 2 of the 4 frameworks with 100% accuracy to qualify
+- **Minimum Requirement**: Must detect at least 7 frameworks with 100% accuracy to qualify
 
 ### Scoring System
 
@@ -84,7 +84,7 @@ We maintain strict originality standards:
 
 Follow 1~6 steps to submit your SDK.
 
-1. **Navigate to the AB Sniffer v2 Commit Directory**
+1. **Navigate to the AB Sniffer v4 Commit Directory**
 
     ```bash
     cd redteam_core/miner/commits/ab_sniffer_v4
@@ -92,7 +92,7 @@ Follow 1~6 steps to submit your SDK.
 
 2. **Build the Docker Image**
 
-    To build the Docker image for the AB Sniffer v2 submission, run:
+    To build the Docker image for the AB Sniffer v4 submission, run:
 
     ```bash
     docker build -t my_hub/ab_sniffer_v4-miner:0.0.1 .
