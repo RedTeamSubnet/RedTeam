@@ -269,3 +269,5 @@ class ABSController(Controller):
     def _exclude_output_keys(self, miner_output: dict, reference_output: dict):
         miner_output["detection_js"] = None
         reference_output["detection_js"] = None
+        miner_output["scoring_results"] = None
+        reference_output["scoring_results"] = None
