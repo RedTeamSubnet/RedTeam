@@ -1,5 +1,16 @@
 # Changelog
 
+## v2.8.0 (2025-10-16)
+
+<!-- Release notes generated using configuration in .github/release.yml at v2.8.0 -->
+
+## What's Changed
+### ✨ Features
+* Auto Browser Sniffer v4 by @aliyuldashev in https://github.com/RedTeamSubnet/RedTeam/pull/83
+
+
+**Full Changelog**: https://github.com/RedTeamSubnet/RedTeam/compare/v2.7.0...v2.8.0
+
 ## v2.7.0 (2025-10-09)
 
 <!-- Release notes generated using configuration in .github/release.yml at v2.7.0 -->
