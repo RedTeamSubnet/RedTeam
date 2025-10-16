@@ -49,14 +49,14 @@ cd ~/workspaces/projects
 
 ```sh
 git clone https://github.com/RedTeamSubnet/RedTeam.git && \
-    cd RedTeam/redteam_core/challenge_pool/ab_sniffer_v3
+    cd RedTeam/redteam_core/challenge_pool/ab_sniffer_v4
 ```
 
 **OPTION B.** Clone the repository (for **DEVELOPMENT**: git + ssh key):
 
 ```sh
 git clone --recursive git@github.com:RedTeamSubnet/RedTeam.git && \
-    cd RedTeam/redteam_core/challenge_pool/ab_sniffer_v3 && \
+    cd RedTeam/redteam_core/challenge_pool/ab_sniffer_v4 && \
     git submodule update --init --recursive && \
     git submodule foreach --recursive git checkout main
 ```

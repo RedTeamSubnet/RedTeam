@@ -26,7 +26,7 @@ fi
 # Load from envrionment variables:
 # BASE_IMAGE
 IMG_REGISTRY=${IMG_REGISTRY:-}
-IMG_REPO=${PROJECT_SLUG:-ab_sniffer_v3}
+IMG_REPO=${PROJECT_SLUG:-ab_sniffer_v4}
 IMG_VERSION=${IMG_VERSION:-$(./scripts/get-version.sh)}
 IMG_SUBTAG=${IMG_SUBTAG:-}
 IMG_PLATFORM=${IMG_PLATFORM:-$(uname -m)}
@@ -57,7 +57,7 @@ _buildImages()
 {
 	echoInfo "Building image (${IMG_PLATFORM}): ${_IMG_FULLNAME}"
 	# shellcheck disable=SC2086
-	DOCKER_BUILDKIT=0 docker build \
+	docker build \
 		${IMG_ARGS} \
 		-t "${_IMG_FULLNAME}" \
 		-t "${_IMG_LATEST_FULLNAME}" \

@@ -1,19 +1,19 @@
 ---
-title: Auto Browser Sniffer v3
+title: Auto Browser Sniffer v4
 ---
-# AB Sniffer v3 Submission Guide (Active after Aug 24th 2025 14:00 UTC)
+# AB Sniffer v4 Submission Guide (Active after Oct 16th 2025 10:00 UTC)
 
 ## Overview
 
-**AB Sniffer v3** is the next iteration of **AB Sniffer** challenge which tests participants' ability to develop a SDK that can detect and correctly identify automation frameworks by name. The challenge evaluates how well the SDK can analyze automation behavior and identify unique characteristics or "leaks" from different automation tools interacting with a web page. With the new iteration, we are introducing one more frameworks to be detected which is **Camoufox**
+**AB Sniffer v4** is the next iteration of **Auto Browser Sniffer** challenge which tests participants' ability to develop a SDK that can detect and correctly identify automation frameworks by name. The challenge evaluates how well the SDK can analyze automation behavior and identify unique characteristics or "leaks" from different automation tools interacting with a web page. With the new iteration, we are introducing one more frameworks to be detected which are **Botasaurus**, **Pydoll** and a **human-in-the-loop** interaction scenario.
 
-Participants must demonstrate precise detection capabilities across multiple automation frameworks while maintaining reliability across different execution headless mode.
+Participants must demonstrate precise detection capabilities across multiple automation frameworks while maintaining reliability across different execution headless mode and human-in-the-loop scenarios.
 
 ---
 
 ## Example Code and Submission Instructions
 
-Example codes for the AB Sniffer v3 can be found in the [`redteam_core/miner/commits/ab_sniffer_v3/`](https://github.com/RedTeamSubnet/RedTeam/blob/main/redteam_core/miner/commits/ab_sniffer_v3/) directory.
+Example codes for the AB Sniffer v4 can be found in the [`redteam_core/miner/commits/ab_sniffer_v4/`](https://github.com/RedTeamSubnet/RedTeam/blob/main/redteam_core/miner/commits/ab_sniffer_v4/) directory.
 
 ### Technical Requirements
 
@@ -23,7 +23,7 @@ Example codes for the AB Sniffer v3 can be found in the [`redteam_core/miner/com
 
 ### Core Requirements
 
-1. Use our template from [`redteam_core/miner/commits/ab_sniffer_v3/src/detection/detection.js`](https://github.com/RedTeamSubnet/RedTeam/blob/main/redteam_core/miner/commits/ab_sniffer_v3/src/detection/detection.js)
+1. Use our template from [`redteam_core/miner/commits/ab_sniffer_v4/src/detection/detection.js`](https://github.com/RedTeamSubnet/RedTeam/blob/main/redteam_core/miner/commits/ab_sniffer_v4/src/detection/detection.js)
 2. Keep the detection function signature unchanged
 3. Your SDK must:
    - Detect automation frameworks interacting with the page
@@ -41,6 +41,9 @@ Your SDK should be capable of detecting these automation frameworks:
 - **puppeteerextra**
 - **zendriver**
 - **camoufox**
+- **botasaurus**
+- **pydoll**
+- **human**
 
 ### Key Guidelines
 
@@ -62,7 +65,7 @@ Your SDK will be scored based on:
 - **Detection Accuracy**: Correctly identifying automation frameworks by name
 - **Consistency**: Maintaining accuracy across multiple test runs
 - **Coverage**: Number of frameworks successfully detected
-- **Minimum Requirement**: Must detect at least 2 of the 4 frameworks with 100% accuracy to qualify
+- **Minimum Requirement**: Must detect at least 7 frameworks with 100% accuracy to qualify
 
 ### Scoring System
 
@@ -81,21 +84,21 @@ We maintain strict originality standards:
 
 Follow 1~6 steps to submit your SDK.
 
-1. **Navigate to the AB Sniffer v2 Commit Directory**
+1. **Navigate to the AB Sniffer v4 Commit Directory**
 
     ```bash
-    cd redteam_core/miner/commits/ab_sniffer_v3
+    cd redteam_core/miner/commits/ab_sniffer_v4
     ```
 
 2. **Build the Docker Image**
 
-    To build the Docker image for the AB Sniffer v2 submission, run:
+    To build the Docker image for the AB Sniffer v4 submission, run:
 
     ```bash
-    docker build -t my_hub/ab_sniffer_v3-miner:0.0.1 .
+    docker build -t my_hub/ab_sniffer_v4-miner:0.0.1 .
 
     # For MacOS (Apple Silicon) to build AMD64:
-    DOCKER_BUILDKIT=1 docker build --platform linux/amd64 -t myhub/ab_sniffer_v3-miner:0.0.1 .
+    DOCKER_BUILDKIT=1 docker build --platform linux/amd64 -t myhub/ab_sniffer_v4-miner:0.0.1 .
     ```
 
 3. **Log in to Docker**
@@ -113,7 +116,7 @@ Follow 1~6 steps to submit your SDK.
     Push the tagged image to your Docker Hub repository:
 
     ```bash
-    docker push myhub/ab_sniffer_v3:0.0.1
+    docker push myhub/ab_sniffer_v4:0.0.1
     ```
 
 5. **Retrieve the SHA256 Digest**
@@ -121,7 +124,7 @@ Follow 1~6 steps to submit your SDK.
     After pushing the image, retrieve the digest by running:
 
     ```bash
-    docker inspect --format='{{index .RepoDigests 0}}' myhub/ab_sniffer_v3:0.0.1
+    docker inspect --format='{{index .RepoDigests 0}}' myhub/ab_sniffer_v4:0.0.1
     ```
 
 6. **Update active_commit.yaml**
@@ -129,7 +132,7 @@ Follow 1~6 steps to submit your SDK.
     Finally, go to the `neurons/miner/active_commit.yaml` file and update it with the new image tag:
 
     ```yaml
-    - ab_sniffer_v3---myhub/ab_sniffer_v3@<sha256:digest>
+    - ab_sniffer_v4---myhub/ab_sniffer_v4@<sha256:digest>
     ```
 
 ---

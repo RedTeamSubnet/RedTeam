@@ -397,14 +397,8 @@ class Validator(BaseValidator):
         else:
             bt.logging.warning(
                 f"[FORWARD LOCAL SCORING] Skipping scoring for {today_key}"
-            )
-            bt.logging.info(
                 f"[FORWARD LOCAL SCORING] Current hour: {current_hour}, Scoring hour: {constants.SCORING_HOUR}"
-            )
-            bt.logging.info(
                 f"[FORWARD LOCAL SCORING] Scoring dates: {self.scoring_dates}"
-            )
-            bt.logging.info(
                 f"[FORWARD LOCAL SCORING] Revealed commits: {str(revealed_commits)[:100]}..."
             )
 
@@ -651,6 +645,9 @@ class Validator(BaseValidator):
         seen_docker_hub_ids: set[str] = set()
 
         revealed_commits: dict[str, list[MinerChallengeCommit]] = {}
+        _list_existing_commits = []
+        _list_revealed_commits = []
+        _list_skipped_commits = []
         for (uid, hotkey), commits in self.miner_commits.items():
             for challenge_name, commit in commits.items():
                 bt.logging.info(
@@ -669,22 +666,34 @@ class Validator(BaseValidator):
                             challenge_name
                         ].get_unique_scored_docker_hub_ids()
                     ):
-                        # Only reveal unique docker hub ids in one pass, also ignore if docker_hub_id has been scored
-                        bt.logging.info(
-                            f"[GET REVEALED COMMITS] Skipping commit, Already revealed: {uid} - {hotkey}"
+                        _list_existing_commits.append(
+                            f"{challenge_name}-{uid}-{hotkey}-{docker_hub_id}"
                         )
                         continue
                     else:
                         commit.docker_hub_id = docker_hub_id
                         this_challenge_revealed_commits.append(commit)
                         seen_docker_hub_ids.add(docker_hub_id)
-                        bt.logging.info(
-                            f"[GET REVEALED COMMITS] Revealed commit: {uid} - {hotkey} - {challenge_name} - {commit.encrypted_commit}"
+                        _list_revealed_commits.append(
+                            f"{challenge_name}-{uid}-{hotkey}-{docker_hub_id}"
                         )
                 else:
-                    bt.logging.info(
-                        f"[GET REVEALED COMMITS] Skipping commit: Not revealed yet: {uid} - {hotkey}"
+                    _list_skipped_commits.append(
+                        f"{challenge_name}-{uid}-{hotkey}-{commit.encrypted_commit}"
                     )
+        for list_name, list_data in [
+            ("Existing", sorted(_list_existing_commits)),
+            ("Revealed", sorted(_list_revealed_commits)),
+            ("Skipped", sorted(_list_skipped_commits)),
+        ]:
+            if list_data:
+                bt.logging.info(
+                    f"[GET REVEALED COMMITS] {list_name} commits: {'\n'.join(list_data)}"
+                )
+            else:
+                bt.logging.info(
+                    f"[GET REVEALED COMMITS] No {list_name.lower()} commits"
+                )
 
         return revealed_commits
 

@@ -21,7 +21,10 @@ from api.logger import logger
 
 def gen_ran_framework_sequence() -> list:
     frameworks = config.challenge.framework_images
-    repeated_frameworks = frameworks * config.challenge.repeated_framework_count
+    repeated_frameworks = []
+    for _ in range(config.challenge.repeated_framework_count):
+        repeated_frameworks.extend(frameworks)
+
     random.shuffle(repeated_frameworks)
     return repeated_frameworks
 
@@ -191,43 +194,23 @@ def run_bot_container(
             # Check host-mounted file first
             host_driver_path = f"/tmp/driver_type_{_container_id}.txt"
             if os.path.exists(host_driver_path):
-                with open(host_driver_path, "r") as f:
-                    detected_driver = f.read().strip()
-                    logger.info(f"Driver type found in host volume: {detected_driver}")
-                    break
+                try:
+                    with open(host_driver_path, "r") as f:
+                        detected_driver = f.read().strip()
+                        if detected_driver:  # Ensure we have a non-empty result
+                            logger.info(
+                                f"Driver type found in host volume: {detected_driver}"
+                            )
+                            break
+                        else:
+                            logger.warning(
+                                "Empty driver type file found in host volume"
+                            )
+                except Exception as e:
+                    logger.warning(f"Error reading host driver file: {str(e)}")
 
             # Update container status
             _container.reload()
-
-            #! TODO: Need to check this method
-            # # If the container is running, try to read the file inside container
-            # if _container.status == "running":
-            #     try:
-            #         result = _container.exec_run(f"cat {_log_path}")
-            #         if result.exit_code == 0 and result.output:
-            #             detected_driver = result.output.decode().strip()
-            #             logger.info(
-            #                 f"Driver type found in container: {detected_driver}"
-            #             )
-            #             break
-            #     except Exception as e:
-            #         logger.debug(f"Error reading driver type file: {e}")
-            # elif _container.status == "exited":
-            #     # Container exited, final attempt
-            #     logger.info(
-            #         "Container exited, making final attempt to read driver type"
-            #     )
-            #     try:
-            #         result = _container.exec_run(f"cat {_log_path}")
-            #         if result.exit_code == 0 and result.output:
-            #             detected_driver = result.output.decode().strip()
-            #             logger.info(
-            #                 f"Driver type found after container exit: {detected_driver}"
-            #             )
-            #         break
-            #     except Exception:
-            #         logger.warning("Failed to read driver type after container exit")
-            #         break
 
             logger.info(f"Driver type not found, retrying... ({_elapsed}s)")
             time.sleep(_poll_interval)

@@ -7,6 +7,9 @@ export default defineConfig([
     files: ["**/*.{js,mjs,cjs}"],
     plugins: { js },
     extends: ["js/recommended"],
+    linterOptions: {
+      noInlineConfig: true,
+    },
     languageOptions: {
       globals: globals.browser,
     },

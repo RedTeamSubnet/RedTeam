@@ -1,3 +1,4 @@
+import requests
 import traceback
 
 import bittensor as bt
@@ -19,7 +20,7 @@ class ABSController(Controller):
     )  # {docker_hub_id: MinerChallengeCommit}
 
     """
-    A specialized controller for the 'ab_sniffer_v3' challenge.
+    A specialized controller for the 'ab_sniffer_v4' challenge.
     Inherits from the base Controller and modifies specific logic.
     """
 
@@ -236,7 +237,29 @@ class ABSController(Controller):
                 else 0.0
             )
 
+            scoring_results = self._get_scoring_results()
+
+            miner_commit.scoring_logs[0].miner_output[
+                "scoring_results"
+            ] = scoring_results
             miner_commit.scoring_logs[0].score = score
+
+    def _get_scoring_results(self) -> dict:
+        """Retrieve scoring results from the challenge container."""
+
+        _protocol, _ssl_verify = self._check_protocol(is_challenger=True)
+        try:
+            bt.logging.debug(f"[CONTROLLER] Getting scoring results ...")
+            response = requests.get(
+                f"{_protocol}://localhost:{constants.CHALLENGE_DOCKER_PORT}/results",
+                verify=_ssl_verify,
+            )
+            scoring_results = response.json()
+        except Exception as ex:
+            bt.logging.error(f"Score challenge failed: {str(ex)}")
+            scoring_results = {}
+
+        return scoring_results
 
     def _get_all_reference_commits(self):
         return self.reference_comparison_commits + list(
@@ -246,3 +269,5 @@ class ABSController(Controller):
     def _exclude_output_keys(self, miner_output: dict, reference_output: dict):
         miner_output["detection_js"] = None
         reference_output["detection_js"] = None
+        miner_output["scoring_results"] = None
+        reference_output["scoring_results"] = None
