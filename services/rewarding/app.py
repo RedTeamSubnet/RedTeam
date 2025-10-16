@@ -381,11 +381,6 @@ class RewardApp(Validator):
     def run(self):
         bt.logging.info("Starting reward app loop.")
         # Try set weights after initial sync
-        try:
-            bt.logging.info("Initializing weights")
-            self.set_weights()
-        except Exception:
-            bt.logging.error(f"Initial set weights error: {traceback.format_exc()}")
 
         while True:
             # Check if we need to start a new forward thread
@@ -398,12 +393,6 @@ class RewardApp(Validator):
                 )
                 self.forward_thread.start()
                 bt.logging.info("Started new forward thread")
-
-            try:
-                self.set_weights()
-                bt.logging.success("Set weights completed")
-            except Exception:
-                bt.logging.error(f"Set weights error: {traceback.format_exc()}")
 
             try:
                 self.resync_metagraph()
