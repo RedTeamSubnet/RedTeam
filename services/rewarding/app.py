@@ -20,7 +20,8 @@ from redteam_core.validator.models import (
     ScoringLog,
 )
 
-from cache import ScoringLRUCache
+from .cache import ScoringLRUCache
+from services.rewarding.router import start_ping_server
 
 
 ENV_PREFIX = "RT_"
@@ -33,6 +34,7 @@ REWARD_APP_UID = int(os.getenv(f"{ENV_PREFIX_REWARD_APP}UID"))
 def get_reward_app_config() -> bt.Config:
     parser = argparse.ArgumentParser()
     parser.add_argument("--reward_app.epoch_length", type=int, default=60)
+    parser.add_argument("--reward_app.port", type=int, default=9000)
     config = get_config(parser)
     return config
 
@@ -821,7 +823,13 @@ class RewardApp(Validator):
 
 if __name__ == "__main__":
     # Initialize and run app
-    with RewardApp(get_reward_app_config()) as app:
+    config = get_reward_app_config()
+
+    server_thread = threading.Thread(
+        target=start_ping_server, args=(config.reward_app.port,), daemon=True
+    )
+    server_thread.start()
+    with RewardApp(config) as app:
         while True:
             bt.logging.info("RewardApp is running...")
             time.sleep(constants.EPOCH_LENGTH // 4)
