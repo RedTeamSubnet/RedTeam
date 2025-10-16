@@ -687,8 +687,9 @@ class Validator(BaseValidator):
             ("Skipped", sorted(_list_skipped_commits)),
         ]:
             if list_data:
+                newline = "\n"  # Define newline character separately
                 bt.logging.info(
-                    f"[GET REVEALED COMMITS] {list_name} commits: {'\n'.join(list_data)}"
+                    f"[GET REVEALED COMMITS] {list_name} commits: {newline.join(list_data)}"
                 )
             else:
                 bt.logging.info(
