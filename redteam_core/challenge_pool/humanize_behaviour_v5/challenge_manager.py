@@ -6,7 +6,10 @@ import bittensor as bt
 import numpy as np
 
 from redteam_core.validator.models import MinerChallengeCommit
-from redteam_core.validator.challenge_manager import ChallengeManager
+from redteam_core.validator.challenge_manager import (
+    ChallengeManager,
+    MinerChallengeInfo,
+)
 
 
 class HBChallengeManager(ChallengeManager):
@@ -86,12 +89,14 @@ class HBChallengeManager(ChallengeManager):
             # Update miner's best submission
             miner_commit.scored_timestamp = time.time()
 
-            miner_state = self.miner_states.get(miner_commit.miner_uid)
-            if miner_state:
-                miner_state.update_best_commit(miner_commit)
-                bt.logging.debug(
-                    f"Updated best commit for miner {miner_commit.miner_uid}"
+            if miner_commit.miner_uid not in self.miner_states:
+                self.miner_states[miner_commit.miner_uid] = MinerChallengeInfo(
+                    miner_uid=miner_commit.miner_uid,
+                    miner_hotkey=miner_commit.miner_hotkey,
+                    challenge_name=miner_commit.challenge_name,
                 )
+            self.miner_states[miner_commit.miner_uid].latest_commit = miner_commit
+            self.miner_states[miner_commit.miner_uid].update_best_commit(miner_commit)
 
             # Add to unique solutions if accepted
             if miner_commit.accepted and miner_commit.encrypted_commit:

@@ -2,19 +2,14 @@
 # -*- coding: utf-8 -*-
 
 import os
-import json
 import time
 import argparse
 import datetime
 import threading
 import traceback
-from typing import Annotated
 
-import uvicorn
 import requests
 import bittensor as bt
-from fastapi import Body, FastAPI
-from prometheus_fastapi_instrumentator import Instrumentator
 
 from neurons.validator.validator import Validator
 from redteam_core import constants
@@ -37,7 +32,6 @@ REWARD_APP_UID = int(os.getenv(f"{ENV_PREFIX_REWARD_APP}UID"))
 
 def get_reward_app_config() -> bt.Config:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--reward_app.port", type=int, default=47920)
     parser.add_argument("--reward_app.epoch_length", type=int, default=60)
     config = get_config(parser)
     return config
@@ -50,7 +44,6 @@ class RewardApp(Validator):
     1. Does not participate in querying miners or setting weights
     2. Maintains state like regular validators
     3. Scores miner commits retrieved from storage
-    4. Provides API endpoints for direct access to scoring results
     """
 
     def __init__(self, config: bt.Config):
@@ -92,29 +85,6 @@ class RewardApp(Validator):
             challenge_name: False for challenge_name in self.active_challenges.keys()
         }
 
-        # Initialize FastAPI app (May change this to use bt.axon in the future)
-        self.app = FastAPI()
-        self.app.add_api_route(
-            "/get_scoring_result",
-            self.get_scoring_result,
-            methods=["POST"],
-        )
-        Instrumentator().instrument(self.app).expose(self.app)
-        # Run FastAPI server in a separate thread
-        self.server_thread = threading.Thread(
-            target=uvicorn.run,
-            kwargs={
-                "app": self.app,
-                "host": "0.0.0.0",
-                "port": self.config.reward_app.port,
-                "log_level": "debug",
-            },
-            daemon=True,  # Ensures the thread stops when the main process exits
-        )
-        self.server_thread.start()
-        bt.logging.info(
-            f"FastAPI server is running on port {self.config.reward_app.port}!"
-        )
         bt.logging.info(
             f"Reward app constant values: {constants.model_dump_json(indent=2)}"
         )
@@ -228,38 +198,8 @@ class RewardApp(Validator):
         validate_scoring_date = today_key not in self.scoring_dates
 
         if validate_scoring_hour and validate_scoring_date:
-            #     # At this point, all commits should be scored and compared against previous unique commits already, we now need to compare new commits with each other
-            #     for challenge in revealed_commits:
-            #         if revealed_commits[challenge]:
-            #             self._compare_miner_commits(
-            #                 challenge=challenge,
-            #                 revealed_commits_list=revealed_commits[challenge],
-            #                 compare_with_each_other=True,
-            #             )
-
-            #     # Update scores and penalties to challenge manager and mark challenge as done
             for challenge in revealed_commits:
-                # self.challenge_managers[challenge].update_miner_scores(
-                #     miner_commits=revealed_commits[challenge]
-                # )
                 self.is_scoring_done[challenge] = True
-
-        #         # Store commits and scoring cache from this challenge
-        #         self._store_miner_commits(
-        #             miner_commits={challenge: revealed_commits[challenge]}
-        #         )
-        #         self._store_centralized_scoring(challenge_name=challenge)
-
-        #     self.scoring_dates.append(today_key)
-
-        #     # Store reward app state, this can be viewed by other validators, so we need to make it public view
-        #     self.storage_manager.update_validator_state(
-        #         data=self.export_state(public_view=True), async_update=True
-        #     )
-        # else:
-        #     bt.logging.info(
-        #         f"[CENTRALIZED FORWARD] Not time to finalize daily result. Hour: {current_hour}, Date: {today_key}"
-        #     )
 
     def _score_and_compare_new_miner_commits(
         self, challenge: str, revealed_commits_list: list[MinerChallengeCommit]
@@ -441,11 +381,6 @@ class RewardApp(Validator):
     def run(self):
         bt.logging.info("Starting reward app loop.")
         # Try set weights after initial sync
-        try:
-            bt.logging.info("Initializing weights")
-            self.set_weights()
-        except Exception:
-            bt.logging.error(f"Initial set weights error: {traceback.format_exc()}")
 
         while True:
             # Check if we need to start a new forward thread
@@ -458,12 +393,6 @@ class RewardApp(Validator):
                 )
                 self.forward_thread.start()
                 bt.logging.info("Started new forward thread")
-
-            try:
-                self.set_weights()
-                bt.logging.success("Set weights completed")
-            except Exception:
-                bt.logging.error(f"Set weights error: {traceback.format_exc()}")
 
             try:
                 self.resync_metagraph()
@@ -888,62 +817,6 @@ class RewardApp(Validator):
             # Clean up cache entries that we want to delete
             for hashed_cache_key in cache_keys_to_delete:
                 diskcache_.delete(hashed_cache_key)
-
-    # MARK: Endpoints
-    async def get_scoring_result(
-        self,
-        challenge_name: Annotated[str, Body(..., embed=True)],
-        encrypted_commits: Annotated[list[str], Body(..., embed=True)],
-    ):
-        """
-        API endpoint to get scoring logs for specific docker hub IDs.
-        This method check for encrypted_commit in miner_commits and return the cached commit result.
-
-        Args:
-            docker_hub_ids: List of docker hub IDs to look up
-
-        Returns:
-            dict: {
-                docker_hub_id: scoring_log or None if not found
-            }
-        """
-        assert (
-            challenge_name in self.active_challenges
-        ), f"Challenge {challenge_name} is not active"
-
-        results: dict[str, MinerChallengeCommit] = {}
-
-        for encrypted_commit in encrypted_commits:
-            # Try in-memory cache first
-            cache_key = f"{challenge_name}---{encrypted_commit}"
-            commit_result = self.miner_commits_cache.get(cache_key, None)
-            if commit_result:
-                results[encrypted_commit] = commit_result.public_view()
-                continue
-
-            # Fallback to disk cache
-            try:
-                hashed_cache_key = self.storage_manager.hash_cache_key(encrypted_commit)
-                challenge_cache = self.storage_manager._get_cache(challenge_name)
-                cached_data = challenge_cache.get(hashed_cache_key)
-
-                if cached_data:
-                    commit_result = MinerChallengeCommit.model_validate(cached_data)
-                    results[encrypted_commit] = commit_result.public_view()
-                else:
-                    results[encrypted_commit] = None
-            except Exception as e:
-                bt.logging.error(f"Error retrieving from disk cache: {e}")
-                results[encrypted_commit] = None
-
-        return {
-            "status": "success",
-            "message": "Scoring results retrieved successfully",
-            "data": {
-                "commits": results,
-                "is_done": self.is_scoring_done.get(challenge_name),
-            },
-        }
 
 
 if __name__ == "__main__":

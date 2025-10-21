@@ -12,7 +12,7 @@ from redteam_core.validator.challenge_manager import (
 )
 
 
-class DFPChallengeManager(ChallengeManager):
+class ABSChallengeManager(ChallengeManager):
 
     def __init__(self, challenge_info: dict, metagraph: bt.metagraph):
         super().__init__(challenge_info, metagraph)
@@ -32,7 +32,7 @@ class DFPChallengeManager(ChallengeManager):
 
         self.max_similarity = 0.4
         self.min_similarity = 0
-        self.min_score = 0.2
+        self.min_score = 0.7
         self.break_point = 0.6
         self.max_input = 1.0
         self.min_value = 0
@@ -97,9 +97,10 @@ class DFPChallengeManager(ChallengeManager):
                 )
             self.miner_states[miner_commit.miner_uid].latest_commit = miner_commit
             self.miner_states[miner_commit.miner_uid].update_best_commit(miner_commit)
+
             if miner_commit.accepted and miner_commit.encrypted_commit:
                 bt.logging.info(
-                    f"[CHALLENGE MANAGER - DFPChallengeManager] Adding miner commit `{miner_commit.miner_uid}` to unique commit set"
+                    f"[CHALLENGE MANAGER - ABSChallengeManager] Adding miner commit `{miner_commit.miner_uid}` to unique commit set"
                 )
                 self._try_add_unique_commit(
                     encrypted_commit=miner_commit.encrypted_commit,
@@ -129,19 +130,12 @@ class DFPChallengeManager(ChallengeManager):
             # Set initial scores
             scores[miner_state.miner_uid] = best_commit.score
 
-            # Track the latest evaluation timestamp
-            if (
-                evaluation_timestamp is None
-                or best_commit.scored_timestamp > evaluation_timestamp
-            ):
-                evaluation_timestamp = best_commit.scored_timestamp
-
         # Step 2: If no valid timestamp found, return unmodified scores
-        if evaluation_timestamp is None:
+        if scores.sum() == 0:
             bt.logging.warning(
                 "No valid scored_timestamp found, cannot apply time decay"
             )
-            return scores
+            return self._apply_softmax(scores)
 
         # Step 3: Apply decay and adjustment
         for miner_state in self.miner_states.values():
@@ -154,6 +148,7 @@ class DFPChallengeManager(ChallengeManager):
                 continue  # Skip invalid miners
 
             commit_timestamp = best_commit.scored_timestamp
+            evaluation_timestamp = time.time()
             days_elapsed = (evaluation_timestamp - commit_timestamp) / 86400
 
             # Apply decay and adjustment
@@ -165,7 +160,12 @@ class DFPChallengeManager(ChallengeManager):
             # Update scores
             scores[miner_state.miner_uid] = adjusted_score
 
-        return scores
+        # Step 4: Apply softmax and return final scores
+        # normalized_scores = [
+        #     self._inverse_easePolyOut_exponent(score) for score in scores
+        # ]
+        final_scores = self._apply_softmax(scores)
+        return final_scores
 
     def _ease_circle_in_out_shifted(self, x):
         x = x**1.5
@@ -226,14 +226,24 @@ class DFPChallengeManager(ChallengeManager):
 
     def _apply_softmax(self, scores):
         """Apply softmax with custom temperature to scores."""
-        scores = np.asarray(scores)  # Convert to NumPy array
-        if np.sum(scores) == 0:
+
+        scores = np.asarray(scores)
+        mask_nonzero = scores != 0
+
+        if not np.any(mask_nonzero):
             return scores
-        scores = np.clip(scores, 0, None)
-        scaled_scores = scores / self.reward_temperature
+
+        nonzero_scores = scores[mask_nonzero]
+        nonzero_scores = np.clip(nonzero_scores, 0, None)
+        scaled_scores = nonzero_scores / self.reward_temperature
         max_score = np.max(scaled_scores)
         scores_exp = np.exp(scaled_scores - max_score)
-        return scores_exp / np.sum(scores_exp)
+        softmax_values = scores_exp / np.sum(scores_exp)
+
+        softmax_result = np.zeros_like(scores, dtype=float)
+        softmax_result[mask_nonzero] = softmax_values
+
+        return softmax_result
 
     def _inverse_easePolyOut_exponent(self, y: float, exponent: float = 0.600) -> float:
         """Inverse of the polynomial ease-out function, y must be in the range [0, 1]."""

@@ -191,8 +191,14 @@ class ChallengeManager:
             miner_commit.scored_timestamp = time.time()
 
             # Update miner 's best submission if current score is higher
-            miner_state = self.miner_states.get(miner_commit.miner_uid)
-            miner_state.update_best_commit(miner_commit)
+            if miner_commit.miner_uid not in self.miner_states:
+                self.miner_states[miner_commit.miner_uid] = MinerChallengeInfo(
+                    miner_uid=miner_commit.miner_uid,
+                    miner_hotkey=miner_commit.miner_hotkey,
+                    challenge_name=miner_commit.challenge_name,
+                )
+            self.miner_states[miner_commit.miner_uid].latest_commit = miner_commit
+            self.miner_states[miner_commit.miner_uid].update_best_commit(miner_commit)
 
             # Try to add to unique solutions set if commit is accepted
             if miner_commit.accepted and miner_commit.encrypted_commit:

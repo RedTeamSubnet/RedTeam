@@ -681,3 +681,4 @@ validator_env/
 miner_env/
 .rewardapp_cache/
 redteam_core/challenge_pool/ab_sniffer_v1/src/node_modules/
+/redteam_core/challenge_pool/*/mac/

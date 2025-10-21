@@ -1,5 +1,43 @@
 # Changelog
 
+## v2.8.1 (2025-10-16)
+
+<!-- Release notes generated using configuration in .github/release.yml at v2.8.1 -->
+
+
+
+**Full Changelog**: https://github.com/RedTeamSubnet/RedTeam/compare/v2.8.0...v2.8.1
+
+## v2.8.0 (2025-10-16)
+
+<!-- Release notes generated using configuration in .github/release.yml at v2.8.0 -->
+
+## What's Changed
+### ✨ Features
+* Auto Browser Sniffer v4 by @aliyuldashev in https://github.com/RedTeamSubnet/RedTeam/pull/83
+
+
+**Full Changelog**: https://github.com/RedTeamSubnet/RedTeam/compare/v2.7.0...v2.8.0
+
+## v2.7.0 (2025-10-09)
+
+<!-- Release notes generated using configuration in .github/release.yml at v2.7.0 -->
+
+
+
+**Full Changelog**: https://github.com/RedTeamSubnet/RedTeam/compare/v2.6.2...v2.7.0
+
+## v2.6.2 (2025-10-06)
+
+<!-- Release notes generated using configuration in .github/release.yml at v2.6.2 -->
+
+## What's Changed
+### ✨ Features
+* Reliable State Syncing & Comparison by @aliyuldashev in https://github.com/RedTeamSubnet/RedTeam/pull/82
+
+
+**Full Changelog**: https://github.com/RedTeamSubnet/RedTeam/compare/v2.6.1...v2.6.2
+
 ## v2.6.1 (2025-10-02)
 
 <!-- Release notes generated using configuration in .github/release.yml at v2.6.1 -->
