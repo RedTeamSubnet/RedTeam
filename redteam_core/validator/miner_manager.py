@@ -6,7 +6,7 @@ from git import List
 import requests
 import numpy as np
 import bittensor as bt
-from traitlets import Dict
+from typing import Dict
 
 from redteam_core.constants import constants
 from redteam_core.validator.challenge_manager import ChallengeManager
