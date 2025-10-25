@@ -1,10 +1,12 @@
-import hashlib
+from collections import defaultdict
 import datetime
+from typing import Any
 
-import base58
+from git import List
 import requests
 import numpy as np
 import bittensor as bt
+from traitlets import Dict
 
 from redteam_core.constants import constants
 from redteam_core.validator.challenge_manager import ChallengeManager
@@ -66,10 +68,11 @@ class MinerManager:
                 )
 
             challenge_scores = manager.get_challenge_scores()
-            bt.logging.debug(
-                f"Challenge {manager.challenge_name} challenge_scores: {challenge_scores.tolist()}, adjusted_weight: {adjusted_weight}"
+            normalized_challenge_scores = self.exclude_same_miner(challenge_scores)
+            bt.logging.info(
+                f"Challenge {manager.challenge_name} challenge_scores: {normalized_challenge_scores.tolist()}, adjusted_weight: {adjusted_weight}"
             )
-            aggregated_scores += challenge_scores * adjusted_weight
+            aggregated_scores += normalized_challenge_scores * adjusted_weight
         bt.logging.debug(
             f"Aggregated challenge scores: {aggregated_scores.tolist()}, valid_weights_sum: {valid_weights_sum}, weights_to_redistribute: {weights_to_redistribute}"
         )
@@ -160,6 +163,83 @@ class MinerManager:
 
         return scores
 
+    def exclude_same_miner(
+        self,
+        scores,
+        ignore_ip: str = "0.0.0.0",
+    ) -> np.ndarray:
+        """
+        Keep only the best-scoring submission among miners that are considered the same entity.
+        'Same entity' is defined as any submissions that share an IP or have overlapping coldkeys
+        (across one or more IPs). Among each connected group, only the max score is kept.
+
+        Returns:
+            normalized_scores: np.ndarray of length num_uids (sum to 1, or all zeros if no scores)
+            final_scores:      np.ndarray of length num_uids (only best submissions retained)
+        """
+        if sum(scores) == 0:
+            return scores
+
+        ips = [axon.ip for axon in self.metagraph.axons]
+        coldkeys = [axon.coldkey for axon in self.metagraph.axons]
+        _final_scores = np.zeros(self.metagraph.n, dtype=float)
+        num_uids = int(self.metagraph.n)
+
+        if num_uids is None:
+            num_uids = max(len(ips), len(coldkeys), len(scores))
+
+        # 1) Group submissions by IP (skip zeros up front)
+        #    ip_groups[ip] -> list of dicts with index, coldkey, score
+        ip_groups: Dict[str, Dict[str, List[Any]]] = defaultdict(
+            lambda: {"index": [], "coldkey": [], "score": []}
+        )
+        for idx, (ip, ck, sc) in enumerate(zip(ips, coldkeys, scores)):
+            if sc == 0:
+                continue
+            ip_groups[ip]["index"].append(idx)
+            ip_groups[ip]["coldkey"].append(ck)
+            ip_groups[ip]["score"].append(sc)
+
+        # Optionally drop a placeholder IP
+        if ignore_ip in ip_groups:
+            del ip_groups[ignore_ip]
+
+        if not ip_groups:
+            # No positive scores left
+            return np.zeros(num_uids)
+
+        _miner_info = {}
+        _count = 0
+        for index, (ip, info) in enumerate(ip_groups.items()):
+            if index == 0:
+                _miner_info[f"miner_{_count}"] = {**info, "ip": [ip]}
+                continue
+            _is_new_miner = True
+            for miner_info in _miner_info.values():
+                if not set(info["coldkey"]).isdisjoint(set(miner_info["coldkey"])):
+                    miner_info["index"].extend(info["index"])
+                    miner_info["coldkey"].extend(info["coldkey"])
+                    miner_info["score"].extend(info["score"])
+                    miner_info.setdefault("ip", []).append(ip)
+                    _is_new_miner = False
+
+            if _is_new_miner:
+                _miner_info[f"miner_{_count}"] = {**info, "ip": [ip]}
+                _count += 1
+        for miner_count, miner_info in _miner_info.items():
+            _max_score = max(miner_info["score"])
+            _maximum_score_index = miner_info["score"].index(_max_score)
+            _maximum_score_uid = miner_info["index"][_maximum_score_index]
+            _miner_info[miner_count]["best_submission_info"] = {
+                "uid": _maximum_score_uid,
+                "coldkey": miner_info["coldkey"][_maximum_score_index],
+                "score": _max_score,
+            }
+            _final_scores[_maximum_score_uid] = _max_score
+        _normalized_scores = _final_scores / np.sum(_final_scores)
+
+        return _normalized_scores
+
     def _get_alpha_burn_scores(self, n_uids: int) -> np.ndarray:
         """
         Returns a numpy array of scores based on alpha burn, high for more burn.
@@ -193,13 +273,6 @@ class MinerManager:
         """
         # Get challenge performance scores
         challenge_scores = self._get_challenge_scores(n_uids)
-
-        # Get newly registration scores (disabled)
-        # registration_scores = self._get_newly_registration_scores(n_uids)
-
-        # Get alpha stake scores
-        # alpha_stake_scores = self._get_alpha_stake_scores(n_uids)
-
         # Get alpha burn scores
         alpha_burn_scores = self._get_alpha_burn_scores(n_uids)
 
@@ -216,10 +289,8 @@ class MinerManager:
         final_scores = (
             challenge_scores * constants.CHALLENGE_SCORES_WEIGHT
             + alpha_burn_scores * alpha_burn_weight
-            # + registration_scores * constants.NEWLY_REGISTRATION_WEIGHT
-            # + alpha_stake_scores * constants.ALPHA_STAKE_WEIGHT
         )
 
-        bt.logging.debug(f"Onchain final scores: {final_scores.tolist()}\n ")
+        bt.logging.info(f"Onchain final scores: {final_scores.tolist()}\n ")
 
         return final_scores
