@@ -224,8 +224,8 @@ class MinerManager:
                     _is_new_miner = False
 
             if _is_new_miner:
-                _miner_info[f"miner_{_count}"] = {**info, "ip": [ip]}
                 _count += 1
+                _miner_info[f"miner_{_count}"] = {**info, "ip": [ip]}
         for miner_count, miner_info in _miner_info.items():
             _max_score = max(miner_info["score"])
             _maximum_score_index = miner_info["score"].index(_max_score)

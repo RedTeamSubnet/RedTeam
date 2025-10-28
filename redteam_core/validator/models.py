@@ -180,7 +180,7 @@ class MinerChallengeCommit(BaseModel):
             docker_hub_id=anonymized_docker_hub_id,
             commit_timestamp=self.commit_timestamp,
             encrypted_commit=self.encrypted_commit,
-            key=self.key,
+            key=None,
             commit=anonymized_commit,
             scoring_logs=self.scoring_logs,
             comparison_logs=anonymized_comparison_logs,
