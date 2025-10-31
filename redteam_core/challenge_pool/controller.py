@@ -490,19 +490,18 @@ class Controller(BaseController):
         Returns:
             dict: Comparison score between 0 and 1, and reason for the score
         """
-        _protocol, _ssl_verify = self._check_protocol(is_challenger=True)
 
         try:
             payload = {
-                "miner_input": miner_input,
-                "miner_output": miner_output,
-                "reference_output": reference_output,
+                "challenge_name": self.challenge_info.get("challenge_type", None),
+                "miner_script": miner_output.get(self.challenge_info.get("script_path_identifier", None), None),
+                "reference_script": reference_output.get(self.challenge_info.get("script_path_identifier", None), None),
             }
 
             response = requests.post(
-                f"{_protocol}://localhost:{constants.CHALLENGE_DOCKER_PORT}/compare",
+                f"{constants.INTERNAL_SERVICES.URL}/compare",
                 timeout=self.challenge_info.get("challenge_compare_timeout", 60),
-                verify=_ssl_verify,
+                verify=False,
                 json=payload,
             )
 
