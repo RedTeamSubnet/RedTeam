@@ -207,7 +207,8 @@ class DFPController(Controller):
     def _score_miner_with_new_inputs(
         self, miner_commit: MinerChallengeCommit, challenge_inputs
     ):
-        """Run and score miner with new challenge inputs."""
+
+        _scoring_log = miner_commit.scoring_logs[0]
         for i, miner_input in enumerate(challenge_inputs):
 
             _higest_comparison_score = miner_commit.get_higest_comparison_score()
@@ -219,24 +220,25 @@ class DFPController(Controller):
                 bt.logging.info(
                     f"[CONTROLLER - DFPController] Skipping scoring for miner {miner_commit.miner_hotkey} on task {i} due to high comparison score: {_higest_comparison_score}"
                 )
-                miner_commit.scoring_logs[0].score = 0.0
-                miner_commit.scoring_logs[0].error = (
-                    "[Not Accepted]High comparison score, skipping scoring"
-                )
 
+                _scoring_log.score = 0.0
+                if _scoring_log.error:
+                    _scoring_log.error += " | Skipped scoring due to high comparison score."
+                else:
+                    _scoring_log.error = "Skipped scoring due to high comparison score."
                 continue
 
             score = (
                 self._score_challenge(
                     miner_input=miner_input,
-                    miner_output=miner_commit.scoring_logs[0].miner_output,
+                    miner_output=_scoring_log.miner_output,
                     task_id=i,
                 )
-                if miner_commit.scoring_logs[0].miner_output is not None
+                if _scoring_log.miner_output is not None
                 else 0.0
             )
 
-            miner_commit.scoring_logs[0].score = score
+            _scoring_log.score = score
 
     def _get_all_reference_commits(self):
         return self.reference_comparison_commits + list(

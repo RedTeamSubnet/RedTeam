@@ -20,6 +20,7 @@ ENV_PREFIX = "RT_"
 ENV_PREFIX_BT = f"{ENV_PREFIX}BT_"
 ENV_PREFIX_STORAGE_API = f"{ENV_PREFIX}STORAGE_API_"
 ENV_PREFIX_REWARD_APP = f"{ENV_PREFIX}REWARD_APP_"
+ENV_PREFIX_INTERNAL_SERVICES = f"{ENV_PREFIX}INTERNAL_SERVICES_"
 ENV_PREFIX_VALIDATOR = f"{ENV_PREFIX}VALIDATOR_"
 
 
@@ -105,6 +106,31 @@ class RewardAppConfig(BaseConfig):
 
     model_config = SettingsConfigDict(env_prefix=ENV_PREFIX_REWARD_APP)
 
+class InternalServicesConfig(BaseConfig):
+    HTTP_SCHEME: str = Field(default="https")
+    HOST: str = Field(default="scoring-api.theredteam.io")
+    PORT: int = Field(default=443)
+    BASE_PATH: str = Field(default="api/v1")
+
+    URL: Optional[AnyHttpUrl] = Field(
+        default=None, description="URL for rewarding miners"
+    )
+
+    @model_validator(mode="after")
+    def _check_all(self) -> Self:
+        _reward_url_template = "{http_scheme}://{host}:{port}{base_path}"
+        if not self.URL:
+            self.URL = _reward_url_template.format(
+                http_scheme=self.HTTP_SCHEME,
+                host=self.HOST,
+                port=self.PORT,
+                base_path=self.BASE_PATH,
+            )
+
+        return self
+
+    model_config = SettingsConfigDict(env_prefix=ENV_PREFIX_INTERNAL_SERVICES)
+
 
 class MainConfig(BaseSettings):
     """
@@ -175,6 +201,7 @@ class MainConfig(BaseSettings):
 
     STORAGE_API: StorageApiConfig = Field(default_factory=StorageApiConfig)
     REWARD_APP: RewardAppConfig = Field(default_factory=RewardAppConfig)
+    INTERNAL_SERVICES: InternalServicesConfig = Field(default_factory=InternalServicesConfig)
     VALIDATOR: ValidatorConfig = Field(default_factory=ValidatorConfig)
 
     @model_validator(mode="after")
