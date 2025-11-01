@@ -3,7 +3,6 @@ ab_sniffer_v4:
   description: "Detect the driver type of the framework using a single detection.js script"
   challenge_incentive_weight: 0.4
   target: redteam_core.challenge_pool.ab_sniffer_v4.controller.ABSController
-  comparer: redteam_core.challenge_pool.ab_sniffer_v4.comparer.ABSComparer
   challenge_manager: redteam_core.challenge_pool.ab_sniffer_v4.challenge_manager.ABSChallengeManager
   script_path_identifier: "detection_js"
   challenge_type: "abs"
@@ -13,7 +12,7 @@ ab_sniffer_v4:
   comparison_config:
     max_unique_commits: 15
     max_self_comparison_score: 0.9
-    min_acceptable_score: 0.7
+    min_acceptable_score: 0.6
   challenge_container_run_kwargs:
     name: "ab_sniffer_v4"
     privileged: true
@@ -56,7 +55,6 @@ humanize_behaviour_v5:
   description: "Imitate human-like behaviour for given UI tasks"
   challenge_incentive_weight: 0.3
   target: redteam_core.challenge_pool.humanize_behaviour_v5.controller.HBController
-  comparer: redteam_core.challenge_pool.humanize_behaviour_v5.comparer.HBComparer
   challenge_manager: redteam_core.challenge_pool.humanize_behaviour_v5.challenge_manager.HBChallengeManager
   script_path_identifier: "bot_py"
   challenge_type: "hb"
@@ -66,7 +64,7 @@ humanize_behaviour_v5:
   comparison_config:
     max_unique_commits: 15
     max_self_comparison_score: 0.9
-    min_acceptable_score: 0.7
+    min_acceptable_score: 0.6
   challenge_container_run_kwargs:
     name: "humanize_behaviour_v5"
     privileged: true
@@ -105,7 +103,6 @@ dev_fingerprinter_v1:
   description: "Detect fingerprint of a device when a request is received with a single fingerprinter.js script."
   challenge_incentive_weight: 0.3
   target: redteam_core.challenge_pool.dev_fingerprinter_v1.controller.DFPController
-  comparer: redteam_core.challenge_pool.dev_fingerprinter_v1.comparer.DFPComparer
   challenge_manager: redteam_core.challenge_pool.dev_fingerprinter_v1.challenge_manager.DFPChallengeManager
   script_path_identifier: "fingerprinter_js"
   challenge_type: "dfp"
@@ -115,7 +112,7 @@ dev_fingerprinter_v1:
   comparison_config:
     max_unique_commits: 15
     max_self_comparison_score: 0.9
-    min_acceptable_score: 0.7
+    min_acceptable_score: 0.6
   challenge_container_run_kwargs:
     name: "dev_fingerprinter_v1"
     environment:

@@ -27,7 +27,7 @@ class ABSChallengeManager(ChallengeManager):
         self.reward_temperature = emission_config.get("reward_temperature", 0.2)
 
         self.comparison_min_acceptable_score = comparison_config.get(
-            "min_acceptable_score", 0.7
+            "min_acceptable_score", 0.6
         )
 
         self.max_similarity = 0.4

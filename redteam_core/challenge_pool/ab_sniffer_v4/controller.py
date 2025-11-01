@@ -50,7 +50,7 @@ class ABSController(Controller):
 
         comparison_config = self.challenge_info.get("comparison_config", {})
         self.comparison_min_acceptable_score = comparison_config.get(
-            "min_acceptable_score", 0.7
+            "min_acceptable_score", 0.6
         )
 
         # Initialize local storage for this instance

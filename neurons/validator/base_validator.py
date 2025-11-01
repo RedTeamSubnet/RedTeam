@@ -379,11 +379,6 @@ class Validator(BaseValidator):
                 # Run challenge controller, the controller update commit 's scoring logs and reference comparison logs directly
                 controller.start_challenge()
 
-                # 3. Run comparer
-                bt.logging.info(
-                    f"[FORWARD LOCAL SCORING] Running comparer for challenge: {challenge}"
-                )
-
                 # 4. Update scores and penalties to challenge manager
                 self.challenge_managers[challenge].update_miner_scores(commits)
                 bt.logging.info(
