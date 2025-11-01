@@ -28,9 +28,6 @@ RUN _BUILD_TARGET_ARCH=$(uname -m) && \
 	apt-get install -y --no-install-recommends \
 		ca-certificates \
 		build-essential \
-		git \
-		graphviz \
-		graphviz-dev \
 		wget && \
 	_MINICONDA_VERSION=py310_25.1.1-2 && \
 	if [ "${_BUILD_TARGET_ARCH}" == "x86_64" ]; then \
@@ -107,8 +104,6 @@ RUN rm -rfv /var/lib/apt/lists/* /var/cache/apt/archives/* /tmp/* /root/.cache/*
 		net-tools \
 		curl \
 		iproute2 \
-		graphviz \
-		graphviz-dev \
 		# skopeo \
 		nano && \
 	curl -fsSL https://get.docker.com/ | sh && \
