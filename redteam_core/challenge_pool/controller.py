@@ -329,7 +329,7 @@ class Controller(BaseController):
                 reason=error_log,
             )
 
-            miner_commit.comparison_logs["check/validatation"] = [comparison_log]
+            miner_commit.comparison_logs["check/validation"] = [comparison_log]
             return
 
         for reference_commit in reference_commits:
