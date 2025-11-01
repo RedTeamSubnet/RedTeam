@@ -5,6 +5,8 @@ ab_sniffer_v4:
   target: redteam_core.challenge_pool.ab_sniffer_v4.controller.ABSController
   comparer: redteam_core.challenge_pool.ab_sniffer_v4.comparer.ABSComparer
   challenge_manager: redteam_core.challenge_pool.ab_sniffer_v4.challenge_manager.ABSChallengeManager
+  script_path_identifier: "detection_js"
+  challenge_type: "abs"
   challenge_solve_timeout: 60
   docker_run_timeout: 900
   num_tasks: 1
@@ -56,6 +58,8 @@ humanize_behaviour_v5:
   target: redteam_core.challenge_pool.humanize_behaviour_v5.controller.HBController
   comparer: redteam_core.challenge_pool.humanize_behaviour_v5.comparer.HBComparer
   challenge_manager: redteam_core.challenge_pool.humanize_behaviour_v5.challenge_manager.HBChallengeManager
+  script_path_identifier: "bot_py"
+  challenge_type: "hb"
   challenge_solve_timeout: 60
   docker_run_timeout: 900
   num_tasks: 1
@@ -103,6 +107,8 @@ dev_fingerprinter_v1:
   target: redteam_core.challenge_pool.dev_fingerprinter_v1.controller.DFPController
   comparer: redteam_core.challenge_pool.dev_fingerprinter_v1.comparer.DFPComparer
   challenge_manager: redteam_core.challenge_pool.dev_fingerprinter_v1.challenge_manager.DFPChallengeManager
+  script_path_identifier: "fingerprinter_js"
+  challenge_type: "dfp"
   challenge_solve_timeout: 60
   docker_run_timeout: 900
   num_tasks: 1

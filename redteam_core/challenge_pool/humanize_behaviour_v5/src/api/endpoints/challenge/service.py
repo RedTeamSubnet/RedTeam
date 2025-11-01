@@ -11,7 +11,6 @@ from pydantic import validate_call
 from fastapi import Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
-from rt_comparer import RTComparer
 
 try:
     from modules.rt_hb_score import MetricsProcessor  # type: ignore
@@ -347,59 +346,10 @@ def eval_bot(data: str) -> None:
     return
 
 
-def compare_outputs(miner_input, miner_output, reference_output) -> dict:
-    """
-    Compare miner's output against a reference output using CFGAnalyser and CFGComparer.
-
-    Args:
-        miner_input (dict): The input used for both miner outputs.
-        miner_output (dict): The output from the current miner (expects "bot_py" key).
-        reference_output (dict): The reference output.
-
-    Returns:
-        dict: Similarity score and reason.
-    """
-    try:
-        logger.info("Analyzing miner output...")
-
-        _miner_code = miner_output["bot_py"]
-        _reference_code = reference_output["bot_py"]
-
-        if not _miner_code or not _reference_code:
-            logger.error("Missing bot_py in miner_output or reference_output.")
-            return {
-                "similarity_score": 0.0,
-                "reason": "Missing bot_py in miner_output or reference_output",
-            }
-
-        _result = RTComparer().compare(
-            challenge="humanize_behaviour",
-            miner_script=_miner_code,
-            reference_script=_reference_code,
-        )
-
-        _similarity_score = _result.get("similarity_score", 0.0)
-        _reason = _result.get("reason", "Unknown")
-        logger.info(f"Similarity Score: {_similarity_score}")
-        logger.info(f"Similarity Reason: {_reason}")
-
-        try:
-            _similarity_score = float(_similarity_score)
-        except Exception:
-            _similarity_score = 0.0
-
-        return {"similarity_score": _similarity_score, "reason": _reason}
-
-    except Exception as err:
-        logger.error(f"Error in compare_outputs function: {str(err)}")
-        return {"similarity_score": 0.0, "reason": str(err)}
-
-
 __all__ = [
     "get_task",
     "get_web",
     "get_random_val",
     "score",
     "eval_bot",
-    "compare_outputs",
 ]
