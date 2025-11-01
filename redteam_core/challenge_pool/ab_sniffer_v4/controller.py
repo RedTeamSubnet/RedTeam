@@ -222,7 +222,9 @@ class ABSController(Controller):
                 )
                 _scoring_log.score = 0.0
                 if _scoring_log.error:
-                    _scoring_log.error += " | Skipped scoring due to high comparison score."
+                    _scoring_log.error += (
+                        " | Skipped scoring due to high comparison score."
+                    )
                 else:
                     _scoring_log.error = "Skipped scoring due to high comparison score."
                 continue

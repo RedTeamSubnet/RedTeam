@@ -1,12 +1,8 @@
 # -*- coding: utf-8 -*-
 
-import os
 import time
 
 from pydantic import validate_call
-
-from rt_comparer import RTComparer
-
 from api.core.configs.challenge import DeviceStateEnum
 from api.core.services import utils as utils_services
 from api.config import config
@@ -15,7 +11,6 @@ from api.helpers.pushcut import Pushcut
 from api.logger import logger
 
 from .schemas import MinerInput, MinerOutput
-from . import utils as ch_utils
 from .dfp import DFPManager
 
 
@@ -29,23 +24,7 @@ dfp_manager: DFPManager
 
 def get_task() -> MinerInput:
     """Return a new challenge task."""
-
     return MinerInput()
-
-
-@validate_call
-def check_eslint(request_id: str, fp_js: str) -> tuple[bool, dict]:
-
-    _fp_js_path = os.path.join(
-        config.api.paths.uploads_dir, config.challenge.fp_js_fname
-    )
-
-    ch_utils.save_fp_js(request_id=request_id, content=fp_js, file_path=_fp_js_path)
-    _is_passed, _report = ch_utils.run_eslint(
-        request_id=request_id, file_path=_fp_js_path
-    )
-
-    return _is_passed, _report
 
 
 @validate_call
@@ -54,16 +33,7 @@ def score(request_id: str, miner_output: MinerOutput) -> float:
     global dfp_manager
     _score = 0.0
 
-    _is_passed, _ = check_eslint(
-        request_id=request_id, fp_js=miner_output.fingerprinter_js
-    )
-
-    if not _is_passed:
-        logger.warning(
-            f"[{request_id}] - Miner submission could not pass ESLint check!"
-        )
-        return _score
-
+    # Removed ESLint check here
     dfp_manager = DFPManager(fp_js=miner_output.fingerprinter_js)
     dfp_manager.send_fp_js(
         request_id=request_id,
@@ -166,61 +136,8 @@ def set_fingerprint(order_id: int, fingerprint: str) -> None:
     return
 
 
-def compare_outputs(miner_input, miner_output, reference_output) -> dict:
-    """
-    Compare miner's output against a reference output using CFGAnalyser and CFGComparer.
-
-    Args:
-        miner_input (dict): The input used for both miner outputs.
-        miner_output (dict): The output from the current miner (expects "fingerprinter_js" key).
-        reference_output (dict): The reference output.
-
-    Returns:
-        float: Similarity score between 0 and 1.
-    """
-
-    try:
-        logger.info("Analyzing miner output...")
-
-        miner_code = miner_output["fingerprinter_js"]
-        reference_code = reference_output["fingerprinter_js"]
-
-        if not miner_code or not reference_code:
-            logger.error(
-                "Missing fingerprinter_js in miner_output or reference_output."
-            )
-            return {
-                "similarity_score": 0.0,
-                "reason": "Missing fingerprinter_js in miner_output or reference_output",
-            }
-
-        _result = RTComparer().compare(
-            challenge="dev_fingerprinter",
-            miner_script=miner_code,
-            reference_script=reference_code,
-        )
-
-        _similarity_score = _result.get("similarity_score", 0.0)
-        _reason = _result.get("reason", "Unknown")
-        logger.info(f"Similarity Score: {_similarity_score}")
-        logger.info(f"Similarity Reason: {_reason}")
-
-        try:
-            _similarity_score = max(0.0, min(1.0, _similarity_score))
-        except Exception:
-            _similarity_score = 0.0
-
-        return {"similarity_score": _similarity_score, "reason": _reason}
-
-    except Exception as err:
-        logger.error(f"Error in compare_outputs function: {str(err)}")
-        return {"similarity_score": 0.0, "reason": str(err)}
-
-
 __all__ = [
     "get_task",
-    "check_eslint",
     "score",
     "set_fingerprint",
-    "compare_outputs",
 ]

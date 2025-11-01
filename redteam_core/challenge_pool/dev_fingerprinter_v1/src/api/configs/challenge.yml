@@ -7,7 +7,7 @@ challenge:
   pushcut_timeout: 15
   n_repeat: 3
   random_seed: null
-  fp_timeout: 10
+  fp_timeout: 60
   proxy_inter_base_url: "http://localhost:8000"
   proxy_exter_base_url: "http://dfp-proxy:8000"
   devices_fname: "devices.json"

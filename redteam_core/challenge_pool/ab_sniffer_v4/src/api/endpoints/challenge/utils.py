@@ -2,12 +2,9 @@
 
 import os
 import time
-import json
 import subprocess
 import random
-from typing import Union
 
-from docker.models.networks import Network
 import docker
 import threading
 from docker import DockerClient
@@ -55,34 +52,6 @@ def copy_detector_file(miner_output: MinerOutput, templates_dir: str) -> None:
         raise
 
     return
-
-
-def check_format_error(templates_dir: str) -> bool:
-    _detection_template_dir = os.path.join(templates_dir, "static", "detection")
-    _detection_js_path = os.path.join(_detection_template_dir, "detection.js")
-    cmd = ["npx", "eslint", "--format", "json", _detection_js_path]
-    try:
-        logger.info(f"Running command: {' '.join(cmd)}")
-        result = subprocess.run(
-            cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-            check=False,  # Don't raise an exception on lint errors
-        )
-
-        if result.stdout:
-            _lint_result = json.loads(result.stdout)
-            if _lint_result[0]["errorCount"] > 0:
-                logger.warning(
-                    f"ESLint found {_lint_result[0]['errorCount']} errors in detection.js"
-                )
-                return False
-        logger.success("detection.js passed the ESLint check.")
-        return True
-    except subprocess.CalledProcessError:
-        logger.warning("ESLint check failed, continuing anyway")
-        return True
 
 
 def get_submission_file_size(templates_dir: str) -> int:
@@ -258,6 +227,5 @@ __all__ = [
     "copy_detector_file",
     "run_bot_container",
     "stop_container",
-    "check_format_error",
     "gen_ran_framework_sequence",
 ]

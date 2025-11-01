@@ -329,11 +329,8 @@ class Controller(BaseController):
                 reason=error_log,
             )
 
-            miner_commit.comparison_logs[reference_commit.docker_hub_id].append(
-                comparison_log
-            )
+            miner_commit.comparison_logs["check/validatation"] = [comparison_log]
             return
-
 
         for reference_commit in reference_commits:
             bt.logging.info(
@@ -411,7 +408,9 @@ class Controller(BaseController):
         Returns:
             bool: True if the submission is valid, False otherwise.
         """
-        _miner_script = miner_commit.scoring_logs[0].miner_output.get(self.challenge_info.get("script_path_identifier", None), None)
+        _miner_script = miner_commit.scoring_logs[0].miner_output.get(
+            self.challenge_info.get("script_path_identifier", None), None
+        )
         if not _miner_script:
             bt.logging.warning(
                 f"[CONTROLLER] Miner {miner_commit.miner_hotkey} has no valid script output for validation."
@@ -422,14 +421,17 @@ class Controller(BaseController):
                 "miner_script": _miner_script,
             }
             _internal_services_url = constants.INTERNAL_SERVICES.URL
-            _validator_endpoint = f"{_internal_services_url}/validate/challenge/{self.challenge_info.get('challenge_type', 'default')}/"
-
-
+            _validator_endpoint = f"{_internal_services_url}check/challenge/{self.challenge_info.get('challenge_type', 'default')}/"
+            headers = {
+                "Content-Type": "application/json",
+                "X-API-KEY": constants.INTERNAL_SERVICES.API_KEY,
+            }
             response = requests.post(
                 _validator_endpoint,
                 timeout=self.challenge_info.get("challenge_compare_timeout", 60),
                 verify=False,
                 json=payload,
+                headers=headers,
             )
 
             response_data = response.json()
@@ -494,15 +496,24 @@ class Controller(BaseController):
         try:
             payload = {
                 "challenge_name": self.challenge_info.get("challenge_type", None),
-                "miner_script": miner_output.get(self.challenge_info.get("script_path_identifier", None), None),
-                "reference_script": reference_output.get(self.challenge_info.get("script_path_identifier", None), None),
+                "miner_script": miner_output.get(
+                    self.challenge_info.get("script_path_identifier", None), None
+                ),
+                "reference_script": reference_output.get(
+                    self.challenge_info.get("script_path_identifier", None), None
+                ),
+            }
+            headers = {
+                "Content-Type": "application/json",
+                "X-API-KEY": constants.INTERNAL_SERVICES.API_KEY,
             }
 
             response = requests.post(
-                f"{constants.INTERNAL_SERVICES.URL}/compare",
+                f"{constants.INTERNAL_SERVICES.URL}compare",
                 timeout=self.challenge_info.get("challenge_compare_timeout", 60),
                 verify=False,
                 json=payload,
+                headers=headers,
             )
 
             response_data = response.json()
