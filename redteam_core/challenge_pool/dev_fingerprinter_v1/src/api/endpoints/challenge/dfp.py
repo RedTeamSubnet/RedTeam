@@ -3,7 +3,6 @@
 import random
 from typing import Optional, List, Dict, Set
 from collections import Counter, defaultdict
-from itertools import combinations
 
 import requests
 from pydantic import validate_call, AnyHttpUrl, SecretStr

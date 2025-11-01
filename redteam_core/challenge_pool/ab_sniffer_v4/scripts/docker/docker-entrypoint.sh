@@ -29,7 +29,6 @@ main()
 	find "${ABSC_API_LOGS_DIR}" "${ABSC_API_TMP_DIR}" -type f -exec sudo chmod 664 {} + || exit 2
 	find "${ABSC_API_LOGS_DIR}" "${ABSC_API_TMP_DIR}" -type d -exec sudo chmod +s {} + || exit 2
 	chmod ug+x "${ABSC_API_DIR}/main.py" || exit 2
-	npm i || exit 2
 	# echo "${USER} ALL=(ALL) ALL" | sudo tee -a "/etc/sudoers.d/${USER}" > /dev/null || exit 2
 	echo ""
 

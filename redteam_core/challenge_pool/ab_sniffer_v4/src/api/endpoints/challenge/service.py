@@ -17,8 +17,6 @@ from api.endpoints.challenge import utils as ch_utils
 from api.helpers.pushcut import Pushcut
 from api.logger import logger
 
-from rt_comparer import RTComparer
-
 # Define source directory - the root of the project
 _src_dir = pathlib.Path(__file__).parent.parent.parent.parent.resolve()
 pushcut = Pushcut(api_key=config.challenge.pushcut_api_key)
@@ -57,13 +55,6 @@ def score(miner_output: MinerOutput) -> float:
             miner_output=miner_output,
             templates_dir=templates_dir,
         )
-        format_status = ch_utils.check_format_error(templates_dir=templates_dir)
-
-        if not format_status:
-            logger.warning(
-                "Submitted miner submission could not pass format check. Getting null score"
-            )
-            return None
         # Generate a randomized sequence of frameworks to test against
         random_frameworks = ch_utils.gen_ran_framework_sequence()
         docker_client = docker.from_env()
@@ -254,58 +245,9 @@ def get_web(request: Request) -> HTMLResponse:
     return html_response
 
 
-def compare_outputs(miner_input, miner_output, reference_output) -> dict:
-    """
-    Compare miner's output against a reference output using CFGAnalyser and CFGComparer.
-
-    Args:
-        miner_input (dict): The input used for both miner outputs.
-        miner_output (dict): The output from the current miner (expects "detection_js" key).
-        reference_output (dict): The reference output.
-
-    Returns:
-        float: Similarity score between 0 and 1.
-    """
-    try:
-        logger.info("Analyzing miner output...")
-
-        miner_code = miner_output["detection_js"]
-        reference_code = reference_output["detection_js"]
-
-        if not miner_code or not reference_code:
-            logger.error("Missing detection_js in miner_output or reference_output.")
-            return {
-                "similarity_score": 0.0,
-                "reason": "Missing detection_js in miner_output or reference_output",
-            }
-
-        _result = RTComparer().compare(
-            challenge="ab_sniffer",
-            miner_script=miner_code,
-            reference_script=reference_code,
-        )
-
-        _similarity_score = _result.get("similarity_score", 0.0)
-        _reason = _result.get("reason", "Unknown")
-        logger.info(f"Similarity Score: {_similarity_score}")
-        logger.info(f"Similarity Reason: {_reason}")
-
-        try:
-            _similarity_score = float(_similarity_score)
-        except Exception:
-            _similarity_score = 0.0
-
-        return {"similarity_score": _similarity_score, "reason": _reason}
-
-    except Exception as err:
-        logger.error(f"Error in compare_outputs function: {str(err)}")
-        return {"similarity_score": 0.0, "reason": str(err)}
-
-
 __all__ = [
     "get_task",
     "get_web",
-    "compare_outputs",
     "score",
     "post_human_score",
     "get_results",
