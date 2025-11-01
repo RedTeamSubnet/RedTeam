@@ -2,7 +2,7 @@
 
 import os
 import pathlib
-from typing import Optional, Union, List, Dict, Any
+from typing import Optional, Union, List
 
 from pydantic import BaseModel, Field, constr, field_validator
 
@@ -145,20 +145,6 @@ class MinerOutput(BaseModel):
             raise ValueError("bot_py content is too long, max 2000 lines are allowed!")
         return val
 
-    # extra_files: Optional[List[MinerFilePM]] = Field(
-    #     default=None,
-    #     title="Extra Files",
-    #     description="List of extra files to support the bot.py.",
-    #     examples=[
-    #         [
-    #             {
-    #                 "fname": "config.py",
-    #                 "content": "threshold = 0.5",
-    #             }
-    #         ]
-    #     ],
-    # )
-
 
 class ErrorData(BaseModel):
     data: str = Field(
@@ -182,13 +168,14 @@ class RandomValRequest(BaseModel):
         pattern=ALPHANUM_REGEX,
         title="Random value",
         description="Random value.",
-        examples=["a1b2c3d4e5f6g7h8"]
+        examples=["a1b2c3d4e5f6g7h8"],
     )
+
 
 __all__ = [
     "KeyPairPM",
     "MinerInput",
     "MinerOutput",
     "EvalPayload",
-    "RandomValRequest"
+    "RandomValRequest",
 ]
