@@ -59,10 +59,6 @@ COPY requirements ./requirements
 COPY requirements.txt ./requirements.txt
 RUN /opt/conda/bin/pip install --timeout 60 -r ./requirements.txt
 
-# Install ESLint
-RUN npm init -y && \
-    npm install eslint --save-dev && \
-    rm -rf /root/.cache/* /tmp/*
 
 
 ## Here is the base image:
@@ -158,8 +154,6 @@ ENV LANG=en_US.UTF-8 \
 COPY --from=builder --chown=${UID}:${GID} /opt/conda /opt/conda
 COPY --from=builder --chown=${UID}:${GID} /usr/bin/node /usr/bin/node
 COPY --from=builder --chown=${UID}:${GID} /usr/lib/node_modules /usr/lib/node_modules
-COPY --from=builder --chown=${UID}:${GID} /usr/src/${ABSC_API_SLUG}/node_modules /usr/local/lib/node_modules
-
 
 ## Here is the final image:
 FROM base AS app

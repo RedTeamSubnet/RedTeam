@@ -311,6 +311,26 @@ class Controller(BaseController):
         reference_commits = (
             self._get_all_reference_commits() + current_commits_to_compare
         )
+        _is_valid_submission = self._validate_miner_submission(miner_commit)
+        if not _is_valid_submission:
+            bt.logging.warning(
+                f"[CONTROLLER] Skipping comparison for miner {miner_commit.miner_hotkey} due to invalid submission."
+            )
+            log = miner_commit.scoring_logs[0]
+            log.score = 0.0
+            error_log = "Invalid submission"
+            if log.error:
+                log.error += " | " + error_log
+            else:
+                log.error = error_log
+
+            comparison_log = ComparisonLog(
+                similarity_score=1,
+                reason=error_log,
+            )
+
+            miner_commit.comparison_logs["check/validation"] = [comparison_log]
+            return
 
         for reference_commit in reference_commits:
             bt.logging.info(
@@ -378,6 +398,53 @@ class Controller(BaseController):
                 del miner_commit.comparison_logs[reference_commit.docker_hub_id]
         return
 
+    def _validate_miner_submission(self, miner_commit: MinerChallengeCommit) -> bool:
+        """
+        Validate if the miner's submission is valid for comparison.
+        A valid submission should have at least one scoring log with non-null output.
+
+        Args:
+            miner_commit: The miner's challenge commit to validate.
+        Returns:
+            bool: True if the submission is valid, False otherwise.
+        """
+        _miner_script = miner_commit.scoring_logs[0].miner_output.get(
+            self.challenge_info.get("script_path_identifier", None), None
+        )
+        if not _miner_script:
+            bt.logging.warning(
+                f"[CONTROLLER] Miner {miner_commit.miner_hotkey} has no valid script output for validation."
+            )
+            return False
+        try:
+            payload = {
+                "miner_script": _miner_script,
+            }
+            _internal_services_url = constants.INTERNAL_SERVICES.URL
+            _validator_endpoint = f"{_internal_services_url}check/challenge/{self.challenge_info.get('challenge_type', 'default')}/"
+            headers = {
+                "Content-Type": "application/json",
+                "X-API-KEY": constants.INTERNAL_SERVICES.API_KEY,
+            }
+            response = requests.post(
+                _validator_endpoint,
+                timeout=self.challenge_info.get("challenge_compare_timeout", 60),
+                verify=False,
+                json=payload,
+                headers=headers,
+            )
+
+            response_data = response.json()
+            data = response_data.get("data", {})
+            bt.logging.info(f"Validation response data: {data}")
+            similarity_score = data.get("is_valid", False)
+
+            return similarity_score
+
+        except Exception as e:
+            bt.logging.error(f"Error in comparison request: {str(e)}")
+            return False
+
     def _generate_scoring_logs(
         self, miner_commit: MinerChallengeCommit, challenge_inputs
     ):
@@ -425,20 +492,28 @@ class Controller(BaseController):
         Returns:
             dict: Comparison score between 0 and 1, and reason for the score
         """
-        _protocol, _ssl_verify = self._check_protocol(is_challenger=True)
 
         try:
             payload = {
-                "miner_input": miner_input,
-                "miner_output": miner_output,
-                "reference_output": reference_output,
+                "challenge_name": self.challenge_info.get("challenge_type", None),
+                "miner_script": miner_output.get(
+                    self.challenge_info.get("script_path_identifier", None), None
+                ),
+                "reference_script": reference_output.get(
+                    self.challenge_info.get("script_path_identifier", None), None
+                ),
+            }
+            headers = {
+                "Content-Type": "application/json",
+                "X-API-KEY": constants.INTERNAL_SERVICES.API_KEY,
             }
 
             response = requests.post(
-                f"{_protocol}://localhost:{constants.CHALLENGE_DOCKER_PORT}/compare",
+                f"{constants.INTERNAL_SERVICES.URL}compare",
                 timeout=self.challenge_info.get("challenge_compare_timeout", 60),
-                verify=_ssl_verify,
+                verify=False,
                 json=payload,
+                headers=headers,
             )
 
             response_data = response.json()
@@ -572,6 +647,32 @@ class Controller(BaseController):
             score = 0.0
         return score
 
+    def _get_current_commits_to_compare(
+        self, miner_commit: MinerChallengeCommit = None
+    ) -> list[MinerChallengeCommit]:
+        _all_current_commits = []
+        for commit in self.miner_commits:
+            if commit.scoring_logs and (commit.miner_uid != miner_commit.miner_uid):
+                _all_current_commits.append(commit)
+        return _all_current_commits
+
+    @abstractmethod
+    def _get_all_reference_commits(self) -> list[MinerChallengeCommit]:
+        """
+        Get all reference commits including baseline cache if available.
+        Override in specialized controllers to add their baseline cache.
+        """
+        return self.reference_comparison_commits
+
+    @abstractmethod
+    def _exclude_output_keys(self, miner_output: dict, reference_output: dict):
+        """
+        Exclude specific keys from outputs to prevent database bloat.
+        Override in specialized controllers to specify which keys to exclude.
+        """
+        # Default implementation - no exclusions
+        pass
+
     def _check_protocol(
         self, is_challenger: bool = True
     ) -> tuple[str, Union[bool, None]]:
@@ -605,29 +706,3 @@ class Controller(BaseController):
                     _ssl_verify = _protocols["miner_ssl_verify"]
 
         return _protocol, _ssl_verify
-
-    def _get_current_commits_to_compare(
-        self, miner_commit: MinerChallengeCommit = None
-    ) -> list[MinerChallengeCommit]:
-        _all_current_commits = []
-        for commit in self.miner_commits:
-            if commit.scoring_logs and (commit.miner_uid != miner_commit.miner_uid):
-                _all_current_commits.append(commit)
-        return _all_current_commits
-
-    @abstractmethod
-    def _get_all_reference_commits(self) -> list[MinerChallengeCommit]:
-        """
-        Get all reference commits including baseline cache if available.
-        Override in specialized controllers to add their baseline cache.
-        """
-        return self.reference_comparison_commits
-
-    @abstractmethod
-    def _exclude_output_keys(self, miner_output: dict, reference_output: dict):
-        """
-        Exclude specific keys from outputs to prevent database bloat.
-        Override in specialized controllers to specify which keys to exclude.
-        """
-        # Default implementation - no exclusions
-        pass
