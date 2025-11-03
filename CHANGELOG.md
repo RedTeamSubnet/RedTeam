@@ -1,5 +1,16 @@
 # Changelog
 
+## v2.9.0 (2025-11-03)
+
+<!-- Release notes generated using configuration in .github/release.yml at v2.9.0 -->
+
+## What's Changed
+### ✨ Features
+* feat: integrate internal services by @aliyuldashev in https://github.com/RedTeamSubnet/RedTeam/pull/85
+
+
+**Full Changelog**: https://github.com/RedTeamSubnet/RedTeam/compare/v2.8.4...v2.9.0
+
 ## v2.8.4 (2025-10-28)
 
 <!-- Release notes generated using configuration in .github/release.yml at v2.8.4 -->
