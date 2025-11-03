@@ -37,10 +37,18 @@ class MinerChallengeInfo(BaseModel):
         Args:
             commit: New commit to evaluate
         """
-        if not miner_commit.accepted:
+        if(
+            self.best_commit
+            and miner_commit.encrypted_commit == self.best_commit.encrypted_commit
+            and not miner_commit.accepted
+        ):
+            self.best_commit = None
             return
 
-        if (
+        elif not miner_commit.accepted:
+            return
+
+        elif (
             self.best_commit is None
             or miner_commit.score > self.best_commit.score
             or miner_commit.score == 1.0

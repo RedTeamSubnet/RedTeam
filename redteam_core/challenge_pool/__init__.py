@@ -44,9 +44,6 @@ ACTIVE_CHALLENGES = {
         "controller": get_obj_from_str(
             CHALLENGE_CONFIGS[challenge_name].get("target", None)
         ),
-        "comparer": get_obj_from_str(
-            CHALLENGE_CONFIGS[challenge_name].get("comparer", None)
-        ),
         "challenge_manager": (
             get_obj_from_str(
                 CHALLENGE_CONFIGS[challenge_name].get("challenge_manager", None)

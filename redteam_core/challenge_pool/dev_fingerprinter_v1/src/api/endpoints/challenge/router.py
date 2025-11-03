@@ -79,35 +79,6 @@ def post_score(request: Request, miner_input: MinerInput, miner_output: MinerOut
 
 
 @router.post(
-    "/compare",
-    summary="Compare miner outputs",
-    description="This endpoint compares a miner's output to a reference output.",
-    responses={422: {}, 500: {}},
-)
-def post_compare(
-    request: Request,
-    miner_output: dict = Body(...),
-    reference_output: dict = Body(...),
-    miner_input: dict = Body(...),
-):
-    _request_id = request.state.request_id
-    logger.info(f"[{_request_id}] - Comparing miner outputs...")
-
-    try:
-        _score = service.compare_outputs(
-            miner_input=miner_input,
-            miner_output=miner_output,
-            reference_output=reference_output,
-        )
-        logger.success(f"[{_request_id}] - Successfully compared miner outputs.")
-    except Exception as err:
-        logger.error(f"[{_request_id}] - Error comparing miner outputs: {str(err)}")
-        raise HTTPException(status_code=500, detail="Error in comparison request")
-
-    return _score
-
-
-@router.post(
     "/_fingerprint",
     summary="Set device fingerprint",
     description="This endpoint receives the device fingerprint from the DFP proxy server.",
@@ -149,57 +120,6 @@ def post_fingerprint(
 
     _response = BaseResponse(
         request=request, message="Successfully set device fingerprint."
-    )
-    return _response
-
-
-@router.post(
-    "/eslint",
-    summary="Check ESLint",
-    description="This endpoint checks if the provided JavaScript content passes ESLint.",
-    response_model=BaseResPM,
-    responses={422: {}},
-)
-def post_eslint(request: Request, miner_output: MinerOutput):
-
-    _request_id = request.state.request_id
-    logger.info(f"[{_request_id}] - Checking fingerprinter.js with ESLint...")
-
-    _is_passed = False
-    _report = {}
-    try:
-        _is_passed, _report = service.check_eslint(
-            request_id=_request_id, fp_js=miner_output.fingerprinter_js
-        )
-
-        if not _is_passed:
-            raise BaseHTTPException(
-                error_enum=ErrorCodeEnum.UNPROCESSABLE_ENTITY,
-                message="Fingerprinter.js failed to pass ESLint!",
-                detail=_report,
-            )
-
-        logger.success(
-            f"[{_request_id}] - Successfully checked fingerprinter.js with ESLint."
-        )
-    except HTTPException:
-        raise
-    except Exception:
-        logger.exception(
-            f"[{_request_id}] - Failed to check fingerprinter.js with ESLint!"
-        )
-        raise BaseHTTPException(
-            error_enum=ErrorCodeEnum.INTERNAL_SERVER_ERROR,
-            message="Failed to check fingerprinter.js with ESLint!",
-        )
-
-    _response = BaseResponse(
-        request=request,
-        message="Successfully checked fingerprinter.js with ESLint.",
-        content={
-            "is_passed": _is_passed,
-            "report": _report,
-        },
     )
     return _response
 

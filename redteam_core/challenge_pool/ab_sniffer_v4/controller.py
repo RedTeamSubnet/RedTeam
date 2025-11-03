@@ -50,7 +50,7 @@ class ABSController(Controller):
 
         comparison_config = self.challenge_info.get("comparison_config", {})
         self.comparison_min_acceptable_score = comparison_config.get(
-            "min_acceptable_score", 0.7
+            "min_acceptable_score", 0.6
         )
 
         # Initialize local storage for this instance
@@ -208,7 +208,7 @@ class ABSController(Controller):
     def _score_miner_with_new_inputs(
         self, miner_commit: MinerChallengeCommit, challenge_inputs
     ):
-        """Run and score miner with new challenge inputs."""
+        _scoring_log = miner_commit.scoring_logs[0]
         for i, miner_input in enumerate(challenge_inputs):
 
             _higest_comparison_score = miner_commit.get_higest_comparison_score()
@@ -220,29 +220,26 @@ class ABSController(Controller):
                 bt.logging.info(
                     f"[CONTROLLER - ABSController] Skipping scoring for miner {miner_commit.miner_hotkey} on task {i} due to high comparison score: {_higest_comparison_score}"
                 )
-                miner_commit.scoring_logs[0].score = 0.0
-                miner_commit.scoring_logs[0].error = (
-                    "[Not Accepted]High comparison score, skipping scoring"
-                )
-
+                _scoring_log.score = 0.0
+                if _scoring_log.error:
+                    _scoring_log.error += (
+                        " | Skipped scoring due to high comparison score."
+                    )
+                else:
+                    _scoring_log.error = "Skipped scoring due to high comparison score."
                 continue
 
             score = (
                 self._score_challenge(
                     miner_input=miner_input,
-                    miner_output=miner_commit.scoring_logs[0].miner_output,
+                    miner_output=_scoring_log.miner_output,
                     task_id=i,
                 )
-                if miner_commit.scoring_logs[0].miner_output is not None
+                if _scoring_log.miner_output is not None
                 else 0.0
             )
 
-            scoring_results = self._get_scoring_results()
-
-            miner_commit.scoring_logs[0].miner_output[
-                "scoring_results"
-            ] = scoring_results
-            miner_commit.scoring_logs[0].score = score
+            _scoring_log.score = score
 
     def _get_scoring_results(self) -> dict:
         """Retrieve scoring results from the challenge container."""

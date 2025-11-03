@@ -13,7 +13,6 @@ FROM ${BASE_IMAGE} AS builder
 ARG DEBIAN_FRONTEND
 ARG DFP_API_SLUG
 
-# ARG USE_GPU=false
 ARG PYTHON_VERSION=3.10
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
@@ -59,10 +58,7 @@ RUN _BUILD_TARGET_ARCH=$(uname -m) && \
 
 COPY requirements ./requirements
 COPY requirements.txt ./requirements.txt
-COPY src/package*.json ./
-RUN /opt/conda/bin/pip install --timeout 60 -r ./requirements.txt && \
-	npm install -g npm@latest && \
-	npm ci
+RUN /opt/conda/bin/pip install --timeout 60 -r ./requirements.txt
 
 
 ## Here is the base image:
@@ -121,8 +117,6 @@ RUN rm -rfv /var/lib/apt/lists/* /var/cache/apt/archives/* /tmp/* /root/.cache/*
 		graphviz-dev \
 		nano && \
 	apt-get clean -y && \
-	npm install -g npm@latest && \
-	npm cache clean --force && \
 	sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
 	sed -i -e 's/# en_AU.UTF-8 UTF-8/en_AU.UTF-8 UTF-8/' /etc/locale.gen && \
 	dpkg-reconfigure --frontend=noninteractive locales && \
@@ -156,7 +150,6 @@ ENV LANG=en_US.UTF-8 \
 	LC_ALL=en_US.UTF-8
 
 COPY --from=builder --chown=${UID}:${GID} /opt/conda /opt/conda
-COPY --from=builder --chown=${UID}:${GID} /usr/src/${DFP_API_SLUG}/node_modules ${DFP_API_DIR}/node_modules
 
 
 ## Here is the final image:

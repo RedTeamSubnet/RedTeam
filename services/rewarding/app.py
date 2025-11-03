@@ -339,47 +339,6 @@ class RewardApp(Validator):
         # Update commits with challenge_managers
         self.challenge_managers[challenge].update_miner_scores(controller.miner_commits)
 
-    def _compare_miner_commits(
-        self,
-        challenge: str,
-        revealed_commits_list: list[MinerChallengeCommit],
-        compare_with_each_other: bool = False,
-    ):
-        """
-        Compare miner commits for similarity checking.
-
-        Args:
-            challenge (str): Challenge name
-            revealed_commits_list (list[MinerChallengeCommit]): Commits to compare
-            compare_with_each_other (bool): If True, compares all commits with each other
-                                          If False, only compares with reference commits
-
-        Note: Used in two contexts:
-        1. During regular scoring: compare_with_each_other=False to compare with reference commits
-        2. At scoring hour: compare_with_each_other=True to compare all commits submitted within the same day with each other
-        """
-        if not revealed_commits_list:
-            bt.logging.info(
-                f"[CENTRALIZED SCORING] No commits for challenge: {challenge}, skipping"
-            )
-            return
-
-        bt.logging.info(
-            f"[CENTRALIZED SCORING] Running comparer for challenge: {challenge}"
-        )
-        comparer = self.active_challenges[challenge]["comparer"](
-            challenge_name=challenge,
-            challenge_info=self.active_challenges[challenge],
-            miner_commits=revealed_commits_list,
-            compare_with_each_other=compare_with_each_other,
-        )
-        # Run comparison, the comparer update commit 's penalty and comparison logs directly
-        comparer.start_comparison()
-
-        bt.logging.success(
-            f"[CENTRALIZED SCORING] Comparison for challenge: {challenge} has been completed"
-        )
-
     def run(self):
         bt.logging.info("Starting reward app loop.")
         # Try set weights after initial sync
