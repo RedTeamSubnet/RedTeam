@@ -9,6 +9,7 @@ class ScoringLog(BaseModel):
     score: Optional[float] = None
     miner_input: Optional[dict] = None
     miner_output: Optional[dict] = None
+    validation_output: Optional[dict] = None
     error: Optional[str] = None
     baseline_score: Optional[float] = None
     input_hash: Optional[str] = None
@@ -26,6 +27,7 @@ class ScoringLog(BaseModel):
             score=self.score,
             miner_input=None,
             miner_output=None,
+            validation_output=None,
             error=self.error,
             baseline_score=self.baseline_score,
             input_hash=None,
