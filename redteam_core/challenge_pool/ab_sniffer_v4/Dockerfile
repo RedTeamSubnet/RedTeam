@@ -67,6 +67,7 @@ FROM ${BASE_IMAGE} AS base
 ARG DEBIAN_FRONTEND
 ARG ABSC_API_SLUG
 
+ARG DOCKER_VERSION="28.5.2"
 ARG ABSC_HOME_DIR="/app"
 ARG ABSC_API_DIR="${ABSC_HOME_DIR}/${ABSC_API_SLUG}"
 ARG ABSC_API_DATA_DIR="/var/lib/${ABSC_API_SLUG}"
@@ -114,7 +115,7 @@ RUN rm -rfv /var/lib/apt/lists/* /var/cache/apt/archives/* /tmp/* /root/.cache/*
 		graphviz-dev \
 		# skopeo \
 		nano && \
-	curl -fsSL https://get.docker.com/ | sh && \
+	curl -fsSL https://get.docker.com/ | sh -s -- --version ${DOCKER_VERSION} && \
 	curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
 	apt-get install -y --no-install-recommends nodejs && \
 	apt-get clean -y && \
