@@ -60,7 +60,6 @@ class RewardApp(Validator):
             - miner_commits: Aggregated miner commits from all validators
             - miner_commits_cache: Quick lookup cache mapping challenge_name---encrypted_commit to commit
             - scoring_results: Cache for scored docker_hub_ids with their scoring and comparison logs
-            - is_scoring_done: Tracks scoring completion status for each challenge
         """
         super().__init__(config)
         # Initialize validator state, stores current miner commits from all validators
@@ -83,9 +82,6 @@ class RewardApp(Validator):
         # Initialize scoring completion flags
         # This is used to check if the scoring for a challenge is done
         # Set to False when new miner commits are retrieved and True when all miner commits are scored and compared at scoring hour
-        self.is_scoring_done: dict[str, bool] = {
-            challenge_name: False for challenge_name in self.active_challenges.keys()
-        }
 
         bt.logging.info(
             f"Reward app constant values: {constants.model_dump_json(indent=2)}"
@@ -150,58 +146,52 @@ class RewardApp(Validator):
 
         # Get revealed commits
         revealed_commits = self.get_revealed_commits()
-        for challenge in self.active_challenges.keys():
-            # Flag the challenge as not done scoring if there are still unscored submissions
-            if revealed_commits.get(challenge):
-                self.is_scoring_done[challenge] = False
 
-        # 3. Score and compare miner commits for each challenge
-        for challenge in revealed_commits:
-            if revealed_commits[challenge]:
-                # Score and compare new commits
-                self._score_and_compare_new_miner_commits(
-                    challenge=challenge,
-                    revealed_commits_list=revealed_commits[challenge],
-                )
-
-                # Update cache
-                for commit in revealed_commits[challenge]:
-                    self.scoring_results.set(
-                        challenge=challenge,
-                        docker_hub_id=commit.docker_hub_id,
-                        result={
-                            "scoring_logs": commit.scoring_logs,
-                            "comparison_logs": commit.comparison_logs,
-                        },
-                    )
-
-                bt.logging.info(
-                    f"[CENTRALIZED SCORING] Scoring for challenge: {challenge} has been completed"
-                )
-
-                # Store commits and scoring cache from this challenge
-                self._store_miner_commits(
-                    miner_commits={challenge: revealed_commits[challenge]}
-                )
-                self._store_centralized_scoring(challenge_name=challenge)
-
-        # Store reward app state, this can be viewed by other validators, so we need to make it public view
-        self.storage_manager.update_validator_state(
-            data=self.export_state(public_view=True), async_update=True
-        )
-
-        # 4. Finalize validator's daily state
         # Get current time info
         today = datetime.datetime.now(datetime.timezone.utc)
         today_key = today.strftime("%Y-%m-%d")
         current_hour = today.hour
 
-        validate_scoring_hour = current_hour >= constants.SCORING_HOUR
-        validate_scoring_date = today_key not in self.scoring_dates
+        validate_scoring_hour = current_hour == constants.SCORING_HOUR
 
-        if validate_scoring_hour and validate_scoring_date:
+        # 3. Score and compare miner commits for each challenge
+        if validate_scoring_hour:
+            bt.logging.info(
+                f"[CENTRALIZED SCORING] Starting scoring process for revealed commits at {date_time}"
+            )
             for challenge in revealed_commits:
-                self.is_scoring_done[challenge] = True
+                if revealed_commits[challenge]:
+                    # Score and compare new commits
+                    self._score_and_compare_new_miner_commits(
+                        challenge=challenge,
+                        revealed_commits_list=revealed_commits[challenge],
+                    )
+
+                    # Update cache
+                    for commit in revealed_commits[challenge]:
+                        self.scoring_results.set(
+                            challenge=challenge,
+                            docker_hub_id=commit.docker_hub_id,
+                            result={
+                                "scoring_logs": commit.scoring_logs,
+                                "comparison_logs": commit.comparison_logs,
+                            },
+                        )
+
+                    bt.logging.info(
+                        f"[CENTRALIZED SCORING] Scoring for challenge: {challenge} has been completed"
+                    )
+
+                    # Store commits and scoring cache from this challenge
+                    self._store_miner_commits(
+                        miner_commits={challenge: revealed_commits[challenge]}
+                    )
+                    self._store_centralized_scoring(challenge_name=challenge)
+
+        # Store reward app state, this can be viewed by other validators, so we need to make it public view
+        self.storage_manager.update_validator_state(
+            data=self.export_state(public_view=True), async_update=True
+        )
 
     def _score_and_compare_new_miner_commits(
         self, challenge: str, revealed_commits_list: list[MinerChallengeCommit]
