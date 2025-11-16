@@ -6,6 +6,7 @@ echo "INFO: Running 'rest.rt-hb-challenger' docker-entrypoint.sh..."
 
 _doStart()
 {
+	# echo "{\"features\":{\"containerd-snapshotter\": false}}" | sudo tee /etc/docker/daemon.json || exit 2
 	sudo service docker start || exit 2
 	sleep 2
 	# sudo docker pull redteamsn61/hbc-bot-base:latest || exit 2

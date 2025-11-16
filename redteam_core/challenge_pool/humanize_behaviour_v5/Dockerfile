@@ -61,6 +61,7 @@ FROM ${BASE_IMAGE} AS base
 ARG DEBIAN_FRONTEND
 ARG HBC_API_SLUG
 
+ARG DOCKER_VERSION="28.5.2"
 ARG HBC_HOME_DIR="/app"
 ARG HBC_API_DIR="${HBC_HOME_DIR}/${HBC_API_SLUG}"
 ARG HBC_API_DATA_DIR="/var/lib/${HBC_API_SLUG}"
@@ -106,7 +107,7 @@ RUN rm -rfv /var/lib/apt/lists/* /var/cache/apt/archives/* /tmp/* /root/.cache/*
 		iproute2 \
 		# skopeo \
 		nano && \
-	curl -fsSL https://get.docker.com/ | sh && \
+	curl -fsSL https://get.docker.com/ | sh -s -- --version ${DOCKER_VERSION} && \
 	apt-get clean -y && \
 	sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
 	sed -i -e 's/# en_AU.UTF-8 UTF-8/en_AU.UTF-8 UTF-8/' /etc/locale.gen && \
