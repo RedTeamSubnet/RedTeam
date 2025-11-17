@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from collections import defaultdict
+import os
 import pathlib
 import time
 import docker
@@ -238,9 +239,11 @@ def get_results() -> dict:
 @validate_call(config={"arbitrary_types_allowed": True})
 def get_web(request: Request) -> HTMLResponse:
     templates = Jinja2Templates(directory=str(_src_dir / "templates"))
+    _abs_result_endpoint = os.getenv("ASB_RESULT_ENDPOINT")
     html_response = templates.TemplateResponse(
         request=request,
         name="index.html",
+        context={"abs_result_endpoint": _abs_result_endpoint},
     )
     return html_response
 

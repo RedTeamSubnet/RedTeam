@@ -12,17 +12,17 @@ from api.core import utils
 
 
 _src_dir = pathlib.Path(__file__).parent.parent.parent.parent.resolve()
-_detection_template_dir = _src_dir / "templates" / "static" / "detection"
+_detection_template_dir = _src_dir / "templates" / "static" / "detections"
 
 # Read detection.js
-_detection_js_path = str(_detection_template_dir / "detection.js")
-_detection_js_content = "(function(){const driverType=getDriverType();localStorage.setItem('driver',driverType);})();"
+_detection_js_files = _detection_template_dir.glob("*.js")
+_detection_files = {}
 try:
-    if os.path.exists(_detection_js_path):
-        with open(_detection_js_path, "r") as _detection_js_file:
-            _detection_js_content = _detection_js_file.read()
+    for js_file in _detection_js_files:
+        with open(js_file, "r") as file:
+            _detection_files[js_file.name] = file.read()
 except Exception as e:
-    print(f"Error: Failed to read detection.js: {e}")
+    print(f"Error: Failed to read detection files in detections folder: {e}")
 
 
 class MinerInput(BaseModel):
@@ -45,22 +45,26 @@ class MinerInput(BaseModel):
 
 
 class MinerOutput(BaseModel):
-    detection_js: str = Field(
-        default=_detection_js_content,
-        title="detection.js",
-        min_length=2,
-        description="System-provided detection.js script for driver detection.",
-        examples=[_detection_js_content],
+    detection_files: dict = Field(
+        ...,
+        title="js files",
+        description="The main detection.js source code for the challenge.",
+        examples=[_detection_files],
     )
 
-    @field_validator("detection_js", mode="after")
+    @field_validator("detection_files", mode="after")
     @classmethod
-    def _check_detection_js_lines(cls, val: str) -> str:
-        _lines = val.split("\n")
-        if len(_lines) > 1000:
-            raise ValueError(
-                "detection_js content is too long, max 1000 lines are allowed!"
-            )
+    def _check_detection_js_lines(cls, val: dict) -> dict:
+        if not isinstance(val, dict):
+            raise TypeError("detection_files must be a dict")
+        for detection_name, detection_file in val.items():
+            if not isinstance(detection_file, str):
+                raise TypeError(f"detection file for {detection_name} must be a string")
+            _lines = detection_file.splitlines()
+            if len(_lines) > 500:
+                raise ValueError(
+                    f"script for detecting {detection_name} exceeds 500 line limit"
+                )
         return val
 
 

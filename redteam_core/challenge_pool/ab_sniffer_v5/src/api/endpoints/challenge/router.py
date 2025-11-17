@@ -108,13 +108,13 @@ def _get_web(request: Request):
 
 
 @router.post(
-    "/human-score",
+    "/_payload",
     description="This endpoint posts the human score.",
     responses={422: {}},
 )
-def post_human_score(
+def post_payload(
     request: Request,
-    driver: str = Body(..., embed=False),
+    drivers: dict = Body(..., embed=False),
 ):
     _request_id = request.state.request_id
     logger.info(f"[{_request_id}] - Posting human score...")
