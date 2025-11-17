@@ -1,0 +1,7 @@
+pm2 start python3 --name "miner_sn61" \
+        -- -m neurons.miner.miner \
+        --netuid 61 \
+        --wallet.name "bitlucky" \
+        --wallet.hotkey "luckyone" \
+        --axon.port "8091" \
+        --subtensor.network finney

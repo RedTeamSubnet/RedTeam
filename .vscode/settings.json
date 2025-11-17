@@ -149,7 +149,7 @@
 		"**/.DS_Store": true,
 		"**/Thumbs.db": true
 	},
-	"python.languageServer": "Pylance",
+	"python.languageServer": "None",
 	// "python.analysis.extraPaths": [
 	// 	"${workspaceFolder}/redteam_core/challenge_pool/humanize_behaviour_v3/src",
 	// ],

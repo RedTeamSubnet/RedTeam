@@ -116,30 +116,49 @@ function canvasFingerprint() {
 }
 
 async function audioFingerprint() {
-	try {
-		const ctx = new (window.AudioContext || window.webkitAudioContext)();
-		const osc = ctx.createOscillator();
-		const comp = ctx.createDynamicsCompressor();
-		return await new Promise((resolve) => {
-			osc.type = "triangle";
-			osc.frequency.value = 10000;
-			osc.connect(comp);
-			comp.connect(ctx.destination);
-			osc.start(0);
-			setTimeout(async () => {
-				osc.stop();
-				const fp = `${ctx.sampleRate}|${comp.threshold?.value ?? ""},${comp.knee?.value ?? ""
-					},${comp.ratio?.value ?? ""},${comp.attack?.value ?? ""},${comp.release?.value ?? ""
-					}`;
-				try {
-					await ctx.close();
-				} catch { }
-				resolve(hashStringFast(fp));
-			}, 150);
-		});
-	} catch {
-		return null;
-	}
+	const resultPromise = new Promise((resolve, reject) => {
+		try {
+			// Set up audio parameters
+			const sampleRate = 44100;
+			const numSamples = 5000;
+			const audioContext = new ((window.OfflineAudioContext || window.webkitOfflineAudioContext))(1, numSamples, sampleRate);
+			const audioBuffer = audioContext.createBufferSource();
+
+			const oscillator = audioContext.createOscillator();
+			oscillator.frequency.value = 1000;
+			const compressor = audioContext.createDynamicsCompressor();
+			compressor.threshold.value = -50;
+			compressor.knee.value = 40;
+			compressor.ratio.value = 12;
+			compressor.attack.value = 0;
+			compressor.release.value = 0.2;
+			oscillator.connect(compressor);
+			compressor.connect(audioContext.destination);
+			oscillator.start();
+			let samples;
+
+			audioContext.oncomplete = event => {
+				samples = event.renderedBuffer.getChannelData(0);
+				resolve(
+					{
+						'sampleHash': calculateHash(samples),
+						'maxChannels': audioContext.destination.maxChannelCount,
+						'channelCountMode': audioBuffer.channelCountMode,
+
+					}
+				);
+			};
+
+			audioContext.startRendering();
+
+
+		} catch (error) {
+			console.error('Error creating audio fingerprint:', error);
+			reject(error);
+		}
+
+	});
+	return resultPromise;
 }
 
 function getTechnicalInfoSync() {
