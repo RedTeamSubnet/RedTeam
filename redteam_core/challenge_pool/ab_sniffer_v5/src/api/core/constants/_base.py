@@ -3,7 +3,7 @@
 from enum import Enum
 
 
-ENV_PREFIX = "ABSC_"
+ENV_PREFIX = "ABS_"
 ENV_PREFIX_API = f"{ENV_PREFIX}API_"
 
 

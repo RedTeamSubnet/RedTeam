@@ -3,21 +3,21 @@
 ARG BASE_IMAGE=ubuntu:22.04
 
 ARG DEBIAN_FRONTEND=noninteractive
-ARG ABSC_API_SLUG="rest.rt-abs-challenger"
+ARG ABS_API_SLUG="rest.rt-abs-challenger"
 
 
 ## Here is the builder image:
 FROM ${BASE_IMAGE} AS builder
 
 ARG DEBIAN_FRONTEND
-ARG ABSC_API_SLUG
+ARG ABS_API_SLUG
 
 # ARG USE_GPU=false
 ARG PYTHON_VERSION=3.10
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-WORKDIR "/usr/src/${ABSC_API_SLUG}"
+WORKDIR "/usr/src/${ABS_API_SLUG}"
 
 RUN _BUILD_TARGET_ARCH=$(uname -m) && \
     echo "BUILDING TARGET ARCHITECTURE: $_BUILD_TARGET_ARCH" && \
@@ -65,29 +65,29 @@ RUN /opt/conda/bin/pip install --timeout 60 -r ./requirements.txt
 FROM ${BASE_IMAGE} AS base
 
 ARG DEBIAN_FRONTEND
-ARG ABSC_API_SLUG
+ARG ABS_API_SLUG
 
 ARG DOCKER_VERSION="28.5.2"
-ARG ABSC_HOME_DIR="/app"
-ARG ABSC_API_DIR="${ABSC_HOME_DIR}/${ABSC_API_SLUG}"
-ARG ABSC_API_DATA_DIR="/var/lib/${ABSC_API_SLUG}"
-ARG ABSC_API_LOGS_DIR="/var/log/${ABSC_API_SLUG}"
-ARG ABSC_API_TMP_DIR="/tmp/${ABSC_API_SLUG}"
-ARG ABSC_API_PORT=10001
+ARG ABS_HOME_DIR="/app"
+ARG ABS_API_DIR="${ABS_HOME_DIR}/${ABS_API_SLUG}"
+ARG ABS_API_DATA_DIR="/var/lib/${ABS_API_SLUG}"
+ARG ABS_API_LOGS_DIR="/var/log/${ABS_API_SLUG}"
+ARG ABS_API_TMP_DIR="/tmp/${ABS_API_SLUG}"
+ARG ABS_API_PORT=10001
 ## IMPORTANT!: Get hashed password from build-arg!
-## echo "ABSC_USER_PASSWORD123" | openssl passwd -5 -stdin
+## echo "ABS_USER_PASSWORD123" | openssl passwd -5 -stdin
 ARG HASH_PASSWORD="\$5\$gRjE/FxO7w1TmnYK\$mOXlpa3PRdmx1Vn2THAvwM.qXROLxA5iu08wqks8dF."
 ARG UID=1000
 ARG GID=11000
 ARG USER=absc-user
 ARG GROUP=absc-group
 
-ENV ABSC_HOME_DIR="${ABSC_HOME_DIR}" \
-	ABSC_API_DIR="${ABSC_API_DIR}" \
-	ABSC_API_DATA_DIR="${ABSC_API_DATA_DIR}" \
-	ABSC_API_LOGS_DIR="${ABSC_API_LOGS_DIR}" \
-	ABSC_API_TMP_DIR="${ABSC_API_TMP_DIR}" \
-	ABSC_API_PORT=${ABSC_API_PORT} \
+ENV ABS_HOME_DIR="${ABS_HOME_DIR}" \
+	ABS_API_DIR="${ABS_API_DIR}" \
+	ABS_API_DATA_DIR="${ABS_API_DATA_DIR}" \
+	ABS_API_LOGS_DIR="${ABS_API_LOGS_DIR}" \
+	ABS_API_TMP_DIR="${ABS_API_TMP_DIR}" \
+	ABS_API_PORT=${ABS_API_PORT} \
 	UID=${UID} \
 	GID=${GID} \
 	USER=${USER} \
@@ -139,13 +139,13 @@ RUN rm -rfv /var/lib/apt/lists/* /var/cache/apt/archives/* /tmp/* /root/.cache/*
 	echo ". /opt/conda/etc/profile.d/conda.sh" >> "/home/${USER}/.bashrc" && \
 	echo "conda activate base" >> "/home/${USER}/.bashrc" && \
 	rm -rfv /var/lib/apt/lists/* /var/cache/apt/archives/* /tmp/* /root/.cache/* "/home/${USER}/.cache/*" && \
-	mkdir -pv "${ABSC_API_DIR}" "${ABSC_API_DATA_DIR}" "${ABSC_API_LOGS_DIR}" "${ABSC_API_TMP_DIR}" && \
+	mkdir -pv "${ABS_API_DIR}" "${ABS_API_DATA_DIR}" "${ABS_API_LOGS_DIR}" "${ABS_API_TMP_DIR}" && \
 	# skopeo copy docker://redteamsn61/absc-bot-base:latest docker-archive:/app/redteamsn61_absc-bot-base.tar &&\
-	chown -Rc "${USER}:${GROUP}" "${ABSC_HOME_DIR}" "${ABSC_API_DATA_DIR}" "${ABSC_API_LOGS_DIR}" "${ABSC_API_TMP_DIR}" && \
-	find "${ABSC_API_DIR}" "${ABSC_API_DATA_DIR}" -type d -exec chmod -c 770 {} + && \
-	find "${ABSC_API_DIR}" "${ABSC_API_DATA_DIR}" -type d -exec chmod -c ug+s {} + && \
-	find "${ABSC_API_LOGS_DIR}" "${ABSC_API_TMP_DIR}" -type d -exec chmod -c 775 {} + && \
-	find "${ABSC_API_LOGS_DIR}" "${ABSC_API_TMP_DIR}" -type d -exec chmod -c +s {} +
+	chown -Rc "${USER}:${GROUP}" "${ABS_HOME_DIR}" "${ABS_API_DATA_DIR}" "${ABS_API_LOGS_DIR}" "${ABS_API_TMP_DIR}" && \
+	find "${ABS_API_DIR}" "${ABS_API_DATA_DIR}" -type d -exec chmod -c 770 {} + && \
+	find "${ABS_API_DIR}" "${ABS_API_DATA_DIR}" -type d -exec chmod -c ug+s {} + && \
+	find "${ABS_API_LOGS_DIR}" "${ABS_API_TMP_DIR}" -type d -exec chmod -c 775 {} + && \
+	find "${ABS_API_LOGS_DIR}" "${ABS_API_TMP_DIR}" -type d -exec chmod -c +s {} +
 
 
 ENV LANG=en_US.UTF-8 \
@@ -159,16 +159,16 @@ COPY --from=builder --chown=${UID}:${GID} /usr/lib/node_modules /usr/lib/node_mo
 ## Here is the final image:
 FROM base AS app
 
-WORKDIR "${ABSC_API_DIR}"
-COPY --chown=${UID}:${GID} ./src ${ABSC_API_DIR}
+WORKDIR "${ABS_API_DIR}"
+COPY --chown=${UID}:${GID} ./src ${ABS_API_DIR}
 COPY --chown=${UID}:${GID} ./scripts/docker/*.sh /usr/local/bin/
 
-# VOLUME ["${ABSC_API_DATA_DIR}"]
-EXPOSE ${ABSC_API_PORT}
+# VOLUME ["${ABS_API_DATA_DIR}"]
+EXPOSE ${ABS_API_PORT}
 
 USER ${UID}:${GID}
 # HEALTHCHECK --start-period=30s --start-interval=1s --interval=5m --timeout=5s --retries=3 \
-# 	CMD curl -f http://localhost:${ABSC_API_PORT}/health || exit 1
+# 	CMD curl -f http://localhost:${ABS_API_PORT}/health || exit 1
 
 ENTRYPOINT ["docker-entrypoint.sh"]
-# CMD ["-b", "uvicorn main:app --host=0.0.0.0 --port=${ABSC_API_PORT:-10001} --no-access-log --no-server-header --proxy-headers --forwarded-allow-ips='*'"]
+# CMD ["-b", "uvicorn main:app --host=0.0.0.0 --port=${ABS_API_PORT:-10001} --no-access-log --no-server-header --proxy-headers --forwarded-allow-ips='*'"]

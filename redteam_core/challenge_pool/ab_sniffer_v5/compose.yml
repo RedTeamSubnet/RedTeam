@@ -13,15 +13,15 @@ services:
     environment:
       TERM: ${TERM:-xterm}
       TZ: UTC
-      ABSC_API_PORT: ${ABSC_API_PORT:-10001}
+      ABS_API_PORT: ${ABS_API_PORT:-10001}
     env_file:
       - path: .env
         required: false
     volumes:
-      - "api-logs:${ABSC_API_LOGS_DIR:-/var/log/rest.rt-abs-challenger}"
-      - "api-data:${ABSC_API_DATA_DIR:-/var/lib/rest.rt-abs-challenger}"
+      - "api-logs:${ABS_API_LOGS_DIR:-/var/log/rest.rt-abs-challenger}"
+      - "api-data:${ABS_API_DATA_DIR:-/var/lib/rest.rt-abs-challenger}"
     ports:
-      - "${ABSC_API_PORT:-10001}:${ABSC_API_PORT:-10001}"
+      - "${ABS_API_PORT:-10001}:${ABS_API_PORT:-10001}"
     tty: true
 
 

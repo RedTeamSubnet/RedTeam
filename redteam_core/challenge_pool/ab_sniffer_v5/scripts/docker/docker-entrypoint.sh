@@ -14,7 +14,7 @@ _doStart()
 	# sudo docker tag sha256:2a10d9beec491035db67bbc818fc3356cdc0bddfa3fc4bd3136c5924ed21bd14 redteamsn61/absc-bot-base:latest || exit 2
 	exec sg docker "exec python -u ./main.py" || exit 2
 	# exec python -u ./main.py || exit 2
-	# exec uvicorn main:app --host=0.0.0.0 --port=${ABSC_API_PORT:-10001} --no-access-log --no-server-header --proxy-headers --forwarded-allow-ips='*' || exit 2
+	# exec uvicorn main:app --host=0.0.0.0 --port=${ABS_API_PORT:-10001} --no-access-log --no-server-header --proxy-headers --forwarded-allow-ips='*' || exit 2
 	exit 0
 }
 
@@ -22,14 +22,14 @@ _doStart()
 main()
 {
 	umask 0002 || exit 2
-	find "${ABSC_HOME_DIR}" "${ABSC_API_DATA_DIR}" "${ABSC_API_LOGS_DIR}" "${ABSC_API_TMP_DIR}" -path "*/modules" -prune -o -name ".env" -o -print0 | sudo xargs -0 chown -c "${USER}:${GROUP}" || exit 2
-	find "${ABSC_API_DIR}" "${ABSC_API_DATA_DIR}" -type d -not -path "*/modules/*" -not -path "*/scripts/*" -exec sudo chmod 770 {} + || exit 2
-	find "${ABSC_API_DIR}" "${ABSC_API_DATA_DIR}" -type f -not -path "*/modules/*" -not -path "*/scripts/*" -exec sudo chmod 660 {} + || exit 2
-	find "${ABSC_API_DIR}" "${ABSC_API_DATA_DIR}" -type d -not -path "*/modules/*" -not -path "*/scripts/*" -exec sudo chmod ug+s {} + || exit 2
-	find "${ABSC_API_LOGS_DIR}" "${ABSC_API_TMP_DIR}" -type d -exec sudo chmod 775 {} + || exit 2
-	find "${ABSC_API_LOGS_DIR}" "${ABSC_API_TMP_DIR}" -type f -exec sudo chmod 664 {} + || exit 2
-	find "${ABSC_API_LOGS_DIR}" "${ABSC_API_TMP_DIR}" -type d -exec sudo chmod +s {} + || exit 2
-	chmod ug+x "${ABSC_API_DIR}/main.py" || exit 2
+	find "${ABS_HOME_DIR}" "${ABS_API_DATA_DIR}" "${ABS_API_LOGS_DIR}" "${ABS_API_TMP_DIR}" -path "*/modules" -prune -o -name ".env" -o -print0 | sudo xargs -0 chown -c "${USER}:${GROUP}" || exit 2
+	find "${ABS_API_DIR}" "${ABS_API_DATA_DIR}" -type d -not -path "*/modules/*" -not -path "*/scripts/*" -exec sudo chmod 770 {} + || exit 2
+	find "${ABS_API_DIR}" "${ABS_API_DATA_DIR}" -type f -not -path "*/modules/*" -not -path "*/scripts/*" -exec sudo chmod 660 {} + || exit 2
+	find "${ABS_API_DIR}" "${ABS_API_DATA_DIR}" -type d -not -path "*/modules/*" -not -path "*/scripts/*" -exec sudo chmod ug+s {} + || exit 2
+	find "${ABS_API_LOGS_DIR}" "${ABS_API_TMP_DIR}" -type d -exec sudo chmod 775 {} + || exit 2
+	find "${ABS_API_LOGS_DIR}" "${ABS_API_TMP_DIR}" -type f -exec sudo chmod 664 {} + || exit 2
+	find "${ABS_API_LOGS_DIR}" "${ABS_API_TMP_DIR}" -type d -exec sudo chmod +s {} + || exit 2
+	chmod ug+x "${ABS_API_DIR}/main.py" || exit 2
 	# echo "${USER} ALL=(ALL) ALL" | sudo tee -a "/etc/sudoers.d/${USER}" > /dev/null || exit 2
 	echo ""
 
