@@ -108,22 +108,28 @@ def _get_web(request: Request):
 
 
 @router.post(
-    "/human-score",
-    description="This endpoint posts the human score.",
+    "/driver",
+    description="This endpoint posts the driver name for scoring.",
     responses={422: {}},
 )
-def post_human_score(
+def post_driver(
     request: Request,
     driver: str = Body(..., embed=False),
 ):
     _request_id = request.state.request_id
-    logger.info(f"[{_request_id}] - Posting human score...")
+    logger.info(f"[{_request_id}] - Posting driver name for scoring ...")
     try:
-        service.post_human_score(driver, _request_id)
-        logger.success(f"[{_request_id}] - Successfully posted human score.")
+        service.post_driver(driver, _request_id)
+        logger.success(
+            f"[{_request_id}] - Successfully posted driver name for scoring."
+        )
     except Exception as err:
-        logger.error(f"[{_request_id}] - Error posting human score: {str(err)}")
-        raise HTTPException(status_code=500, detail="Error in posting human score")
+        logger.error(
+            f"[{_request_id}] - Error posting driver name for scoring: {str(err)}"
+        )
+        raise HTTPException(
+            status_code=500, detail="Error in posting driver name for scoring"
+        )
 
     return
 

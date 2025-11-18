@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
 
-from collections import defaultdict
+from collections import defaultdict, deque
 import pathlib
 import time
 import docker
+
+import threading
+
+from typing import Deque, Optional
 
 from fastapi import Request
 from fastapi.responses import HTMLResponse
@@ -21,18 +25,68 @@ from api.logger import logger
 _src_dir = pathlib.Path(__file__).parent.parent.parent.parent.resolve()
 pushcut = Pushcut(api_key=config.challenge.pushcut_api_key)
 
-# Initialize global variable for human verification
-global human_req_val
-human_req_val = ""  # Default to empty string
-
 global detection_dict
 detection_dict = defaultdict(list)
 
+_driver_condition = threading.Condition()
+_driver_queue: Deque[str] = deque()
+_DRIVER_GRACE_SECONDS = 5
 
-def post_human_score(driver: str, request_id=None):
-    global human_req_val
-    human_req_val = driver
-    logger.info(f"Received human verification input: {human_req_val}")
+
+def post_driver(driver: str, request_id=None):
+    driver_value = (driver or "").strip()
+
+    with _driver_condition:
+        if _driver_condition.waiters:
+            _driver_queue.append(driver_value)
+            _driver_condition.notify()
+            pending = len(_driver_queue)
+        else:
+            pending = 0
+
+    logger.info(
+        f"[{request_id}] - Received driver submission '{driver_value}' (pending={pending})"
+    )
+
+
+def _clear_driver_queue(reason: str = "") -> None:
+    with _driver_condition:
+        cleared = len(_driver_queue)
+        _driver_queue.clear()
+
+    if cleared:
+        logger.debug(
+            f"Cleared {cleared} pending driver submissions {reason if reason else ''}".strip()
+        )
+
+
+def _wait_for_driver_result(
+    timeout_seconds: float,
+    framework_name: str,
+) -> Optional[str]:
+    """Wait for the next driver submission up to the provided timeout."""
+
+    deadline = time.monotonic() + max(timeout_seconds, 0)
+
+    with _driver_condition:
+        while True:
+            if _driver_queue:
+                driver_value = _driver_queue.popleft() or ""
+                driver_value = driver_value.strip()
+                logger.info(
+                    f"Matched driver submission '{driver_value}' to framework '{framework_name}'"
+                )
+                return driver_value or None
+
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                break
+            _driver_condition.wait(timeout=remaining)
+
+    logger.warning(
+        f"No driver submission received within {timeout_seconds:.1f}s for framework '{framework_name}'"
+    )
+    return None
 
 
 def get_task() -> MinerInput:
@@ -45,7 +99,8 @@ def score(miner_output: MinerOutput) -> float:
 
     _score = 0.0
     global detection_dict
-    detection_dict = defaultdict(list)  # Reset for new evaluation
+    detection_dict = defaultdict(list)
+    _clear_driver_queue("before scoring run")
 
     try:
         # Copy the detection script to the templates directory
@@ -67,9 +122,15 @@ def score(miner_output: MinerOutput) -> float:
             try:
                 _start_time = time.time()
 
+                human_driver = None
+                _clear_driver_queue(
+                    f"before executing framework '{framework_image_name}'"
+                )
+
                 if framework_image_name == "human":
                     logger.info("Running human detection simulation...")
                     try:
+                        # If human, simulate a human browser by executing pushcut shortcut
                         pushcut.execute(
                             shortcut=config.challenge.pushcut_shortcut,
                             input_url=config.challenge.pushcut_web_url,
@@ -85,28 +146,49 @@ def score(miner_output: MinerOutput) -> float:
                             f"Failed to execute pushcut notification: {str(e)}"
                         )
 
+                    human_driver = _wait_for_driver_result(
+                        config.challenge.pushcut_timeout + _DRIVER_GRACE_SECONDS,
+                        framework_image_name,
+                    )
                     _end_time = time.time()
                     _execution_time = _end_time - _start_time
+                    predicted_value = (
+                        human_driver
+                        if human_driver is not None
+                        else "No driver reported"
+                    )
                     detection_dict[index].append(
                         {
-                            "detected": human_req_val == framework_image_name,
+                            "detected": human_driver == framework_image_name,
                             "driver": framework_image_name,
-                            "predicted": human_req_val,
+                            "predicted": predicted_value,
                             "execution_time": _execution_time,
                         }
                     )
-                    logger.success(
-                        f"Human browser detected successfully as: {human_req_val}"
-                    )
+                    if human_driver == framework_image_name:
+                        logger.success(
+                            f"Human browser detected successfully as: {human_driver}"
+                        )
+                    else:
+                        logger.error(
+                            f"Human detection mismatch: predicted '{predicted_value}', expected '{framework_image_name}'"
+                        )
                     continue
 
-                detected_driver = ch_utils.run_bot_container(
+                # If not human, run the detection script in a container
+                ch_utils.run_bot_container(
                     docker_client=docker_client,
                     container_name=f"{framework_image_name}",
                     network_name=f"local_network",
                     image_name=framework_image,
                     ulimit=config.challenge.docker_ulimit,
                 )
+
+                detected_driver = _wait_for_driver_result(
+                    config.challenge.bot_timeout + _DRIVER_GRACE_SECONDS,
+                    framework_image_name,
+                )
+
                 _end_time = time.time()
                 _execution_time = _end_time - _start_time
 
@@ -214,6 +296,8 @@ def score(miner_output: MinerOutput) -> float:
             raise
         logger.error(f"Failed to score the miner output: {str(err)}!")
         raise
+    finally:
+        _clear_driver_queue("after scoring run")
 
     return _score
 
@@ -249,6 +333,6 @@ __all__ = [
     "get_task",
     "get_web",
     "score",
-    "post_human_score",
+    "post_driver",
     "get_results",
 ]
