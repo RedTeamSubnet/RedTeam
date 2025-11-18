@@ -239,7 +239,7 @@ def get_results() -> dict:
 @validate_call(config={"arbitrary_types_allowed": True})
 def get_web(request: Request) -> HTMLResponse:
     templates = Jinja2Templates(directory=str(_src_dir / "templates"))
-    _abs_result_endpoint = os.getenv("ASB_RESULT_ENDPOINT")
+    _abs_result_endpoint = os.getenv("ABS_RESULT_ENDPOINT")
     html_response = templates.TemplateResponse(
         request=request,
         name="index.html",
