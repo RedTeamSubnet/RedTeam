@@ -18,6 +18,7 @@ class FrameworkImage(BaseModel):
 
 
 class ChallengeConfig(FrozenBaseConfig):
+    api_key: SecretStr = Field(..., min_length=12, max_length=128)
     docker_ulimit: int = Field(...)
     allowed_pip_pkg_dt: datetime = Field(...)
     allowed_file_exts: List[
