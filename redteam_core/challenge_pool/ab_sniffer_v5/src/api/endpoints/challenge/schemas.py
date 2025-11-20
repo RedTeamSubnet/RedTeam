@@ -1,28 +1,32 @@
-# -*- coding: utf-8 -*-
-
-import os
-import pathlib
-from typing import Optional, Annotated
+from pathlib import Path
+from typing import Optional, Annotated, Any
 
 from pydantic import BaseModel, Field, field_validator
 from pydantic.types import StringConstraints
 
 from api.core.constants import ALPHANUM_REGEX
 from api.core import utils
+from api.logger import logger
 
 
-_src_dir = pathlib.Path(__file__).parent.parent.parent.parent.resolve()
+_src_dir = Path(__file__).parent.parent.parent.parent.resolve()
 _detection_template_dir = _src_dir / "templates" / "static" / "detections"
 
-# Read detection.js
-_detection_js_files = _detection_template_dir.glob("*.js")
-_detection_files = {}
+_detection_paths: list[Path] = list(_detection_template_dir.glob("*.js"))
+_detection_files: list[dict[str, Any]] = []
+
 try:
-    for js_file in _detection_js_files:
-        with open(js_file, "r") as file:
-            _detection_files[js_file.name] = file.read()
-except Exception as e:
-    print(f"Error: Failed to read detection files in detections folder: {e}")
+    for _detection_path in _detection_paths:
+        with open(_detection_path, "r") as _detection_file:
+            _detection_files.append(
+                {
+                    "file_name": _detection_path.name,
+                    "content": _detection_file.read(),
+                }
+            )
+
+except Exception:
+    logger.exception(f"Failed to read detection files in detections folder!")
 
 
 class MinerInput(BaseModel):
@@ -44,31 +48,49 @@ class MinerInput(BaseModel):
     )
 
 
-class MinerOutput(BaseModel):
-    detection_files: dict = Field(
+class DetectionFilePM(BaseModel):
+    file_name: str = Field(
         ...,
-        title="js files",
-        description="The main detection.js source code for the challenge.",
+        min_length=4,
+        max_length=64,
+        title="File Name",
+        description="Name of the file.",
+        examples=["detect.js"],
+    )
+    content: str = Field(
+        ...,
+        min_length=2,
+        title="File Content",
+        description="Content of the file as a string.",
+        examples=["console.log('browser');"],
+    )
+
+
+class MinerOutput(BaseModel):
+    detection_files: list[DetectionFilePM] = Field(
+        ...,
+        title="Detection JS Files",
+        description="List of detection JS files for the challenge.",
         examples=[_detection_files],
     )
 
     @field_validator("detection_files", mode="after")
     @classmethod
-    def _check_detection_js_lines(cls, val: dict) -> dict:
-        if not isinstance(val, dict):
-            raise TypeError("detection_files must be a dict")
-        for detection_name, detection_file in val.items():
-            if not isinstance(detection_file, str):
-                raise TypeError(f"detection file for {detection_name} must be a string")
-            _lines = detection_file.splitlines()
-            if len(_lines) > 500:
+    def _check_detection_files(
+        cls, val: list[DetectionFilePM]
+    ) -> list[DetectionFilePM]:
+        for _miner_file_pm in val:
+            _content_lines = _miner_file_pm.content.splitlines()
+            if len(_content_lines) > 500:
                 raise ValueError(
-                    f"script for detecting {detection_name} exceeds 500 line limit"
+                    f"`{_miner_file_pm.file_name}` file contains too many lines, should be <= 500 lines!"
                 )
+
         return val
 
 
 __all__ = [
     "MinerInput",
+    "DetectionFilePM",
     "MinerOutput",
 ]

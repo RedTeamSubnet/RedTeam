@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
-
 import sys
 import logging
 import pathlib
+from pathlib import Path
 
 from fastapi import FastAPI, Body, HTTPException
-from data_types import MinerInput, MinerOutput
+from data_types import MinerInput, MinerOutput, DetectionFilePM
 
 
 logger = logging.getLogger(__name__)
@@ -28,30 +27,30 @@ def health():
 @app.post("/solve", response_model=MinerOutput)
 def solve(miner_input: MinerInput = Body(...)) -> MinerOutput:
 
-    logger.info(f"Retrieving detection.js and related files...")
+    logger.info(f"Retrieving detection files...")
     _miner_output: MinerOutput
     try:
         _src_dir = pathlib.Path(__file__).parent.resolve()
-        _detection_dir = _src_dir / "detections"
-        # get all js script in dectection folder
-        _detection_js_files = list(_detection_dir.glob("*.js"))
+        _detections_dir = _src_dir / "detections"
+        _detection_paths: list[Path] = list(_detections_dir.glob("*.js"))
 
-        _detection_files = {}
-        for js_file in _detection_js_files:
-            with open(js_file, "r") as file:
-                _detection_files[js_file.name] = file.read()
+        _detection_files: list[DetectionFilePM] = []
+        for _detection_path in _detection_paths:
+            with open(_detection_path, "r") as _detection_file:
+                _detection_file_pm = DetectionFilePM(
+                    file_name=_detection_path.name, content=_detection_file.read()
+                )
+                _detection_files.append(_detection_file_pm)
 
-        _miner_output = MinerOutput(
-            detection_js=_detection_files,
-        )
-        logger.info(f"Successfully retrieved detection.js and related files.")
+        _miner_output = MinerOutput(detection_files=_detection_files)
+        logger.info(f"Successfully retrieved detection files.")
     except Exception as err:
-        logger.error(f"Failed to retrieve detection.js and related files: {err}")
+        logger.error(f"Failed to retrieve detection files: {str(err)}")
         raise HTTPException(
-            status_code=500, detail="Failed to retrieve detection.js and related files."
+            status_code=500, detail="Failed to retrieve detection files."
         )
 
     return _miner_output
 
 
-___all___ = ["app"]
+__all__ = ["app"]

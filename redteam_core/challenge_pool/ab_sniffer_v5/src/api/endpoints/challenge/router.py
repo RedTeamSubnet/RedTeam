@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from fastapi import APIRouter, Request, HTTPException, Body, Depends
 from fastapi.responses import HTMLResponse, JSONResponse
 
@@ -6,7 +5,6 @@ from api.core.dependencies.auth import auth_api_key
 from api.endpoints.challenge.schemas import MinerInput, MinerOutput
 from api.endpoints.challenge import service
 from api.logger import logger
-from pydantic import BaseModel
 
 
 router = APIRouter(tags=["Challenge"])
@@ -60,22 +58,18 @@ def post_score(
 
     _score: float = 0.0
     try:
-
         _score = service.score(miner_output=miner_output)
 
         logger.success(f"[{_request_id}] - Successfully evaluated the miner output.")
     except Exception as err:
         if isinstance(err, HTTPException):
-            # raise
-            logger.error(
-                f"[{_request_id}] - Failed to evaluate the miner output!",
-            )
+            raise
 
         logger.error(
             f"[{_request_id}] - Failed to evaluate the miner output!",
         )
-        # raise
-        return None
+        raise
+
     logger.success(f"[{_request_id}] - Successfully scored the miner output: {_score}")
     return _score
 
@@ -121,7 +115,7 @@ def post_payload(
     _request_id = request.state.request_id
     logger.info(f"[{_request_id}] - Posting human score...")
     try:
-        service.post_human_score(driver, _request_id)
+        service.post_human_score(drivers, _request_id)
         logger.success(f"[{_request_id}] - Successfully posted human score.")
     except Exception as err:
         logger.error(f"[{_request_id}] - Error posting human score: {str(err)}")
@@ -142,17 +136,6 @@ def get_results(request: Request):
         raise HTTPException(status_code=500, detail="Error in getting results")
 
     return JSONResponse(content=results)
-
-
-class ESLintRequest(BaseModel):
-    js_content: str
-
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "js_content": "// Your JavaScript detection code here\nconsole.log('Hello World');"
-            }
-        }
 
 
 __all__ = ["router"]

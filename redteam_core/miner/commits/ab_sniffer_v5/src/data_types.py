@@ -1,26 +1,6 @@
-# -*- coding: utf-8 -*-
+from typing import Optional
 
-from typing import Optional, List
-
-from pydantic import BaseModel, Field, constr
-
-
-class MinerFilePM(BaseModel):
-    fname: constr(strip_whitespace=True) = Field(  # type: ignore
-        ...,
-        min_length=4,
-        max_length=64,
-        title="File Name",
-        description="Name of the file.",
-        examples=["config.py"],
-    )
-    content: constr(strip_whitespace=True) = Field(  # type: ignore
-        ...,
-        min_length=2,
-        title="File Content",
-        description="Content of the file as a string.",
-        examples=["threshold = 0.5"],
-    )
+from pydantic import BaseModel, Field, constr, field_validator
 
 
 class MinerInput(BaseModel):
@@ -33,20 +13,48 @@ class MinerInput(BaseModel):
     )
 
 
-class MinerOutput(BaseModel):
-    detection_js: dict = Field(
+class DetectionFilePM(BaseModel):
+    file_name: str = Field(
         ...,
-        title="js files",
-        description="The main detection.js source code for the challenge.",
-        examples=[
-            {
-                "detection.js": "function detectDriver() { localStorage.setItem('driver', 'Chrome'); }"
-            }
-        ],
+        min_length=4,
+        max_length=64,
+        title="File Name",
+        description="Name of the file.",
+        examples=["detect.js"],
     )
+    content: str = Field(
+        ...,
+        min_length=2,
+        title="File Content",
+        description="Content of the file as a string.",
+        examples=["console.log('browser');"],
+    )
+
+
+class MinerOutput(BaseModel):
+    detection_files: list[DetectionFilePM] = Field(
+        ...,
+        title="Detection JS Files",
+        description="List of detection JS files for the challenge.",
+    )
+
+    @field_validator("detection_files", mode="after")
+    @classmethod
+    def _check_detection_files(
+        cls, val: list[DetectionFilePM]
+    ) -> list[DetectionFilePM]:
+        for _miner_file_pm in val:
+            _content_lines = _miner_file_pm.content.splitlines()
+            if len(_content_lines) > 500:
+                raise ValueError(
+                    f"`{_miner_file_pm.file_name}` file contains too many lines, should be <= 500 lines!"
+                )
+
+        return val
 
 
 __all__ = [
     "MinerInput",
+    "DetectionFilePM",
     "MinerOutput",
 ]

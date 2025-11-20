@@ -1,64 +1,63 @@
-# -*- coding: utf-8 -*-
-
 import os
 import time
-import subprocess
 import random
+import threading
+import subprocess
 
 import docker
-import threading
 from docker import DockerClient
+from docker.types import Ulimit
+from docker.models.networks import Network
 from pydantic import validate_call
 
+from api.core.configs._challenge import FrameworkImageConfig
 from api.config import config
-
 from api.endpoints.challenge.schemas import MinerOutput
 from api.logger import logger
 
 
-def gen_ran_framework_sequence() -> list:
-    frameworks = config.challenge.framework_images
-    repeated_frameworks = []
+def gen_framework_sequence() -> list[FrameworkImageConfig]:
+    _frameworks = config.challenge.framework_images
+    _repeated_frameworks = []
     for _ in range(config.challenge.repeated_framework_count):
-        repeated_frameworks.extend(frameworks)
+        _repeated_frameworks.extend(_frameworks)
 
-    random.shuffle(repeated_frameworks)
-    return repeated_frameworks
+    random.shuffle(_repeated_frameworks)
+    return _repeated_frameworks
 
 
 @validate_call
-def copy_detector_file(miner_output: MinerOutput, templates_dir: str) -> None:
-    logger.info("Copying detection file...")
+def copy_detection_files(miner_output: MinerOutput, detections_dir: str) -> None:
+
+    logger.info("Copying detection files...")
     try:
-        _detection_template_dir = os.path.join(templates_dir, "static", "detection")
-        _detection_js_path = os.path.join(_detection_template_dir, "detection.js")
+        os.makedirs(detections_dir, exist_ok=True)
+        for _detection_file_pm in miner_output.detection_files:
+            _detection_path = os.path.join(detections_dir, _detection_file_pm.file_name)
+            with open(_detection_path, "w") as _detection_file:
+                _detection_file.write(_detection_file_pm.content)
 
-        # Ensure directory exists
-        os.makedirs(_detection_template_dir, exist_ok=True)
+        logger.success("Successfully copied detection files.")
 
-        with open(_detection_js_path, "w") as _detection_js_file:
-            _detection_js_file.write(miner_output.detection_js)
-        logger.success("Successfully copied detection.js files.")
+        # try:
+        #     logger.info("Checking detection.js format...")
 
-        try:
-            logger.info("Checking detection.js format...")
-
-        except Exception as err:
-            logger.error(f"Failed to check detection.js format: {err}!")
-            raise
+        # except Exception as err:
+        #     logger.error(f"Failed to check detection.js format: {err}!")
+        #     raise
 
     except Exception as err:
-        logger.error(f"Failed to copy detection.js files: {err}!")
+        logger.error(f"Failed to copy detection files: {err}!")
         raise
 
     return
 
 
-def get_submission_file_size(templates_dir: str) -> int:
-    _detection_template_dir = os.path.join(templates_dir, "static", "detection")
-    _detection_js_path = os.path.join(_detection_template_dir, "detection.js")
-    _file_size = os.path.getsize(_detection_js_path)
-    return _file_size
+# def get_submission_file_size(templates_dir: str) -> int:
+#     _detection_template_dir = os.path.join(templates_dir, "static", "detection")
+#     _detection_js_path = os.path.join(_detection_template_dir, "detection.js")
+#     _file_size = os.path.getsize(_detection_js_path)
+#     return _file_size
 
 
 def run_bot_container(
@@ -70,58 +69,37 @@ def run_bot_container(
     **kwargs,
 ) -> str:
     logger.info(f"Running {image_name} docker container...")
-    detected_driver = None
 
+    _detected_driver = ""
     try:
         # Network setup from the provided function
         _networks = docker_client.networks.list(names=[network_name])
-        _network = None
+        _network: Network
         if not _networks:
             _network = docker_client.networks.create(name=network_name, driver="bridge")
         else:
             _network = docker_client.networks.get(network_name)
 
-        _network_info = docker_client.api.inspect_network(_network.id)
+        _network_id = _network.id
+        if _network_id is None:
+            raise RuntimeError("Failed to determine Docker network ID!")
+
+        _network_info = docker_client.api.inspect_network(net_id=_network_id)
         _subnet = _network_info["IPAM"]["Config"][0]["Subnet"]
         _gateway_ip = _network_info["IPAM"]["Config"][0]["Gateway"]
 
         # Apply network limitations
-        subprocess.run(
-            [
-                "sudo",
-                "iptables",
-                "-I",
-                "FORWARD",
-                "-s",
-                _subnet,
-                "!",
-                "-d",
-                _subnet,
-                "-j",
-                "DROP",
-            ]
-        )
-        subprocess.run(
-            [
-                "sudo",
-                "iptables",
-                "-t",
-                "nat",
-                "-I",
-                "POSTROUTING",
-                "-s",
-                _subnet,
-                "-j",
-                "RETURN",
-            ]
-        )
+        # fmt: off
+        subprocess.run(["sudo", "iptables", "-I", "FORWARD", "-s",_subnet,"!", "-d",_subnet,"-j", "DROP"])
+        subprocess.run(["sudo", "iptables", "-t", "nat", "-I", "POSTROUTING", "-s",_subnet,"-j", "RETURN"])
+        # fmt: on
 
         # Stop any existing container with the same name
         stop_container(container_name=container_name)
         time.sleep(1)
 
         # Set up ulimit configuration
-        _ulimit_nofile = docker.types.Ulimit(name="nofile", soft=ulimit, hard=ulimit)
+        _ulimit_nofile = Ulimit(name="nofile", soft=ulimit, hard=ulimit)
 
         # Generate a temporary container ID for this run
         _container_id = f"run_{int(time.time())}"
@@ -195,7 +173,7 @@ def run_bot_container(
         logger.error(f"Failed to run {image_name} docker: {str(err)}!")
         raise
 
-    return detected_driver
+    return _detected_driver
 
 
 def stream_container_logs(container):
@@ -224,8 +202,8 @@ def stop_container(container_name: str = "detector_container") -> None:
 
 
 __all__ = [
-    "copy_detector_file",
+    "copy_detection_files",
     "run_bot_container",
     "stop_container",
-    "gen_ran_framework_sequence",
+    "gen_framework_sequence",
 ]
