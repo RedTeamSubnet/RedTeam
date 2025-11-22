@@ -2,7 +2,11 @@ from fastapi import APIRouter, Request, HTTPException, Body, Depends
 from fastapi.responses import HTMLResponse, JSONResponse
 
 from api.core.dependencies.auth import auth_api_key
-from api.endpoints.challenge.schemas import MinerInput, MinerOutput
+from api.endpoints.challenge.schemas import (
+    MinerInput,
+    MinerOutput,
+    SubmissionPayloadsPM,
+)
 from api.endpoints.challenge import service
 from api.logger import logger
 
@@ -108,18 +112,16 @@ def _get_web(request: Request):
     description="This endpoint posts the human score.",
     responses={422: {}},
 )
-def post_payload(
-    request: Request,
-    drivers: dict = Body(..., embed=False),
-):
+def post_payload(request: Request, body: SubmissionPayloadsPM = Body(...)):
     _request_id = request.state.request_id
-    logger.info(f"[{_request_id}] - Posting human score...")
+    logger.info(f"[{_request_id}] - Received submission payload.")
     try:
-        service.post_human_score(drivers, _request_id)
-        logger.success(f"[{_request_id}] - Successfully posted human score.")
+        logger.info(f"{body}")
+        service.post_human_score(body, _request_id)
+        logger.success(f"[{_request_id}] - Successfully saved payload.")
     except Exception as err:
-        logger.error(f"[{_request_id}] - Error posting human score: {str(err)}")
-        raise HTTPException(status_code=500, detail="Error in posting human score")
+        logger.error(f"[{_request_id}] - Error saving payload: {str(err)}")
+        raise HTTPException(status_code=500, detail="Error in saving payloadß")
 
     return
 

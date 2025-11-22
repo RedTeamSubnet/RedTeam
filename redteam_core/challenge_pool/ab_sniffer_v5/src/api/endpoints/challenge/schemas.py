@@ -7,14 +7,14 @@ from pydantic.types import StringConstraints
 from api.core.constants import ALPHANUM_REGEX
 from api.core import utils
 from api.logger import logger
-
+from api.config import config
 
 _src_dir = Path(__file__).parent.parent.parent.parent.resolve()
 _detection_template_dir = _src_dir / "templates" / "static" / "detections"
 
 _detection_paths: list[Path] = list(_detection_template_dir.glob("*.js"))
 _detection_files: list[dict[str, Any]] = []
-
+_frameworks_names: list[str] = [fw.name for fw in config.challenge.framework_images]
 try:
     for _detection_path in _detection_paths:
         with open(_detection_path, "r") as _detection_file:
@@ -79,7 +79,27 @@ class MinerOutput(BaseModel):
     def _check_detection_files(
         cls, val: list[DetectionFilePM]
     ) -> list[DetectionFilePM]:
+        if len(val) != len(_frameworks_names):
+            raise ValueError(
+                f"Number of submitted detection files ({len(val)}) does not match the expected number ({len(_frameworks_names)})!"
+            )
+
         for _miner_file_pm in val:
+
+            if _miner_file_pm.file_name.strip(".")[-1] != "js":
+                raise ValueError("File should be a JavaScript (.js) file!")
+
+            if _miner_file_pm.file_name.split(".")[0] not in _frameworks_names:
+                raise ValueError(
+                    f"`{_miner_file_pm.file_name}` is not a valid detection file name!"
+                )
+
+            file_names = [df.file_name for df in val]
+            if file_names.count(_miner_file_pm.file_name) > 1:
+                raise ValueError(
+                    f"`{_miner_file_pm.file_name}` detection file is duplicated in the submission!"
+                )
+
             _content_lines = _miner_file_pm.content.splitlines()
             if len(_content_lines) > 500:
                 raise ValueError(
@@ -89,8 +109,67 @@ class MinerOutput(BaseModel):
         return val
 
 
+class PayloadPM(BaseModel):
+    detected: bool = Field(
+        ...,
+        title="Driver Detected",
+        description="Indicates whether the driver was detected.",
+        examples=[True],
+    )
+    raw: Optional[bool] = Field(
+        None,
+        title="Raw Detection",
+        description="Indicates whether the detection was raw.",
+        examples=[False],
+    )
+    framework_name: Optional[str] = Field(
+        None,
+        title="Automation framework name",
+        description="Name of the automation framework.",
+        examples=["nodriver"],
+    )
+    model_config = {
+        "extra": "forbid",
+    }
+
+
+class SubmissionPayloadsPM(BaseModel):
+    results: list[PayloadPM] = Field(
+        ...,
+        title="Detection Results",
+        description="Detection results submitted by the miner.",
+        examples=[
+            [
+                {
+                    "detected": True,
+                    "raw": True,
+                    "framework_name": "nodriver",
+                }
+            ]
+        ],
+    )
+    order_number: int = Field(
+        ...,
+        title="Submission Order Number",
+        description="Order number of the submission.",
+        examples=[0],
+    )
+    model_config = {
+        "extra": "forbid",
+    }
+
+    def get_final_results(self) -> list[str]:
+        final_result: list[str] = []
+        for result in self.results:
+            if result.detected:
+                final_result.append(result.framework_name or "unknown")
+        return final_result
+
+
 __all__ = [
     "MinerInput",
     "DetectionFilePM",
     "MinerOutput",
+    "PayloadPM",
+    "SubmissionPayloadsPM",
 ]

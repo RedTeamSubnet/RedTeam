@@ -1,4 +1,3 @@
-import os
 import time
 import pathlib
 from collections import defaultdict
@@ -13,13 +12,11 @@ from api.core.exceptions import BaseHTTPException
 from api.config import config
 from api.endpoints.challenge.schemas import MinerInput, MinerOutput
 from api.endpoints.challenge import utils as ch_utils
-from api.helpers.pushcut import Pushcut
 from api.logger import logger
 
 
 # Define source directory - the root of the project
 _src_dir = pathlib.Path(__file__).parent.parent.parent.parent.resolve()
-pushcut = Pushcut(api_key=config.challenge.pushcut_api_key)
 
 # Initialize global variable for human verification
 global human_req_val
@@ -68,33 +65,6 @@ def score(miner_output: MinerOutput) -> float:
             try:
                 _start_time = time.time()
 
-                # if _framework_name == "human":
-                #     logger.info("Running human detection simulation...")
-                #     try:
-
-                #         logger.info(
-                #             f"Successfully executed input '{config.challenge.pushcut_web_url}' URL."
-                #         )
-                #     except Exception as e:
-                #         logger.error(
-                #             f"Failed to execute pushcut notification: {str(e)}"
-                #         )
-
-                #     _end_time = time.time()
-                #     _execution_time = _end_time - _start_time
-                #     detection_dict[_index].append(
-                #         {
-                #             "detected": human_req_val == _framework_name,
-                #             "driver": _framework_name,
-                #             "predicted": human_req_val,
-                #             "execution_time": _execution_time,
-                #         }
-                #     )
-                #     logger.success(
-                #         f"Human browser detected successfully as: {human_req_val}"
-                #     )
-                #     continue
-
                 _detected_driver = ch_utils.run_bot_container(
                     docker_client=_docker_client,
                     container_name=f"{_framework_name}",
@@ -104,104 +74,12 @@ def score(miner_output: MinerOutput) -> float:
                 )
                 _end_time = time.time()
                 _execution_time = _end_time - _start_time
-
-                # Check if detection was correct
-                time.sleep(1)
-                if _detected_driver:
-                    if _detected_driver == _framework_name:
-                        detection_dict[_index].append(
-                            {
-                                "detected": True,
-                                "driver": _framework_name,
-                                "predicted": _detected_driver,
-                                "execution_time": _execution_time,
-                            }
-                        )
-                        logger.success(
-                            f"Successfully detected driver: {_detected_driver}"
-                        )
-                    else:
-                        detection_dict[_index].append(
-                            {
-                                "detected": False,
-                                "driver": _framework_name,
-                                "predicted": _detected_driver,
-                                "execution_time": _execution_time,
-                            }
-                        )
-                        logger.error(
-                            f"Incorrect detection: Got {_detected_driver}, expected {_framework_name}"
-                        )
-                else:
-                    detection_dict[_index].append(
-                        {
-                            "detected": False,
-                            "driver": _framework_name,
-                            "predicted": "The script did not return any driver",
-                            "execution_time": _execution_time,
-                        }
-                    )
-                    logger.error("No detection result found")
             except Exception as err:
-                detection_dict[_index].append(
-                    {
-                        "detected": False,
-                        "driver": _framework_name,
-                        "predicted": f"Error: {str(err)}",
-                        "execution_time": 0,
-                    }
+                logger.error(
+                    f"Error running detection for {_framework_name}: {str(err)}"
                 )
-                logger.error(f"Error testing framework {_framework_name}: {str(err)}")
-
-        logger.info("Calculating score from detection results...")
-
-        # Reorganize results by driver type
-        framework_results = defaultdict(list)
-        for _index in detection_dict:
-            for result in detection_dict[_index]:
-                driver_name = result["driver"]
-                framework_results[driver_name].append(result)
-
-        for _framework_name, results in framework_results.items():
-            success_count = sum(1 for r in results if r["detected"])
-            total_count = len(results)
-
-            logger.info(
-                f"Framework {_framework_name}: {success_count} successful detections out of {total_count}"
-            )
-
-            for result in results:
-                detected = result["detected"]
-                predicted = result["predicted"]
-                status = "Passed" if detected else "Failed"
-                logger.info(
-                    f"  - [{status}]: Predicted '{predicted}' for {_framework_name}"
-                )
-
-        logger.info(f"Detection Results Summary:")
-        for _framework_name, results in framework_results.items():
-            success_rate = (
-                sum(1 for r in results if r["detected"]) / len(results)
-                if results
-                else 0
-            )
-            logger.info(f"- {_framework_name}: {success_rate*100:.1f}% success rate")
-
-        # Calculate the actual score based on detection results
-        total_detections = 0
-        successful_detections = 0
-        for results in framework_results.values():
-            for result in results:
-                total_detections += 1
-                if result["detected"]:
-                    successful_detections += 1
-        _score = (
-            successful_detections / total_detections if total_detections > 0 else 0.0
-        )
-        logger.info(
-            f"Final score: {_score} ({successful_detections}/{total_detections} successful detections)"
-        )
-
+                _detected_driver = "error"
+                _execution_time = None
     except Exception as err:
         if isinstance(err, BaseHTTPException):
             raise
@@ -236,7 +114,10 @@ def get_web(request: Request) -> HTMLResponse:
     html_response = templates.TemplateResponse(
         request=request,
         name="index.html",
-        context={"abs_result_endpoint": _abs_result_endpoint},
+        context={
+            "abs_result_endpoint": _abs_result_endpoint,
+            "abs_session_order_number": 0,
+        },
     )
     return html_response
 

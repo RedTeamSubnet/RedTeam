@@ -4,7 +4,7 @@
  */
 
 function detect_nodriver() {
-  return false;
+  return true;
 }
 
 if (typeof window !== 'undefined') window.detect_nodriver = detect_nodriver;
