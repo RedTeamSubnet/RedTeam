@@ -617,14 +617,6 @@ class Controller(BaseController):
 
         _protocol, _ssl_verify = self._check_protocol(is_challenger=True)
 
-        _reset_challenge = False
-        if task_id == 0:
-            _reset_challenge = self.challenge_info.get("reset_challenge", False)
-
-        _reset_query = ""
-        if _reset_challenge:
-            _reset_query = "?reset=true"
-
         try:
             payload = {
                 "miner_input": miner_input,
@@ -632,7 +624,7 @@ class Controller(BaseController):
             }
             bt.logging.debug(f"[CONTROLLER] Scoring payload: {str(payload)[:100]}...")
             response = requests.post(
-                f"{_protocol}://localhost:{constants.CHALLENGE_DOCKER_PORT}/score{_reset_query}",
+                f"{_protocol}://localhost:{constants.CHALLENGE_DOCKER_PORT}/score",
                 verify=_ssl_verify,
                 json=payload,
             )

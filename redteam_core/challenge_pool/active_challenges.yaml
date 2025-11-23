@@ -32,8 +32,6 @@ ab_sniffer_v4:
     network: "redteam_local"
     environment:
       CHALLENGE_NAME: "ab_sniffer_v4"
-
-  reset_challenge: true
   protocols:
     challenger: "http"
     challenger_ssl_verify: false
@@ -78,7 +76,6 @@ humanize_behaviour_v5:
     network: "redteam_local"
     environment:
       CHALLENGE_NAME: "humanize_behaviour_v5"
-  reset_challenge: true
   protocols:
     challenger: "http"
     challenger_ssl_verify: false
@@ -133,8 +130,6 @@ dev_fingerprinter_v1:
     network: "redteam_local"
     environment:
       CHALLENGE_NAME: "dev_fingerprinter_v1"
-
-  reset_challenge: true
   protocols:
     challenger: "http"
     challenger_ssl_verify: false
