@@ -19,13 +19,14 @@ _detection_files: list[dict[str, Any]] = []
 _frameworks_names: list[str] = [fw.name for fw in config.challenge.framework_images]
 try:
     for _detection_path in _detection_paths:
-        with open(_detection_path, "r") as _detection_file:
-            _detection_files.append(
-                {
-                    "file_name": _detection_path.name,
-                    "content": _detection_file.read(),
-                }
-            )
+        if _detection_path.stem in _frameworks_names:
+            with open(_detection_path, "r") as _detection_file:
+                _detection_files.append(
+                    {
+                        "file_name": _detection_path.name,
+                        "content": _detection_file.read(),
+                    }
+                )
 
 except Exception:
     logger.exception(f"Failed to read detection files in detections folder!")
@@ -96,7 +97,7 @@ class MinerOutput(BaseModel):
 
         for _miner_file_pm in val:
 
-            if _miner_file_pm.file_name.strip(".")[-1] != "js":
+            if _miner_file_pm.file_name.split(".")[-1] != "js":
                 raise ValueError("File should be a JavaScript (.js) file!")
 
             if _miner_file_pm.file_name.split(".")[0] not in _frameworks_names:

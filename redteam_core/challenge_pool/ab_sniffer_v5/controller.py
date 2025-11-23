@@ -238,7 +238,9 @@ class ABSController(Controller):
                 if _scoring_log.miner_output is not None
                 else 0.0
             )
+            scoring_results = self._get_scoring_results()
 
+            _scoring_log.miner_output["scoring_results"] = scoring_results
             _scoring_log.score = score
 
     def _get_scoring_results(self) -> dict:

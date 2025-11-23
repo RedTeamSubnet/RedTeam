@@ -117,7 +117,7 @@ def post_payload(request: Request, body: SubmissionPayloadsPM = Body(...)):
     logger.info(f"[{_request_id}] - Received submission payload.")
     try:
         logger.info(f"{body}")
-        service.post_human_score(body, _request_id)
+        service.submit_payload(body)
         logger.success(f"[{_request_id}] - Successfully saved payload.")
     except Exception as err:
         logger.error(f"[{_request_id}] - Error saving payload: {str(err)}")
@@ -126,7 +126,9 @@ def post_payload(request: Request, body: SubmissionPayloadsPM = Body(...)):
     return
 
 
-@router.get("/results", response_class=JSONResponse)
+@router.get(
+    "/results", response_class=JSONResponse, dependencies=[Depends(auth_api_key)]
+)
 def get_results(request: Request):
     _request_id = request.state.request_id
     logger.info(f"[{_request_id}] - Getting results...")

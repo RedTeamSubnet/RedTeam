@@ -9,13 +9,24 @@ from api.endpoints.challenge.schemas import TaskStatusEnum
 class PayloadManager:
     @validate_call
     def __init__(self):
-        self.tasks = {int: dict}  # index:framework keys[name,image,order_number,status]
+        self.tasks: dict[int, dict] = {}
+        self.current_task: dict | None = None
+        self.submitted_payloads: dict[int, dict] = {}
+        self.expected_order: dict[int, str] = {}
+        self.score: float = 0.0
+
+        self.gen_ran_framework_sequence()
+        return
+
+    def restart_manager(self) -> None:
+        self.tasks = {}
         self.current_task = None
         self.submitted_payloads = {}
         self.expected_order = {}
         self.score = 0.0
 
         self.gen_ran_framework_sequence()
+        return
 
     def submit_task(self, framework_names: list[str], payload: dict) -> None:
         try:

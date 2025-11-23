@@ -34,8 +34,8 @@ def score(miner_output: MinerOutput) -> float:
 
     _score = 0.0
     global payload_manager
-    payload_manager.gen_ran_framework_sequence()
-    _all_tasks = payload_manager.get_all_tasks()
+    payload_manager.restart_manager()
+    _all_tasks = payload_manager.tasks
 
     try:
         # Copy the detection script to the templates directory
@@ -49,8 +49,7 @@ def score(miner_output: MinerOutput) -> float:
         # Generate a randomized sequence of frameworks to test against
         _docker_client = docker.from_env()
 
-        for _framework in _all_tasks:
-
+        for _framework in _all_tasks.values():
             _framework_name = str(_framework["name"])
             _framework_image = _framework["image"]
             _framework_order = _framework["order_number"]
@@ -90,6 +89,9 @@ def score(miner_output: MinerOutput) -> float:
                     payload_manager.update_task_status(
                         _framework_order, TaskStatusEnum.COMPLETED
                     )
+                    payload_manager.submitted_payloads[_framework_order][
+                        "execution_time"
+                    ] = _execution_time
                     ch_utils.stop_container(container_name=_framework_name)
                     break
 
@@ -104,6 +106,7 @@ def score(miner_output: MinerOutput) -> float:
                     ch_utils.stop_container(container_name=_framework_name)
                     break
         _score = payload_manager.calculate_score()
+        payload_manager.submitted_payloads["final_score"] = _score
         logger.info(f"Final score calculated: {_score}")
     except Exception as err:
         if isinstance(err, BaseHTTPException):
@@ -148,10 +151,16 @@ def submit_payload(_payload: SubmissionPayloadsPM):
 def get_web(request: Request) -> HTMLResponse:
     global payload_manager
 
-    _order_number = payload_manager.current_task["order_number"] or 0
+    if payload_manager.current_task and payload_manager.current_task["order_number"]:
+        _order_number = payload_manager.current_task["order_number"]
+    else:
+        _order_number = 0
     templates = Jinja2Templates(directory=str(_src_dir / "templates"))
     _abs_result_endpoint = (
-        f"http://{request.scope['server'][0]}:{config.api.port}/_payload/"
+        f"http://{request.scope['server'][0]}:{config.api.port}/_payload"
+    )
+    logger.info(
+        f"serving web page at {_abs_result_endpoint} for order number {_order_number}"
     )
 
     html_response = templates.TemplateResponse(
@@ -160,6 +169,9 @@ def get_web(request: Request) -> HTMLResponse:
         context={
             "abs_result_endpoint": _abs_result_endpoint,
             "abs_session_order_number": _order_number,
+            "asb_framework_names": [
+                fw.name for fw in config.challenge.framework_images
+            ],
         },
     )
     return html_response
