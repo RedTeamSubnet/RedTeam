@@ -252,6 +252,7 @@ class ABSController(Controller):
             response = requests.get(
                 f"{_protocol}://localhost:{constants.CHALLENGE_DOCKER_PORT}/results",
                 verify=_ssl_verify,
+                headers=self.challenge_info.get("scoring_headers", {}),
             )
             scoring_results = response.json()
         except Exception as ex:

@@ -5,8 +5,6 @@ from typing import Union
 import traceback
 
 import bittensor as bt
-import docker
-import docker.types
 import requests
 
 from redteam_core.challenge_pool.base import BaseController
@@ -622,13 +620,18 @@ class Controller(BaseController):
                 "miner_input": miner_input,
                 "miner_output": miner_output,
             }
+
             bt.logging.debug(f"[CONTROLLER] Scoring payload: {str(payload)[:100]}...")
+
             response = requests.post(
                 f"{_protocol}://localhost:{constants.CHALLENGE_DOCKER_PORT}/score",
                 verify=_ssl_verify,
                 json=payload,
+                headers=self.challenge_info.get("scoring_headers", {}),
             )
+
             score = response.json()
+
         except Exception as ex:
             bt.logging.error(f"Score challenge failed: {str(ex)}")
             score = 0.0
