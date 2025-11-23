@@ -1,15 +1,9 @@
 challenge:
-  # api_key: "challenge_api_key"
+  api_key: "challenge_api_key"
   docker_ulimit: 32768
-  # allowed_pip_pkg_dt: "2025-01-01T00:00:00Z"
-  allowed_file_exts: [".py", ".json", ".yaml", ".yml", ".txt", ".pt", ".js"]
-  # pushcut_timeout: 15
-  bot_timeout: 15
-  framework_count: 10
+  bot_timeout: 10
   repeated_framework_count: 3
   framework_images:
-    - name: human
-      image: human/please@sha256:ignorethis
     - name: seleniumbase
       image: redteamsubnet61/seleniumbase@sha256:617c872e14364c1eaf84c0583b7b4f250d8d93846eed1a8c1d5d5cdfdf42802a
     - name: seleniumdriverless
