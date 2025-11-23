@@ -20,7 +20,7 @@ class PayloadManager:
     def submit_task(self, framework_names: list[str], payload: dict) -> None:
         try:
             _expected_fm = self.expected_order[payload["order_number"]]
-            _is_detected = framework_names in _expected_fm
+            _is_detected = _expected_fm in framework_names
             _is_collided = len(framework_names) > 1
 
             if _expected_fm == "human":
@@ -72,6 +72,7 @@ class PayloadManager:
         random.shuffle(repeated_frameworks)
 
         for _index, _framework in enumerate(repeated_frameworks):
+            _framework = _framework.model_dump()
             self.expected_order[_index] = _framework["name"]
             _framework["order_number"] = _index
             _framework["status"] = TaskStatusEnum.CREATED
