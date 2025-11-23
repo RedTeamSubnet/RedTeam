@@ -3,28 +3,19 @@ import random
 from pydantic import validate_call
 from api.config import config
 from api.logger import logger
+from api.endpoints.challenge.schemas import TaskStatusEnum
 
 
 class PayloadManager:
     @validate_call
     def __init__(self):
-        self.tasks = []
+        self.tasks = {int: dict}  # index:framework keys[name,image,order_number,status]
         self.current_task = None
         self.submitted_payloads = {}
         self.expected_order = {}
         self.score = 0.0
 
         self.gen_ran_framework_sequence()
-
-    def get_task(self) -> dict:
-        if self.tasks:
-            self.current_task = self.tasks.pop(0)
-            return self.current_task
-        else:
-            raise RuntimeError("No more tasks available!")
-
-    def get_current_task(self) -> dict:
-        return self.current_task
 
     def submit_task(self, framework_names: list[str], payload: dict) -> None:
         try:
@@ -42,6 +33,7 @@ class PayloadManager:
                 "detected": _is_detected,
                 "collided": _is_collided,
             }
+
         except Exception as err:
             logger.error(f"Failed to add submitted payload: {err}!")
             raise
@@ -51,23 +43,24 @@ class PayloadManager:
         _total_tasks = len(self.expected_order)
         # check no collision with human
         for submission in self.submitted_payloads.values():
-            if submission["expected_framework"] == "human" and submission["collided"]:
+            if submission["expected_framework"] == "human" and (
+                submission["collided"] or not submission["detected"]
+            ):
+                logger.warning("Couldn't detect human correctly, score is zero")
                 return 0.0
 
         _correct_detections = sum(
-            1
+            1 if not submission["collided"] else 0.1
             for submission in self.submitted_payloads.values()
-            if submission["detected"] and not submission["collided"]
+            if submission["detected"]
         )
 
         if _total_tasks == 0:
+            logger.warning("No tasks found, score is zero")
             return 0.0
 
         self.score = _correct_detections / _total_tasks
         return self.score
-
-    def get_received_order_numbers(self) -> list[int]:
-        return list(self.submitted_payloads.keys())
 
     def gen_ran_framework_sequence(self) -> None:
         frameworks = config.challenge.framework_images
@@ -80,7 +73,29 @@ class PayloadManager:
 
         for _index, _framework in enumerate(repeated_frameworks):
             self.expected_order[_index] = _framework["name"]
-            _framework["order"] = _index
-            self.tasks.append(_framework)
+            _framework["order_number"] = _index
+            _framework["status"] = TaskStatusEnum.CREATED
+            self.tasks[_index] = _framework
 
         return
+
+    def update_task_status(self, order_number: int, new_status: TaskStatusEnum):
+        if self.tasks[order_number] and self.tasks[order_number]["status"]:
+            self.tasks[order_number]["status"] = new_status
+        else:
+            logger.error(
+                f"Couldn't update status of task with order_number: {order_number}"
+            )
+
+    def check_task_compliance(self, order_number: int) -> bool:
+        if order_number in self.submitted_payloads:
+            return True
+        return False
+
+
+payload_manager = PayloadManager()
+
+__all__ = [
+    "PayloadManager",
+    "payload_manager",
+]

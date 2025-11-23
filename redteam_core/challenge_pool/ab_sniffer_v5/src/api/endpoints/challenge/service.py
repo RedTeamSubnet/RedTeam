@@ -10,26 +10,18 @@ from pydantic import validate_call
 
 from api.core.exceptions import BaseHTTPException
 from api.config import config
-from api.endpoints.challenge.schemas import MinerInput, MinerOutput
+from api.endpoints.challenge.schemas import (
+    MinerInput,
+    MinerOutput,
+    SubmissionPayloadsPM,
+    TaskStatusEnum,
+)
 from api.endpoints.challenge import utils as ch_utils
 from api.logger import logger
+from api.endpoints.challenge._payload_manager import payload_manager
 
 
-# Define source directory - the root of the project
 _src_dir = pathlib.Path(__file__).parent.parent.parent.parent.resolve()
-
-# Initialize global variable for human verification
-global human_req_val
-human_req_val = ""  # Default to empty string
-
-global detection_dict
-detection_dict = defaultdict(list)
-
-
-def post_human_score(drivers: str, request_id=None):
-    global human_req_val
-    human_req_val = drivers
-    logger.info(f"Received human verification input: {human_req_val}")
 
 
 def get_task() -> MinerInput:
@@ -41,8 +33,9 @@ def get_task() -> MinerInput:
 def score(miner_output: MinerOutput) -> float:
 
     _score = 0.0
-    global detection_dict
-    detection_dict = defaultdict(list)  # Reset for new evaluation
+    global payload_manager
+    payload_manager.gen_ran_framework_sequence()
+    _all_tasks = payload_manager.get_all_tasks()
 
     try:
         # Copy the detection script to the templates directory
@@ -54,32 +47,64 @@ def score(miner_output: MinerOutput) -> float:
         )
 
         # Generate a randomized sequence of frameworks to test against
-        _target_frameworks = ch_utils.gen_framework_sequence()
         _docker_client = docker.from_env()
 
-        for _index, _framework in enumerate(_target_frameworks):
-            _framework_name = _framework.name
-            _framework_image = _framework.image
-            logger.info(f"Running detection against {_framework_name}...")
+        for _framework in _all_tasks:
+
+            _framework_name = str(_framework["name"])
+            _framework_image = _framework["image"]
+            _framework_order = _framework["order_number"]
+            payload_manager.current_task = _framework
+
+            payload_manager.update_task_status(_framework_order, TaskStatusEnum.RUNNING)
+            logger.info(f"Running detection against {_framework_name}")
 
             try:
                 _start_time = time.time()
 
-                _detected_driver = ch_utils.run_bot_container(
+                ch_utils.run_bot_container(
                     docker_client=_docker_client,
-                    container_name=f"{_framework_name}",
-                    network_name=f"local_network",
+                    container_name=_framework_name,
+                    network_name="local_network",
                     image_name=_framework_image,
                     ulimit=config.challenge.docker_ulimit,
                 )
                 _end_time = time.time()
                 _execution_time = _end_time - _start_time
+
             except Exception as err:
                 logger.error(
                     f"Error running detection for {_framework_name}: {str(err)}"
                 )
-                _detected_driver = "error"
-                _execution_time = None
+                payload_manager.update_task_status(
+                    _framework_order, TaskStatusEnum.FAILED
+                )
+                continue
+
+            _bot_timeout = config.challenge.bot_timeout
+            while True:
+                if payload_manager.check_task_compliance(_framework_order):
+                    logger.info(
+                        f"Detection completed for {_framework_name} within timeout."
+                    )
+                    payload_manager.update_task_status(
+                        _framework_order, TaskStatusEnum.COMPLETED
+                    )
+                    ch_utils.stop_container(container_name=_framework_name)
+                    break
+
+                _bot_timeout -= 1
+                if _bot_timeout <= 0:
+                    logger.warning(
+                        f"Detection for {_framework_name} timed out after {config.challenge.bot_timeout} seconds."
+                    )
+                    payload_manager.update_task_status(
+                        _framework_order, TaskStatusEnum.TIMED_OUT
+                    )
+                    ch_utils.stop_container(container_name=_framework_name)
+                    break
+        _score = payload_manager.calculate_score()
+        logger.info(f"Final score calculated: {_score}")
     except Exception as err:
         if isinstance(err, BaseHTTPException):
             raise
@@ -90,13 +115,13 @@ def score(miner_output: MinerOutput) -> float:
 
 
 def get_results() -> dict:
-    global detection_dict
+    global payload_manager
     logger.info("Sending detection results...")
 
     try:
-        if detection_dict:
+        if payload_manager.submitted_payloads:
             logger.info("Returning detection results")
-            return detection_dict
+            return payload_manager.submitted_payloads
         else:
             logger.warning("No detection results available")
             return {}
@@ -106,17 +131,35 @@ def get_results() -> dict:
         return {}
 
 
+def submit_payload(_payload: SubmissionPayloadsPM):
+    global payload_manager
+    try:
+        _final_results = _payload.get_final_results()
+        payload_manager.submit_task(
+            framework_names=_final_results,
+            payload=_payload.model_dump(),
+        )
+    except Exception as err:
+        logger.error(f"Error submitting payload: {str(err)}")
+        raise
+
+
 @validate_call(config={"arbitrary_types_allowed": True})
 def get_web(request: Request) -> HTMLResponse:
+    global payload_manager
+
+    _order_number = payload_manager.current_task["order_number"] or 0
     templates = Jinja2Templates(directory=str(_src_dir / "templates"))
-    _abs_result_endpoint = str(config.challenge.result_endpoint)
+    _abs_result_endpoint = (
+        f"http://{request.scope['server'][0]}:{config.api.port}/_payload/"
+    )
 
     html_response = templates.TemplateResponse(
         request=request,
         name="index.html",
         context={
             "abs_result_endpoint": _abs_result_endpoint,
-            "abs_session_order_number": 0,
+            "abs_session_order_number": _order_number,
         },
     )
     return html_response

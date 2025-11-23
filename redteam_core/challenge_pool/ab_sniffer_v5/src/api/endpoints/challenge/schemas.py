@@ -1,5 +1,7 @@
 from pathlib import Path
+from enum import Enum
 from typing import Optional, Annotated, Any
+
 
 from pydantic import BaseModel, Field, field_validator
 from pydantic.types import StringConstraints
@@ -27,6 +29,14 @@ try:
 
 except Exception:
     logger.exception(f"Failed to read detection files in detections folder!")
+
+
+class TaskStatusEnum(str, Enum):
+    CREATED = "CREATED"
+    RUNNING = "RUNNING"
+    COMPLETED = "COMPLETED"
+    FAILED = "FAILED"
+    TIMED_OUT = "TIMED_OUT"
 
 
 class MinerInput(BaseModel):
@@ -158,7 +168,18 @@ class SubmissionPayloadsPM(BaseModel):
         "extra": "forbid",
     }
 
+    @field_validator("results", mode="after")
+    @classmethod
+    def _check_results(cls, val: list[PayloadPM]) -> list[PayloadPM]:
+        if len(val) != len(_frameworks_names):
+            raise ValueError(
+                f"Number of submitted results ({len(val)}) does not match the expected number ({len(_frameworks_names)})!"
+            )
+
+        return val
+
     def get_final_results(self) -> list[str]:
+        """Returns a list of detected=True framework names."""
         final_result: list[str] = []
         for result in self.results:
             if result.detected:
@@ -172,4 +193,5 @@ __all__ = [
     "MinerOutput",
     "PayloadPM",
     "SubmissionPayloadsPM",
+    "TaskStatusEnum",
 ]

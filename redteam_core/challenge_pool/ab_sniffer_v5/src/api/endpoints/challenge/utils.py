@@ -68,17 +68,13 @@ def run_bot_container(
         _ulimit_nofile = Ulimit(name="nofile", soft=ulimit, hard=ulimit)
 
         # Generate a temporary container ID for this run
-        _container_id = f"run_{int(time.time())}"
         _web_url = f"http://{_gateway_ip}:{config.api.port}/_web"
 
         _container = docker_client.containers.run(
             image=image_name,
             name=container_name,
             ulimits=[_ulimit_nofile],
-            environment={
-                "ABS_WEB_URL": _web_url,
-                "CONTAINER_ID": _container_id,
-            },
+            environment={"ABS_WEB_URL": _web_url},
             network=network_name,
             detach=True,
             **kwargs,
