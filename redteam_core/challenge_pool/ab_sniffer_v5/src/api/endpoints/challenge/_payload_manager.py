@@ -104,6 +104,9 @@ class PayloadManager:
             return True
         return False
 
+    def get_submission_report(self) -> dict[int, dict]:
+        return self.submitted_payloads
+
 
 payload_manager = PayloadManager()
 

@@ -1,8 +1,7 @@
 import time
 import pathlib
-from collections import defaultdict
-
 import docker
+
 from fastapi import Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
@@ -108,6 +107,7 @@ def score(miner_output: MinerOutput) -> float:
         _score = payload_manager.calculate_score()
         payload_manager.submitted_payloads["final_score"] = _score
         logger.info(f"Final score calculated: {_score}")
+
     except Exception as err:
         if isinstance(err, BaseHTTPException):
             raise
@@ -122,9 +122,10 @@ def get_results() -> dict:
     logger.info("Sending detection results...")
 
     try:
-        if payload_manager.submitted_payloads:
+        _submission_report = payload_manager.get_submission_report()
+        if _submission_report:
             logger.info("Returning detection results")
-            return payload_manager.submitted_payloads
+            return _submission_report
         else:
             logger.warning("No detection results available")
             return {}
@@ -150,9 +151,9 @@ def submit_payload(_payload: SubmissionPayloadsPM):
 @validate_call(config={"arbitrary_types_allowed": True})
 def get_web(request: Request) -> HTMLResponse:
     global payload_manager
-
-    if payload_manager.current_task and payload_manager.current_task["order_number"]:
-        _order_number = payload_manager.current_task["order_number"]
+    _current_task = payload_manager.current_task
+    if _current_task and _current_task["order_number"]:
+        _order_number = _current_task["order_number"]
     else:
         _order_number = 0
     templates = Jinja2Templates(directory=str(_src_dir / "templates"))
