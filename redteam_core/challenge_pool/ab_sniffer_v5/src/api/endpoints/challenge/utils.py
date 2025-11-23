@@ -1,5 +1,5 @@
 import os
-import time
+import random
 import subprocess
 
 from docker import DockerClient
@@ -15,7 +15,7 @@ from api.logger import logger
 @validate_call
 def copy_detection_files(miner_output: MinerOutput, detections_dir: str) -> None:
 
-    logger.info("Copying detection files...")
+    logger.info(f"Copying detection files from {detections_dir}")
     try:
         os.makedirs(detections_dir, exist_ok=True)
         for _detection_file_pm in miner_output.detection_files:
@@ -40,7 +40,6 @@ def run_bot_container(
     ulimit: int = 32768,
     **kwargs,
 ) -> str:
-    logger.info(f"Running {image_name} docker container...")
 
     try:
         # Network setup from the provided function
@@ -60,21 +59,19 @@ def run_bot_container(
         _network_info = docker_client.api.inspect_network(net_id=_network_id)
         _gateway_ip = _network_info["IPAM"]["Config"][0]["Gateway"]
 
-        # Stop any existing container with the same name
-        stop_container(container_name=container_name)
-        time.sleep(1)
-
-        # Set up ulimit configuration
         _ulimit_nofile = Ulimit(name="nofile", soft=ulimit, hard=ulimit)
 
-        # Generate a temporary container ID for this run
         _web_url = f"http://{_gateway_ip}:{config.api.port}/_web"
 
+        _waiting_time = round(random.uniform(3, 9), 4)
+        logger.info(
+            f"Running {image_name} docker container with {_waiting_time}s wait time to connect to {_web_url}"
+        )
         _container = docker_client.containers.run(
             image=image_name,
             name=container_name,
             ulimits=[_ulimit_nofile],
-            environment={"ABS_WEB_URL": _web_url},
+            environment={"ABS_WEB_URL": _web_url, "RANDOM_WAIT": str(_waiting_time)},
             network=network_name,
             detach=True,
             **kwargs,
@@ -98,7 +95,7 @@ def run_bot_container(
 
 @validate_call
 def stop_container(container_name: str = "detector_container") -> None:
-    logger.info(f"Stopping container '{container_name}'...")
+    logger.info(f"Stopping container '{container_name}'")
     try:
         subprocess.run(
             ["sudo", "docker", "rm", "-f", container_name],
