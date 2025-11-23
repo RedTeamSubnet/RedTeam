@@ -80,7 +80,7 @@ def run_bot_container(
         # Stream container logs
         try:
             for log in _container.logs(stream=True):
-                logger.info(log.decode().strip())
+                logger.debug(log.decode().strip())
         except Exception as e:
             logger.error(f"Error streaming logs: {e}")
 
