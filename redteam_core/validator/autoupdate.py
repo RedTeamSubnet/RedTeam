@@ -89,6 +89,12 @@ class AutoUpdater:
                 final_version = repo.head.commit.hexsha
                 if final_version != new_version:
                     bt.logging.warning("Update did not complete successfully.")
+                if self._check_for_requirements_update(repo):
+                    bt.logging.warning(
+                        "requirements.txt has changed. Installing new dependencies"
+                    )
+                    os.system("pip install -r requirements.txt")
+
                 self._stop_flag.set()
                 self._restart_process()
             else:
@@ -113,3 +119,7 @@ class AutoUpdater:
 
         # If we're still running after 60 seconds, use SIGKILL
         os.kill(os.getpid(), signal.SIGKILL)
+
+    def _check_for_requirements_update(self, repo):
+        diff = repo.git.diff("origin/main", "--name-only", "requirements.txt") != ""
+        return bool(diff)
