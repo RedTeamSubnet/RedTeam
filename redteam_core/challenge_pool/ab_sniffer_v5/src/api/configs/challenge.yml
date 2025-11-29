@@ -3,6 +3,7 @@ challenge:
   docker_ulimit: 32768
   bot_timeout: 10
   repeated_framework_count: 3
+  verification_endpoint: "http://challenge_server:8000/api/v1/verify"
   framework_images:
     - name: seleniumbase
       image: redteamsubnet61/seleniumbase@sha256:617c872e14364c1eaf84c0583b7b4f250d8d93846eed1a8c1d5d5cdfdf42802a

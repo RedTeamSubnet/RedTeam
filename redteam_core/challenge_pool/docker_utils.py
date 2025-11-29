@@ -37,7 +37,6 @@ import copy
 import re
 import subprocess
 import time
-from typing import List, Optional, Tuple, Union
 
 import bittensor as bt
 import docker

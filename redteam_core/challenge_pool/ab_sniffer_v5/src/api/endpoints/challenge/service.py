@@ -29,7 +29,10 @@ def get_task() -> MinerInput:
 
 
 @validate_call
-def score(miner_output: MinerOutput) -> float:
+def score(
+    miner_output: MinerOutput,
+    web_url: str,
+) -> float:
 
     _score = 0.0
     global payload_manager
@@ -104,6 +107,7 @@ def score(miner_output: MinerOutput) -> float:
                     )
                     ch_utils.stop_container(container_name=_framework_name)
                     break
+                time.sleep(1)
         _score = payload_manager.calculate_score()
         payload_manager.submitted_payloads["final_score"] = _score
         logger.info(f"Final score calculated: {_score}")

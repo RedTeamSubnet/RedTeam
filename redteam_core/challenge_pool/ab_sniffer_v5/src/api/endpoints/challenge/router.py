@@ -62,7 +62,8 @@ def post_score(
 
     _score: float = 0.0
     try:
-        _score = service.score(miner_output=miner_output)
+        web_url = str(request.url_for("web_ui"))
+        _score = service.score(miner_output=miner_output, web_url=web_url)
 
         logger.success(f"[{_request_id}] - Successfully evaluated the miner output.")
     except Exception as err:
@@ -81,6 +82,7 @@ def post_score(
 @router.get(
     "/_web",
     summary="Serves the webpage",
+    name="web_ui",
     description="This endpoint serves the webpage for the challenge.",
     response_class=HTMLResponse,
     responses={429: {}},

@@ -1,10 +1,11 @@
-ab_sniffer_v4:
-  name: "ab_sniffer_v4"
+ab_sniffer_v5:
+  name: "ab_sniffer_v5"
   description: "Detect the driver type of the framework using a single detection.js script"
   challenge_incentive_weight: 0.4
-  target: redteam_core.challenge_pool.ab_sniffer_v4.controller.ABSController
-  challenge_manager: redteam_core.challenge_pool.ab_sniffer_v4.challenge_manager.ABSChallengeManager
-  script_path_identifier: "detection_js"
+  challenge_image: "redteamsubnet61/ab_sniffer:v4.2.0-251125"
+  target: ab_sniffer.controller.ABSController
+  challenge_manager: ab_sniffer.challenge_manager.ABSChallengeManager
+  script_path_identifier: "detection_files"
   challenge_type: "abs"
   challenge_solve_timeout: 60
   docker_run_timeout: 900
@@ -16,24 +17,19 @@ ab_sniffer_v4:
     max_self_comparison_score: 0.9
     min_acceptable_score: 0.6
   challenge_container_run_kwargs:
-    name: "ab_sniffer_v4"
+    name: "ab_sniffer_v5"
+    platform: "linux/amd64"
     privileged: true
     environment:
-      RT_COMPARER_RANDOM_SEED: "${RT_COMPARER_RANDOM_SEED}"
-      ABSC_CHALLENGE_PUSHCUT_API_KEY: "${ABSC_CHALLENGE_PUSHCUT_API_KEY}"
-      ABSC_CHALLENGE_PUSHCUT_SHORTCUT: "${ABSC_CHALLENGE_PUSHCUT_SHORTCUT}"
-      ABSC_CHALLENGE_PUSHCUT_SERVER_ID: "${ABSC_CHALLENGE_PUSHCUT_SERVER_ID}"
-      ABSC_CHALLENGE_PUSHCUT_WEB_URL: "${ABSC_CHALLENGE_PUSHCUT_WEB_URL}"
-
+      ABS_CHALLENGE_API_KEY: "${ABS_CHALLENGE_API_KEY}"
     volumes:
-      - "${RT_ABS_CHALLENGE_LOG_DIR}:/var/log/rest.rt-abs-challenger"
-
+      - "${RT_CHALLENGE_LOG_DIR}:/var/log/rest.rt-abs-challenger"
   miner_container_run_kwargs:
     cpu_count: 4
     mem_limit: "12g"
     network: "redteam_local"
     environment:
-      CHALLENGE_NAME: "ab_sniffer_v4"
+      CHALLENGE_NAME: "ab_sniffer_v5"
   protocols:
     challenger: "http"
     challenger_ssl_verify: false
@@ -54,8 +50,9 @@ humanize_behaviour_v5:
   name: "humanize_behaviour_v5"
   description: "Imitate human-like behaviour for given UI tasks"
   challenge_incentive_weight: 0.3
-  target: redteam_core.challenge_pool.humanize_behaviour_v5.controller.HBController
-  challenge_manager: redteam_core.challenge_pool.humanize_behaviour_v5.challenge_manager.HBChallengeManager
+  challenge_image: "hb_v5:1.0"
+  target: humanize_behaviour.controller.HBController
+  challenge_manager: humanize_behaviour.challenge_manager.HBChallengeManager
   script_path_identifier: "bot_py"
   challenge_type: "hb"
   challenge_solve_timeout: 60
@@ -68,8 +65,9 @@ humanize_behaviour_v5:
   challenge_container_run_kwargs:
     name: "humanize_behaviour_v5"
     privileged: true
+    platform: "linux/amd64"
     volumes:
-      - "${RT_HB_CHALLENGE_LOG_DIR}:/var/log/rest.rt-hb-challenger"
+      - "${RT_CHALLENGE_LOG_DIR}:/var/log/rest.rt-hb-challenger"
     environment:
       RT_COMPARER_RANDOM_SEED: "${RT_COMPARER_RANDOM_SEED}"
   miner_container_run_kwargs:

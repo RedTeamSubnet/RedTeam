@@ -15,6 +15,7 @@ class FrameworkImageConfig(BaseModel):
 class ChallengeConfig(FrozenBaseConfig):
     api_key: SecretStr = Field(..., min_length=12, max_length=128)
     docker_ulimit: int = Field(...)
+    verification_endpoint: AnyHttpUrl = Field(...)
     bot_timeout: int = Field(..., ge=1)
     repeated_framework_count: int = Field(..., ge=1)
     framework_images: List[FrameworkImageConfig] = Field(...)

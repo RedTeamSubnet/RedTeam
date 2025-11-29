@@ -173,12 +173,6 @@ class Controller(BaseController):
         in an isolated Docker network. Includes building the image, creating the network,
         and verifying the container's health status.
         """
-        # Build challenge image
-        docker_utils.build_challenge_image(
-            client=self.docker_client,
-            challenge_name=self.challenge_name,
-            build_path=f"redteam_core/challenge_pool/{self.challenge_name}",
-        )
 
         # Remove existing challenge container
         docker_utils.remove_container(
@@ -215,7 +209,7 @@ class Controller(BaseController):
         # Run challenge container
         self.challenge_container = docker_utils.run_container(
             client=self.docker_client,
-            image=self.challenge_name,
+            image=self.challenge_info["challenge_image"],
             detach=True,
             ports={
                 f"{constants.CHALLENGE_DOCKER_PORT}/tcp": constants.CHALLENGE_DOCKER_PORT
@@ -451,9 +445,9 @@ class Controller(BaseController):
             response_data = response.json()
             data = response_data.get("data", {})
             bt.logging.info(f"Validation response data: {data}")
-            similarity_score = data.get("is_valid", False)
+            _validation_output = data.get("is_valid", False)
 
-            return similarity_score
+            return _validation_output
 
         except Exception as e:
             bt.logging.error(f"Error in comparison request: {str(e)}")
