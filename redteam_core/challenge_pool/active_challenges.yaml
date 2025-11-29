@@ -50,7 +50,7 @@ humanize_behaviour_v5:
   name: "humanize_behaviour_v5"
   description: "Imitate human-like behaviour for given UI tasks"
   challenge_incentive_weight: 0.3
-  challenge_image: "hb_v5:1.0"
+  challenge_image: "redteamsubnet61/humanize_behaviour:v5.0.0-260125"
   target: humanize_behaviour.controller.HBController
   challenge_manager: humanize_behaviour.challenge_manager.HBChallengeManager
   script_path_identifier: "bot_py"
