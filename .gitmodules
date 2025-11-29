@@ -7,3 +7,6 @@
 [submodule "redteam_core/challenge_pool/humanize_behaviour_v2/src/modules/cfg_analyser"]
 	path = redteam_core/challenge_pool/humanize_behaviour_v2/src/modules/cfg_analyser
 	url = ../module.cfg-analyser.git
+[submodule "redteam_core/challenge_pool/ab_sniffer"]
+	path = redteam_core/challenge_pool/ab_sniffer
+	url = https://github.com/RedTeamSubnet/ab_sniffer.git
