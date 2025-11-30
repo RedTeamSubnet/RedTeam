@@ -23,8 +23,6 @@ ACTIVE_CHALLENGES_FILE = os.getenv(
 )
 CHALLENGE_CONFIGS = yaml.load(open(ACTIVE_CHALLENGES_FILE), yaml.FullLoader)
 CHALLENGE_CONFIGS = json.loads(os.path.expandvars(json.dumps(CHALLENGE_CONFIGS)))
-print(CHALLENGE_CONFIGS)
-
 
 def get_obj_from_str(string, reload=False, invalidate_cache=True):
     if string is None:
