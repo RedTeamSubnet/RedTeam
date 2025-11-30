@@ -53,14 +53,6 @@ class Controller(BaseController):
         self.max_self_comparison_score = self.challenge_info["comparison_config"].get(
             "max_self_comparison_score", 0.9
         )
-        # Add baseline image to compare with miners
-        baseline_image = self.challenge_info.get("baseline", None)
-        self.baseline_commit = MinerChallengeCommit(
-            miner_uid=-1,
-            miner_hotkey="baseline",
-            docker_hub_id=baseline_image if baseline_image else None,
-            challenge_name=challenge_name,
-        )
 
     def start_challenge(self):
         """
@@ -91,26 +83,6 @@ class Controller(BaseController):
             challenge_inputs.extend(
                 [self._get_challenge_from_container() for _ in range(remaining_tasks)]
             )
-
-        # Score baseline first if it exists
-        if self.baseline_commit.docker_hub_id:
-            try:
-                self._setup_miner_container(self.baseline_commit)
-                self._score_miner_with_new_inputs(
-                    self.baseline_commit, challenge_inputs
-                )
-                docker_utils.remove_container_by_port(
-                    client=self.docker_client,
-                    port=constants.MINER_DOCKER_PORT,
-                )
-                docker_utils.clean_docker_resources(
-                    client=self.docker_client,
-                    remove_containers=True,
-                    remove_images=True,
-                )
-            except Exception as e:
-                bt.logging.error(f"Error scoring baseline: {e}")
-                bt.logging.error(traceback.format_exc())
 
         # Score commits with new input and collect comparison logs
         for miner_commit in self.miner_commits:
@@ -246,11 +218,7 @@ class Controller(BaseController):
             f"[CONTROLLER] Running miner {miner_commit.miner_uid} - {miner_commit.docker_hub_id}"
         )
 
-        miner_start_time = (
-            time.time()
-            if miner_commit.miner_uid != self.baseline_commit.miner_uid
-            else None
-        )
+        miner_start_time = time.time()
         miner_container = docker_utils.run_container(
             client=self.docker_client,
             image=miner_commit.docker_hub_id,
@@ -293,18 +261,7 @@ class Controller(BaseController):
                 error=error_message,
             )
 
-            # Handle baseline scoring separately
-            if miner_commit.miner_hotkey == "baseline":
-                self.baseline_commit.scoring_logs.append(log)
-            else:
-                # Adjust score relative to baseline if baseline exists and has been scored
-                if (
-                    self.baseline_commit.docker_hub_id
-                    and len(self.baseline_commit.scoring_logs) > i
-                ):
-                    log.score -= self.baseline_commit.scoring_logs[i].score
-                    log.baseline_score = self.baseline_commit.scoring_logs[i].score
-                miner_commit.scoring_logs.append(log)
+            miner_commit.scoring_logs.append(log)
 
     def _run_reference_comparison_inputs(self, miner_commit: MinerChallengeCommit):
         """
@@ -317,7 +274,7 @@ class Controller(BaseController):
             miner_commit=miner_commit
         )
         reference_commits = (
-            self._get_all_reference_commits() + current_commits_to_compare
+            self.reference_comparison_commits + current_commits_to_compare
         )
         _is_valid_submission = self._validate_miner_submission(miner_commit)
         if not _is_valid_submission:
@@ -404,6 +361,7 @@ class Controller(BaseController):
                     f"[CONTROLLER] Removing empty comparison logs for {reference_commit.docker_hub_id} for miner."
                 )
                 del miner_commit.comparison_logs[reference_commit.docker_hub_id]
+        self._compare_with_baseline(miner_commit)
         return
 
     def _validate_miner_submission(self, miner_commit: MinerChallengeCommit) -> bool:
@@ -541,6 +499,63 @@ class Controller(BaseController):
             bt.logging.error(f"Error in comparison request: {str(e)}")
             return {"similarity_score": 0.0, "reason": f"Error: {str(e)}"}
 
+    def _compare_with_baseline(self, miner_commit: MinerChallengeCommit):
+        try:
+            _miner_output = miner_commit.scoring_logs[0].miner_output
+            if not _miner_output:
+                raise ValueError("Miner output is None or empty.")
+
+            _miner_submission_script = _miner_output.get(
+                self.challenge_info.get("script_path_identifier", None), None
+            )
+            payload = {
+                "challenge_name": self.challenge_info.get("challenge_type", None),
+                "miner_script": _miner_submission_script,
+            }
+            headers = {
+                "Content-Type": "application/json",
+                "X-API-KEY": constants.INTERNAL_SERVICES.API_KEY,
+            }
+
+            response = requests.post(
+                f"{constants.INTERNAL_SERVICES.URL}compare/baseline-scripts",
+                timeout=self.challenge_info.get("challenge_compare_timeout", 60),
+                verify=False,
+                json=payload,
+                headers=headers,
+            )
+
+            response_data = response.json()
+            data = response_data.get("data", {})
+
+            for _outputs in data:
+
+                _target_script = _outputs.get("target", "script_1")
+                _similarity_score = _outputs.get("similarity_score", 1.0)
+
+                if isinstance(_similarity_score, int):
+                    _similarity_score = float(_similarity_score)
+                elif not isinstance(_similarity_score, float):
+                    _similarity_score = 1.0
+
+                comparison_log = ComparisonLog(
+                    miner_output=_miner_output,
+                    similarity_score=_similarity_score,
+                    reason=_outputs.get("reason", "Unknown"),
+                )
+                if f"baseline_{_target_script}" not in miner_commit.comparison_logs:
+                    miner_commit.comparison_logs[f"baseline_{_target_script}"] = []
+
+                miner_commit.comparison_logs[f"baseline_{_target_script}"].append(
+                    comparison_log
+                )
+
+            return
+
+        except Exception as e:
+            bt.logging.error(f"Error in comparison request: {str(e)}")
+            return
+
     def _submit_challenge_to_miner(self, challenge_input) -> tuple[dict, str]:
         """
         Sends the challenge input to a miner by making an HTTP POST request to a local endpoint.
@@ -660,14 +675,6 @@ class Controller(BaseController):
             if commit.scoring_logs and (commit.miner_uid != miner_commit.miner_uid):
                 _all_current_commits.append(commit)
         return _all_current_commits
-
-    @abstractmethod
-    def _get_all_reference_commits(self) -> list[MinerChallengeCommit]:
-        """
-        Get all reference commits including baseline cache if available.
-        Override in specialized controllers to add their baseline cache.
-        """
-        return self.reference_comparison_commits
 
     @abstractmethod
     def _exclude_output_keys(self, miner_output: dict, reference_output: dict):
