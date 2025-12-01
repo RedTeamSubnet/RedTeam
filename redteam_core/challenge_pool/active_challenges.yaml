@@ -2,7 +2,7 @@ ab_sniffer_v5:
   name: "ab_sniffer_v5"
   description: "Detect the driver type of the framework using a single detection.js script"
   challenge_incentive_weight: 0.7
-  challenge_image: "redteamsubnet61/ab_sniffer:v4.2.0-251125"
+  challenge_image: "redteamsubnet61/ab_sniffer:v4.3.0-251201"
   target: ab_sniffer.controller.ABSController
   challenge_manager: ab_sniffer.challenge_manager.ABSChallengeManager
   script_path_identifier: "detection_files"
@@ -48,7 +48,7 @@ humanize_behaviour_v5:
   name: "humanize_behaviour_v5"
   description: "Imitate human-like behaviour for given UI tasks"
   challenge_incentive_weight: 0.3
-  challenge_image: "redteamsubnet61/humanize_behaviour:v5.0.0-260125"
+  challenge_image: "redteamsubnet61/humanize_behaviour:v5.0.0-251125"
   target: humanize_behaviour.controller.HBController
   challenge_manager: humanize_behaviour.challenge_manager.HBChallengeManager
   script_path_identifier: "bot_py"
