@@ -3,8 +3,9 @@ from typing import Any, Generic, Optional, TypeVar, Union, TYPE_CHECKING, Iterat
 
 from redteam_core.validator.models import ComparisonLog, ScoringLog
 
-T = TypeVar('T')
-KT = TypeVar('KT')  # Key type
+T = TypeVar("T")
+KT = TypeVar("KT")  # Key type
+
 
 class LRUCache(Generic[KT, T]):
     """
@@ -103,7 +104,9 @@ class LRUCache(Generic[KT, T]):
 
 # Define the specific type for scoring results
 if TYPE_CHECKING:
-    ScoringResultType = dict[str, Union[list[ScoringLog], dict[str, list[ComparisonLog]]]]
+    ScoringResultType = dict[
+        str, Union[list[ScoringLog], dict[str, list[ComparisonLog]]]
+    ]
 else:
     ScoringResultType = dict[str, Any]
 
@@ -125,7 +128,9 @@ class ScoringLRUCache:
         self.maxsize_per_challenge: int = maxsize_per_challenge
         self.caches: dict[str, LRUCache[str, ScoringResultType]] = {}
         for challenge in challenges:
-            self.caches[challenge] = LRUCache[str, ScoringResultType](maxsize=self.maxsize_per_challenge)
+            self.caches[challenge] = LRUCache[str, ScoringResultType](
+                maxsize=self.maxsize_per_challenge
+            )
 
         self.hits: int = 0
         self.misses: int = 0
@@ -153,7 +158,9 @@ class ScoringLRUCache:
 
         return result
 
-    def set(self, challenge: str, docker_hub_id: str, result: ScoringResultType) -> None:
+    def set(
+        self, challenge: str, docker_hub_id: str, result: ScoringResultType
+    ) -> None:
         """
         Store scoring result for a specific challenge and docker_hub_id.
 
@@ -164,7 +171,9 @@ class ScoringLRUCache:
         """
         if challenge not in self.caches:
             # Create a new cache if it doesn't exist
-            self.caches[challenge] = LRUCache[str, ScoringResultType](maxsize=self.maxsize_per_challenge)
+            self.caches[challenge] = LRUCache[str, ScoringResultType](
+                maxsize=self.maxsize_per_challenge
+            )
 
         self.caches[challenge].set(docker_hub_id, result)
 
@@ -182,32 +191,6 @@ class ScoringLRUCache:
             return {}
 
         return dict(self.caches[challenge].items())
-
-    def get_challenges(self) -> Set[str]:
-        """
-        Get all challenge names that have caches.
-
-        Returns:
-            Set of challenge names
-        """
-        return set(self.caches.keys())
-
-    def clear_challenge(self, challenge: str) -> None:
-        """
-        Clear all cached results for a specific challenge.
-
-        Args:
-            challenge: Challenge name to clear
-        """
-        if challenge in self.caches:
-            self.caches[challenge].clear()
-
-    def clear_all(self) -> None:
-        """
-        Clear all cached results for all challenges.
-        """
-        for cache in self.caches.values():
-            cache.clear()
 
     def contains(self, challenge: str, docker_hub_id: str) -> bool:
         """
@@ -248,8 +231,7 @@ class ScoringLRUCache:
         total_evictions = sum(cache.evictions for cache in self.caches.values())
         total_entries = sum(len(cache) for cache in self.caches.values())
         challenge_counts = {
-            challenge: len(cache)
-            for challenge, cache in self.caches.items()
+            challenge: len(cache) for challenge, cache in self.caches.items()
         }
 
         return {
@@ -257,18 +239,12 @@ class ScoringLRUCache:
             "misses": self.misses,
             "evictions": total_evictions,
             "total_entries": total_entries,
-            "challenge_counts": challenge_counts
+            "challenge_counts": challenge_counts,
         }
 
-    def log_stats(self) -> None:
-        """
-        Log cache statistics.
-        """
-        stats = self.get_stats()
-        import bittensor as bt
-        bt.logging.info(f"ScoringLRUCache stats: {stats}")
-
-    def setdefault(self, challenge: str, docker_hub_id: str, default: ScoringResultType) -> ScoringResultType:
+    def setdefault(
+        self, challenge: str, docker_hub_id: str, default: ScoringResultType
+    ) -> ScoringResultType:
         """
         Get the value for a key, setting it to default if not present.
 
@@ -281,7 +257,9 @@ class ScoringLRUCache:
             The existing or new value
         """
         if challenge not in self.caches:
-            self.caches[challenge] = LRUCache[str, ScoringResultType](maxsize=self.maxsize_per_challenge)
+            self.caches[challenge] = LRUCache[str, ScoringResultType](
+                maxsize=self.maxsize_per_challenge
+            )
 
         result = self.caches[challenge].get(docker_hub_id)
         if result is None:

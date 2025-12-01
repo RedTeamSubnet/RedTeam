@@ -1,6 +1,6 @@
 # Humanize Behaviour v5 Testing Manual
 
-This manual provides instructions for testing the Humanize Behaviour v5 challenge using Docker.
+This manual provides instructions for testing the Humanize Behaviour v4 challenge using Docker.
 
 ## Overview
 
@@ -12,59 +12,64 @@ This manual provides instructions for testing the Humanize Behaviour v5 challeng
 
 ### Prerequisites
 
-!!! warning "Requirements"
-    - Docker and Docker Compose installed
-    - Git (for cloning the repository)
+- Docker and Docker Compose installed
+- Git (for cloning the repository)
 
 ### Step 1: Provide Your Scripts
 
 - Paste your bot script into [bot.py](../../../redteam_core/challenge_pool/humanize_behaviour_v5/src/bot/src/core/bot.py)
 - Add your requirements to [requirements.txt](../../../redteam_core/challenge_pool/humanize_behaviour_v5/src/bot/requirements.txt)
 
-### Step 2: Setup Challenge Environment
+### Step 2: Setup
 
 ```bash
+# Clone the repository
 git clone https://github.com/RedTeamSubnet/RedTeam.git
-cd RedTeam
+cd RedTeam/redteam_core/challenge_pool/humanize_behaviour_v5
+
+# Copy and configure the compose override file
+cp ./templates/compose/compose.override.dev.yml ./compose.override.yml
 ```
 
-- Run the following commands in **separate terminal** and **leave it as is** to see the logs:
+### Step 3: Configure Docker
+
+Uncomment the following line in [compose.override.yml](../compose.override.yml):
+
+```yml
+command: ["/bin/bash"]
+```
+
+### Step 4: Start the Challenge Server
 
 ```bash
-bash ./redteam_core/challenge_pool/humanize_behaviour_v5/scripts/setup-testing.sh
+./compose.sh start -l
+./compose.sh enter
 ```
 
-#### Step 3: Setup Testing Environment
-
-- In a **separate terminal**, run the following commands to set up miner environment:
+### Step 5: Run Endpoints
 
 ```bash
-bash ./redteam_core/miner/commits/humanize_behaviour_v5/scripts/setup-testing.sh
+sudo service docker start
+sg docker "python -u ./main.py"
 ```
 
-### Step 4: Test Your Script
+### Step 6: Test Your Bot
 
-- Run the following command to eslint test and run your script to get the score by simulating staging environment
-- You can see the logs in the first terminal where you ran the setup script
-
-```bash
-bash ./redteam_core/miner/commits/humanize_behaviour_v5/scripts/test-script.sh
-```
+- Visit <https://localhost:10001/docs>
+- Test your bot using the `/score` endpoint
 
 ## Important Notes
 
-!!! note "Configuration"
-    - The server runs on port 10001 by default
-    - Make sure port 10001 is available on your system
-    - The challenge includes trajectory similarity checks between sessions
-    - All interactions are logged for analysis
+- The server runs on port 10001 by default
+- Make sure port 10001 is available on your system
+- The challenge includes trajectory similarity checks between sessions
+- All interactions are logged for analysis
 
 ## Troubleshooting
 
-!!! tip "Common Issues"
-    If you encounter issues:
+If you encounter issues:
 
-    1. Check if Docker is running
-    2. Verify port 10001 is not in use
-    3. Check Docker logs using `docker compose logs`
-    4. Ensure you have proper permissions to run Docker commands
+1. Check if Docker is running
+2. Verify port 10001 is not in use
+3. Check Docker logs using `docker compose logs`
+4. Ensure you have proper permissions to run Docker commands

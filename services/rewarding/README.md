@@ -25,7 +25,6 @@ The rewarding server maintains several important state variables:
 - `miner_commits`: Aggregated miner commits from all validators, indexed by miner UID and hotkey
 - `miner_commits_cache`: Quick lookup cache mapping challenge+encrypted_commit to commit objects
 - `scoring_results`: Cache for scored submissions with scoring logs and comparison logs
-- `is_scoring_done`: Tracks scoring completion status for each challenge
 
 ### Processing Workflow
 

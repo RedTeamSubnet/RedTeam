@@ -205,9 +205,7 @@ class Controller(BaseController):
         """Setup and validate miner container. Raises if validation or setup fails."""
 
         if not docker_utils.is_image_digest_format_valid(miner_commit.docker_hub_id):
-            raise ValueError(
-                f"Invalid image format: {miner_commit.docker_hub_id}. Must include a SHA256 digest."
-            )
+            raise ValueError("Invalid image format")
 
         docker_utils.remove_container_by_port(
             client=self.docker_client,
@@ -403,6 +401,7 @@ class Controller(BaseController):
             response_data = response.json()
             data = response_data.get("data", {})
             bt.logging.info(f"Validation response data: {data}")
+            miner_commit.scoring_logs[0].validation_output = data
             _validation_output = data.get("is_valid", False)
 
             return _validation_output
