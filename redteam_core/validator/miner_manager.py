@@ -23,6 +23,7 @@ class MinerManager:
         """
         self.metagraph = metagraph
         self.challenge_managers = challenge_managers
+        self.weights_to_redistribute = 0.0
 
     def update_challenge_managers(
         self, challenge_managers: dict[str, ChallengeManager]
@@ -57,22 +58,14 @@ class MinerManager:
                 valid_weights_sum += manager.challenge_incentive_weight
                 valid_challenges.append(manager)
 
-        # Distribute leftover weights proportionally among valid challenges
-        for manager in valid_challenges:
-            adjusted_weight = manager.challenge_incentive_weight
-            if valid_weights_sum > 0:
-                adjusted_weight += (
-                    weights_to_redistribute
-                    * manager.challenge_incentive_weight
-                    / valid_weights_sum
-                )
-
-            challenge_scores = manager.get_challenge_scores()
             normalized_challenge_scores = self.exclude_same_miner(challenge_scores)
             bt.logging.info(
-                f"Challenge {manager.challenge_name} challenge_scores: {normalized_challenge_scores.tolist()}, adjusted_weight: {adjusted_weight}"
+                f"Challenge {manager.challenge_name} challenge_scores: {normalized_challenge_scores.tolist()}"
             )
-            aggregated_scores += normalized_challenge_scores * adjusted_weight
+            aggregated_scores += (
+                normalized_challenge_scores * manager.challenge_incentive_weight
+            )
+        self.weights_to_redistribute = weights_to_redistribute
         bt.logging.debug(
             f"Aggregated challenge scores: {aggregated_scores.tolist()}, valid_weights_sum: {valid_weights_sum}, weights_to_redistribute: {weights_to_redistribute}"
         )
@@ -277,10 +270,10 @@ class MinerManager:
         alpha_burn_scores = self._get_alpha_burn_scores(n_uids)
 
         # fallback if no valid submissions in any challenges
-        if np.sum(challenge_scores) <= 0:
+        if self.weights_to_redistribute >= 0:
             bt.logging.info("No challenge scores, giving all weight to alpha burn")
-            alpha_burn_weight = (
-                constants.ALPHA_BURN_WEIGHT + constants.CHALLENGE_SCORES_WEIGHT
+            alpha_burn_weight = constants.ALPHA_BURN_WEIGHT + (
+                self.weights_to_redistribute * constants.CHALLENGE_SCORES_WEIGHT
             )
         else:
             alpha_burn_weight = constants.ALPHA_BURN_WEIGHT
