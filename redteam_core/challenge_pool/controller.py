@@ -500,7 +500,7 @@ class Controller(BaseController):
 
     def _compare_with_baseline(self, miner_commit: MinerChallengeCommit):
         try:
-            _miner_output = miner_commit.scoring_logs[0].miner_output
+            _miner_output = miner_commit.scoring_logs[0].miner_output.copy()
             if not _miner_output:
                 raise ValueError("Miner output is None or empty.")
 
