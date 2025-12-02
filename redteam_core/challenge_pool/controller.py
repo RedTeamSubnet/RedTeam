@@ -104,15 +104,15 @@ class Controller(BaseController):
             except Exception as e:
                 bt.logging.error(f"Error while processing miner {uid} - {hotkey}: {e}")
                 bt.logging.error(traceback.format_exc())
-                if uid != self.baseline_commit.miner_uid:
-                    miner_commit.scoring_logs.append(
-                        ScoringLog(
-                            miner_input=None,
-                            miner_output=None,
-                            score=0,
-                            error=str(e),
-                        )
+
+                miner_commit.scoring_logs.append(
+                    ScoringLog(
+                        miner_input=None,
+                        miner_output=None,
+                        score=0,
+                        error=str(e),
                     )
+                )
 
             # Clean up miner container
             docker_utils.remove_container_by_port(
