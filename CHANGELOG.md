@@ -1,5 +1,16 @@
 # Changelog
 
+## v3.0.0 (2025-12-02)
+
+<!-- Release notes generated using configuration in .github/release.yml at v3.0.0 -->
+
+## What's Changed
+### ✨ Features
+* Auto Browser Sniffer & New Subnet Structure for the Challenges by @aliyuldashev in https://github.com/RedTeamSubnet/RedTeam/pull/87
+
+
+**Full Changelog**: https://github.com/RedTeamSubnet/RedTeam/compare/v2.9.0...v3.0.0
+
 ## v2.9.0 (2025-11-03)
 
 <!-- Release notes generated using configuration in .github/release.yml at v2.9.0 -->
