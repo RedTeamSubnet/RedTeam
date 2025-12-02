@@ -9,3 +9,5 @@ pytest>=8.0.2,<9.0.0
 substrate-interface>=1.7.11,<1.8
 pydantic-settings>=2.8.1,<3.0.0
 GitPython~=3.1.44
+humanize_behaviour @ git+https://github.com/RedTeamSubnet/humanize_behaviour.git@v5.1.0
+ab_sniffer @ git+https://github.com/RedTeamSubnet/ab_sniffer.git@v5.0.0
