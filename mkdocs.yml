@@ -77,11 +77,8 @@ nav:
   - Challenge Templates:
       - FAQ: challenge_templates/FAQ.md
       - Active Challenges:
-          - AB Sniffer v3: challenge_templates/ab_sniffer_v3.md
-          - Dev Fingerprinter v1: challenge_templates/dev_fingerprinter_v1.md
-          - Dev Fingerprinter Overview: challenge_templates/device_fingerprinting_overview.md
+          - AB Sniffer v5: challenge_templates/ab_sniffer_v5.md
           - Humanize Behaviour v5: challenge_templates/humanize_behaviour_v5.md
       - Testing Guides:
           - AB Sniffer Testing: challenge_templates/testing_guides/testing_manual_autobrowser_sniffer.md
-          - DFP Testing: challenge_templates/testing_guides/testing_manual_dfp_challenge.md
           - Humanize Behaviour Testing: challenge_templates/testing_guides/testing_manual_humanize_behaviour.md
