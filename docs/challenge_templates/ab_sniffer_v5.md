@@ -96,7 +96,7 @@ We maintain strict originality standards:
 
 ### Pre-Submission Check
 
-Before submitting, you **must** ensure your code passes our ESLint configuration. You can do this by using our provided playground environment on Replit [https://replit.com/@redteamsn61/absnifferv1eslintcheck#README.md]. Submissions that do not pass the linting check will be rejected.
+Before submitting, you **must** ensure your code passes our ESLint configuration. You can do this by using our provided playground environment on [Replit](https://replit.com/@redteamsn61/absnifferv1eslintcheck#README.md). Submissions that do not pass the linting check will be rejected.
 
 ## Submission Guide
 
