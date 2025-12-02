@@ -10,7 +10,7 @@
       
       
       
-        <link rel="canonical" href="https://docs.theredteam.io/challenge_templates/deprecated/humanize_behaviour_v1/">
+        <link rel="canonical" href="https://docs.theredteam.io/challenge_templates/deprecated/ab_sniffer_v4/">
       
       
       
@@ -23,7 +23,7 @@
     
     
       
-        <title>Humanize Behaviour v1 Submission Guide (Active after Feb 12st 2025 14:00 UTC) - RedTeam Subnet</title>
+        <title>Auto Browser Sniffer v4 - RedTeam Subnet</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#humanize-behaviour-v1-submission-guide-active-after-feb-12st-2025-1400-utc" class="md-skip">
+        <a href="#ab-sniffer-v4-submission-guide-active-after-oct-16th-2025-1000-utc" class="md-skip">
           Skip to content
         </a>
       
@@ -111,7 +111,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Humanize Behaviour v1 Submission Guide (Active after Feb 12st 2025 14:00 UTC)
+              Auto Browser Sniffer v4
             
           </span>
         </div>
@@ -974,10 +974,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#description" class="md-nav__link">
+  <a href="#overview" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Description
+        Overview
       
     </span>
   </a>
@@ -997,10 +997,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#environment" class="md-nav__link">
+  <a href="#technical-requirements" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Environment
+        Technical Requirements
       
     </span>
   </a>
@@ -1008,10 +1008,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#before-you-begin" class="md-nav__link">
+  <a href="#core-requirements" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Before You Begin
+        Core Requirements
       
     </span>
   </a>
@@ -1019,10 +1019,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#things-to-remember" class="md-nav__link">
+  <a href="#target-frameworks" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Things to remember
+        Target Frameworks
       
     </span>
   </a>
@@ -1030,10 +1030,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#1-navigate-to-the-humanize-behaviour-v1-commit-directory" class="md-nav__link">
+  <a href="#key-guidelines" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1. Navigate to the Humanize Behaviour v1 Commit Directory
+        Key Guidelines
       
     </span>
   </a>
@@ -1041,10 +1041,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-build-the-docker-image" class="md-nav__link">
+  <a href="#evaluation-criteria" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Build the Docker Image
+        Evaluation Criteria
       
     </span>
   </a>
@@ -1052,10 +1052,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-log-in-to-docker" class="md-nav__link">
+  <a href="#scoring-system" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. Log in to Docker
+        Scoring System
       
     </span>
   </a>
@@ -1063,32 +1063,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#4-push-the-docker-image" class="md-nav__link">
+  <a href="#plagiarism-check" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4. Push the Docker Image
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#5-retrieve-the-sha256-digest" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        5. Retrieve the SHA256 Digest
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#6-update-active_commityaml" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        6. Update active_commit.yaml
+        Plagiarism Check
       
     </span>
   </a>
@@ -1097,6 +1075,17 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#submission-guide" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Submission Guide
+      
+    </span>
+  </a>
   
 </li>
       
@@ -1131,75 +1120,122 @@
   
 
 
-<h1 id="humanize-behaviour-v1-submission-guide-active-after-feb-12st-2025-1400-utc">Humanize Behaviour v1 Submission Guide (Active after Feb 12st 2025 14:00 UTC)</h1>
-<h2 id="description">Description</h2>
-<p>The <strong>Humanize Behaviour v1</strong> is designed to test the ability of a bot scripts to mimic human behaviour with a web ui form. The challenge measures how well the bot script can interact with the form and submit the required information.</p>
-<p>This challenge is intended to evaluate the accuracy and efficiency of bot scripts in completing web-based tasks. It assesses the ability of the bot script to navigate through the UI elements, interact with form fields, and submit the required data.</p>
-<p>Miners participating in this challenge should be capable of simulating human-like behaviour while interacting with the web ui form by bot script.</p>
+<h1 id="ab-sniffer-v4-submission-guide-active-after-oct-16th-2025-1000-utc">AB Sniffer v4 Submission Guide (Active after Oct 16th 2025 10:00 UTC)</h1>
+<h2 id="overview">Overview</h2>
+<p><strong>AB Sniffer v4</strong> is the next iteration of <strong>Auto Browser Sniffer</strong> challenge which tests participants' ability to develop a SDK that can detect and correctly identify automation frameworks by name. The challenge evaluates how well the SDK can analyze automation behavior and identify unique characteristics or "leaks" from different automation tools interacting with a web page. With the new iteration, we are introducing one more frameworks to be detected which are <strong>Botasaurus</strong>, <strong>Pydoll</strong> and a <strong>human-in-the-loop</strong> interaction scenario.</p>
+<p>Participants must demonstrate precise detection capabilities across multiple automation frameworks while maintaining reliability across different execution headless mode and human-in-the-loop scenarios.</p>
 <hr />
 <h2 id="example-code-and-submission-instructions">Example Code and Submission Instructions</h2>
-<p>Example code for the Humanize Behaviour v1 can be found in the <a href="https://github.com/RedTeamSubnet/RedTeam/blob/main/redteam_core/miner/commits/deprecated/humanize_behaviour_v1/"><code>redteam_core/miner/commits/humanize_behaviour_v1/</code></a> directory.</p>
-<h3 id="environment">Environment</h3>
-<p>Your bot script should be compatible with these:</p>
+<p>Example codes for the AB Sniffer v4 can be found in the <a href="https://github.com/RedTeamSubnet/RedTeam/blob/main/redteam_core/miner/commits/ab_sniffer_v4/"><code>redteam_core/miner/commits/ab_sniffer_v4/</code></a> directory.</p>
+<h3 id="technical-requirements">Technical Requirements</h3>
 <ul>
-<li>Python: <strong>3.10</strong></li>
-<li>Ubuntu: <strong>24.04</strong></li>
-<li>Docker image: <strong>selenium/standalone-chrome:4.28.1</strong></li>
+<li>Node.js SDK development</li>
+<li>Ubuntu 24.04</li>
+<li>Docker container environment</li>
 </ul>
-<h3 id="before-you-begin">Before You Begin</h3>
+<h3 id="core-requirements">Core Requirements</h3>
+<ol>
+<li>Use our template from <a href="https://github.com/RedTeamSubnet/RedTeam/blob/main/redteam_core/miner/commits/ab_sniffer_v4/src/detection/detection.js"><code>redteam_core/miner/commits/ab_sniffer_v4/src/detection/detection.js</code></a></li>
+<li>Keep the detection function signature unchanged</li>
+<li>Your SDK must:</li>
+<li>Detect automation frameworks interacting with the page</li>
+<li>Output the exact name of the detected tool</li>
+<li>Work reliably across multiple execution modes</li>
+</ol>
+<h3 id="target-frameworks">Target Frameworks</h3>
+<p>Your SDK should be capable of detecting these automation frameworks:</p>
 <ul>
-<li>Use the template bot script provided in the <a href="https://github.com/RedTeamSubnet/RedTeam/blob/main/redteam_core/miner/commits/deprecated/humanize_behaviour_v1/src/bot/bot.py"><code>redteam_core/miner/commits/humanize_behaviour_v1/src/bot/bot.py</code></a> file.</li>
-<li>Inside <code>src/bot</code> folder, you will find the <code>bot.py</code> file, which contains the bot script.</li>
-<li>Modify only <strong><code>run_bot()</code></strong> function while keeping the rest of the code if you do not know what you are doing.</li>
-<li>The bot script must be able to:<ul>
-<li>Use provided <code>driver</code></li>
-<li>Check all click locations provided in <code>config</code> (in given order)</li>
-<li>Fill in username and password</li>
-<li>Submit the form</li>
+<li><strong>nodriver</strong></li>
+<li><strong>selenium</strong>  </li>
+<li><strong>seleniumbase</strong></li>
+<li><strong>patchright</strong></li>
+<li><strong>puppeteerextra</strong></li>
+<li><strong>zendriver</strong></li>
+<li><strong>camoufox</strong></li>
+<li><strong>botasaurus</strong></li>
+<li><strong>pydoll</strong></li>
+<li><strong>human</strong></li>
+</ul>
+<h3 id="key-guidelines">Key Guidelines</h3>
+<ul>
+<li><strong>Detection Method</strong>: Analyze automation behavior, unique signatures, or behavioral patterns</li>
+<li><strong>Output Format</strong>: Return structured responses with tool name</li>
+<li><strong>Execution Modes</strong>: SDK will be tested in both headless and headed-but-silent modes</li>
+<li><strong>Reliability</strong>: Each framework will be tested multiple times randomly to ensure consistent detection</li>
+<li><strong>Technical Setup</strong>:<ul>
+<li>Enable headless mode</li>
+<li>Use amd64 architecture (ARM64 at your own risk)</li>
 </ul>
 </li>
-<li>Do not remove or rename <code>run_bot</code> function.</li>
-</ul>
-<h3 id="things-to-remember">Things to remember</h3>
-<ul>
-<li>Use provided <code>driver</code> as your main driver. If you don't follow, you may fail to run the challenge or get a low score.</li>
-<li>Click only in <code>provided locations</code>:<ul>
-<li>Clicking extra for input and submit button is ok</li>
-<li>If your script clicks in wrong order or skips some locations, you will not be able to submit the form</li>
+<li><strong>Limitations</strong><ul>
+<li>Your script must not exceed 1,000 lines. If it does, it will be considered invalid, and you will receive a score of zero.</li>
+<li>Your dependencies must be older than January 1, 2025. Any package released on or after this date will not be accepted, and your script will not be processed.</li>
 </ul>
 </li>
-<li>Make sure the bot scripts run on <strong><code>headless browser</code></strong></li>
-<li>Click <code>login-button</code> at the end of session; if you press it before, the session will end automatically</li>
-<li>Provide dependencies in <a href="https://github.com/RedTeamSubnet/RedTeam/blob/main/redteam_core/miner/commits/deprecated/humanize_behaviour_v1/src/bot/requirements.txt"><code>requirements.txt</code></a></li>
-<li>The miner docker container must be run in <strong>amd64</strong> (x86_64) architecture because the selenium driver (chromedriver) is not compatible with <strong>arm64</strong> architecture. If managed to run in ARM architecture, then it's up to you.</li>
 </ul>
-<h3 id="1-navigate-to-the-humanize-behaviour-v1-commit-directory">1. Navigate to the Humanize Behaviour v1 Commit Directory</h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">cd</span><span class="w"> </span>redteam_core/miner/commits/humanize_behaviour_v1
+<h3 id="evaluation-criteria">Evaluation Criteria</h3>
+<p>Your SDK will be scored based on:</p>
+<ul>
+<li><strong>Detection Accuracy</strong>: Correctly identifying automation frameworks by name</li>
+<li><strong>Consistency</strong>: Maintaining accuracy across multiple test runs</li>
+<li><strong>Coverage</strong>: Number of frameworks successfully detected</li>
+<li><strong>Minimum Requirement</strong>: Must detect at least 7 frameworks with 100% accuracy to qualify</li>
+</ul>
+<h3 id="scoring-system">Scoring System</h3>
+<ul>
+<li><strong>Per Framework</strong>: Points awarded for consistent detection</li>
+<li><strong>Minimum Threshold</strong>: Must achieve minimum score to rank on leaderboard</li>
+</ul>
+<h3 id="plagiarism-check">Plagiarism Check</h3>
+<p>We maintain strict originality standards:</p>
+<ul>
+<li>All submissions are compared against other participants' SDKs</li>
+<li>100% similarity = zero score</li>
+<li>Similarity above 60% will result in proportional score penalties based on the <strong>detected similarity percentage</strong>.</li>
+</ul>
+<h2 id="submission-guide">Submission Guide</h2>
+<p>Follow 1~6 steps to submit your SDK.</p>
+<ol>
+<li>
+<p><strong>Navigate to the AB Sniffer v4 Commit Directory</strong></p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">cd</span><span class="w"> </span>redteam_core/miner/commits/ab_sniffer_v4
 </span></code></pre></div>
-<h3 id="2-build-the-docker-image">2. Build the Docker Image</h3>
-<p>To build the Docker image for the Humanize Behaviour v1 submission, run:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </span>my_hub/humanize_behaviour-miner:0.0.1<span class="w"> </span>.
+</li>
+<li>
+<p><strong>Build the Docker Image</strong></p>
+<p>To build the Docker image for the AB Sniffer v4 submission, run:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </span>my_hub/ab_sniffer_v4-miner:0.0.1<span class="w"> </span>.
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="c1"># For MacOS (Apple Silicon) to build AMD64:</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="nv">DOCKER_BUILDKIT</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>docker<span class="w"> </span>build<span class="w"> </span>--platform<span class="w"> </span>linux/amd64<span class="w"> </span>-t<span class="w"> </span>myhub/humanize_behaviour-miner:0.0.1<span class="w"> </span>.
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="nv">DOCKER_BUILDKIT</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>docker<span class="w"> </span>build<span class="w"> </span>--platform<span class="w"> </span>linux/amd64<span class="w"> </span>-t<span class="w"> </span>myhub/ab_sniffer_v4-miner:0.0.1<span class="w"> </span>.
 </span></code></pre></div>
-<h3 id="3-log-in-to-docker">3. Log in to Docker</h3>
+</li>
+<li>
+<p><strong>Log in to Docker</strong></p>
 <p>Log in to your Docker Hub account using the following command:</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>docker<span class="w"> </span>login
 </span></code></pre></div>
 <p>Enter your Docker Hub credentials when prompted.</p>
-<h3 id="4-push-the-docker-image">4. Push the Docker Image</h3>
+</li>
+<li>
+<p><strong>Push the Docker Image</strong></p>
 <p>Push the tagged image to your Docker Hub repository:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>docker<span class="w"> </span>push<span class="w"> </span>myhub/humanize_behaviour:0.0.1
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>docker<span class="w"> </span>push<span class="w"> </span>myhub/ab_sniffer_v4:0.0.1
 </span></code></pre></div>
-<h3 id="5-retrieve-the-sha256-digest">5. Retrieve the SHA256 Digest</h3>
+</li>
+<li>
+<p><strong>Retrieve the SHA256 Digest</strong></p>
 <p>After pushing the image, retrieve the digest by running:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>docker<span class="w"> </span>inspect<span class="w"> </span>--format<span class="o">=</span><span class="s1">&#39;{{index .RepoDigests 0}}&#39;</span><span class="w"> </span>myhub/humanize_behaviour:0.0.1
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>docker<span class="w"> </span>inspect<span class="w"> </span>--format<span class="o">=</span><span class="s1">&#39;{{index .RepoDigests 0}}&#39;</span><span class="w"> </span>myhub/ab_sniffer_v4:0.0.1
 </span></code></pre></div>
-<h3 id="6-update-active_commityaml">6. Update active_commit.yaml</h3>
+</li>
+<li>
+<p><strong>Update active_commit.yaml</strong></p>
 <p>Finally, go to the <code>neurons/miner/active_commit.yaml</code> file and update it with the new image tag:</p>
-<div class="language-yaml highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">humanize_behaviour---myhub/humanize_behaviour@&lt;sha256:digest&gt;</span>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ab_sniffer_v4---myhub/ab_sniffer_v4@&lt;sha256:digest&gt;</span>
 </span></code></pre></div>
+</li>
+</ol>
 <hr />
 <h2 id="references">📑 References</h2>
 <ul>
@@ -1211,6 +1247,9 @@
 
 
 
+
+  
+  
 
 
 
