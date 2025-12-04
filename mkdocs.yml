@@ -79,6 +79,3 @@ nav:
       - Active Challenges:
           - AB Sniffer v5: challenge_templates/ab_sniffer_v5.md
           - Humanize Behaviour v5: challenge_templates/humanize_behaviour_v5.md
-      - Testing Guides:
-          - AB Sniffer Testing: challenge_templates/testing_guides/testing_manual_autobrowser_sniffer.md
-          - Humanize Behaviour Testing: challenge_templates/testing_guides/testing_manual_humanize_behaviour.md
