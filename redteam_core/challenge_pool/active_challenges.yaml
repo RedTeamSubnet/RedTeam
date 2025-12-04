@@ -1,6 +1,6 @@
 ab_sniffer_v5:
   name: "ab_sniffer_v5"
-  description: "Detect the driver type of the framework using a single detection.js script"
+  description: "Detect the driver type of the framework"
   challenge_incentive_weight: 0.7
   challenge_image: "redteamsubnet61/ab_sniffer:v5.0.0-251202"
   target: ab_sniffer.controller.ABSController
