@@ -191,3 +191,62 @@ class MinerChallengeCommit(BaseModel):
             penalty=self.penalty,
             accepted=self.accepted,
         )
+
+
+class MinerChallengeInfo(BaseModel):
+    """
+    Holds the state of a miner for a specific challenge.
+
+    Attributes:
+        miner_uid (int): Miner's UID
+        miner_hotkey (str): Miner's current hotkey
+        challenge_name (str): Name of the challenge
+        latest_commit (Optional[MinerChallengeCommit]): Latest commit data
+        best_commit (Optional[MinerChallengeCommit]): Best performing commit data
+        daily_scores (dict[str, float]): Daily scores indexed by date
+    """
+
+    miner_uid: int
+    miner_hotkey: str
+    challenge_name: str
+    latest_commit: Optional[MinerChallengeCommit] = None
+    best_commit: Optional[MinerChallengeCommit] = None
+    daily_scores: dict[str, float] = {}
+
+    def update_best_commit(self, miner_commit: MinerChallengeCommit):
+        """
+        Updates the best commit if the new commit is accepted and has a higher score.
+
+        Args:
+            commit: New commit to evaluate
+        """
+        if (
+            self.best_commit
+            and miner_commit.encrypted_commit == self.best_commit.encrypted_commit
+            and not miner_commit.accepted
+        ):
+            self.best_commit = None
+            return
+
+        elif not miner_commit.accepted:
+            return
+
+        elif (
+            self.best_commit is None
+            or miner_commit.score > self.best_commit.score
+            or miner_commit.score == 1.0
+        ):
+            self.best_commit = miner_commit
+
+    def public_view(self) -> "MinerChallengeInfo":
+        """Returns a new instance with sensitive fields removed from commits."""
+        return MinerChallengeInfo(
+            miner_uid=self.miner_uid,
+            miner_hotkey=self.miner_hotkey,
+            challenge_name=self.challenge_name,
+            latest_commit=(
+                self.latest_commit.public_view() if self.latest_commit else None
+            ),
+            best_commit=self.best_commit.public_view() if self.best_commit else None,
+            daily_scores=self.daily_scores,
+        )
