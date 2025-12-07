@@ -54,91 +54,6 @@ class Controller(BaseController):
             "max_self_comparison_score", 0.9
         )
 
-    def start_challenge(self):
-        """
-        Initiates the challenge lifecycle by setting up and executing the challenge Docker container.
-
-        This process involves:
-        1. Building and running the challenge container within an isolated Docker network.
-        2. Generating or retrieving challenge inputs to evaluate miners.
-        3. Scoring a baseline Docker image, if specified, to establish a reference point.
-        4. Iteratively running each miner's Docker container to submit and score their solutions.
-        5. Collecting and logging the results, including any errors encountered during execution.
-        6. Cleaning up Docker resources to ensure no residual containers or images remain.
-
-        The method ensures that each miner's submission is evaluated against the challenge inputs,
-        and comparison logs are generated to assess performance relative to reference commits.
-        """
-        # Setup challenge, get challenge container and network ready
-        self._setup_challenge()
-
-        # Generate new input to score miners
-        num_task = self.challenge_info.get(
-            "num_tasks", constants.N_CHALLENGES_PER_EPOCH
-        )
-        # Start with seed inputs and generate more if needed to reach num_task
-        challenge_inputs = self.seed_inputs.copy()
-        remaining_tasks = max(0, num_task - len(challenge_inputs))
-        if remaining_tasks > 0:
-            challenge_inputs.extend(
-                [self._get_challenge_from_container() for _ in range(remaining_tasks)]
-            )
-
-        # Score commits with new input and collect comparison logs
-        for miner_commit in self.miner_commits:
-            uid, hotkey = miner_commit.miner_uid, miner_commit.miner_hotkey
-
-            try:
-                bt.logging.info(
-                    f"[CONTROLLER] Scoring miner {uid} - {hotkey} with commit {miner_commit.encrypted_commit}"
-                )
-                # 1. Validate and setup miner container
-                self._setup_miner_container(miner_commit)
-
-                # 2. Score with new inputs
-                self._score_miner_with_new_inputs(miner_commit, challenge_inputs)
-
-                # 3. Run reference comparisons
-                self._run_reference_comparison_inputs(miner_commit)
-
-            except Exception as e:
-                bt.logging.error(f"Error while processing miner {uid} - {hotkey}: {e}")
-                bt.logging.error(traceback.format_exc())
-
-                miner_commit.scoring_logs.append(
-                    ScoringLog(
-                        miner_input=None,
-                        miner_output=None,
-                        score=0,
-                        error=str(e),
-                    )
-                )
-
-            # Clean up miner container
-            docker_utils.remove_container_by_port(
-                client=self.docker_client,
-                port=constants.MINER_DOCKER_PORT,
-            )
-            docker_utils.clean_docker_resources(
-                client=self.docker_client,
-                remove_containers=True,
-                remove_images=True,
-            )
-
-        # Clean up challenge container
-        docker_utils.remove_container(
-            client=self.docker_client,
-            container_name=self.challenge_name,
-            stop_timeout=10,
-            force=True,
-            remove_volumes=True,
-        )
-        docker_utils.clean_docker_resources(
-            client=self.docker_client,
-            remove_containers=True,
-            remove_images=True,
-        )
-
     def _setup_challenge(self):
         """
         Sets up the challenge environment by building and running the challenge container
@@ -235,31 +150,6 @@ class Controller(BaseController):
             timeout=self.challenge_info.get("docker_run_timeout", 600),
             start_time=miner_start_time,
         )
-
-    def _score_miner_with_new_inputs(
-        self, miner_commit: MinerChallengeCommit, challenge_inputs
-    ):
-        """Run and score miner with new challenge inputs."""
-        for i, miner_input in enumerate(challenge_inputs):
-            miner_output, error_message = self._submit_challenge_to_miner(miner_input)
-            score = (
-                self._score_challenge(
-                    miner_input=miner_input,
-                    miner_output=miner_output,
-                    task_id=i,
-                )
-                if miner_output is not None
-                else 0.0
-            )
-
-            log = ScoringLog(
-                miner_input=miner_input,
-                miner_output=miner_output,
-                score=score,
-                error=error_message,
-            )
-
-            miner_commit.scoring_logs.append(log)
 
     def _run_reference_comparison_inputs(self, miner_commit: MinerChallengeCommit):
         """
@@ -675,15 +565,6 @@ class Controller(BaseController):
                 _all_current_commits.append(commit)
         return _all_current_commits
 
-    @abstractmethod
-    def _exclude_output_keys(self, miner_output: dict, reference_output: dict):
-        """
-        Exclude specific keys from outputs to prevent database bloat.
-        Override in specialized controllers to specify which keys to exclude.
-        """
-        # Default implementation - no exclusions
-        pass
-
     def _check_protocol(
         self, is_challenger: bool = True
     ) -> tuple[str, Union[bool, None]]:
@@ -717,3 +598,23 @@ class Controller(BaseController):
                     _ssl_verify = _protocols["miner_ssl_verify"]
 
         return _protocol, _ssl_verify
+
+    @abstractmethod
+    def _exclude_output_keys(self, miner_output: dict, reference_output: dict):
+        """
+        Exclude specific keys from outputs to prevent database bloat.
+        Override in specialized controllers to specify which keys to exclude.
+        """
+        pass
+
+    @abstractmethod
+    def start_challenge(self):
+        """Initiates the challenge lifecycle by setting up and executing the challenge Docker container."""
+        pass
+
+    @abstractmethod
+    def _score_miner_with_new_inputs(
+        self, miner_commit: MinerChallengeCommit, challenge_inputs
+    ):
+        """Run and score miner with new challenge inputs."""
+        pass
