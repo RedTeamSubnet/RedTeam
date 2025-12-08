@@ -7,18 +7,25 @@ import argparse
 import datetime
 import threading
 import traceback
+from copy import deepcopy
 
 import requests
 import bittensor as bt
 
-from neurons.validator.validator import Validator
-from redteam_core import constants
+from redteam_core import BaseValidator, constants
 from redteam_core.common import get_config
+from redteam_core.challenge_pool import ACTIVE_CHALLENGES
+from redteam_core.validator import (
+    ChallengeManager,
+    StorageManager,
+    start_bittensor_log_listener,
+)
 from redteam_core.validator.models import (
     ComparisonLog,
     MinerChallengeCommit,
     ScoringLog,
 )
+from redteam_core.validator.utils import create_validator_request_header_fn
 
 from .cache import ScoringLRUCache
 from services.rewarding.router import start_ping_server
@@ -39,18 +46,26 @@ def get_reward_app_config() -> bt.Config:
     return config
 
 
-class RewardApp(Validator):
+class RewardApp(BaseValidator):
     """
-    A special validator that focuses on centralized scoring for the network.
-    This validator:
-    1. Does not participate in querying miners or setting weights
-    2. Maintains state like regular validators
-    3. Scores miner commits retrieved from storage
+    A centralized scoring service for the RedTeam network.
+
+    This service is responsible for:
+    1. Aggregating miner commits from all validators
+    2. Scoring miner submissions using challenge controllers
+    3. Storing and caching scoring results
+    4. Publishing scoring results for validator consumption
+
+    Unlike Validator, RewardApp:
+    - Does NOT query miners directly
+    - Does NOT set weights on-chain
+    - Only performs centralized scoring and comparison
+    - Maintains its own scoring cache and state
     """
 
     def __init__(self, config: bt.Config):
         """
-        Initialize the reward app with validator capabilities.
+        Initialize the reward app as a centralized scoring service.
 
         Args:
             config (bt.Config): Bittensor configuration object
@@ -60,28 +75,57 @@ class RewardApp(Validator):
             - miner_commits: Aggregated miner commits from all validators
             - miner_commits_cache: Quick lookup cache mapping challenge_name---encrypted_commit to commit
             - scoring_results: Cache for scored docker_hub_ids with their scoring and comparison logs
+            - challenge_managers: Per-challenge scoring logic
+            - storage_manager: Persistent storage manager
+            - active_challenges: Dictionary of active challenges with controllers
         """
         super().__init__(config)
-        # Initialize validator state, stores current miner commits from all validators
+
+        # Override hotkey and uid from environment if provided
+        if REWARD_APP_HOTKEY and REWARD_APP_UID is not None:
+            self.hotkey = REWARD_APP_HOTKEY
+            self.uid = REWARD_APP_UID
+
+        # Setup scoring-specific components
+        self.validator_request_header_fn = create_validator_request_header_fn(
+            validator_uid=self.uid,
+            validator_hotkey=self.wallet.hotkey.ss58_address,
+            keypair=self.wallet.hotkey,
+        )
+
+        # Get the storage API key
+        storage_api_key = self._get_storage_api_key()
+
+        # Start the Bittensor log listener
+        start_bittensor_log_listener(api_key=storage_api_key)
+
+        # Setup storage manager
+        self.storage_manager = StorageManager(
+            cache_dir=self.config.validator.cache_dir,
+            validator_request_header_fn=self.validator_request_header_fn,
+            hf_repo_id=self.config.validator.hf_repo_id,
+            sync_on_init=True,
+        )
+
+        # Initialize challenge managers
+        self.challenge_managers: dict[str, ChallengeManager] = {}
+        self.active_challenges: dict = {}
+        self._init_active_challenges()
+
+        # Initialize reward app state
         self.validators_miner_commits: dict[
             tuple[int, str], dict[tuple[int, str], dict[str, MinerChallengeCommit]]
         ] = {}
-        # Daily miner commits will now be aggregated in self.miner_commits
         self.miner_commits: dict[tuple[int, str], dict[str, MinerChallengeCommit]] = {}
-        # Quick lookup for miner commits by encrypted_commit, this has no new information, just a cache
         self.miner_commits_cache: dict[str, MinerChallengeCommit] = {}
-        # Cache for scored docker_hub_ids, map from challenge_name to docker_hub_id to the coresponding "scoring_logs" and "comparison_logs"
         self.scoring_results = ScoringLRUCache(
             challenges=list(self.active_challenges.keys()), maxsize_per_challenge=256
         )
+
         # Initialize cache for scoring results
         self._initialize_scoring_cache()
         # Sync the cache from scoring results retrieved from storage upon initialization
         self._sync_scoring_results_from_storage_to_cache()
-
-        # Initialize scoring completion flags
-        # This is used to check if the scoring for a challenge is done
-        # Set to False when new miner commits are retrieved and True when all miner commits are scored and compared at scoring hour
 
         bt.logging.info(
             f"Reward app constant values: {constants.model_dump_json(indent=2)}"
@@ -110,7 +154,145 @@ class RewardApp(Validator):
                 f"Reward app initialized with hotkey: {self.hotkey}, uid: {self.uid}"
             )
 
-    # MARK: Validation Loop
+    # MARK: Initialization and Setup
+    def _init_active_challenges(self):
+        """
+        Initializes and updates challenge managers based on current active challenges.
+        Filters challenges by date and maintains challenge manager consistency.
+        """
+        # Avoid mutating the original ACTIVE_CHALLENGES
+        all_challenges = deepcopy(ACTIVE_CHALLENGES)
+
+        # Remove challenges that are not active and setup the active challenges
+        if datetime.datetime.now(datetime.timezone.utc) <= datetime.datetime(
+            2025, 6, 10, 14, 0, 0, 0, datetime.timezone.utc
+        ):
+            pass
+
+        self.active_challenges = all_challenges
+
+        for challenge in self.active_challenges.keys():
+            if challenge not in self.challenge_managers:
+                self.challenge_managers[challenge] = self.active_challenges[challenge][
+                    "challenge_manager"
+                ](
+                    challenge_info=self.active_challenges[challenge],
+                    metagraph=self.metagraph,
+                )
+        # Remove challenge managers for inactive challenges with dict comprehension
+        self.challenge_managers = {
+            challenge: self.challenge_managers[challenge]
+            for challenge in self.challenge_managers
+            if challenge in self.active_challenges
+        }
+
+    def get_revealed_commits(self) -> dict[str, list[MinerChallengeCommit]]:
+        """
+        Get all revealed (decrypted) commits grouped by challenge name.
+
+        Returns:
+            dict[str, list[MinerChallengeCommit]]: Dictionary mapping challenge names to lists of revealed commits
+        """
+        revealed_commits: dict[str, list[MinerChallengeCommit]] = {}
+
+        for challenge_name in self.active_challenges.keys():
+            revealed_commits[challenge_name] = []
+
+            for (
+                miner_uid,
+                miner_hotkey,
+            ), challenge_commits in self.miner_commits.items():
+                if challenge_name not in challenge_commits:
+                    continue
+
+                commit = challenge_commits[challenge_name]
+                # Check if commit is revealed (decrypted)
+                if commit.commit is not None:
+                    revealed_commits[challenge_name].append(commit)
+
+        return revealed_commits
+
+    def _store_miner_commits(
+        self, miner_commits: dict[str, list[MinerChallengeCommit]] = None
+    ):
+        """
+        Store miner commits to persistent storage.
+
+        Args:
+            miner_commits (dict[str, list[MinerChallengeCommit]], optional): Commits to store by challenge name.
+                                                                            If None, stores all miner_commits.
+        """
+        if miner_commits is None:
+            # Store all miner commits
+            for (
+                miner_uid,
+                miner_hotkey,
+            ), challenge_commits in self.miner_commits.items():
+                for challenge_name, commit in challenge_commits.items():
+                    self.storage_manager.update_cache(
+                        challenge_name=challenge_name,
+                        encrypted_commit=commit.encrypted_commit,
+                        data=commit.model_dump(),
+                    )
+        else:
+            # Store specific challenge commits
+            for challenge_name, commits_list in miner_commits.items():
+                for commit in commits_list:
+                    self.storage_manager.update_cache(
+                        challenge_name=challenge_name,
+                        encrypted_commit=commit.encrypted_commit,
+                        data=commit.model_dump(),
+                    )
+
+    def export_state(self, public_view: bool = False) -> dict:
+        """
+        Export the reward app state for storage and sharing.
+
+        Args:
+            public_view (bool): If True, returns state suitable for public viewing
+
+        Returns:
+            dict: State dictionary containing scoring results and metadata
+        """
+        state = {
+            "active_challenges": list(self.active_challenges.keys()),
+            "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            "scoring_results": {},
+        }
+
+        # Include scoring results for all challenges
+        for challenge_name in self.active_challenges.keys():
+            challenge_results = self.scoring_results.get_all_for_challenge(
+                challenge_name
+            )
+            state["scoring_results"][challenge_name] = {
+                docker_hub_id: {
+                    "scoring_logs": [
+                        log.model_dump() for log in result.get("scoring_logs", [])
+                    ],
+                    "comparison_logs": {
+                        dhid: [log.model_dump() for log in logs]
+                        for dhid, logs in result.get("comparison_logs", {}).items()
+                    },
+                }
+                for docker_hub_id, result in challenge_results.items()
+            }
+
+        return state
+
+    def _get_storage_api_key(self) -> str:
+        """
+        Get the storage API key from environment variables.
+
+        Returns:
+            str: Storage API key
+        """
+        api_key = os.getenv(f"{ENV_PREFIX}STORAGE_API_KEY")
+        if not api_key:
+            bt.logging.warning("STORAGE_API_KEY not found in environment")
+            return None
+        return api_key
+
     def forward(self):
         date_time = datetime.datetime.now(datetime.timezone.utc)
         # 1. Update active challenges
@@ -760,6 +942,9 @@ class RewardApp(Validator):
             # Clean up cache entries that we want to delete
             for hashed_cache_key in cache_keys_to_delete:
                 diskcache_.delete(hashed_cache_key)
+
+    def set_weights(self):
+        pass
 
 
 if __name__ == "__main__":
