@@ -11,19 +11,15 @@ import numpy as np
 import bittensor as bt
 from cryptography.fernet import Fernet
 
-from redteam_core import BaseValidator, Commit, challenge_pool, constants
-from redteam_core.common import get_config
+from redteam_core import BaseValidator, Commit, constants
+from redteam_core.challenge_pool import ACTIVE_CHALLENGES
 from redteam_core.validator import (
     ChallengeManager,
     StorageManager,
     start_bittensor_log_listener,
 )
 from redteam_core.validator.miner_manager import MinerManager
-from redteam_core.validator.models import (
-    MinerChallengeCommit,
-    ComparisonLog,
-    ScoringLog,
-)
+from redteam_core.validator.models import MinerChallengeCommit
 from redteam_core.validator.utils import create_validator_request_header_fn
 
 
@@ -97,7 +93,7 @@ class Validator(BaseValidator):
         Filters challenges by date and maintains challenge manager consistency.
         """
         # Avoid mutating the original ACTIVE_CHALLENGES
-        all_challenges = deepcopy(challenge_pool.ACTIVE_CHALLENGES)
+        all_challenges = deepcopy(ACTIVE_CHALLENGES)
 
         # Remove challenges that are not active and setup the active challenges
         if datetime.datetime.now(datetime.timezone.utc) <= datetime.datetime(

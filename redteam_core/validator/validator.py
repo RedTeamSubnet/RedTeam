@@ -53,17 +53,6 @@ class BaseValidator(ABC):
             self.uid = self.metagraph.hotkeys.index(self.wallet.hotkey.ss58_address)
             bt.logging.info(f"Running validator on uid: {self.uid}")
 
-    def node_query(self, module, method, params):
-        try:
-            result = self.node.query(module, method, params).value
-
-        except Exception:
-            # reinitilize node
-            self.node = SubstrateInterface(url=self.config.subtensor.chain_endpoint)
-            result = self.node.query(module, method, params).value
-
-        return result
-
     def synthetic_loop_in_background_thread(self):
         """
         Starts the validator's operations in a background thread upon entering the context.
@@ -132,7 +121,11 @@ class BaseValidator(ABC):
             # Check if we need to start a new forward thread
             if self.forward_thread is None or not self.forward_thread.is_alive():
                 # Start new forward thread
-                self.forward_thread = threading.Thread(target=self._run_forward, daemon=True, name="validator_forward_thread")
+                self.forward_thread = threading.Thread(
+                    target=self._run_forward,
+                    daemon=True,
+                    name="validator_forward_thread",
+                )
                 self.forward_thread.start()
                 bt.logging.info("Started new forward thread")
 

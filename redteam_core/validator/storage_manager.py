@@ -18,7 +18,7 @@ from huggingface_hub import HfApi
 
 from redteam_core.validator.models import MinerChallengeCommit
 
-from .. import challenge_pool
+from redteam_core.challenge_pool import ACTIVE_CHALLENGES
 from ..constants import constants
 
 
@@ -41,7 +41,7 @@ class StorageManager:
             hf_repo_id (str): ID of the Hugging Face Hub repository.
             sync_on_init (bool): Whether to sync data from the Hub to the local cache during initialization.
         """
-        self.active_challenges = challenge_pool.ACTIVE_CHALLENGES
+        self.active_challenges = ACTIVE_CHALLENGES
         self.validator_request_header_fn = validator_request_header_fn
 
         # Decentralized storage on Hugging Face Hub
