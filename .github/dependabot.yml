@@ -1,0 +1,9 @@
+version: 2
+updates:
+  - package-ecosystem: "pip"
+    directory: "/"
+    labels:
+      - "dependency"
+    open-pull-requests-limit: 10
+    schedule:
+      interval: "daily"

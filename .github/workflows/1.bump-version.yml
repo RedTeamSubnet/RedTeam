@@ -8,61 +8,16 @@ on:
         description: "Choose bump version type:"
         required: true
         options: ["patch", "minor", "major"]
-      reward_app_bump_type:
-        type: choice
-        description: "Reward app bump version type:"
-        required: true
-        default: "patch"
-        options: ["patch", "minor", "major"]
-      validator_bump_type:
-        type: choice
-        description: "Validator bump version type:"
-        required: true
-        default: "patch"
-        options: ["patch", "minor", "major"]
-      miner_bump_type:
-        type: choice
-        description: "Miner bump version type:"
-        required: true
-        default: "patch"
-        options: ["patch", "minor", "major"]
 
 jobs:
-  # test:
-  #   name: 1.1. Test
-  #   runs-on: ubuntu-22.04
-  #   permissions:
-  #     contents: read
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v4
-  #     - name: Set up Python
-  #       uses: actions/setup-python@v5
-  #       with:
-  #         python-version: "3.10"
-  #     - name: Install dependencies
-  #       run: |
-  #         python -m pip install -U pip
-  #         python -m pip install -r ./requirements/requirements.test.txt
-  #     - name: Test with pytest
-  #       run: ./scripts/test.sh -l
-
   bump_version:
-    # needs: test
-    name: 1.2. Bump Version
-    runs-on: ubuntu-22.04
+    name: Bump Version
+    runs-on: ubuntu-24.04
     permissions:
       contents: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Bump types
-        run: |
-          ./services/rewarding/scripts/bump-version.sh -b=${{ inputs.reward_app_bump_type }} -a
-          ./neurons/validator/scripts/bump-version.sh -b=${{ inputs.validator_bump_type }} -a
-          ./neurons/miner/scripts/bump-version.sh -b=${{ inputs.miner_bump_type }} -a
+        uses: actions/checkout@v5
       - name: Bump version
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,5 +1,6 @@
 # -e .
--r ./requirements.test.txt
--r ./requirements.build.txt
--r ./requirements.docs.txt
+# -r ./requirements.test.txt
+# -r ./requirements.build.txt
+# -r ./requirements.docs.txt
+pyright>=1.1.392,<2.0.0
 pre-commit>=4.0.1,<5.0.0

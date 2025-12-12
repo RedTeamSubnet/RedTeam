@@ -1,0 +1,85 @@
+<html>
+  <body>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+      <div class="mermaid">
+    
+        classDiagram
+          class redteam_core {
+          }
+          class __version__ {
+          }
+          class challenge_pool {
+          }
+          class active_challenges_manager {
+          }
+          class base {
+          }
+          class controller {
+          }
+          class docker_utils {
+          }
+          class common {
+          }
+          class constants {
+          }
+          class miner {
+          }
+          class base_miner {
+          }
+          class protocol {
+          }
+          class validator {
+          }
+          class autoupdate {
+          }
+          class challenge_manager {
+          }
+          class check_update_requirements {
+          }
+          class log_handler {
+          }
+          class miner_manager {
+          }
+          class models {
+          }
+          class storage_manager {
+          }
+          class utils {
+          }
+          class validator {
+          }
+          redteam_core --> __version__
+          redteam_core --> common
+          redteam_core --> constants
+          redteam_core --> miner
+          redteam_core --> protocol
+          redteam_core --> validator
+          challenge_pool --> active_challenges_manager
+          active_challenges_manager --> challenge_manager
+          base --> models
+          controller --> challenge_pool
+          controller --> base
+          controller --> docker_utils
+          controller --> constants
+          controller --> models
+          constants --> __version__
+          constants --> common
+          miner --> base_miner
+          protocol --> constants
+          validator --> validator
+          validator --> challenge_manager
+          validator --> log_handler
+          validator --> miner_manager
+          validator --> models
+          validator --> storage_manager
+          autoupdate --> constants
+          challenge_manager --> models
+          log_handler --> constants
+          miner_manager --> constants
+          miner_manager --> challenge_manager
+          storage_manager --> challenge_pool
+          storage_manager --> models
+  
+       </div>
+  </body>
+</html>

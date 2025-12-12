@@ -1,11 +1,186 @@
+fail_fast: true
+default_language_version:
+  python: python3.10
+exclude: |
+  (?x)^(
+      \.git/.*
+    | \.benchmarks/.*
+    | \.pytest_cache/.*
+    | \.coverage
+    | \.venv/.*
+    | \.env/.*
+    | .*\.egg-info(/.*)?
+    | __pycache__/.*
+    | venv/.*
+    | env/.*
+    | build/.*
+    | dist/.*
+    | site/.*
+    | site-packages/.*
+    | node_modules/.*
+    | docs/diagrams/.*
+    | log/.*
+    | logs/.*
+    | data/.*
+    | dataset/.*
+    | datasets/.*
+    | backup/.*
+    | backups/.*
+    | tmp/.*
+  )$
+
 repos:
--   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v2.3.0
+  # --- Basic gatekeepers ---
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
     hooks:
-    -   id: check-yaml
-    -   id: end-of-file-fixer
-    -   id: trailing-whitespace
--   repo: https://github.com/psf/black
-    rev: 22.10.0
+      # Common Checks
+      - id: check-json
+        name: "📄 check-json - Validate JSON files"
+        files: \.json$
+      - id: check-toml
+        name: "📄 check-toml - Validate TOML files"
+        files: \.toml$
+      - id: check-yaml
+        name: "📄 check-yaml - Validate YAML files"
+        files: \.ya?ml$
+        exclude: ^mkdocs\.ya?ml$
+      - id: end-of-file-fixer
+        name: "📄 end-of-file-fixer - Ensure files end with a newline"
+      - id: mixed-line-ending
+        name: "📄 mixed-line-ending - Ensure consistent line endings"
+      - id: trailing-whitespace
+        name: "📄 trailing-whitespace - Remove trailing whitespace"
+        exclude: '\.md$'
+      - id: fix-byte-order-marker
+        name: "📄 fix-byte-order-marker - Remove BOM from files"
+      - id: detect-private-key
+        name: "🔑 detect-private-key - Detect private keys in files"
+      # Filesystem Checks
+      - id: check-case-conflict
+        name: "📂 check-case-conflict - Check case conflicts in filenames"
+      - id: check-symlinks
+        name: "📂 check-symlinks - Check broken symlinks"
+      - id: destroyed-symlinks
+        name: "📂 destroyed-symlinks - Check symlinks that point to non-existent files"
+      - id: check-executables-have-shebangs
+        name: "📂 check-executables-have-shebangs - Ensure executables have a shebang"
+      - id: check-shebang-scripts-are-executable
+        name: "📂 check-shebang-scripts-are-executable - Ensure shebang scripts are executable"
+      - id: check-illegal-windows-names
+        name: "📂 check-illegal-windows-names - Check illegal Windows filenames"
+      # Git Checks
+      - id: check-merge-conflict
+        name: "🌳 check-merge-conflict - Check merge conflict markers"
+      - id: check-added-large-files
+        name: "🌳 check-added-large-files - Prevent large files from being added"
+        args: ["--maxkb=2500"] # 2.5 MB
+      - id: no-commit-to-branch
+        name: "🌳 no-commit-to-branch - Prevent commits to specific branches"
+        args: ["--branch=main", "--branch=master"]
+      # Python Checks
+      - id: check-ast
+        name: "🐍 check-ast - Check Python files for AST errors"
+        files: \.pyi?$
+      - id: check-builtin-literals
+        name: "🐍 check-builtin-literals - Check for usage of builtin literals"
+        files: \.pyi?$
+      - id: name-tests-test
+        name: "🐍 name-tests-test - Ensure test files are named correctly"
+        files: ^tests/.*\.pyi?$
+        args: ["--pytest-test-first"]
+
+  # --- Security checks ---
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.28.0
     hooks:
-    -   id: black
+      - id: gitleaks
+        name: "🔐 gitleaks - Detect secrets in git history"
+
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
+        name: "🔐 detect-secrets - Detect secrets in code"
+
+  # --- Shell scripts ---
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.11.0.1
+    hooks:
+      - id: shellcheck
+        name: "🐚 shellcheck - Lint shell scripts"
+        files: \.sh$
+
+  # --- Python ---
+  - repo: https://github.com/psf/black
+    rev: 25.1.0
+    hooks:
+      - id: black
+        name: "🐍 black - Format python code"
+        files: \.pyi?$
+
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.20.0
+    hooks:
+      - id: pyupgrade
+        name: "🐍 pyupgrade - Upgrade python syntax"
+        entry: "pyupgrade --py310-plus"
+        files: \.pyi?$
+
+  - repo: https://github.com/PyCQA/flake8
+    rev: 7.3.0
+    hooks:
+      - id: flake8
+        name: "🐍 flake8 - Lint python code"
+        files: \.pyi?$
+        args: ["--max-line-length=120"]
+
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.8.6
+    hooks:
+      - id: bandit
+        name: "🐍 bandit - Find python security issues"
+        files: \.pyi?$
+        args: ["--skip=B101"] # skip assert-use warning
+
+  # - repo: https://github.com/RobertCraigie/pyright-python
+  #   rev: v1.1.404
+  #   hooks:
+  #     - id: pyright
+  #       name: "🐍 pyright - Static type checker"
+  #       files: \.pyi?$
+
+  - repo: local
+    hooks:
+      - id: pyright
+        name: "🐍 pyright (local) - Static type checker"
+        language: system
+        entry: "python -m pyright"
+        files: \.pyi?$
+
+  # --- Tests ---
+  # - repo: local
+  #   hooks:
+  #     - id: pytest-collect
+  #       name: "🧪 pytest-collect (local) - Validate test formatting"
+  #       language: system
+  #       entry: "python -m pytest --collect-only"
+  #       pass_filenames: false
+  #       always_run: true
+
+  #     - id: pytest
+  #       name: "🧪 pytest (local) - Run tests"
+  #       language: system
+  #       entry: "./scripts/test.sh -l -v -c"
+  #       pass_filenames: false
+  #       always_run: true
+
+  # --- Cleanup ---
+  # - repo: local
+  #   hooks:
+  #     - id: cleanup
+  #       name: "🧹 cleanup (local) - Remove leftover files"
+  #       language: system
+  #       entry: "./scripts/clean.sh"
+  #       pass_filenames: false
+  #       always_run: true

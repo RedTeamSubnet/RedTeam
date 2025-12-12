@@ -1,10 +1,17 @@
 [build-system]
-requires = ["setuptools>=70.3.0,<80.0.0", "setuptools-scm>=8.0.4,<9.0.0"]
+requires = ["setuptools>=70.0.0,<81.0.0", "setuptools-scm>=8.0.4,<10.0.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "redteam_core"
-authors = [{ name = "RedTeam" }]
+authors = [
+	{ name = "RedTeam" },
+	{ name = "Batkhuu Byambajav", email = "batkhuu10@gmail.com" },
+	{ name = "aliyuldashev" },
+	{ name = "BaratovSokhibjon" },
+	{ name = "abdibekbolot" },
+	{ name = "asadbey" },
+]
 description = "The RedTeam subnet by Innerworks is a decentralized platform designed to drive innovation in cybersecurity through competitive programming challenges."
 readme = "README.md"
 requires-python = ">=3.10,<4.0"
@@ -18,7 +25,7 @@ keywords = [
 	"validators",
 	"challenges",
 ]
-license-files = ["LICENSE.txt"]
+license-files = ["LICEN[CS]E*"]
 classifiers = [
 	"Development Status :: 4 - Beta",
 	"Intended Audience :: Developers",
@@ -32,8 +39,8 @@ classifiers = [
 ]
 dynamic = ["version", "dependencies", "optional-dependencies"]
 
-[tool.setuptools]
-package-dir = { "redteam_core" = "redteam_core", "neurons" = "neurons", "services" = "services" }
+# [tool.setuptools]
+# package-dir = { "redteam_core" = "redteam_core", "neurons" = "neurons", "services" = "services" }
 
 # [tool.setuptools.packages.find]
 # where = ["src"]
@@ -44,38 +51,54 @@ package-dir = { "redteam_core" = "redteam_core", "neurons" = "neurons", "service
 version = { attr = "redteam_core.__version__.__version__" }
 dependencies = { file = "./requirements.txt" }
 
-[tool.setuptools.package-data]
-"neurons" = [
-	"**/*.yml",
-	"**/*.yaml",
-	"**/*.txt",
-	"**/*.whl",
-	"**/docker/*.sh",
-	"**/.dockerignore",
-	"**/Dockerfile*",
-]
-"redteam_core" = [
-	"**/*.yml",
-	"**/*.yaml",
-	"**/*.txt",
-	"**/*.js",
-	"**/*.json",
-	"**/*.css",
-	"**/*.html",
-	"**/*.whl",
-	"**/docker/*.sh",
-	"**/.dockerignore",
-	"**/Dockerfile*",
-]
-"services" = [
-	"**/*.yml",
-	"**/*.yaml",
-	"**/*.txt",
-	"**/*.whl",
-	"**/docker/*.sh",
-	"**/.dockerignore",
-	"**/Dockerfile*",
-]
+[tool.setuptools.dynamic.optional-dependencies]
+# Options dependencies for DEVELOPMENT
+test = { file = ["./requirements/requirements.test.txt"] }
+build = { file = ["./requirements/requirements.build.txt"] }
+docs = { file = ["./requirements/requirements.docs.txt"] }
+dev = { file = [
+	"./requirements/requirements.test.txt",
+	"./requirements/requirements.build.txt",
+	"./requirements/requirements.docs.txt",
+	"./requirements/requirements.dev.txt",
+] }
+
+# [tool.setuptools.package-data]
+# "neurons" = [
+# 	"**/*.yml",
+# 	"**/*.yaml",
+# 	"**/*.txt",
+# 	"**/*.whl",
+# 	"**/docker/*.sh",
+# 	"**/.dockerignore",
+# 	"**/Dockerfile*",
+# ]
+# "redteam_core" = [
+# 	"**/*.yml",
+# 	"**/*.yaml",
+# 	"**/*.txt",
+# 	"**/*.js",
+# 	"**/*.json",
+# 	"**/*.css",
+# 	"**/*.html",
+# 	"**/*.whl",
+# 	"**/docker/*.sh",
+# 	"**/.dockerignore",
+# 	"**/Dockerfile*",
+# ]
+# "services" = [
+# 	"**/*.yml",
+# 	"**/*.yaml",
+# 	"**/*.txt",
+# 	"**/*.whl",
+# 	"**/docker/*.sh",
+# 	"**/.dockerignore",
+# 	"**/Dockerfile*",
+# ]
+
+# [tool.pyright]
+# venvPath = "."
+# venv = ".venv"
 
 [project.urls]
 Homepage = "https://github.com/RedTeamSubnet/RedTeam"

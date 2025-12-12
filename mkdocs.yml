@@ -1,4 +1,4 @@
-site_name: RedTeam Subnet
+site_name: RedTeam Subnet - Core
 site_description: "The RedTeam subnet by Innerworks is a decentralized platform designed to drive innovation in cybersecurity through competitive programming challenges."
 site_url: https://docs.theredteam.io
 repo_name: RedTeamSubnet/RedTeam
@@ -24,6 +24,7 @@ theme:
     # - navigation.tabs.sticky
     # - navigation.sections
     # - navigation.expand
+    # - navigation.instant
     - toc.follow
     # - toc.integrate
     - search.suggest
@@ -48,34 +49,73 @@ theme:
         icon: material/brightness-4
         name: Switch to light mode
 markdown_extensions:
+  - abbr
   - admonition
+  - attr_list
+  - def_list
+  - md_in_html
+  - footnotes
+  - tables
+  - pymdownx.critic
+  - pymdownx.caret
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.tilde
   - pymdownx.details
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.blocks.caption
+  - pymdownx.smartsymbols
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
   - pymdownx.superfences:
       custom_fences:
         - name: mermaid
           class: mermaid
           format: !!python/name:pymdownx.superfences.fence_code_format
-  - pymdownx.highlight:
-      anchor_linenums: true
-      line_spans: __span
-      pygments_lang_class: true
-  - pymdownx.inlinehilite
-  - pymdownx.snippets
-  - pymdownx.emoji:
-      emoji_index: !!python/name:material.extensions.emoji.twemoji
-      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.arithmatex:
+      generic: true
+extra_javascript:
+  - assets/js/mathjax.js
+  - assets/js/tex-mml-chtml.js
 plugins:
+  - meta
+  - tags
   - search
+  - awesome-nav
   - mkdocstrings
-
-nav:
-  - Home: index.md
-  - Validator Setup: 1.validator.md
-  - Miner Setup: 2.miner.md
-  - Submission Guide: 3.submission_guide.md
-  - Docker Guide: 4.docker.md
-  - Challenge Templates:
-      - FAQ: challenge_templates/FAQ.md
-      - Active Challenges:
-          - AB Sniffer v5: challenge_templates/ab_sniffer_v5.md
-          - Humanize Behaviour v5: challenge_templates/humanize_behaviour_v5.md
+extra:
+  version:
+    provider: mike
+  social:
+    - icon: fontawesome/solid/globe
+      link: https://theredteam.io
+    - icon: fontawesome/brands/github
+      link: https://github.com/RedTeamSubnet
+    - icon: fontawesome/brands/docker
+      link: https://hub.docker.com/u/redteamsubnet61
+    - icon: fontawesome/brands/x-twitter
+      link: https://x.com/_redteam_
+    - icon: fontawesome/brands/medium
+      link: https://medium.com/@TheRedTeam
+copyright: Copyright &copy; 2025 - RedTeam Subnet.
+# nav:
+#   - Home: index.md
+#   - Validator Setup: 1.validator.md
+#   - Miner Setup: 2.miner.md
+#   - Submission Guide: 3.submission_guide.md
+#   - Docker Guide: 4.docker.md
+#   - Challenge Templates:
+#       - FAQ: challenge_templates/FAQ.md
+#       - Active Challenges:
+#           - AB Sniffer v5: challenge_templates/ab_sniffer_v5.md
+#           - Humanize Behaviour v5: challenge_templates/humanize_behaviour_v5.md
