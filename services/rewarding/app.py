@@ -282,16 +282,14 @@ class RewardApp(BaseValidator):
 
     def _get_storage_api_key(self) -> str:
         """
-        Get the storage API key from environment variables.
-
-        Returns:
-            str: Storage API key
+        Retrieves the storage API key from the config.
         """
-        api_key = os.getenv(f"{ENV_PREFIX}STORAGE_API_KEY")
-        if not api_key:
-            bt.logging.warning("STORAGE_API_KEY not found in environment")
-            return None
-        return api_key
+        endpoint = f"{constants.STORAGE_API.URL}/get-api-key"
+        data = {"validator_uid": self.uid, "validator_hotkey": self.hotkey}
+        header = self.validator_request_header_fn(data)
+        response = requests.post(endpoint, json=data, headers=header)
+        response.raise_for_status()
+        return response.json()["api_key"]
 
     def forward(self):
         date_time = datetime.datetime.now(datetime.timezone.utc)
@@ -560,7 +558,8 @@ class RewardApp(BaseValidator):
         for validator_uid, validator_hotkey in valid_validators:
             # Skip if request fails
             try:
-                endpoint = f"{constants.STORAGE_API.URL}/fetch-latest-miner-commits"
+                _base_url_path = str(constants.STORAGE_API.URL).rstrip("/")
+                endpoint = f"{_base_url_path}/fetch-latest-miner-commits"
                 data = {
                     "validator_uid": validator_uid,
                     "validator_hotkey": validator_hotkey,
@@ -743,7 +742,9 @@ class RewardApp(BaseValidator):
         challenge_names = (
             [challenge_name] if challenge_name else list(self.scoring_results.keys())
         )
-        endpoint = f"{constants.STORAGE_API.URL}/upload-centralized-score"
+
+        _base_url_path = str(constants.STORAGE_API.URL).rstrip("/")
+        endpoint = f"{_base_url_path}/upload-centralized-score"
 
         all_scoring_results = []
 
@@ -818,7 +819,8 @@ class RewardApp(BaseValidator):
                 # Request the most recent entries for this challenge
                 entries_per_challenge = 256  # Match the LRU cache size
 
-                endpoint = f"{constants.STORAGE_API.URL}/fetch-centralized-score"
+                _base_url_path = str(constants.STORAGE_API.URL).rstrip("/")
+                endpoint = f"{_base_url_path}/fetch-centralized-score"
                 data = {
                     "challenge_names": [challenge_name],
                     "limit": entries_per_challenge,  # Get the most recent entries

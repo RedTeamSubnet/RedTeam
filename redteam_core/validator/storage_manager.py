@@ -123,9 +123,9 @@ class StorageManager:
             bt.logging.warning(
                 "[STORAGE] Failed to fetch validator state from centralized scoring server, trying fallback."
             )
-
+            _base_url_path = str(constants.STORAGE_API.URL).rstrip("/")
             response = requests.post(
-                url=f"{constants.STORAGE_API.URL}/fetch-validator-state",
+                url=f"{_base_url_path}/fetch-validator-state",
                 headers=self.validator_request_header_fn(body),
                 json=body,
                 timeout=60,
@@ -211,8 +211,9 @@ class StorageManager:
 
         # Step 2: Centralized Storage with retry
         def centralized_operation():
+            _base_url_path = str(constants.STORAGE_API.URL).rstrip("/")
             response = requests.post(
-                url=f"{constants.STORAGE_API.URL}/upload-commit",
+                url=f"{_base_url_path}/upload-commit",
                 headers=self.validator_request_header_fn(data_dict),
                 json=data_dict,
                 timeout=60,
@@ -337,8 +338,9 @@ class StorageManager:
 
         # Step 2: Centralized Storage with retry
         def centralized_operation():
+            _base_url_path = str(constants.STORAGE_API.URL).rstrip("/")
             response = requests.post(
-                url=f"{constants.STORAGE_API.URL}/upload-validator-state",
+                url=f"{_base_url_path}/upload-validator-state",
                 headers=self.validator_request_header_fn(data),
                 json=data,
                 timeout=60,
@@ -366,8 +368,9 @@ class StorageManager:
         """
         data = {"hf_repo_id": self.hf_repo_id}
         try:
+            _base_url_path = str(constants.STORAGE_API.URL).rstrip("/")
             response = requests.post(
-                url=f"{constants.STORAGE_API.URL}/upload-hf-repo-id",
+                url=f"{_base_url_path}/upload-hf-repo-id",
                 headers=self.validator_request_header_fn(data),
                 json=data,
                 timeout=60,
