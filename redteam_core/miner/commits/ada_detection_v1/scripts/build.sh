@@ -17,5 +17,5 @@ fi
 docker build \
 	--progress plain \
 	--platform linux/amd64 \
-	-t rest.rt-abs-miner:latest \
+	-t rest.rt-ada-miner:latest \
 	.
