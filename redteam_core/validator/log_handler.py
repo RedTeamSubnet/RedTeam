@@ -66,8 +66,8 @@ class BittensorLogHandler(logging.Handler):
         """Send logs to the logging server."""
         if not logs:
             return
-
-        logging_endpoint = f"{constants.STORAGE_API.URL}/upload-log"
+        _base_url_path = str(constants.STORAGE_API.URL).rstrip("/")
+        logging_endpoint = f"{_base_url_path}/upload-log"
         payload = {"logs": logs}
         headers = {"Authorization": self.api_key, "Content-Type": "application/json"}
 
@@ -75,9 +75,9 @@ class BittensorLogHandler(logging.Handler):
             response = requests.post(logging_endpoint, json=payload, headers=headers)
             response.raise_for_status()
         except requests.RequestException:
-                        bt.logging.error(
+            bt.logging.error(
                 f"[LOG HANDLER] Failed to send logs: {traceback.format_exc()}"
-                    )
+            )
 
         bt.logging.debug(f"[LOG HANDLER] Successfully sent {len(logs)} logs")
 

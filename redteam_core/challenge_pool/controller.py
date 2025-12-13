@@ -2,12 +2,10 @@ from abc import abstractmethod
 import copy
 import time
 from typing import Union
-import traceback
 
 import bittensor as bt
 import requests
 
-from redteam_core.challenge_pool.base import BaseController
 from redteam_core.challenge_pool import docker_utils
 from redteam_core.validator.models import (
     MinerChallengeCommit,
@@ -17,7 +15,7 @@ from redteam_core.validator.models import (
 from redteam_core.constants import constants
 
 
-class Controller(BaseController):
+class Controller:
     """
     A class to manage the lifecycle of a challenge, including the initialization
     of Docker containers for the challenge and miners, as well as submitting and scoring tasks.
@@ -39,13 +37,13 @@ class Controller(BaseController):
             challenge_name: The name of the challenge to be executed.
             miner_docker_images: A list of Docker images to be used for the miners.
         """
-        super(Controller, self).__init__(
-            challenge_name,
-            challenge_info,
-            miner_commits,
-            reference_comparison_commits,
-            seed_inputs,
-        )
+
+        self.challenge_name = challenge_name
+        self.challenge_info = challenge_info
+        self.miner_commits = miner_commits
+        self.reference_comparison_commits = reference_comparison_commits
+        self.seed_inputs = seed_inputs
+
         self.docker_client = docker_utils.create_docker_client()
 
         self.local_network = "redteam_local"

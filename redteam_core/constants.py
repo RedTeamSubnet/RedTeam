@@ -20,7 +20,7 @@ ENV_PREFIX = "RT_"
 ENV_PREFIX_BT = f"{ENV_PREFIX}BT_"
 ENV_PREFIX_STORAGE_API = f"{ENV_PREFIX}STORAGE_API_"
 ENV_PREFIX_REWARD_APP = f"{ENV_PREFIX}REWARD_APP_"
-ENV_PREFIX_INTERNAL_SERVICES = f"{ENV_PREFIX}INTERNAL_SERVICES_"
+ENV_PREFIX_INTERNAL_SERVICES = f"{ENV_PREFIX}INS_"
 ENV_PREFIX_VALIDATOR = f"{ENV_PREFIX}VALIDATOR_"
 
 
@@ -115,7 +115,7 @@ class InternalServicesConfig(BaseConfig):
     HTTP_SCHEME: str = Field(default="https")
     HOST: str = Field(default="scoring-api.theredteam.io")
     PORT: int = Field(default=443)
-    BASE_PATH: str = Field(default="/api/v1")
+    BASE_PATH: str = Field(default="/api/v1/")
 
     URL: Optional[AnyHttpUrl] = Field(
         default=None, description="URL for internal services"
