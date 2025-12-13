@@ -1,6 +1,6 @@
 # Anti-Detect Automation Detection - Miner
 
-This is miner detection script repo for the Auto Browser Sniffer V4 Challenge. This is sandboxed sample code for the challenge, you can use this code to test and dockerize your detection script.
+This is miner detection script repo for the ada_detection_v1 challenge. This is sandboxed sample code for the challenge, you can use this code to test and dockerize your detection script.
 
 ## ✨ Features
 
