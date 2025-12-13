@@ -115,7 +115,7 @@ class InternalServicesConfig(BaseConfig):
     HTTP_SCHEME: str = Field(default="https")
     HOST: str = Field(default="scoring-api.theredteam.io")
     PORT: int = Field(default=443)
-    BASE_PATH: str = Field(default="/api/v1")
+    BASE_PATH: str = Field(default="/api/v1/")
 
     URL: Optional[AnyHttpUrl] = Field(
         default=None, description="URL for internal services"
