@@ -9,7 +9,7 @@ services:
     environment:
       TERM: ${TERM:-xterm}
       TZ: UTC
-      HBM_API_PORT: ${HBM_API_PORT:-8000}
+      AAD_API_PORT: ${AAD_API_PORT:-8000}
     env_file:
       - path: .env
         required: false
