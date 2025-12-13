@@ -6,4 +6,4 @@
 	url = https://github.com/RedTeamSubnet/module-humanize-behaviour-challenge.git
 [submodule "redteam_core/challenge_pool/ada_detection"]
 	path = redteam_core/challenge_pool/ada_detection
-	url = git@github.com:RedTeamSubnet/module-ada-detection-challenge.git
+	url = https://github.com/RedTeamSubnet/module-ada-detection-challenge.git
