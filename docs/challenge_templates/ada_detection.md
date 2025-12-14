@@ -11,10 +11,8 @@ The **Anti-Detect Automation Detection (AAD)** challenge evaluates a participant
 All evaluations are executed inside **NST-Browser**, where:
 
 * Browser fingerprints are masked
-* Profiles are isolated per run
+* Profiles are fresh per run
 * Automation attempts to closely mimic real users
-
-The challenge focuses on **behavioral detection**, not fingerprinting.
 
 ---
 
@@ -28,8 +26,6 @@ Each evaluation run uses:
 
 This environment simulates real-world anti-detect usage where static signals are unreliable.
 Only **runtime behavior and orchestration patterns** remain detectable.
-
-Any fingerprint-based solution will fail.
 
 ---
 
@@ -45,15 +41,6 @@ AAD follows one strict rule:
 * Runtime automation artifacts
 * Orchestration timing anomalies
 * Behavioral impossibilities for humans
-
-### Forbidden Signals
-
-* Browser fingerprinting of any kind
-* Canvas, audio, font, WebGL checks
-* User-Agent or hardware assumptions
-* Static environment heuristics
-
-Violations result in **immediate disqualification**.
 
 ---
 
@@ -83,13 +70,10 @@ Each submission is evaluated as follows:
    * Scripts may emit detection payloads to `/_payload`
    * Silence during human interaction is expected
 
-6. **Cleanup**
-
-   * Containers and profiles are destroyed after each task
-
 7. **Scoring**
 
    * Results are aggregated, normalized, and returned
+make better visual no that mnuch cmall things
 
 ---
 
@@ -142,79 +126,24 @@ Only payloads are evaluated.
 
 ## 8. Scoring System (Code-Accurate)
 
-AAD scoring is **continuous, normalized, and strict**.
+AAD scoring is continuous, normalized, and strict, combining three main components before being normalized into a final score.
 
-### 8.1 Human Safety Score (≈ 0–1)
+*   **Human Accuracy:** This is the most critical component. Your submission must not flag real human users as bots. You are allowed a maximum of 2 mistakes; exceeding this limit results in an immediate **final score of 0.0**. For scoring, you start with 1.0 point, and each mistake reduces this component by 0.1.
 
-* Each human task must produce **no automation detection**
-* If human mistakes exceed the allowed limit → **final score = 0**
-* Otherwise:
+*   **Automation Accuracy:** This measures your overall ability to correctly classify tasks as either "bot" or "human". It is calculated with the formula `(total_tasks - total_misses) / total_tasks`, where `total_misses` includes both failing to detect a bot and incorrectly flagging a human.
 
-    * 0 misses → **1.0**
-    * Each miss reduces score by **0.1**
+*   **Framework Detection:** Your submission earns points for correctly identifying the specific automation framework being used. For each framework, you are tested multiple times. You only earn **1 full point** for a framework if you detect it perfectly in **all of its runs**. A single missed detection or a collision (reporting more than one framework) for a given framework will result in **0 points** for that framework.
 
----
-
-### 8.2 Automation Accuracy Score (0–1)
-
-Measures how consistently automation presence is detected:
-
-```
-automation_score =
-  (total_tasks - total_misses) / total_tasks
-```
-
-`total_misses` is a sum of:
-
-1. Human tasks incorrectly flagged as automation.
-2. Automation tasks that were not detected as automation.
-
-This rewards correct **bot vs human** classification, independent of framework attribution.
-
----
-
-### 8.3 Framework Detection Score (0–N)
-
-* Each framework is tested **multiple times**.
-
-* A framework earns **1 full point** only if it is detected correctly and without collision in **all of its repeated runs**.
-
-* **A single missed detection or collision will result in 0 points for that framework.**
-
-* While collisions technically grant 0.1 points during an intermediate calculation, they ultimately prevent the framework from receiving any points.
-
-To illustrate the scoring for a framework (assuming 3 runs):
-
-| Scenario (3 runs)           | Internal Count | Final Framework Points |
-| :-------------------------- | :------------- | :--------------------- |
-| 3 Correct Detections        | `3.0`          | `1.0`                  |
-| 2 Correct, 1 Collision      | `2.1`          | `0.0`                  |
-| 2 Correct, 1 Miss           | `2.0`          | `0.0`                  |
-| Any scenario with a miss    | `< 3.0`        | `0.0`                  |
-
----
-
-### 8.4 Final Score Formula
-
-```
-Final Score =
-  (Human Score + Automation Score + Framework Points)
-  /
-  (Number of Frameworks + 1 Human + 1 Automation)
-```
-
-This normalization ensures scores fall within **0.0 – 1.0**.
-
----
-
+Finally, all the points are summed and normalized to produce your final score between 0.0 and 1.0 using the formula:
+`Final Score = (Human Accuracy Score + Automation Score + Framework Points) / (Number of Frameworks + 1 Human + 1 Automation)`
 ## 9. Example
 
 Assume:
 
-* 4 frameworks
-* Perfect human safety → 1.0
-* Automation accuracy → 0.9
-* 2 frameworks detected perfectly → 2.0 points
+*   4 frameworks
+*   Perfect human accuracy → 1.0
+*   Automation accuracy → 0.9
+*   2 frameworks detected perfectly → 2.0 points
 
 ```
 Final Score = (1.0 + 0.9 + 2.0) / (4 + 1 + 1)
@@ -244,14 +173,64 @@ Any excessive human misclassification would reduce this to **0.0**.
 
 ---
 
-## 12. Final Notes
 
-AAD reflects **real bot-mitigation conditions** under anti-detect environments.
+## Submission Guide
 
-There are no shortcuts:
+Follow 1~6 steps to submit your SDK.
 
-* Fingerprints will fail
-* Over-detection will fail
-* Only precise behavioral detection survives
+1. **Navigate to the AB Sniffer v5 Commit Directory**
+
+    ```bash
+    cd redteam_core/miner/commits/ab_sniffer_v5
+    ```
+
+2. **Build the Docker Image**
+
+    To build the Docker image for the AB Sniffer v5 submission, run:
+
+    ```bash
+    docker build -t my_hub/ab_sniffer_v5-miner:0.0.1 .
+
+    # For MacOS (Apple Silicon) to build AMD64:
+    DOCKER_BUILDKIT=1 docker build --platform linux/amd64 -t myhub/ab_sniffer_v5-miner:0.0.1 .
+    ```
+
+3. **Log in to Docker**
+
+    Log in to your Docker Hub account using the following command:
+
+    ```bash
+    docker login
+    ```
+
+    Enter your Docker Hub credentials when prompted.
+
+4. **Push the Docker Image**
+
+    Push the tagged image to your Docker Hub repository:
+
+    ```bash
+    docker push myhub/ab_sniffer_v5:0.0.1
+    ```
+
+5. **Retrieve the SHA256 Digest**
+
+    After pushing the image, retrieve the digest by running:
+
+    ```bash
+    docker inspect --format='{{index .RepoDigests 0}}' myhub/ab_sniffer_v5:0.0.1
+    ```
+
+6. **Update active_commit.yaml**
+
+    Finally, go to the `neurons/miner/active_commit.yaml` file and update it with the new image tag:
+
+    ```yaml
+    - ab_sniffer_v5---myhub/ab_sniffer_v5@<sha256:digest>
+    ```
 
 ---
+
+## 📑 References
+
+- Docker - <https://docs.docker.com>
