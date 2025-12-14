@@ -70,10 +70,9 @@ Each submission is evaluated as follows:
    * Scripts may emit detection payloads to `/_payload`
    * Silence during human interaction is expected
 
-7. **Scoring**
+6. **Scoring**
 
    * Results are aggregated, normalized, and returned
-make better visual no that mnuch cmall things
 
 ---
 
