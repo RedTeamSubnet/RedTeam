@@ -2,7 +2,7 @@
 title: Anti-Detect Automation Detection
 ---
 
-# Anti-Detect Automation Detection ((Active after 2025 December 15 10:00 UTC ))
+# Anti-Detect Automation Detection (Active after 2025 December 15 10:00 UTC)
 
 ## 1. Overview
 
