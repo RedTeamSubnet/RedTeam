@@ -27,24 +27,12 @@ Each evaluation run uses:
 This environment simulates real-world anti-detect usage where static signals are unreliable.
 Only **runtime behavior and orchestration patterns** remain detectable.
 
----
-
-## 3. Detection Philosophy
-
-AAD follows one strict rule:
-
-> **Detect how automation behaves, not how it identifies itself.**
-
-### Allowed Signals
-
-* WebSocket control patterns
-* Runtime automation artifacts
-* Orchestration timing anomalies
-* Behavioral impossibilities for humans
+!!! Info "NST-Browser Dependency"
+    In order to test ada_detection challenge miners need to get api key from [nstbrowser](https://www.nstbrowser.io/en/pricing) dashboard and buy **professional** plan for using while testing
 
 ---
 
-## 4. Evaluation Flow
+## 3. Evaluation Flow
 
 Each submission is evaluated as follows:
 
@@ -99,7 +87,8 @@ Submissions must follow this structure:
     { "file_name": "nodriver.js", "content": "/* logic */" },
     { "file_name": "playwright.js", "content": "/* logic */" },
     { "file_name": "patchright.js", "content": "/* logic */" },
-    { "file_name": "puppeteer.js", "content": "/* logic */" }
+    { "file_name": "puppeteer.js", "content": "/* logic */" },
+    { "file_name": "automation.js", "content": "/* logic */" },
   ]
 }
 ```
@@ -112,26 +101,15 @@ Submissions must follow this structure:
 
 ---
 
-## 7. Payload Rules
-
-* Detection results are sent to the internal `/_payload` endpoint
-* Payloads must represent **confirmed detection only**
-* **Any payload during human interaction counts as a mistake**
-
-Logs do not affect scoring.
-Only payloads are evaluated.
-
----
-
-## 8. Scoring System (Code-Accurate)
+## 7. Scoring System (Code-Accurate)
 
 AAD scoring is continuous, normalized, and strict, combining three main components before being normalized into a final score.
 
-*   **Human Accuracy:** This is the most critical component. Your submission must not flag real human users as bots. You are allowed a maximum of 2 mistakes; exceeding this limit results in an immediate **final score of 0.0**. For scoring, you start with 1.0 point, and each mistake reduces this component by 0.1.
+* **Human Accuracy:** This is the most critical component. Your submission must not flag real human users as bots or automation. You are allowed a maximum of 2 mistakes; exceeding this limit results in an immediate **final score of 0.0**. For scoring, you start with 1.0 point, and each mistake reduces this component by 0.1.
 
-*   **Automation Accuracy:** This measures your overall ability to correctly classify tasks as either "bot" or "human". It is calculated with the formula `(total_tasks - total_misses) / total_tasks`, where `total_misses` includes both failing to detect a bot and incorrectly flagging a human.
+**Automation Accuracy:** This will be determined by the output of `automation.js`. It will be marked as correct when it is false in human evaluation and true in any automation frameworks. Accuracy is determined by dividing the number of correct automation detections by the total session numbers.
 
-*   **Framework Detection:** Your submission earns points for correctly identifying the specific automation framework being used. For each framework, you are tested multiple times. You only earn **1 full point** for a framework if you detect it perfectly in **all of its runs**. A single missed detection or a collision (reporting more than one framework) for a given framework will result in **0 points** for that framework.
+* **Framework Detection:** Your submission earns points for correctly identifying the specific automation framework being used. For each framework, you are tested multiple times. You only earn **1 full point** for a framework if you detect it perfectly in **all of its runs**. A single missed detection or a collision (reporting more than one framework) for a given framework will result in **0 points** for that framework.
 
 Finally, all the points are summed and normalized to produce your final score between 0.0 and 1.0 using the formula:
 `Final Score = (Human Accuracy Score + Automation Score + Framework Points) / (Number of Frameworks + 1 Human + 1 Automation)`
@@ -139,10 +117,10 @@ Finally, all the points are summed and normalized to produce your final score be
 
 Assume:
 
-*   4 frameworks
-*   Perfect human accuracy → 1.0
-*   Automation accuracy → 0.9
-*   2 frameworks detected perfectly → 2.0 points
+* 4 frameworks
+* Perfect human accuracy → 1.0
+* Automation accuracy → 0.9
+* 2 frameworks detected perfectly → 2.0 points
 
 ```
 Final Score = (1.0 + 0.9 + 2.0) / (4 + 1 + 1)
@@ -171,7 +149,6 @@ Any excessive human misclassification would reduce this to **0.0**.
 * Similarity above 60% incurs proportional penalties
 
 ---
-
 
 ## Submission Guide
 
