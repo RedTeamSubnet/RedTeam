@@ -188,27 +188,65 @@ class RewardApp(BaseValidator):
 
     def get_revealed_commits(self) -> dict[str, list[MinerChallengeCommit]]:
         """
-        Get all revealed (decrypted) commits grouped by challenge name.
+        Collects all revealed commits from miners.
+        Filters unique docker_hub_ids in one pass and excludes previously scored submissions.
 
         Returns:
-            dict[str, list[MinerChallengeCommit]]: Dictionary mapping challenge names to lists of revealed commits
+            A dictionary where the key is the challenge name and the value is a list of MinerChallengeCommit.
         """
+        seen_docker_hub_ids: set[str] = set()
+
         revealed_commits: dict[str, list[MinerChallengeCommit]] = {}
+        _list_existing_commits = []
+        _list_revealed_commits = []
+        _list_skipped_commits = []
+        for (uid, hotkey), commits in self.miner_commits.items():
+            for challenge_name, commit in commits.items():
+                bt.logging.info(
+                    f"[GET REVEALED COMMITS] Try to reveal commit: {uid} - {hotkey} - {challenge_name} - {commit.encrypted_commit}"
+                )
+                if commit.commit:
+                    this_challenge_revealed_commits = revealed_commits.setdefault(
+                        challenge_name, []
+                    )
+                    docker_hub_id = commit.commit.split("---")[1]
 
-        for challenge_name in self.active_challenges.keys():
-            revealed_commits[challenge_name] = []
-
-            for (
-                miner_uid,
-                miner_hotkey,
-            ), challenge_commits in self.miner_commits.items():
-                if challenge_name not in challenge_commits:
-                    continue
-
-                commit = challenge_commits[challenge_name]
-                # Check if commit is revealed (decrypted)
-                if commit.commit is not None:
-                    revealed_commits[challenge_name].append(commit)
+                    if (
+                        docker_hub_id in seen_docker_hub_ids
+                        or docker_hub_id
+                        in self.challenge_managers[
+                            challenge_name
+                        ].get_unique_scored_docker_hub_ids()
+                    ):
+                        _list_existing_commits.append(
+                            f"{challenge_name}-{uid}-{hotkey}-{docker_hub_id}"
+                        )
+                        continue
+                    else:
+                        commit.docker_hub_id = docker_hub_id
+                        this_challenge_revealed_commits.append(commit)
+                        seen_docker_hub_ids.add(docker_hub_id)
+                        _list_revealed_commits.append(
+                            f"{challenge_name}-{uid}-{hotkey}-{docker_hub_id}"
+                        )
+                else:
+                    _list_skipped_commits.append(
+                        f"{challenge_name}-{uid}-{hotkey}"
+                    )
+        for list_name, list_data in [
+            ("Existing", sorted(_list_existing_commits)),
+            ("Revealed", sorted(_list_revealed_commits)),
+            ("Skipped", sorted(_list_skipped_commits)),
+        ]:
+            if list_data:
+                newline = "\n"  # Define newline character separately
+                bt.logging.info(
+                    f"[GET REVEALED COMMITS] {list_name} commits: {newline.join(list_data)}"
+                )
+            else:
+                bt.logging.info(
+                    f"[GET REVEALED COMMITS] No {list_name.lower()} commits"
+                )
 
         return revealed_commits
 
