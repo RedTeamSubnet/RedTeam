@@ -2,7 +2,7 @@ ada_detection_v1:
   name: "ada_detection_v1"
   description: "Detect anti-detect automation frameworks"
   challenge_incentive_weight: 0.5
-  challenge_image: "redteamsubnet61/ada_detection:v0.2.0-251213"
+  challenge_image: "redteamsubnet61/ada_detection:v1.0.0-251215"
   target: ada_detection.controller.AADController
   challenge_manager: ada_detection.challenge_manager.AADChallengeManager
   script_path_identifier: "detection_files"
@@ -72,6 +72,7 @@ ab_sniffer_v5:
     platform: "linux/amd64"
     privileged: true
     environment:
+      ENV: "PRODUCTION"
       ABS_CHALLENGE_API_KEY: "${ABS_CHALLENGE_API_KEY}"
       ABS_CHALLENGE_VERIFICATION_API_KEY: "${ABS_CHALLENGE_VERIFICATION_API_KEY}"
       ABS_CHALLENGE_VERIFICATION_ENDPOINT: "${ABS_CHALLENGE_VERIFICATION_ENDPOINT}"
@@ -92,8 +93,6 @@ ab_sniffer_v5:
   resource_limits:
     num_cpus: 4
     mem_limit: "12g"
-  environment:
-    ENV: "PRODUCTION"
 
 humanize_behaviour_v5:
   name: "humanize_behaviour_v5"
