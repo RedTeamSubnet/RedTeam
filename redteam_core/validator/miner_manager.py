@@ -79,7 +79,8 @@ class MinerManager:
         """
         scores = np.zeros(n_uids)
         current_time = datetime.datetime.now(datetime.timezone.utc)
-        endpoint = constants.STORAGE_API.URL + "/fetch-uids-registration-time"
+        _base_url_path = str(constants.STORAGE_API.URL).rstrip("/")
+        endpoint = _base_url_path + "/fetch-uids-registration-time"
 
         try:
             response = requests.get(endpoint)

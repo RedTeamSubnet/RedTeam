@@ -1,15 +1,9 @@
-[submodule "redteam_core/challenge_pool/humanize_behaviour_v2/volumes/src/web.rt-hb-login-page"]
-	path = redteam_core/challenge_pool/humanize_behaviour_v2/volumes/src/web.rt-hb-login-page
-	url = ../web.rt-hb-login-page.git
-[submodule "redteam_core/challenge_pool/humanize_behaviour_v2/src/modules/rt_hb_score"]
-	path = redteam_core/challenge_pool/humanize_behaviour_v2/src/modules/rt_hb_score
-	url = ../module.rt-hb-score-v2.git
-[submodule "redteam_core/challenge_pool/humanize_behaviour_v2/src/modules/cfg_analyser"]
-	path = redteam_core/challenge_pool/humanize_behaviour_v2/src/modules/cfg_analyser
-	url = ../module.cfg-analyser.git
 [submodule "redteam_core/challenge_pool/ab_sniffer"]
 	path = redteam_core/challenge_pool/ab_sniffer
-	url = https://github.com/RedTeamSubnet/ab_sniffer.git
+	url = https://github.com/RedTeamSubnet/ab-sniffer-challenge.git
 [submodule "redteam_core/challenge_pool/humanize_behaviour"]
 	path = redteam_core/challenge_pool/humanize_behaviour
-	url = https://github.com/RedTeamSubnet/humanize_behaviour.git
+	url = https://github.com/RedTeamSubnet/humanize-behaviour-challenge.git
+[submodule "redteam_core/challenge_pool/ada_detection"]
+	path = redteam_core/challenge_pool/ada_detection
+	url = https://github.com/RedTeamSubnet/ada-detection-challenge.git

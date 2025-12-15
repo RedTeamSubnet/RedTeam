@@ -79,3 +79,4 @@ nav:
       - Active Challenges:
           - AB Sniffer v5: challenge_templates/ab_sniffer_v5.md
           - Humanize Behaviour v5: challenge_templates/humanize_behaviour_v5.md
+          - Anti-Detect Automation Detection: challenge_templates/ada_detection_v1.md
