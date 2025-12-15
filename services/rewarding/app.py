@@ -216,68 +216,58 @@ class RewardApp(BaseValidator):
         self, miner_commits: dict[str, list[MinerChallengeCommit]] = None
     ):
         """
-        Store miner commits to persistent storage.
-
-        Args:
-            miner_commits (dict[str, list[MinerChallengeCommit]], optional): Commits to store by challenge name.
-                                                                            If None, stores all miner_commits.
+        Store miner commits to storage.
         """
-        if miner_commits is None:
-            # Store all miner commits
-            for (
-                miner_uid,
-                miner_hotkey,
-            ), challenge_commits in self.miner_commits.items():
-                for challenge_name, commit in challenge_commits.items():
-                    self.storage_manager.update_cache(
-                        challenge_name=challenge_name,
-                        encrypted_commit=commit.encrypted_commit,
-                        data=commit.model_dump(),
-                    )
-        else:
-            # Store specific challenge commits
-            for challenge_name, commits_list in miner_commits.items():
-                for commit in commits_list:
-                    self.storage_manager.update_cache(
-                        challenge_name=challenge_name,
-                        encrypted_commit=commit.encrypted_commit,
-                        data=commit.model_dump(),
-                    )
+        if not miner_commits:
+            miner_commits = {}
+            # Default to store all miner commits
+            bt.logging.info(
+                "[STORE MINER COMMMITS] Storing all commits in self.miner_commits"
+            )
+            for _, miner_challenge_commits in self.miner_commits.items():
+                for challenge_name, commit in miner_challenge_commits.items():
+                    miner_commits.setdefault(challenge_name, []).append(commit)
+
+        data_to_store: list[MinerChallengeCommit] = [
+            commit
+            for challenge_name, commits in miner_commits.items()
+            for commit in commits
+        ]
+
+        bt.logging.info(
+            f"[STORE MINER COMMMITS] Storing {len(data_to_store)} commits to storage: {[commit.encrypted_commit[:15] for commit in data_to_store]}"
+        )
+
+        try:
+            self.storage_manager.update_commit_batch(
+                commits=data_to_store, async_update=True
+            )
+        except Exception as e:
+            bt.logging.error(f"Failed to queue miner commit data for storage: {e}")
 
     def export_state(self, public_view: bool = False) -> dict:
         """
-        Export the reward app state for storage and sharing.
-
-        Args:
-            public_view (bool): If True, returns state suitable for public viewing
+        Exports the current state of the Validator to a serializable dictionary.
+        Only exports dynamic state that needs to be preserved between sessions.
 
         Returns:
-            dict: State dictionary containing scoring results and metadata
+            dict: A dictionary containing the serialized state
         """
-        state = {
-            "active_challenges": list(self.active_challenges.keys()),
-            "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
-            "scoring_results": {},
+        # We no longer export miner commits since:
+        # 1. They change quickly and is taking up lots space.
+        # 2. They are already inside challenge_managers 's state, miner_state.latest_commit if updated successfully.
+
+        challenge_managers: dict[str, dict] = {
+            challenge_name: manager.export_state(public_view=public_view)
+            for challenge_name, manager in self.challenge_managers.items()
         }
 
-        # Include scoring results for all challenges
-        for challenge_name in self.active_challenges.keys():
-            challenge_results = self.scoring_results.get_all_for_challenge(
-                challenge_name
-            )
-            state["scoring_results"][challenge_name] = {
-                docker_hub_id: {
-                    "scoring_logs": [
-                        log.model_dump() for log in result.get("scoring_logs", [])
-                    ],
-                    "comparison_logs": {
-                        dhid: [log.model_dump() for log in logs]
-                        for dhid, logs in result.get("comparison_logs", {}).items()
-                    },
-                }
-                for docker_hub_id, result in challenge_results.items()
-            }
-
+        state = {
+            "validator_uid": self.uid,
+            "validator_hotkey": self.wallet.hotkey.ss58_address,
+            "challenge_managers": challenge_managers,
+            "scoring_dates": [],
+        }
         return state
 
     def _get_storage_api_key(self) -> str:
