@@ -1,7 +1,58 @@
+ada_detection_v1:
+  name: "ada_detection_v1"
+  description: "Detect anti-detect automation frameworks"
+  challenge_incentive_weight: 0.5
+  challenge_image: "redteamsubnet61/ada_detection:v1.0.0-251215"
+  target: ada_detection.controller.AADController
+  challenge_manager: ada_detection.challenge_manager.AADChallengeManager
+  script_path_identifier: "detection_files"
+  challenge_type: "aad"
+  challenge_solve_timeout: 60
+  docker_run_timeout: 900
+  num_tasks: 1
+  scoring_headers:
+    X-API-KEY: "${AAD_CHALLENGE_API_KEY}"
+  comparison_config:
+    max_unique_commits: 15
+    max_self_comparison_score: 0.7
+    min_acceptable_score: 0.6
+  challenge_container_run_kwargs:
+    name: "ada_detection_v1"
+    platform: "linux/amd64"
+    privileged: true
+    environment:
+      ENV: "PRODUCTION"
+      AAD_CHALLENGE_API_KEY: "${AAD_CHALLENGE_API_KEY}"
+      AAD_CHALLENGE_NSTBROWSER_API_KEY: "${AAD_CHALLENGE_NSTBROWSER_API_KEY}"
+      AAD_CHALLENGE_NSTBROWSER_HOST: "${AAD_CHALLENGE_NSTBROWSER_HOST}"
+      AAD_CHALLENGE_NSTBROWSER_PORT: "${AAD_CHALLENGE_NSTBROWSER_PORT}"
+      AAD_CHALLENGE_NSTBROWSER_PROTOCOL: "${AAD_CHALLENGE_NSTBROWSER_PROTOCOL}"
+      AAD_CHALLENGE_VERIFICATION_API_KEY: "${AAD_CHALLENGE_VERIFICATION_API_KEY}"
+      AAD_CHALLENGE_VERIFICATION_ENDPOINT: "${AAD_CHALLENGE_VERIFICATION_ENDPOINT}"
+      AAD_CHALLENGE_VERIFICATION_STARTUP_URL: "${AAD_CHALLENGE_VERIFICATION_STARTUP_URL}"
+    volumes:
+      - "${RT_CHALLENGE_LOG_DIR}:/var/log/rest.rt-aad-challenger"
+  miner_container_run_kwargs:
+    cpu_count: 4
+    mem_limit: "12g"
+    network: "redteam_local"
+    environment:
+      CHALLENGE_NAME: "ada_detection_v1"
+  protocols:
+    challenger: "http"
+    challenger_ssl_verify: false
+    miner: "http"
+    miner_ssl_verify: false
+  resource_limits:
+    num_cpus: 4
+    mem_limit: "12g"
+  environment:
+    ENV: "PRODUCTION"
+
 ab_sniffer_v5:
   name: "ab_sniffer_v5"
   description: "Detect the driver type of the framework"
-  challenge_incentive_weight: 0.7
+  challenge_incentive_weight: 0.4
   challenge_image: "redteamsubnet61/ab_sniffer:v5.0.0-251202"
   target: ab_sniffer.controller.ABSController
   challenge_manager: ab_sniffer.challenge_manager.ABSChallengeManager
@@ -21,6 +72,7 @@ ab_sniffer_v5:
     platform: "linux/amd64"
     privileged: true
     environment:
+      ENV: "PRODUCTION"
       ABS_CHALLENGE_API_KEY: "${ABS_CHALLENGE_API_KEY}"
       ABS_CHALLENGE_VERIFICATION_API_KEY: "${ABS_CHALLENGE_VERIFICATION_API_KEY}"
       ABS_CHALLENGE_VERIFICATION_ENDPOINT: "${ABS_CHALLENGE_VERIFICATION_ENDPOINT}"
@@ -41,13 +93,11 @@ ab_sniffer_v5:
   resource_limits:
     num_cpus: 4
     mem_limit: "12g"
-  environment:
-    ENV: "PRODUCTION"
 
 humanize_behaviour_v5:
   name: "humanize_behaviour_v5"
   description: "Imitate human-like behaviour for given UI tasks"
-  challenge_incentive_weight: 0.3
+  challenge_incentive_weight: 0.1
   challenge_image: "redteamsubnet61/humanize_behaviour:v5.1.0-251202"
   target: humanize_behaviour.controller.HBController
   challenge_manager: humanize_behaviour.challenge_manager.HBChallengeManager
@@ -66,8 +116,6 @@ humanize_behaviour_v5:
     platform: "linux/amd64"
     volumes:
       - "${RT_CHALLENGE_LOG_DIR}:/var/log/rest.rt-hb-challenger"
-    environment:
-      RT_COMPARER_RANDOM_SEED: "${RT_COMPARER_RANDOM_SEED}"
   miner_container_run_kwargs:
     cpu_count: 4
     mem_limit: "12g"

@@ -99,6 +99,8 @@ extra:
   social:
     - icon: fontawesome/solid/globe
       link: https://theredteam.io
+    #  - icon: fontawesome/solid/blog
+    #     link: https://blog.theredteam.io
     - icon: fontawesome/brands/github
       link: https://github.com/RedTeamSubnet
     - icon: fontawesome/brands/docker
@@ -108,14 +110,3 @@ extra:
     - icon: fontawesome/brands/medium
       link: https://medium.com/@TheRedTeam
 copyright: Copyright &copy; 2025 - RedTeam Subnet.
-# nav:
-#   - Home: index.md
-#   - Validator Setup: 1.validator.md
-#   - Miner Setup: 2.miner.md
-#   - Submission Guide: 3.submission_guide.md
-#   - Docker Guide: 4.docker.md
-#   - Challenge Templates:
-#       - FAQ: challenge_templates/FAQ.md
-#       - Active Challenges:
-#           - AB Sniffer v5: challenge_templates/ab_sniffer_v5.md
-#           - Humanize Behaviour v5: challenge_templates/humanize_behaviour_v5.md

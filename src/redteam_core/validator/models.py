@@ -27,7 +27,7 @@ class ScoringLog(BaseModel):
             score=self.score,
             miner_input=None,
             miner_output=None,
-            validation_output=None,
+            validation_output=self.validation_output,
             error=self.error,
             baseline_score=self.baseline_score,
             input_hash=None,

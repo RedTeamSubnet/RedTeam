@@ -1,6 +1,6 @@
-[submodule "src/modules/challenges/ab_sniffer"]
-	path = src/modules/challenges/ab_sniffer
-	url = ../module-ab-sniffer-challenge.git
-[submodule "src/modules/challenges/humanize_behaviour"]
-	path = src/modules/challenges/humanize_behaviour
-	url = ../module-humanize-behaviour-challenge.git
+[submodule "redteam_core/challenge_pool/humanize_behaviour"]
+	path = redteam_core/challenge_pool/humanize_behaviour
+	url = ../humanize-behaviour-challenge.git
+[submodule "redteam_core/challenge_pool/ada_detection"]
+	path = redteam_core/challenge_pool/ada_detection
+	url = ../ada-detection-challenge.git

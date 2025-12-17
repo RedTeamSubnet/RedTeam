@@ -1,5 +1,18 @@
 # Changelog
 
+## v3.1.0 (2025-12-15)
+
+<!-- Release notes generated using configuration in .github/release.yml at v3.1.0 -->
+
+## What's Changed
+### ✨ Features
+* Anti-Detect Automation Detection by @abdibekbolot in https://github.com/RedTeamSubnet/RedTeam/pull/90
+
+## New Contributors
+* @abdibekbolot made their first contribution in https://github.com/RedTeamSubnet/RedTeam/pull/90
+
+**Full Changelog**: https://github.com/RedTeamSubnet/RedTeam/compare/v3.0.0...v3.1.0
+
 ## v3.0.0 (2025-12-02)
 
 <!-- Release notes generated using configuration in .github/release.yml at v3.0.0 -->
