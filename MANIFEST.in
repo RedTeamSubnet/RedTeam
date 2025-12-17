@@ -11,6 +11,7 @@ exclude examples/**
 exclude notebooks/**
 exclude scripts/**
 exclude src/modules/**
+exclude src/challenges/**
 exclude templates/**
 exclude tests/**
 exclude data/**
