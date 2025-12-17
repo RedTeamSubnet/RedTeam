@@ -400,7 +400,7 @@ class Validator(BaseValidator):
         """
         Get ALL scored commits from Storage API for a challenge.
 
-        Fetches all commits with validator_uid=-1 (Reward App's scored data).
+        Fetches all commits with validator_uid=-1 (Scoring API's scored data).
         Only returns commits that have scoring_logs populated (actually scored).
         This ensures all validators get the same scored commits, preventing divergence.
 
