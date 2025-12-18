@@ -169,6 +169,7 @@ class Validator(BaseValidator):
             # Load the state into the current instance
             self.load_state(state)
             bt.logging.success("[INIT] Successfully loaded existing validator state")
+            self._reconcile_state_from_miner_commits()
         else:
             bt.logging.info("[INIT] No existing state found, using empty state")
 
@@ -449,6 +450,7 @@ class Validator(BaseValidator):
 
                     # Only include commits that have been scored (have scoring_logs)
                     if validated_commit.scoring_logs:
+                        validated_commit.remove_redundant_logs()
                         scored_commits.append(validated_commit)
 
                 except Exception as e:
@@ -460,6 +462,9 @@ class Validator(BaseValidator):
             bt.logging.success(
                 f"[CENTRALIZED SCORING] Validated {len(scored_commits)} scored commits "
                 f"(filtered from {len(storage_results)} total)"
+            )
+            self._sync_state_from_scored_commits(
+                challenge_name=challenge_name, scored_commits=scored_commits
             )
 
             # Update challenge manager with ALL scored commits
@@ -642,7 +647,7 @@ class Validator(BaseValidator):
         for (uid, hotkey), commits in self.miner_commits.items():
             for challenge_name, commit in commits.items():
                 bt.logging.info(
-                    f"[GET REVEALED COMMITS] Try to reveal commit: {uid} - {hotkey} - {challenge_name} - {commit.encrypted_commit}"
+                    f"[GET REVEALED COMMITS] Try to reveal commit: {uid} - {hotkey} - {challenge_name}"
                 )
                 if commit.commit:
                     this_challenge_revealed_commits = revealed_commits.setdefault(
@@ -669,9 +674,7 @@ class Validator(BaseValidator):
                             f"{challenge_name}-{uid}-{hotkey}-{docker_hub_id}"
                         )
                 else:
-                    _list_skipped_commits.append(
-                        f"{challenge_name}-{uid}-{hotkey}-{commit.encrypted_commit}"
-                    )
+                    _list_skipped_commits.append(f"{challenge_name}-{uid}-{hotkey}")
         for list_name, list_data in [
             ("Existing", sorted(_list_existing_commits)),
             ("Revealed", sorted(_list_revealed_commits)),
@@ -861,3 +864,92 @@ class Validator(BaseValidator):
                     self.miner_commits.setdefault(
                         (miner_state.miner_uid, miner_state.miner_hotkey), {}
                     )[challenge_name] = miner_state.latest_commit
+
+    def _sync_state_from_scored_commits(
+        self, challenge_name: str, scored_commits: list[MinerChallengeCommit]
+    ) -> None:
+        """
+        Locally sync both miner_commits and challenge_managers.miner_states
+        using scored commits returned by the reward app.
+        Keeps only the latest commit per UID for the given challenge.
+        """
+        try:
+            # Group commits by UID for this challenge
+            commits_by_uid: dict[int, list[MinerChallengeCommit]] = {}
+            for c in scored_commits:
+                if c.challenge_name != challenge_name:
+                    continue
+                if c.miner_uid is None:
+                    continue
+                commits_by_uid.setdefault(c.miner_uid, []).append(c)
+
+            # Pick latest per UID by scored_timestamp, falling back to commit_timestamp
+            latest_commits: list[MinerChallengeCommit] = []
+            for uid, commits in commits_by_uid.items():
+                latest = max(
+                    commits,
+                    key=lambda x: (x.scored_timestamp or 0, x.commit_timestamp or 0),
+                )
+                latest.remove_redundant_logs()
+                latest_commits.append(latest)
+
+                # Update miner_commits map
+                key = (latest.miner_uid, latest.miner_hotkey)
+                existing = self.miner_commits.setdefault(key, {}).get(challenge_name)
+                if (
+                    existing is None
+                    or (latest.scored_timestamp or 0) > (existing.scored_timestamp or 0)
+                    or (latest.commit_timestamp or 0) > (existing.commit_timestamp or 0)
+                    or latest.encrypted_commit != existing.encrypted_commit
+                ):
+                    self.miner_commits[key][challenge_name] = latest
+
+            # Push latest per UID into challenge manager's miner_states
+            if latest_commits and challenge_name in self.challenge_managers:
+                self.challenge_managers[challenge_name].update_miner_infos(
+                    latest_commits
+                )
+
+        except Exception as e:
+            bt.logging.warning(f"[SYNC] Failed to sync state from scored commits: {e}")
+
+    def _reconcile_state_from_miner_commits(self) -> None:
+        """
+        Reconcile challenge managers with preloaded miner_commits (e.g., after load_state).
+
+        This ensures that if miner_commits were loaded from persisted state,
+        the challenge managers' miner_states reflect the latest commits per UID.
+        Uses local-only logic; no storage reads.
+        """
+        try:
+            for challenge_name, challenge_manager in self.challenge_managers.items():
+                # Collect commits for this challenge from miner_commits
+                commits_for_challenge: list[MinerChallengeCommit] = []
+                for (uid, hotkey), commits_dict in self.miner_commits.items():
+                    if challenge_name in commits_dict:
+                        commits_for_challenge.append(commits_dict[challenge_name])
+
+                # Group by UID and pick latest per UID by commit_timestamp
+                commits_by_uid: dict[int, list[MinerChallengeCommit]] = {}
+                for commit in commits_for_challenge:
+                    if commit.miner_uid is None:
+                        continue
+                    commit.remove_redundant_logs()
+                    commits_by_uid.setdefault(commit.miner_uid, []).append(commit)
+
+                latest_commits: list[MinerChallengeCommit] = []
+                for uid, commits in commits_by_uid.items():
+                    latest = max(commits, key=lambda x: x.commit_timestamp or 0)
+                    latest_commits.append(latest)
+
+                # Update challenge manager with latest per UID
+                if latest_commits:
+                    challenge_manager.update_miner_infos(latest_commits)
+                    bt.logging.info(
+                        f"[RECONCILE] Updated challenge '{challenge_name}' with {len(latest_commits)} latest commits per UID"
+                    )
+
+        except Exception as e:
+            bt.logging.warning(
+                f"[RECONCILE] Failed to reconcile state from miner_commits: {e}"
+            )

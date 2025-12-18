@@ -67,25 +67,11 @@ class AutoUpdater:
                     # Attempt a clean pull first
                     repo.git.pull("origin", branch_name, strategy_option="theirs")
                 except Exception as e:
-                    bt.logging.warning(f"Pull failed: {e}. Trying soft reset.")
-                    # Force update to remote state if pull fails
-                    try:
-                        repo.git.reset("--soft", f"origin/{branch_name}")
-                        repo.remotes.origin.fetch()
-                        repo.git.merge(
-                            f"origin/{branch_name}", "--no-edit", "-X", "theirs"
-                        )
-
-                    except Exception as e:
-                        bt.logging.warning(
-                            f"Soft reset failed: {e}. Trying hard reset."
-                        )
-                        repo.git.reset("--hard", f"origin/{branch_name}")
-                        repo.git.clean("-fd")  # Remove untracked files if needed
-                        repo.remotes.origin.fetch()
-                        repo.git.merge(
-                            f"origin/{branch_name}", strategy_option="theirs"
-                        )
+                    bt.logging.warning(f"Pull failed: {e}. Trying hard reset.")
+                    repo.git.reset("--hard", f"origin/{branch_name}")
+                    repo.git.clean("-fd")  # Remove untracked files if needed
+                    repo.remotes.origin.fetch()
+                    repo.git.merge(f"origin/{branch_name}", strategy_option="theirs")
                 final_version = repo.head.commit.hexsha
                 if final_version != new_version:
                     bt.logging.warning("Update did not complete successfully.")

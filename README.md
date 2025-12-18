@@ -30,7 +30,7 @@ When miners participate in challenges, their performance is evaluated based on t
 
 2. **Decay Mechanism**: Submissions receive incentives for a limited period, requiring miners to regularly update their solutions to maintain their position in the subnet. Our comparison system identifies and penalizes duplicate submissions, encouraging continuous improvement and innovation.
 
-3. **Fallback Mechanism**: When a new challenge is released, its weight allocation begins immediately. In cases where a challenge receives no valid submissions, its weights are automatically redistributed to other active challenges according to their respective weights, ensuring efficient resource allocation.
+3. **Fallback Mechanism**: When a challenge becomes inactive due to having no valid submissions, all weights will be directed to burn. This logic maintains fairness and keeps subnet value stable.
 
 The final score is calculated using a normalized formula that combines these components:
 
