@@ -67,7 +67,7 @@ class AutoUpdater:
                     # Attempt a clean pull first
                     repo.git.pull("origin", branch_name, strategy_option="theirs")
                 except Exception as e:
-                    bt.logging.warning(f"Soft reset failed: {e}. Trying hard reset.")
+                    bt.logging.warning(f"Pull failed: {e}. Trying hard reset.")
                     repo.git.reset("--hard", f"origin/{branch_name}")
                     repo.git.clean("-fd")  # Remove untracked files if needed
                     repo.remotes.origin.fetch()
