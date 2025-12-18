@@ -230,9 +230,7 @@ class RewardApp(BaseValidator):
                             f"{challenge_name}-{uid}-{hotkey}-{docker_hub_id}"
                         )
                 else:
-                    _list_skipped_commits.append(
-                        f"{challenge_name}-{uid}-{hotkey}"
-                    )
+                    _list_skipped_commits.append(f"{challenge_name}-{uid}-{hotkey}")
         for list_name, list_data in [
             ("Existing", sorted(_list_existing_commits)),
             ("Revealed", sorted(_list_revealed_commits)),
