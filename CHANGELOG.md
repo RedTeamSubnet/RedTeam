@@ -1,5 +1,16 @@
 # Changelog
 
+## v3.1.1 (2025-12-18)
+
+<!-- Release notes generated using configuration in .github/release.yml at v3.1.1 -->
+
+## What's Changed
+### 🐛 Fixes
+* Synchronisation of states by @aliyuldashev in https://github.com/RedTeamSubnet/RedTeam/pull/92
+
+
+**Full Changelog**: https://github.com/RedTeamSubnet/RedTeam/compare/v3.1.0...v3.1.1
+
 ## v3.1.0 (2025-12-15)
 
 <!-- Release notes generated using configuration in .github/release.yml at v3.1.0 -->
