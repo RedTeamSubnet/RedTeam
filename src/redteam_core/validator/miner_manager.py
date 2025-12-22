@@ -1,12 +1,10 @@
-from collections import defaultdict
 import datetime
-from typing import Any
+from collections import defaultdict
+from typing import Any, List, Dict
 
-from git import List
 import requests
 import numpy as np
 import bittensor as bt
-from typing import Dict
 
 from redteam_core.constants import constants
 from redteam_core.validator.challenge_manager import ChallengeManager
