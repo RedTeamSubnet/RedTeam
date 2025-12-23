@@ -169,7 +169,7 @@ class Validator(BaseValidator):
             # Load the state into the current instance
             self.load_state(state)
             bt.logging.success("[INIT] Successfully loaded existing validator state")
-            self._reconcile_state_from_miner_commits()
+            # self._reconcile_state_from_miner_commits()
         else:
             bt.logging.info("[INIT] No existing state found, using empty state")
 
@@ -898,9 +898,8 @@ class Validator(BaseValidator):
                 existing = self.miner_commits.setdefault(key, {}).get(challenge_name)
                 if (
                     existing is None
-                    or (latest.scored_timestamp or 0) > (existing.scored_timestamp or 0)
                     or (latest.commit_timestamp or 0) > (existing.commit_timestamp or 0)
-                    or latest.encrypted_commit != existing.encrypted_commit
+                    or latest.encrypted_commit == existing.encrypted_commit
                 ):
                     self.miner_commits[key][challenge_name] = latest
 
