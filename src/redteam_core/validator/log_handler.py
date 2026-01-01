@@ -9,7 +9,7 @@ import requests
 
 import bittensor as bt
 
-from redteam_core.constants import constants
+from redteam_core.config import constants
 
 
 class BittensorLogHandler(logging.Handler):
@@ -66,7 +66,7 @@ class BittensorLogHandler(logging.Handler):
         """Send logs to the logging server."""
         if not logs:
             return
-        _base_url_path = str(constants.STORAGE_API.URL).rstrip("/")
+        _base_url_path = str(constants.STORAGE_API_URL).rstrip("/")
         logging_endpoint = f"{_base_url_path}/upload-log"
         payload = {"logs": logs}
         headers = {"Authorization": self.api_key, "Content-Type": "application/json"}

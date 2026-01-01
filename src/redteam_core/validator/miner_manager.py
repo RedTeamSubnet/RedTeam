@@ -1,12 +1,10 @@
-import datetime
 from collections import defaultdict
 from typing import Any, List, Dict
 
-import requests
 import numpy as np
 import bittensor as bt
 
-from redteam_core.constants import constants
+from redteam_core.config import constants
 from redteam_core.validator.challenge_manager import ChallengeManager
 
 
@@ -68,59 +66,6 @@ class MinerManager:
             f"Aggregated challenge scores: {aggregated_scores.tolist()}, valid_weights_sum: {valid_weights_sum}, weights_to_redistribute: {weights_to_redistribute}"
         )
         return aggregated_scores
-
-    def _get_newly_registration_scores(self, n_uids: int) -> np.ndarray:
-        """
-        Returns a numpy array of scores based on newly registration, high for more recent registrations.
-        Only considers UIDs registered within the immunity period (defined in blocks).
-        Scores range from 1.0 (just registered) to 0.0 (older than immunity period).
-        """
-        scores = np.zeros(n_uids)
-        current_time = datetime.datetime.now(datetime.timezone.utc)
-        _base_url_path = str(constants.STORAGE_API.URL).rstrip("/")
-        endpoint = _base_url_path + "/fetch-uids-registration-time"
-
-        try:
-            response = requests.get(endpoint)
-            response.raise_for_status()
-            uids_registration_time = response.json()["data"]
-
-            # Process uids_registration_time to get the scores
-            for uid, registration_time in uids_registration_time.items():
-                uid = int(uid)
-                if uid >= n_uids:
-                    continue
-
-                # Parse the UTC datetime string
-                reg_time = datetime.datetime.strptime(
-                    registration_time, "%Y-%m-%dT%H:%M:%S"
-                ).replace(tzinfo=datetime.timezone.utc)
-
-                seconds_since_registration = (current_time - reg_time).total_seconds()
-                blocks_since_registration = seconds_since_registration / 12
-
-                # Only consider UIDs registered within immunity period
-                if blocks_since_registration <= constants.SUBNET_IMMUNITY_PERIOD:
-                    # Score decreases linearly from 1.0 (just registered) to 0.0 (immunity period ended)
-                    scores[uid] = max(
-                        0,
-                        1.0
-                        - (
-                            blocks_since_registration / constants.SUBNET_IMMUNITY_PERIOD
-                        ),
-                    )
-
-            # Normalize scores if any registrations exist
-            if np.sum(scores) > 0:
-                scores = scores / np.sum(scores)
-
-        except Exception as e:
-            bt.logging.error(f"Error fetching uids registration time: {e}")
-            return np.zeros(n_uids)
-
-        bt.logging.debug(f"Newly registration scores: {scores.tolist()}")
-
-        return scores
 
     def _get_alpha_stake_scores(self, n_uids: int) -> np.ndarray:
         """

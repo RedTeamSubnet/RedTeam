@@ -1,38 +1,3 @@
-"""
-Docker Utilities for Challenge Evaluation System
-
-This module provides specialized Docker utilities for managing challenge evaluation containers
-and miner solution containers in a secure, isolated environment. It handles container lifecycle,
-health checking, networking, and resource management.
-
-Key Assumptions:
-1. Container Types:
-   - Challenge containers: Provide task generation and evaluation endpoints
-   - Solution containers: Process tasks and return outputs
-
-2. Expected Endpoints:
-   Challenge Containers:
-   - /task: Generates task inputs
-   - /score: Scores solution outputs
-   - /compare: Compares two outputs for the same input
-   - /health: Container health check
-
-   Solution Containers:
-   - /solve: Processes inputs and returns outputs
-   - /health: Container health check
-
-3. Security:
-   - All containers run in isolated networks
-   - Internet access is blocked by default
-   - Resource limits are enforced
-   - Container images must include SHA256 digests
-
-4. Resource Management:
-   - Containers are cleaned up after use
-   - Resource limits (CPU, memory, GPU) are configurable
-   - Proper error handling and logging
-"""
-
 import copy
 import re
 import subprocess

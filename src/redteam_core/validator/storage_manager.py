@@ -19,7 +19,7 @@ from huggingface_hub import HfApi
 from redteam_core.validator.models import MinerChallengeCommit
 
 from redteam_core.challenge_pool import ACTIVE_CHALLENGES
-from ..constants import constants
+from redteam_core.config import constants
 
 
 class StorageManager:

@@ -4,7 +4,7 @@ import copy
 import bittensor as bt
 from cryptography.fernet import Fernet
 
-from .constants import constants
+from redteam_core import constants
 
 
 class Commit(bt.Synapse):
