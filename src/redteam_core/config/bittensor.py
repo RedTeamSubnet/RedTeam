@@ -6,13 +6,13 @@ from .base import BaseConfig, ENV_PREFIX_SUBNET, ENV_PREFIX_BT
 
 
 class BittensorSubnetConfig(BaseConfig):
-    netuid: int = Field(..., description="Subnet UID (required)", gt=0)
-    cache_dir: str = Field(default="./.cache/", description="Cache directory path")
-    hf_repo_id: str = Field(
+    NETUID: int = Field(..., description="Subnet UID (required)", gt=0)
+    CACHE_DIR: str = Field(default="./.cache/", description="Cache directory path")
+    HF_REPO_ID: str = Field(
         default="redteamsubnet61/storage",
         description="Hugging Face repository ID for storage",
     )
-    use_centralized_scoring: bool = Field(
+    USE_CENTRALIZED_SCORING: bool = Field(
         default=False,
         description="Use centralized scoring service instead of local scoring",
     )
@@ -37,8 +37,8 @@ class BittensorSubnetConfig(BaseConfig):
 
 class BittensorLoggingConfig(BaseConfig):
 
-    dir: str = Field(default="~/.bittensor/logs", description="Directory for log files")
-    level: str = Field(
+    DIR: str = Field(default="~/.bittensor/logs", description="Directory for log files")
+    LEVEL: str = Field(
         default="INFO", description="Logging level (DEBUG/INFO/WARNING/ERROR/CRITICAL)"
     )
 
@@ -61,17 +61,17 @@ class BittensorConfig(BaseConfig):
     Aggregates wallet, subtensor, axon, and logging settings.
     """
 
-    subtensor_network: str = Field(
+    SUBTENSOR_NETWORK: str = Field(
         default="finney", description="Bittensor network to connect to"
     )
-    axon_port: int = Field(
+    AXON_PORT: int = Field(
         default=8091, description="Port for the axon to listen on", ge=1, le=65535
     )
 
-    logging: BittensorLoggingConfig = Field(
+    LOGGING: BittensorLoggingConfig = Field(
         default_factory=BittensorLoggingConfig, description="Logging configuration"
     )
-    subnet: BittensorSubnetConfig = Field(
+    SUBNET: BittensorSubnetConfig = Field(
         default_factory=BittensorSubnetConfig,
         description="Subnet-specific configuration",
     )

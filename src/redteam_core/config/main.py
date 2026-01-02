@@ -6,6 +6,7 @@ from typing_extensions import Self
 
 from .base import ENV_PREFIX
 from .bittensor import BittensorConfig
+from .internal_services import InternalServicesConfig
 
 try:
     from ..__version__ import __version__
@@ -78,6 +79,10 @@ class MainConfig(BaseSettings):
     )
     BITTENSOR: BittensorConfig = Field(
         default_factory=BittensorConfig, description="Bittensor network configuration"
+    )
+    INTERNAL_SERVICES: InternalServicesConfig = Field(
+        default_factory=InternalServicesConfig,
+        description="Internal services configuration",
     )
 
     @model_validator(mode="after")

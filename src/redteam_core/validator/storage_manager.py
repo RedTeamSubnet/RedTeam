@@ -123,7 +123,7 @@ class StorageManager:
             bt.logging.warning(
                 "[STORAGE] Failed to fetch validator state from centralized scoring server, trying fallback."
             )
-            _base_url_path = str(constants.STORAGE_API.URL).rstrip("/")
+            _base_url_path = str(constants.STORAGE_API_URL).rstrip("/")
             response = requests.post(
                 url=f"{_base_url_path}/fetch-validator-state",
                 headers=self.validator_request_header_fn(body),
@@ -211,7 +211,7 @@ class StorageManager:
 
         # Step 2: Centralized Storage with retry
         def centralized_operation():
-            _base_url_path = str(constants.STORAGE_API.URL).rstrip("/")
+            _base_url_path = str(constants.STORAGE_API_URL).rstrip("/")
             response = requests.post(
                 url=f"{_base_url_path}/upload-commit",
                 headers=self.validator_request_header_fn(data_dict),
@@ -338,7 +338,7 @@ class StorageManager:
 
         # Step 2: Centralized Storage with retry
         def centralized_operation():
-            _base_url_path = str(constants.STORAGE_API.URL).rstrip("/")
+            _base_url_path = str(constants.STORAGE_API_URL).rstrip("/")
             response = requests.post(
                 url=f"{_base_url_path}/upload-validator-state",
                 headers=self.validator_request_header_fn(data),
@@ -368,7 +368,7 @@ class StorageManager:
         """
         data = {"hf_repo_id": self.hf_repo_id}
         try:
-            _base_url_path = str(constants.STORAGE_API.URL).rstrip("/")
+            _base_url_path = str(constants.STORAGE_API_URL).rstrip("/")
             response = requests.post(
                 url=f"{_base_url_path}/upload-hf-repo-id",
                 headers=self.validator_request_header_fn(data),
