@@ -12,6 +12,7 @@ from .base import (
     ENV_PREFIX_SCORING_API,
     ENV_PREFIX_INTERNAL_SERVICES,
     ENV_PREFIX_VALIDATOR,
+    ENV_PREFIX_MINER,
 )
 from .main import MainConfig, constants
 from .internal_services import InternalServicesConfig
@@ -32,6 +33,7 @@ __all__ = [
     "ENV_PREFIX_SCORING_API",
     "ENV_PREFIX_INTERNAL_SERVICES",
     "ENV_PREFIX_VALIDATOR",
+    "ENV_PREFIX_MINER",
     # Bittensor
     "BittensorLoggingConfig",
     "BittensorConfig",
