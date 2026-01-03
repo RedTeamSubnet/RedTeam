@@ -12,7 +12,7 @@ from redteam_core.validator.models import (
     ScoringLog,
     ComparisonLog,
 )
-from redteam_core.constants import constants
+from redteam_core.config.main import constants
 
 
 class Controller:

@@ -6,14 +6,14 @@ from .base import BaseConfig, ENV_PREFIX_SUBNET, ENV_PREFIX_BT
 
 
 class BittensorSubnetConfig(BaseConfig):
-    NETUID: int = Field(..., description="Subnet UID (required)", gt=0)
+    NETUID: int = Field(default=61, description="Subnet UID (required)", gt=0)
     CACHE_DIR: str = Field(default="./.cache/", description="Cache directory path")
     HF_REPO_ID: str = Field(
-        default="redteamsubnet61/storage",
+        ...,
         description="Hugging Face repository ID for storage",
     )
     USE_CENTRALIZED_SCORING: bool = Field(
-        default=False,
+        default=True,
         description="Use centralized scoring service instead of local scoring",
     )
 
@@ -24,7 +24,7 @@ class BittensorSubnetConfig(BaseConfig):
         extra="ignore",
     )
 
-    @field_validator("cache_dir")
+    @field_validator("CACHE_DIR")
     @classmethod
     def validate_cache_dir(cls, v: str) -> str:
         """Ensure cache directory exists and is writable."""
@@ -42,7 +42,7 @@ class BittensorLoggingConfig(BaseConfig):
         default="INFO", description="Logging level (DEBUG/INFO/WARNING/ERROR/CRITICAL)"
     )
 
-    @field_validator("level")
+    @field_validator("LEVEL")
     @classmethod
     def validate_level(cls, v: str) -> str:
         """Validate log level."""
@@ -62,7 +62,8 @@ class BittensorConfig(BaseConfig):
     """
 
     SUBTENSOR_NETWORK: str = Field(
-        default="finney", description="Bittensor network to connect to"
+        default="wss://entrypoint-finney.opentensor.ai:443",
+        description="Bittensor network to connect to",
     )
     AXON_PORT: int = Field(
         default=8091, description="Port for the axon to listen on", ge=1, le=65535

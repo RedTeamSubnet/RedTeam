@@ -29,7 +29,7 @@ class MainConfig(BaseSettings):
     )
 
     N_CHALLENGES_PER_EPOCH: int = Field(
-        default=100, description="Number of challenges per epoch", ge=1
+        default=1, description="Number of challenges per epoch", ge=1
     )
     SCORING_HOUR: int = Field(
         default=14,
@@ -74,8 +74,9 @@ class MainConfig(BaseSettings):
         default=60, description="Timeout for queries in seconds", ge=1
     )
 
-    STORAGE_API_URL: Optional[AnyHttpUrl] = Field(
-        default=None, description="Full URL for storing miners' work (auto-generated)"
+    STORAGE_API_URL: AnyHttpUrl = Field(
+        default="https://storage-api.theredteam.io",
+        description="Full URL for storing miners' work (auto-generated)",
     )
     BITTENSOR: BittensorConfig = Field(
         default_factory=BittensorConfig, description="Bittensor network configuration"
