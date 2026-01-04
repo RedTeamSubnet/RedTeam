@@ -1,33 +1,9 @@
 import os
-from pydantic import Field, field_validator, model_validator
+from pydantic import Field, model_validator
 from pydantic_settings import SettingsConfigDict
 from typing_extensions import Self
 
-from .base import BaseConfig, ENV_PREFIX_SUBNET, ENV_PREFIX_BT
-
-
-class BittensorSubnetConfig(BaseConfig):
-    NETUID: int = Field(default=61, description="Subnet UID (required)", gt=0)
-    CACHE_DIR: str = Field(
-        default="/var/lib/agent-validator/cache", description="Cache directory path"
-    )
-
-    model_config = SettingsConfigDict(
-        env_prefix=ENV_PREFIX_SUBNET,
-        env_nested_delimiter="__",
-        env_file=".env",
-        extra="ignore",
-    )
-
-    @field_validator("CACHE_DIR")
-    @classmethod
-    def validate_cache_dir(cls, v: str) -> str:
-        """Ensure cache directory exists and is writable."""
-        expanded = os.path.expanduser(v)
-        os.makedirs(expanded, exist_ok=True)
-        if not os.access(expanded, os.W_OK):
-            raise ValueError(f"Cache directory not writable: {expanded}")
-        return v
+from .base import BaseConfig, ENV_PREFIX_BT
 
 
 class BittensorConfig(BaseConfig):
@@ -40,16 +16,10 @@ class BittensorConfig(BaseConfig):
         default="wss://entrypoint-finney.opentensor.ai:443",
         description="Bittensor network to connect to",
     )
-    AXON_PORT: int = Field(
-        default=8091, description="Port for the axon to listen on", ge=1, le=65535
-    )
-    SUBNET: BittensorSubnetConfig = Field(
-        default_factory=BittensorSubnetConfig,
-        description="Subnet-specific configuration",
-    )
     LOGGING_LEVEL: str = Field(
         default="INFO", description="Logging level (DEBUG/INFO/WARNING/ERROR/CRITICAL)"
     )
+    SUBNET_NETUID: int = Field(default=61, description="Subnet NetUID", gt=0, lt=256)
 
     @model_validator(mode="after")
     def validate_level(self) -> Self:
