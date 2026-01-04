@@ -1,7 +1,3 @@
-from dotenv import load_dotenv
-
-load_dotenv(override=True)
-
 from .base import (
     BaseConfig,
     FrozenBaseConfig,

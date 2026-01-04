@@ -1,7 +1,6 @@
 import datetime
 from pydantic import Field, model_validator, AnyHttpUrl
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from typing import Optional
 from typing_extensions import Self
 
 from .base import ENV_PREFIX
