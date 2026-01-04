@@ -16,10 +16,7 @@ from .base import (
 )
 from .main import MainConfig, constants
 from .internal_services import InternalServicesConfig
-from .bittensor import (
-    BittensorLoggingConfig,
-    BittensorConfig,
-)
+from .bittensor import BittensorConfig
 
 
 __all__ = [
@@ -35,7 +32,6 @@ __all__ = [
     "ENV_PREFIX_VALIDATOR",
     "ENV_PREFIX_MINER",
     # Bittensor
-    "BittensorLoggingConfig",
     "BittensorConfig",
     # Internal Services
     "InternalServicesConfig",

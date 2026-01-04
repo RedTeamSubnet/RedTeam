@@ -14,7 +14,6 @@ import requests
 import bittensor as bt
 from diskcache import Cache
 from pydantic import BaseModel
-from huggingface_hub import HfApi
 
 from redteam_core.validator.models import MinerChallengeCommit
 
@@ -46,9 +45,6 @@ class StorageManager:
 
         # Decentralized storage on Hugging Face Hub
         self.hf_repo_id = hf_repo_id
-        self.hf_api = HfApi()
-        bt.logging.info(f"[STORAGE] Authenticated as {self.hf_api.whoami()['name']}")
-        self._validate_hf_repo()
         self.update_repo_id()
 
         # Local cache with disk cache
@@ -70,14 +66,6 @@ class StorageManager:
                 "[STORAGE] Syncing data from Hugging Face Hub to local cache"
             )
             self.sync_storage_to_cache()
-
-        # Squash the HF repo on init if requested to pressure to HF
-        if squash_hf_repo_on_init:
-            bt.logging.info("[STORAGE] Squashing history of Hugging Face repo")
-            self.hf_api.super_squash_history(repo_id=self.hf_repo_id)
-            bt.logging.success(
-                "[STORAGE] Successfully squashed commit history of Hugging Face repo"
-            )
 
     # MARK: Sync Methods
     def sync_storage_to_cache(self):
@@ -174,7 +162,7 @@ class StorageManager:
 
         # Process the commit immediately
         if retry_config is None:
-            retry_config = {"local": 3, "centralized": 3, "decentralized": 3}
+            retry_config = {"local": 3, "centralized": 3}
 
         challenge_name = commit.challenge_name
         hashed_cache_key = self.hash_cache_key(commit.encrypted_commit)
@@ -226,32 +214,6 @@ class StorageManager:
             "Centralized storage update",
         )
         if not central_success:
-            success = False
-            errors.append(error)
-
-        # Step 3: HuggingFace Hub with retry
-        today = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d")
-        hf_filepath = f"{challenge_name}/{today}/{hashed_cache_key}.json"
-
-        def decentralized_operation():
-            self.hf_api.upload_file(
-                path_or_fileobj=json.dumps(
-                    commit.public_view().anonymize_docker_hub_ids().model_dump(),
-                    indent=4,
-                ).encode(
-                    "utf-8"
-                ),  # Hide sensitive data and docker hub ids
-                path_in_repo=hf_filepath,
-                repo_id=self.hf_repo_id,
-                commit_message=f"Update commit {hashed_cache_key}",
-            )
-
-        hf_success, error = self._retry_operation(
-            decentralized_operation,
-            retry_config["decentralized"],
-            "Decentralized storage update",
-        )
-        if not hf_success:
             success = False
             errors.append(error)
 
@@ -391,114 +353,6 @@ class StorageManager:
         Hashes the cache key using SHA-256 to avoid Filename too long error.
         """
         return hashlib.sha256(cache_key.encode()).hexdigest()
-
-    def _snapshot_repo(
-        self, erase_cache: bool, allow_patterns=None, ignore_patterns=None
-    ) -> str:
-        """
-        Creates a snapshot of the Hugging Face Hub repository in a temporary cache directory.
-        """
-        hf_cache_dir = os.path.join(self.cache_dir, ".hf_cache/")
-        os.makedirs(hf_cache_dir, exist_ok=True)
-
-        # Download the repository snapshot
-        return self.hf_api.snapshot_download(
-            repo_id=self.hf_repo_id,
-            cache_dir=hf_cache_dir,
-            force_download=erase_cache,
-            allow_patterns=allow_patterns,
-            ignore_patterns=ignore_patterns,
-        )
-
-    def _validate_hf_repo(self):
-        """
-        Validates the Hugging Face repository:
-        - Ensures the token has write permissions.
-        - Confirms the repository exists and meets required attributes.
-        - Creates a public repository if it does not exist.
-        """
-        # Get user info and auth details
-        user_info = self.hf_api.whoami()
-        auth_info = user_info.get("auth", {}).get("accessToken", {})
-        token_role = auth_info.get("role")
-        repo_namespace, repo_name = self.hf_repo_id.split("/")
-
-        # Step 1: Check permissions and accessible namespaces
-        if token_role == "write":
-            allowed_namespaces = {user_info["name"]} | {
-                org["name"]
-                for org in user_info.get("orgs", [])
-                if org.get("roleInOrg") == "write"
-            }
-            if repo_namespace not in allowed_namespaces:
-                raise PermissionError(
-                    f"Token does not grant write access to the namespace '{repo_namespace}'. Accessible namespaces: {allowed_namespaces}."
-                )
-        elif token_role == "fineGrained":
-            # For fine-grained tokens, check permissions hierarchically
-            fine_grained = auth_info.get("fineGrained", {})
-            has_write_access = False
-
-            # Check there's a specific permission for this repo
-            for scope in fine_grained.get("scoped", []):
-                entity = scope.get("entity", {})
-                entity_name = entity.get("name", "")
-
-                # Exact repo match has highest priority
-                if entity_name == self.hf_repo_id:
-                    has_write_access = "repo.write" in scope.get("permissions", [])
-                    break
-                # Namespace match (user/org) is checked if no exact match is found
-                elif entity_name == repo_namespace:
-                    has_write_access = "repo.write" in scope.get("permissions", [])
-
-            # Only check global permissions if no scoped permissions were found
-            if not has_write_access:
-                has_write_access = "repo.write" in fine_grained.get("global", [])
-
-            if not has_write_access:
-                raise PermissionError(
-                    f"Fine-grained token does not have write permissions for repository '{self.hf_repo_id}'"
-                )
-        else:
-            raise PermissionError(
-                f"Token has insufficient permissions. Expected 'write' or 'fineGrained', got '{token_role}'"
-            )
-
-        bt.logging.info(
-            f"[STORAGE] Token has write permissions for repository '{self.hf_repo_id}'"
-        )
-
-        # Step 2: Validate or create the repository
-        try:
-            repo_info = self.hf_api.repo_info(repo_id=self.hf_repo_id)
-            if repo_info.private or repo_info.disabled:
-                raise ValueError(
-                    f"Repository '{self.hf_repo_id}' be public and not disabled."
-                )
-            bt.logging.info(
-                f"[STORAGE] Repository '{self.hf_repo_id}' exists and is public."
-            )
-        except requests.exceptions.HTTPError as e:
-            if e.response.status_code == 404:  # Repo does not exist
-                bt.logging.warning(
-                    f"[STORAGE] Repository '{self.hf_repo_id}' does not exist. Attempting to create it."
-                )
-                try:
-                    self.hf_api.create_repo(
-                        repo_id=self.hf_repo_id, private=False, exist_ok=True
-                    )
-                    bt.logging.info(
-                        f"[STORAGE] Repository '{self.hf_repo_id}' has been successfully created."
-                    )
-                except Exception as create_err:
-                    raise RuntimeError(
-                        f"Failed to create repository '{self.hf_repo_id}': {create_err}"
-                    )
-            else:
-                raise RuntimeError(
-                    f"Error validating repository '{self.hf_repo_id}': {e}"
-                )
 
     def _get_cache(self, cache_name: str) -> Cache:
         """

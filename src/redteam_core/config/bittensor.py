@@ -1,6 +1,7 @@
 import os
 from pydantic import Field, field_validator, model_validator
 from pydantic_settings import SettingsConfigDict
+from typing_extensions import Self
 
 from .base import BaseConfig, ENV_PREFIX_SUBNET, ENV_PREFIX_BT
 
@@ -68,6 +69,5 @@ __all__ = [
     "BittensorWalletConfig",
     "BittensorSubtensorConfig",
     "BittensorAxonConfig",
-    "BittensorLoggingConfig",
     "BittensorConfig",
 ]
