@@ -78,7 +78,7 @@ ab_sniffer_v5:
       ABS_CHALLENGE_VERIFICATION_ENDPOINT: "${CHALLENGE_VERIFICATION_ENDPOINT}"
       ABS_CHALLENGE_VERIFICATION_STARTUP_URL: "${CHALLENGE_VERIFICATION_STARTUP_URL}"
     volumes:
-      - "${RT_CHALLENGE_LOG_DIR}:/var/log/rest.rt-abs-challenger"
+      - "${RT_CHALLENGE_LOGS_DIR}:/var/log/rest.rt-abs-challenger"
   miner_container_run_kwargs:
     cpu_count: 4
     mem_limit: "12g"
@@ -115,7 +115,7 @@ humanize_behaviour_v5:
     privileged: true
     platform: "linux/amd64"
     volumes:
-      - "${RT_CHALLENGE_LOG_DIR}:/var/log/rest.rt-hb-challenger"
+      - "${RT_CHALLENGE_LOGS_DIR}:/var/log/rest.rt-hb-challenger"
   miner_container_run_kwargs:
     cpu_count: 4
     mem_limit: "12g"
