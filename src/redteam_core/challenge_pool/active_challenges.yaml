@@ -31,7 +31,7 @@ ada_detection_v1:
       AAD_CHALLENGE_VERIFICATION_ENDPOINT: "${CHALLENGE_VERIFICATION_ENDPOINT}"
       AAD_CHALLENGE_VERIFICATION_STARTUP_URL: "${CHALLENGE_VERIFICATION_STARTUP_URL}"
     volumes:
-      - "${RT_CHALLENGE_LOG_DIR}:/var/log/rest.rt-aad-challenger"
+      - "${RT_CHALLENGE_LOGS_DIR}:/var/log/rest.rt-aad-challenger"
   miner_container_run_kwargs:
     cpu_count: 4
     mem_limit: "12g"

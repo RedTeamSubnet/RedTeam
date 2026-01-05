@@ -159,9 +159,6 @@ class Controller:
         current_commits_to_compare = self._get_current_commits_to_compare(
             miner_commit=miner_commit
         )
-        reference_commits = (
-            self.reference_comparison_commits + current_commits_to_compare
-        )
         _is_valid_submission = self._validate_miner_submission(miner_commit)
         if not _is_valid_submission:
             bt.logging.warning(
@@ -183,72 +180,44 @@ class Controller:
             miner_commit.comparison_logs["check/validation"] = [comparison_log]
             return
 
-        for reference_commit in reference_commits:
-            bt.logging.info(
-                f"[CONTROLLER] Running comparison with reference commit {reference_commit.docker_hub_id}"
-            )
+        bt.logging.info(f"[CONTROLLER] Running comparison with reference commit")
 
-            if not reference_commit.docker_hub_id in miner_commit.comparison_logs:
-                miner_commit.comparison_logs[reference_commit.docker_hub_id] = []
+        _miner_output = miner_commit.scoring_logs[0].miner_output.copy()
 
-            for reference_log in reference_commit.scoring_logs:
-                if (
-                    reference_log.miner_input is None
-                    or reference_log.miner_output is None
-                    or not miner_commit.scoring_logs
-                    or miner_commit.scoring_logs[0].miner_output is None
-                ):
-                    bt.logging.warning(
-                        f"[CONTROLLER] Skipping comparison with {reference_commit.docker_hub_id} for miner because the reference log is missing input or output."
-                    )
-                    continue
-
-                _miner_output = miner_commit.scoring_logs[0].miner_output.copy()
-                _reference_output = reference_log.miner_output.copy()
-
-                _compare_result = self._compare_outputs(
-                    miner_input=reference_log.miner_input,
-                    miner_output=_miner_output,
-                    reference_output=_reference_output,
-                )
-                _similarity_score = _compare_result.get("similarity_score", 1.0)
-                _similarity_reason = _compare_result.get("reason", "Unknown")
-
-                self._exclude_output_keys(_miner_output, _reference_output)
-
-                if (
-                    miner_commit.miner_hotkey == reference_commit.miner_hotkey
-                    and _similarity_score < self.max_self_comparison_score
-                ):
-                    bt.logging.warning(
-                        f"[CONTROLLER] Skipping self-comparison for {miner_commit.miner_hotkey} with {reference_commit.miner_hotkey} due to low similarity score {_similarity_score}"
-                    )
-                    continue
-
-                comparison_log = ComparisonLog(
-                    miner_input=reference_log.miner_input,
-                    miner_output=_miner_output,
-                    reference_output=_reference_output,
-                    reference_hotkey=reference_commit.miner_hotkey,
-                    reference_similarity_score=reference_commit.penalty,
-                    similarity_score=_similarity_score,
-                    reason=_similarity_reason,
-                )
-
-                miner_commit.comparison_logs[reference_commit.docker_hub_id].append(
-                    comparison_log
-                )
-
-            if (
-                reference_commit.docker_hub_id in miner_commit.comparison_logs
-                and not miner_commit.comparison_logs[reference_commit.docker_hub_id]
-            ):
-                bt.logging.info(
-                    f"[CONTROLLER] Removing empty comparison logs for {reference_commit.docker_hub_id} for miner."
-                )
-                del miner_commit.comparison_logs[reference_commit.docker_hub_id]
+        _compare_results = self._compare_outputs(miner_output=_miner_output)
+        self._fill_comparison_logs(
+            miner_commit,
+            _compare_results,
+        )
         self._compare_with_baseline(miner_commit)
         return
+
+    def _fill_comparison_logs(
+        self, miner_commit: MinerChallengeCommit, comparison_results: list[dict]
+    ):
+        """Fill comparison logs for miner commit."""
+        for _outputs in comparison_results:
+            _target_script = _outputs.get("target", "script_1")
+            _similarity_score = _outputs.get("similarity_score", 1.0)
+
+            if isinstance(_similarity_score, int):
+                _similarity_score = float(_similarity_score)
+            elif not isinstance(_similarity_score, float):
+                _similarity_score = 1.0
+            if _outputs.get("target_miner_uid", None) == miner_commit.miner_uid:
+                _similarity_score = min(
+                    _similarity_score, self.max_self_comparison_score
+                )
+            comparison_log = ComparisonLog(
+                similarity_score=_similarity_score,
+                reason=_outputs.get("reason", "Unknown"),
+            )
+            if f"{_target_script}" not in miner_commit.comparison_logs:
+                miner_commit.comparison_logs[f"{_target_script}"] = []
+
+            miner_commit.comparison_logs[f"{_target_script[25:]}"].append(
+                comparison_log
+            )
 
     def _validate_miner_submission(self, miner_commit: MinerChallengeCommit) -> bool:
         """
@@ -331,9 +300,7 @@ class Controller:
                 ),
             )
 
-    def _compare_outputs(
-        self, miner_input: dict, miner_output: dict, reference_output: dict
-    ) -> dict:
+    def _compare_outputs(self, miner_output: dict) -> dict:
         """
         Send comparison request to challenge container's /compare endpoint.
 
@@ -348,13 +315,12 @@ class Controller:
 
         try:
             payload = {
-                "challenge_name": self.challenge_info.get("challenge_type", None),
+                "challenge_type": self.challenge_info.get("challenge_type", None),
+                "challenge_name": self.challenge_info.get("name", None),
                 "miner_script": miner_output.get(
                     self.challenge_info.get("script_path_identifier", None), None
                 ),
-                "reference_script": reference_output.get(
-                    self.challenge_info.get("script_path_identifier", None), None
-                ),
+                "identifier": self.challenge_info.get("script_path_identifier", None),
             }
             headers = {
                 "Content-Type": "application/json",
@@ -370,17 +336,9 @@ class Controller:
             )
 
             response_data = response.json()
-            data = response_data.get("data", {})
-            similarity_score = data.get("similarity_score", 1.0)
-            similarity_reason = data.get("reason", "Unknown")
+            data = response_data.get("data", [])
 
-            # Normalize score to float between 0 and 1
-            if isinstance(similarity_score, int):
-                similarity_score = float(similarity_score)
-            elif not isinstance(similarity_score, float):
-                similarity_score = 1.0
-
-            return {"similarity_score": similarity_score, "reason": similarity_reason}
+            return data
 
         except Exception as e:
             bt.logging.error(f"Error in comparison request: {str(e)}")
