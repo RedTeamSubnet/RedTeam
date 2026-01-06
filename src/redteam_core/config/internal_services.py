@@ -11,7 +11,7 @@ class InternalServicesConfig(BaseConfig):
     Internal services configuration.
 
     Environment Variables:
-        RT_INS_API_KEY: API key for authentication (default: default_api_key)
+        RT_INS_KEY: API key for authentication (default: default_api_key)
         RT_INS_HTTP_SCHEME: HTTP scheme (default: https)
         RT_INS_HOST: API host (default: scoring-api.theredteam.io)
         RT_INS_PORT: API port (default: 443)

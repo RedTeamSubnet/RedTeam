@@ -185,10 +185,11 @@ class Controller:
         _miner_output = miner_commit.scoring_logs[0].miner_output.copy()
 
         _compare_results = self._compare_outputs(miner_output=_miner_output)
-        self._fill_comparison_logs(
-            miner_commit,
-            _compare_results,
-        )
+        if _compare_results:
+            self._fill_comparison_logs(
+                miner_commit,
+                _compare_results,
+            )
         self._compare_with_baseline(miner_commit)
         return
 
@@ -300,7 +301,7 @@ class Controller:
                 ),
             )
 
-    def _compare_outputs(self, miner_output: dict) -> dict:
+    def _compare_outputs(self, miner_output: dict) -> list[dict]:
         """
         Send comparison request to challenge container's /compare endpoint.
 
@@ -334,6 +335,9 @@ class Controller:
                 json=payload,
                 headers=headers,
             )
+            if response.status_code == 404:
+                bt.logging.warning(f"No accepted submission to compare against.")
+                return None
 
             response_data = response.json()
             data = response_data.get("data", [])
@@ -342,7 +346,13 @@ class Controller:
 
         except Exception as e:
             bt.logging.error(f"Error in comparison request: {str(e)}")
-            return {"similarity_score": 0.0, "reason": f"Error: {str(e)}"}
+            return [
+                {
+                    "target": "Error",
+                    "similarity_score": 0.0,
+                    "reason": f"Error: {str(e)}",
+                }
+            ]
 
     def _compare_with_baseline(self, miner_commit: MinerChallengeCommit):
         try:
