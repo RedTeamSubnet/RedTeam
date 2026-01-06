@@ -364,8 +364,9 @@ class Controller:
                 self.challenge_info.get("script_path_identifier", None), None
             )
             payload = {
-                "challenge_name": self.challenge_info.get("challenge_type", None),
+                "challenge_type": self.challenge_info.get("challenge_type", None),
                 "miner_script": _miner_submission_script,
+                "identifier": self.challenge_info.get("script_path_identifier", None),
             }
             headers = {
                 "Content-Type": "application/json",
