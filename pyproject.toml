@@ -39,14 +39,6 @@ classifiers = [
 ]
 dynamic = ["version", "dependencies", "optional-dependencies"]
 
-# [tool.setuptools]
-# package-dir = { "redteam_core" = "redteam_core", "neurons" = "neurons", "services" = "services" }
-
-# [tool.setuptools.packages.find]
-# where = ["src"]
-# include = ["redteam_core*"]
-# namespaces = false
-
 [tool.setuptools.dynamic]
 version = { attr = "redteam_core.__version__.__version__" }
 dependencies = { file = "./requirements.txt" }
@@ -62,43 +54,6 @@ dev = { file = [
 	"./requirements/requirements.docs.txt",
 	"./requirements/requirements.dev.txt",
 ] }
-
-# [tool.setuptools.package-data]
-# "neurons" = [
-# 	"**/*.yml",
-# 	"**/*.yaml",
-# 	"**/*.txt",
-# 	"**/*.whl",
-# 	"**/docker/*.sh",
-# 	"**/.dockerignore",
-# 	"**/Dockerfile*",
-# ]
-# "redteam_core" = [
-# 	"**/*.yml",
-# 	"**/*.yaml",
-# 	"**/*.txt",
-# 	"**/*.js",
-# 	"**/*.json",
-# 	"**/*.css",
-# 	"**/*.html",
-# 	"**/*.whl",
-# 	"**/docker/*.sh",
-# 	"**/.dockerignore",
-# 	"**/Dockerfile*",
-# ]
-# "services" = [
-# 	"**/*.yml",
-# 	"**/*.yaml",
-# 	"**/*.txt",
-# 	"**/*.whl",
-# 	"**/docker/*.sh",
-# 	"**/.dockerignore",
-# 	"**/Dockerfile*",
-# ]
-
-# [tool.pyright]
-# venvPath = "."
-# venv = ".venv"
 
 [project.urls]
 Homepage = "https://github.com/RedTeamSubnet/RedTeam"

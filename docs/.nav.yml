@@ -1,8 +1,10 @@
 nav:
   - Home: README.md
-  # - Getting Started: getting-started/
-  - "*"
-  # - API Documentation: api-docs/
+  - Miner: miner/
+  - Validator: validator/
+  - Challenges: challenges/
+  - Guides: guides/
+  # - "*"
   - Development: dev/
   - Release Notes: release-notes.md
   - About: about/

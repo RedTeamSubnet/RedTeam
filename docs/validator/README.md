@@ -1,10 +1,8 @@
 ---
-hide:
-  - navigation
-#   - toc
+title: Validator
 ---
 
-# Validator Setup
+# Validator
 
 ## Minimum System Requirements
 
@@ -12,12 +10,12 @@ hide:
     Below is the minimum system requirements for running a validator node on the RedTeam Subnet:
 
     - Bare Metal Server
-    - GPU with 24-GB VRAM
-    - Ubuntu 22.04 LTS
-    - NVIDIA Driver
+    - 8-Core CPU
     - 32-GB RAM
     - 512-GB Storage
-    - 8-Core CPU
+    - Ubuntu 22.04 LTS or later
+    - [Optional] NVIDIA GPU 16GB VRAM or higher
+    - [Optional] NVIDIA Driver (>= v452.39)
 
 ## Setup Instructions
 

@@ -1,4 +1,4 @@
-site_name: RedTeam Subnet - Core
+site_name: RedTeam Subnet - Docs
 site_description: "The RedTeam subnet by Innerworks is a decentralized platform designed to drive innovation in cybersecurity through competitive programming challenges."
 site_url: https://docs.theredteam.io
 repo_name: RedTeamSubnet/RedTeam
@@ -99,14 +99,18 @@ extra:
   social:
     - icon: fontawesome/solid/globe
       link: https://theredteam.io
-    #  - icon: fontawesome/solid/blog
-    #     link: https://blog.theredteam.io
+    - icon: fontawesome/solid/blog
+      link: https://blog.theredteam.io
+    - icon: fontawesome/solid/chart-line
+      link: https://dashboard.theredteam.io
+    - icon: fontawesome/brands/discord
+      link: https://discord.com/channels/799672011265015819/1319313447435108413
     - icon: fontawesome/brands/github
       link: https://github.com/RedTeamSubnet
-    - icon: fontawesome/brands/docker
-      link: https://hub.docker.com/u/redteamsubnet61
-    - icon: fontawesome/brands/x-twitter
-      link: https://x.com/_redteam_
     - icon: fontawesome/brands/medium
       link: https://medium.com/@TheRedTeam
-copyright: Copyright &copy; 2025 - RedTeam Subnet.
+    - icon: fontawesome/brands/x-twitter
+      link: https://x.com/_redteam_
+    - icon: fontawesome/brands/docker
+      link: https://hub.docker.com/u/redteamsubnet61
+copyright: Copyright &copy; 2026 - RedTeam Subnet.
