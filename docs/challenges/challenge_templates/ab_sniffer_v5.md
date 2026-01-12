@@ -13,7 +13,7 @@ Participants must demonstrate precise detection capabilities across multiple aut
 
 ## Example Code and Submission Instructions
 
-Example codes for AB Sniffer v5 can be found in the [`redteam_core/miner/commits/ab_sniffer_v5/`](https://github.com/RedTeamSubnet/RedTeam/blob/main/redteam_core/miner/commits/ab_sniffer_v5/) directory.
+Example codes for AB Sniffer v5 can be found in the [`examples`](https://github.com/RedTeamSubnet/miner/tree/main/examples) directory.
 
 ### Technical Requirements
 
@@ -24,7 +24,7 @@ Example codes for AB Sniffer v5 can be found in the [`redteam_core/miner/commits
 
 ### Mandatory Requirements
 
-1. Use the templates provided in the [`redteam_core/miner/commits/ab_sniffer_v5/src/detections/`](https://github.com/RedTeamSubnet/RedTeam/blob/main/redteam_core/miner/commits/ab_sniffer_v5/src/detections/) directory for each framework.
+1. Use the templates provided in the [`examples/ab_sniffer_v5/src/detections/`](https://github.com/RedTeamSubnet/miner/tree/main/examples/ab_sniffer_v5/src/detections) directory for each framework.
 2. Implement the detection logic within the individual files found in the `src/detections/` directory. **Do not** change the function names (e.g., `detect_nodriver`, `detect_botasaurus`).
 3. Your detection functions must:
    - Return a **boolean** value: `true` if the specific framework for that file is detected, and `false` otherwise.
@@ -98,60 +98,9 @@ We maintain strict originality standards:
 
 Before submitting, you **must** ensure your code passes our ESLint configuration. You can do this by using our provided playground environment on [Replit](https://replit.com/@redteamsn61/absnifferv1eslintcheck#README.md). Submissions that do not pass the linting check will be rejected.
 
-## Submission Guide
+### Final Step
 
-Follow 1~6 steps to submit your SDK.
-
-1. **Navigate to the AB Sniffer v5 Commit Directory**
-
-    ```bash
-    cd redteam_core/miner/commits/ab_sniffer_v5
-    ```
-
-2. **Build the Docker Image**
-
-    To build the Docker image for the AB Sniffer v5 submission, run:
-
-    ```bash
-    docker build -t my_hub/ab_sniffer_v5-miner:0.0.1 .
-
-    # For MacOS (Apple Silicon) to build AMD64:
-    DOCKER_BUILDKIT=1 docker build --platform linux/amd64 -t myhub/ab_sniffer_v5-miner:0.0.1 .
-    ```
-
-3. **Log in to Docker**
-
-    Log in to your Docker Hub account using the following command:
-
-    ```bash
-    docker login
-    ```
-
-    Enter your Docker Hub credentials when prompted.
-
-4. **Push the Docker Image**
-
-    Push the tagged image to your Docker Hub repository:
-
-    ```bash
-    docker push myhub/ab_sniffer_v5:0.0.1
-    ```
-
-5. **Retrieve the SHA256 Digest**
-
-    After pushing the image, retrieve the digest by running:
-
-    ```bash
-    docker inspect --format='{{index .RepoDigests 0}}' myhub/ab_sniffer_v5:0.0.1
-    ```
-
-6. **Update active_commit.yaml**
-
-    Finally, go to the `neurons/miner/active_commit.yaml` file and update it with the new image tag:
-
-    ```yaml
-    - ab_sniffer_v5---myhub/ab_sniffer_v5@<sha256:digest>
-    ```
+After completing your implementation, follow the [Building a Submission Commit](../../guides/building-commit.md) guide to package and submit your solution.
 
 ---
 
