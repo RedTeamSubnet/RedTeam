@@ -21,8 +21,8 @@ theme:
     - navigation.tabs
     - navigation.top
     - navigation.footer
+    - navigation.sections
     # - navigation.tabs.sticky
-    # - navigation.sections
     # - navigation.expand
     # - navigation.instant
     - toc.follow

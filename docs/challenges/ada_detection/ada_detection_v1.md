@@ -12,6 +12,7 @@ For general challenge information, environment details, and plagiarism policies,
 
 Participants must submit **one detection script per framework**:
 
+* `automation`
 * `nodriver`
 * `playwright`
 * `patchright`
@@ -21,7 +22,15 @@ Missing scripts invalidate the submission.
 
 ---
 
-## 6. Submission Format
+## 6. Payload-Based Detection Flow
+
+ADA v1 uses a runtime, payload-driven model:
+
+1. Scripts run in-page and confirm automation behavior.
+2. On confirmation, send a payload to local `/_payload`.
+3. Silence is mandatory during human interactions; any payload in a human session is a critical mistake.
+
+## 7. Submission Format
 
 Submissions must follow this structure:
 
@@ -45,11 +54,11 @@ Submissions must follow this structure:
 
 ---
 
-## 7. Scoring System (Code-Accurate)
+## 8. Scoring System (Code-Accurate)
 
 AAD scoring is continuous, normalized, and strict, combining three main components before being normalized into a final score.
 
-* **Human Accuracy:** This is the most critical component. Your submission must not flag real human users as bots or automation. You are allowed a maximum of 2 mistakes; exceeding this limit results in an immediate **final score of 0.0**. For scoring, you start with 1.0 point, and each mistake reduces this component by 0.1.
+* **Human Accuracy:** This is the most critical component. Your submission must not flag real human users as bots or automation. You are allowed a maximum of 2 mistakes; exceeding this limit results in an immediate **final score of 0.0** (human safety kill switch). For scoring, you start with 1.0 point, and each mistake reduces this component by 0.1.
 
 **Automation Accuracy:** This will be determined by the output of `automation.js`. It will be marked as correct when it is false in human evaluation and true in any automation frameworks. Accuracy is determined by dividing the number of correct automation detections by the total session numbers.
 
@@ -57,6 +66,11 @@ AAD scoring is continuous, normalized, and strict, combining three main componen
 
 Finally, all the points are summed and normalized to produce your final score between 0.0 and 1.0 using the formula:
 `Final Score = (Human Accuracy Score + Automation Score + Framework Points) / (Number of Frameworks + 1 Human + 1 Automation)`
+
+### Similarity & Time Decay
+
+* **Similarity check:** Submissions are compared against historical solutions; high similarity incurs penalties.
+* **Score decay:** Scores decay over 15 days to incentivize refreshed heuristics.
 
 ## 9. Example
 

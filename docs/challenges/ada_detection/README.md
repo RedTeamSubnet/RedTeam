@@ -17,6 +17,15 @@ Each evaluation run involves:
 !!! Info "NST-Browser Dependency"
     Participants need an API key from the [NSTBrowser](https://www.nstbrowser.io/en/pricing) dashboard (Professional plan recommended) for local testing.
 
+## Features of ADA Detection v1
+
+- **Behavior-first detection**: Focus on runtime behavioral analysis inside NST-Browser; static driver fingerprints are spoofed.
+- **Payload-based flow**: Detection scripts run in-page, send payloads to local `/_payload` when automation is confirmed, and must stay silent during human sessions.
+- **Human safety gate**: Random human interactions are injected; flagging more than 2 humans as bots zeros the submission.
+- **Target coverage update**: Required detectors include `automation`, `nodriver`, `playwright`, `patchright`, and `puppeteer`.
+- **Fresh profiles, no state**: Each run uses a fresh profile with zero shared state between runs.
+- **Similarity/time decay**: Similarity penalties apply to lookalike submissions; scores decay over 15 days to encourage refreshed heuristics.
+
 ## Evaluation Flow
 
 1. **Submission Received**: Detection scripts are submitted via the `/score` endpoint.
