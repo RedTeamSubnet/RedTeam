@@ -28,24 +28,17 @@ class StorageManager:
         validator_request_header_fn: Callable[
             [Union[bytes, str, dict, BaseModel]], str
         ],
-        hf_repo_id: str,
         sync_on_init=True,
-        squash_hf_repo_on_init=True,
     ):
         """
         Manages local cache, Hugging Face Hub storage, and centralized storage.
 
         Args:
             cache_dir (str): Path to the local cache directory.
-            hf_repo_id (str): ID of the Hugging Face Hub repository.
             sync_on_init (bool): Whether to sync data from the Hub to the local cache during initialization.
         """
         self.active_challenges = challenge_pool.ACTIVE_CHALLENGES
         self.validator_request_header_fn = validator_request_header_fn
-
-        # Decentralized storage on Hugging Face Hub
-        self.hf_repo_id = hf_repo_id
-        self.update_repo_id()
 
         # Local cache with disk cache
         os.makedirs(cache_dir, exist_ok=True)
@@ -323,29 +316,6 @@ class StorageManager:
         bt.logging.success(
             f"[STORAGE] Validator state successfully updated in all storages with key {validator_state_key}"
         )
-
-    def update_repo_id(self):
-        """
-        Updates repository ID to the centralized storage.
-        """
-        data = {"hf_repo_id": self.hf_repo_id}
-        try:
-            _base_url_path = str(constants.STORAGE_API_URL).rstrip("/")
-            response = requests.post(
-                url=f"{_base_url_path}/upload-hf-repo-id",
-                headers=self.validator_request_header_fn(data),
-                json=data,
-                timeout=60,
-            )
-            response.raise_for_status()
-            bt.logging.info(
-                "[STORAGE] Successfully updated repo_id in centralized storage"
-            )
-        except Exception as e:
-            bt.logging.error(
-                f"[STORAGE] Error updating repo_id to centralized storage: {e}"
-            )
-            raise
 
     # MARK: Helper Methods
     def hash_cache_key(self, cache_key: str) -> str:
