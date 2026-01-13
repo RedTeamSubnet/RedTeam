@@ -28,9 +28,32 @@ We maintain strict originality standards:
 - 100% similarity = zero score.
 - Similarity above 60% results in rejection of the submission.
 
-## Submission
+## Submission Path
 
-For instructions on how to build and push your submission, please refer to the [Building a Submission Commit](../../guides/building-commit.md) guide.
+**Dedicated Path:** [examples/humanize_behaviour_v5/src/bot/](https://github.com/RedTeamSubnet/miner/tree/main/examples/humanize_behaviour_v5/src/bot/)
+
+Place your bot script in this directory before building your commit:
+
+- `bot.py` - Your main bot implementation
+
+Ensure your bot script follows the template structure and keeps the `run_bot()` function signature unchanged.
+
+## Challenge Versions
+
+**Current:**
+
+- [**v5** (Active after Sep 04, 2025 10:00 UTC)](./v5.md) - Dynamic movements with human-in-the-loop & bezier curve detection
+
+**Deprecated:**
+
+- [v3 (April 11, 2025)](./depricated/v3.md)
+- [v2 (March 18, 2025)](./depricated/v2.md)
+- [v1 (Feb 12, 2025)](./depricated/v1.md)
+
+## Resources & Guides
+
+- [Testing Manual](./testing_manuals.md) - Local testing guidelines for bot scripts
+- [Building a Submission Commit](../../guides/building-commit.md) - General submission instructions
 
 ## 📑 References
 

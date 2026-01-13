@@ -27,9 +27,39 @@ We maintain strict originality standards:
 - 100% similarity = zero score.
 - Similarity above 60% will result in rejection of the submission.
 
-## Submission
+## Submission Path
 
-For general instructions on how to build and push your submission, please refer to the [Building a Submission Commit](../../guides/building-commit.md) guide.
+**Dedicated Path:** [examples/ab_sniffer_v5/src/detections/](https://github.com/RedTeamSubnet/miner/tree/main/examples/ab_sniffer_v5/src/detections/)
+
+Place your detection module files in this directory before building your commit:
+
+- `nodriver.js`
+- `seleniumbase.js`
+- `selenium-driverless.js`
+- `patchright.js`
+- `puppeteerextra.js`
+- `zendriver.js`
+- `botasaurus.js`
+- `pydoll.js`
+
+## Challenge Versions
+
+**Current:**
+
+- [**v5** (Active after Dec 02, 2025 10:00 UTC)](./v5.md) - Modular detection with human-in-the-loop
+
+**Deprecated:**
+
+- [v4 (Oct 16, 2025)](./depricated/v4.md)
+- [v2 (July 15, 2025)](./depricated/v2.md)
+- [v1 (June 10, 2025)](./depricated/v1.md)
+
+## Resources & Guides
+
+- [Building a Submission Commit](../../guides/building-commit.md) - General submission instructions
+- [ESLint Configuration Check](https://replit.com/@redteamsn61/absnifferv1eslintcheck#README.md) - Pre-submission validation on Replit
+- [Challenge Repository](https://github.com/RedTeamSubnet/ab-sniffer-challenge/)
+- [Miner Repository](https://github.com/RedTeamSubnet/miner/)
 
 ## 📑 References
 

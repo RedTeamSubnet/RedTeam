@@ -50,9 +50,36 @@ We maintain strict originality standards:
 - 100% similarity = zero score.
 - Similarity above 60% results in proportional score penalties based on the **detected similarity percentage**.
 
-## Submission
+## Submission Path
 
-For general instructions on how to build and push your submission, please refer to the [Building a Submission Commit](../../guides/building-commit.md) guide.
+**Dedicated Path:** [examples/ada_detection_v1/src/detections/](https://github.com/RedTeamSubnet/miner/tree/main/examples/ada_detection_v1/src/detections/)
+
+Submit your detection scripts as a JSON payload with the following structure:
+
+```json
+{
+  "detection_files": [
+    { "file_name": "automation.js", "content": "..." },
+    { "file_name": "nodriver.js", "content": "..." },
+    { "file_name": "playwright.js", "content": "..." },
+    { "file_name": "patchright.js", "content": "..." },
+    { "file_name": "puppeteer.js", "content": "..." }
+  ]
+}
+```
+
+Each file must be named exactly as shown and contain self-contained JavaScript (ES6+) detection logic.
+
+## Challenge Versions
+
+- [**v1** (Active after Dec 15, 2025 10:00 UTC)](./ada_detection_v1.md) - Payload-based detection with human safety gate
+
+## Resources & Guides
+
+- [Building a Submission Commit](../../guides/building-commit.md) - General submission instructions
+- [NSTBrowser Official](https://www.nstbrowser.io/en/pricing) - Professional plan required for local testing
+- [Challenge Repository](https://github.com/RedTeamSubnet/ada-detection-challenge/)
+- [Miner Repository](https://github.com/RedTeamSubnet/miner/)
 
 ## 📑 References
 
