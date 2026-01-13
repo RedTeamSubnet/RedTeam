@@ -1,6 +1,8 @@
 nav:
   - README.md
-  - ab_sniffer : ./ab_sniffer
-  - ada_detection : ./ada_detection
-  - humanize_behaviour : ./humanize_behaviour
-  - "dev_fingerprinter [inactive]" : ./dev_fingerprinter
+  - Active Challenges:
+    -   ab_sniffer : ./ab_sniffer
+    -   ada_detection : ./ada_detection
+    -   humanize_behaviour : ./humanize_behaviour
+  - Inactive Challenges:
+    -   dev_fingerprinter : ./dev_fingerprinter
