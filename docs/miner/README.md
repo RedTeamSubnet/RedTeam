@@ -6,6 +6,8 @@ title: Miner
 
 ## Overview
 
+...
+
 ## Miner Workflow
 
 ### 1. Preparation
@@ -49,4 +51,6 @@ title: Miner
 - Stay updated for future challenges and latest updates from RedTeam Subnet
 - Repeat the process for new challenges and get more incentives
 
-## Incentives mechanism
+## Incentive mechanism
+
+...

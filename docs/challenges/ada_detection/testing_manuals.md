@@ -4,11 +4,11 @@ title: Testing Manual
 
 # Anti-Detect Automation Detection Testing Manual
 
-This manual provides instructions for testing the Anti-Detect Automation Detection using Docker.
+This manual provides instructions for testing the Anti-Detect Automation Detection challenge using Docker and Docker Compose.
 
 ## Overview
 
-- Tests all detection  scripts' ability to detect automation frameworks
+- Tests all detection scripts' ability to detect automation frameworks
 - Uses Docker for easy submission and testing
 
 ## Quick Start Guide
@@ -29,7 +29,7 @@ cd ada_detection
 
 - Paste all of your scripts for detection into **detections** folder with matching names.
 
-### Step 2: Prepare Setup
+### Step 2: Update Configuration Files
 
 ```bash
 cp .env.example .env

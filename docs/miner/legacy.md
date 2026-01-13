@@ -1,8 +1,8 @@
 ---
-title: Old Miner
+title: Legacy Miner
 ---
 
-# Old Miner
+# Legacy Miner
 
 !!! warning "System Requirements"
     Below is the minimum system requirements for running a miner node on the RedTeam Subnet:
