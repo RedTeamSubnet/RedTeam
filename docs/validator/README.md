@@ -4,168 +4,191 @@ title: Validator
 
 # Validator
 
+Welcome to the RedTeam Subnet Validator documentation. This guide will help you understand what validators do and how to run one on the RedTeam network.
+
+!!! info "Main Validator Repository"
+    The official validator repository with complete setup instructions is available at
+
+    **[RedTeam Subnet Validator Repository →](https://github.com/RedTeamSubnet/validator)**
+    
+    This is the primary resource for running a validator node with all necessary documentation, configuration examples, and deployment scripts.
+
+---
+
+## What is a Validator?
+
+Validators are essential participants in the RedTeam Subnet that:
+
+- **Evaluate miners** - Send challenges to miners and assess their responses
+- **Assign scores** - Rate miner performance based on quality metrics
+- **Maintain consensus** - Work with other validators to ensure network integrity
+- **Earn rewards** - Receive TAO emissions proportional to stake and performance
+
+## Prerequisites
+
+Before you begin, ensure you have:
+
+- ✅ A registered Bittensor wallet with sufficient TAO staked
+- ✅ Validator wallet registered on the RedTeam subnet
+- ✅ A system meeting the [minimum requirements](#minimum-system-requirements)
+- ✅ Basic knowledge of Docker or PM2 process management
+
+---
+
 ## Minimum System Requirements
 
 !!! warning "System Requirements"
-    Below is the minimum system requirements for running a validator node on the RedTeam Subnet:
+    Below are the minimum system requirements for running a validator node:
 
-    - Bare Metal Server
-    - 8-Core CPU
-    - 32-GB RAM
-    - 512-GB Storage
-    - Ubuntu 22.04 LTS or later
-    - [Optional] NVIDIA GPU 16GB VRAM or higher
-    - [Optional] NVIDIA Driver (>= v452.39)
+    - **Server Type**: Bare Metal Server
+    - **CPU**: 8-Core CPU
+    - **RAM**: 32 GB
+    - **Storage**: 512 GB
+    - **OS**: Ubuntu 22.04 LTS or later
+    - **GPU** (Optional): NVIDIA GPU with 16GB VRAM or higher
+    - **Driver** (Optional): NVIDIA Driver (>= v452.39)
 
-## Setup Instructions
+---
 
-To set up a validator node on the RedTeam Subnet, follow these steps:
+## Deployment Options
 
-1. Prerequisites
+The RedTeam Subnet supports two primary methods for running validator nodes:
 
-    - Install **Python (>= v3.10)** and **pip (>= 23)**:
-        - **[RECOMMENDED]  [Miniconda (v3)](https://www.anaconda.com/docs/getting-started/miniconda/install)**
-        - *[arm64/aarch64]  [Miniforge (v3)](https://github.com/conda-forge/miniforge)*
-        - *[Python virutal environment]  [venv](https://docs.python.org/3/library/venv.html)*
+### 🐳 Docker Compose (Production - Recommended)
 
-2. Install the latest version of the RedTeam Subnet repository.
+Docker Compose is the recommended method for production deployments. It provides isolation, automated updates, and easier management.
 
-    ```sh
-    # Clone the repository
-    git clone https://github.com/RedTeamSubnet/RedTeam && cd RedTeam
+**For complete setup instructions and advanced configuration, see:**
 
-    # Create and activate a virtual environment
-    python -m venv .venv
-    source .venv/bin/activate
+**[→ Validator Repository README](https://github.com/RedTeamSubnet/validator/blob/main/README.md)**
 
-    # Install the dependencies
-    pip install -e .
-    ```
+---
 
-3. Install Docker Engine (guide from official Docker documentation):
+### ⚡ PM2 Process Manager (Development/Advanced)
 
-    For **Ubuntu**: <https://docs.docker.com/engine/install/ubuntu>
+PM2 is suitable for development, testing, or when you need direct access to the Python environment with custom configurations.
 
-    ```sh
-    # Uninstall old versions:
-    for pkg in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do sudo apt-get remove $pkg; done
+!!! warning "Not Recommended"
+    Running a validator with PM2 is not recommended due to limited isolation and absence of auto updater which risks validator to lost VTrust.
 
-    # Add Docker's official GPG key:
-    sudo apt-get update
-    sudo apt-get install ca-certificates curl
-    sudo install -m 0755 -d /etc/apt/keyrings
-    sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-    sudo chmod a+r /etc/apt/keyrings/docker.asc
+**Quick Start:**
 
-    # Add the repository to Apt sources:
-    echo \
-    "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
-    $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}") stable" | \
-    sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-    sudo apt-get update
+```sh
+# Clone the validator repository
+git clone https://github.com/RedTeamSubnet/validator
+cd validator
 
-    # Install docker engine, CLI, containerd, buildx, and compose:
-    sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-    ```
+# Copy and configure PM2 settings
+cp pm2-process.json.example pm2-process.json
+nano pm2-process.json  # Edit with your wallet details
 
-    To verify the installation, run:
+# Run the setup script
+./scripts/run.sh
+```
 
-    ```sh
-    sudo docker run hello-world
-    ```
+**For complete PM2 setup instructions and configuration options, see:**
 
-    Post-installation steps: <https://docs.docker.com/engine/install/linux-postinstall>
+**[→ Validator Repository](https://github.com/RedTeamSubnet/validator)**
 
-    ```sh
-    # Enable docker service and containerd service to start on boot:
-    sudo systemctl enable docker.service
-    sudo systemctl enable containerd.service
+---
 
-    # Add docker group:
-    sudo groupadd docker
+## Quick Comparison
 
-    # Add your user to the docker group:
-    sudo usermod -aG docker ${USER}
+| Feature | Docker Compose | PM2 |
+|---------|---|---|
+| Recommended for | Production | Development/Custom |
+| Setup Complexity | Simple | Moderate |
+| Isolation | ✅ Yes | ❌ No |
+| Auto-Update | ✅ Yes | ❌ No |
+| Auto-restart | ✅ Yes | ✅ Yes |
+| Log Management | ✅ Automatic | Manual |
+| Monitoring | ✅ Built-in | ✅ PM2 native |
+| Resource Limits | ✅ Yes | Limited |
 
-    # Activate the changes to current user session:
-    newgrp docker
-    # Or restart your system to apply the changes:
-    sudo shutdown -r now
+---
 
-    # Verify that you can run docker commands without sudo:
-    docker run hello-world
+## Getting Started
 
-    # Check docker info and version:
-    docker version
-    docker info
-    ```
+### Step 1: Prepare Your Wallet
 
-4. Install PM2 Process Manager
+!!! info "Skip if you already have a validator wallet"
+    If you already have a validator wallet with sufficient stake on the RedTeam subnet, you can proceed to Step 2.
 
-    - NVM (Node Version Manager): <https://github.com/nvm-sh/nvm>
-    - Node.js and npm: <https://nodejs.org/en/download>
-    - PM2 (Process Manager): <https://pm2.io/docs/runtime/guide/installation>
+- Install **Bittensor CLI** (`btcli`):
+    - [Installing Bittensor CLI](https://docs.learnbittensor.org/getting-started/install-btcli)
+- Create validator wallet:
+    - [Working with Keys](https://docs.learnbittensor.org/keys/working-with-keys)
+- Stake TAO with your validator wallet:
+    - [Staker's Guide to BTCLI](https://docs.learnbittensor.org/staking-and-delegation/stakers-btcli-guide)
+- Register to RedTeam subnet:
+    - [Validator's Guide to BTCLI](https://docs.learnbittensor.org/validators/validators-btcli-guide)
 
-    ```sh
-    # Install NVM (Node Version Manager):
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.2/install.sh | bash
+### Step 2: Choose Your Deployment Method
 
-    # Activate NVM:
-    source ~/.bashrc
+=== "Docker Compose (Recommended)"
 
-    # Check NVM version:
-    nvm --version
+    1. Visit the [Validator Repository](https://github.com/RedTeamSubnet/validator)
+    2. Follow the setup instructions in the README
+    3. Configure `.env` with your wallet details
+    4. Run: `./compose.sh start -l`
 
-    # Install Node.js and npm:
-    nvm install --latest-npm --alias=default [NODE_VERSION]
-    # For example:
-    nvm install --latest-npm --alias=default 22.14.0
+=== "PM2"
 
-    # Set the default Node.js:
-    nvm use default
+    1. Clone validator repository: `git clone https://github.com/RedTeamSubnet/validator`
+    2. Configure PM2: `cp pm2-process.json.example pm2-process.json && nano pm2-process.json`
+    3. Run setup script: `./scripts/run.sh`
+    4. For detailed instructions, see [Validator Repository](https://github.com/RedTeamSubnet/validator)
 
-    # Check Node.js and npm versions:
-    node --version
-    npm --version
+### Step 3: Monitor Your Validator
 
-    # Install PM2 globally with logrotate:
-    npm install -g pm2
-    pm2 install pm2-logrotate
+Once running, monitor your validator's performance:
 
-    # Check PM2 version:
-    pm2 --version
-    ```
+```sh
+# Docker Compose
+docker compose logs -f
 
-5. Login to Hugging Face Hub
+# PM2
+pm2 logs validator_sn61
+```
 
-    !!! info "Authentication Required"
-        Authenticate your Hugging Face Hub account. Run the following command to log in:
+Check your validator's performance and VTRUST score on the network.
 
-        ```sh
-        huggingface-cli login
-        ```
+---
 
-        You will be prompted to enter your Hugging Face access token. Visit [Hugging Face Access Tokens](https://huggingface.co/settings/tokens) to generate one if you don't have it already.
+## Key Resources
 
-6. Start the validator node:
+- **[Main Validator Repository](https://github.com/RedTeamSubnet/validator)** - Official setup and deployment
+- **[RedTeam Documentation](https://docs.theredteam.io)** - Network and subnet information
+- **[Bittensor Documentation](https://docs.learnbittensor.org)** - General Bittensor knowledge
+- **[Bittensor CLI Guide](https://docs.learnbittensor.org/btcli)** - Wallet and network commands
 
-    ```sh
-    # Activate the virtual environment if not already activated
-    source .venv/bin/activate
+---
 
-    # Start the validator process
-    pm2 start python --name "validator_snxxx" \
-        -- -m neurons.validator.validator \
-        --netuid xxx \
-        --wallet.name "wallet_name" \
-        --wallet.hotkey "wallet_hotkey" \
-        --subtensor.network <network> \ # default is finney
-        --validator.cache_dir "./.cache/" \ # Your local cache dir for miners commits.
-        --validator.hf_repo_id "my_username/my_repo" \ # Your HF repo ID for storing miners' commits. You need to create your own repo; recommend creating a new HF account
-        --validator.use_centralized_scoring \ # Optional: Recommended for high VTRUST, opt-in to get scores of challenges from a centralized server
-    ```
+## Important Notes
 
-    Optional flags:
+!!! info "Configuration"
+    All configuration for running validators should be done through the official **[Validator Repository](https://github.com/RedTeamSubnet/validator)**, which provides:
 
-    - `--logging.trace` - Enable trace logging
-    - `--logging.debug` - Enable debug logging
+    - Complete setup instructions
+    - Configuration examples
+    - Maintenance guidelines
+    - Troubleshooting documentation
+
+---
+
+## Troubleshooting & Support
+
+- 📖 Check the [Validator Repository](https://github.com/RedTeamSubnet/validator) for deployment issues
+- 💬 Join the [RedTeam Discord](https://discord.gg/redteam) community for support
+- 📚 Review [Bittensor Documentation](https://docs.learnbittensor.org) for wallet and network issues
+- 🔧 Check system logs for configuration problems
+
+---
+
+## Next Steps
+
+1. **Prepare your wallet** - Register on RedTeam subnet with sufficient stake
+2. **Choose deployment method** - Docker Compose for production or PM2 for development
+3. **Follow setup instructions** - Use the [Validator Repository README](https://github.com/RedTeamSubnet/validator/blob/main/README.md)
+4. **Monitor performance** - Track your validator's VTRUST score and earnings
+5. **Stay updated** - Keep your validator updated with the latest versions
