@@ -1,0 +1,82 @@
+---
+title: Anti-Detect Automation Detection
+---
+
+# Anti-Detect Automation Detection v1 (Active after 2025 December 15 10:00 UTC)
+
+For general challenge information, environment details, and plagiarism policies, please refer to the [AAD README](./README.md).
+
+---
+
+## 5. Target Frameworks
+
+Participants must submit **one detection script per framework**:
+
+* `nodriver`
+* `playwright`
+* `patchright`
+* `puppeteer`
+
+Missing scripts invalidate the submission.
+
+---
+
+## 6. Submission Format
+
+Submissions must follow this structure:
+
+```json
+{
+  "detection_files": [
+    { "file_name": "nodriver.js", "content": "/* logic */" },
+    { "file_name": "playwright.js", "content": "/* logic */" },
+    { "file_name": "patchright.js", "content": "/* logic */" },
+    { "file_name": "puppeteer.js", "content": "/* logic */" },
+    { "file_name": "automation.js", "content": "/* logic */" },
+  ]
+}
+```
+
+### Rules
+
+* File names must match framework names exactly
+* Each file detects **only its own framework**
+* No extra files or outputs are allowed
+
+---
+
+## 7. Scoring System (Code-Accurate)
+
+AAD scoring is continuous, normalized, and strict, combining three main components before being normalized into a final score.
+
+* **Human Accuracy:** This is the most critical component. Your submission must not flag real human users as bots or automation. You are allowed a maximum of 2 mistakes; exceeding this limit results in an immediate **final score of 0.0**. For scoring, you start with 1.0 point, and each mistake reduces this component by 0.1.
+
+**Automation Accuracy:** This will be determined by the output of `automation.js`. It will be marked as correct when it is false in human evaluation and true in any automation frameworks. Accuracy is determined by dividing the number of correct automation detections by the total session numbers.
+
+* **Framework Detection:** Your submission earns points for correctly identifying the specific automation framework being used. For each framework, you are tested multiple times. You only earn **1 full point** for a framework if you detect it perfectly in **all of its runs**. A single missed detection or a collision (reporting more than one framework) for a given framework will result in **0 points** for that framework.
+
+Finally, all the points are summed and normalized to produce your final score between 0.0 and 1.0 using the formula:
+`Final Score = (Human Accuracy Score + Automation Score + Framework Points) / (Number of Frameworks + 1 Human + 1 Automation)`
+
+## 9. Example
+
+Assume:
+
+* 4 frameworks
+* Perfect human accuracy → 1.0
+* Automation accuracy → 0.9
+* 2 frameworks detected perfectly → 2.0 points
+
+```math
+Final Score = (1.0 + 0.9 + 2.0) / (4 + 1 + 1)
+            = 3.9 / 6
+            = 0.65
+```
+
+Any excessive human misclassification would reduce this to **0.0**.
+
+---
+
+## Submission Guide
+
+To build and submit your solution, please follow the [Building a Submission Commit](../../guides/building-commit.md) guide.
