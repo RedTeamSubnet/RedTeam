@@ -12,13 +12,13 @@ title: Miner
 
 ### 1. Preparation
 
-- Check minimum system requirements
+- Check system requirements
 - Install prerequisites
 - Set up your workspace environment
-- Install runtimes and dependencies
 
 ### 2. Setup Bittensor Wallet
 
+- Install Bittensor CLI
 - Create your Bittensor wallet
 - Fund your wallet with TAO tokens
 - Register as a miner on RedTeam Subnet 61

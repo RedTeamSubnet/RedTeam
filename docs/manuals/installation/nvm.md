@@ -15,22 +15,9 @@ tags: [nvm, node, node.js, npm, js, javascript, linux, macos]
 
 ## Install on **Linux** or **macOS**
 
-### 1. Prerequisites
+### 1. Download and install **NVM**
 
-Install `curl`, if not already installed:
-
-```sh
-# For Debian/Ubuntu-based systems:
-sudo apt-get update
-sudo apt-get install -y curl
-
-# For macOS using Homebrew:
-brew install curl
-```
-
-### 2. Download and install **NVM**
-
-#### 2.1 Prepare the runtime directory for NVM
+#### 1.1 Prepare the runtime directory for NVM
 
 ```sh
 # Create runtime directory for NVM:
@@ -40,7 +27,7 @@ mkdir -vp ~/workspaces/runtimes/.nvm
 export NVM_DIR="${HOME}/workspaces/runtimes/.nvm"
 ```
 
-#### 2.2 Install NVM
+#### 1.2 Install NVM
 
 ```sh
 # Get the latest release version of NVM:
@@ -56,16 +43,16 @@ source ~/.bashrc
 source ~/.zshrc
 ```
 
-#### 2.3 Verify NVM installation
+#### 1.3 Verify NVM installation
 
 ```sh
 # Check installed NVM version:
 nvm --version
 ```
 
-### 3. Install **Node.js** and **NPM**
+### 2. Install **Node.js** and **NPM**
 
-#### 3.1 Create a new Node.js environment
+#### 2.1 Create a new Node.js environment
 
 ```sh
 # Install Node.js, update NPM to latest, and set environment name to `default` (change node.js version as needed):
@@ -78,7 +65,7 @@ nvm use default
 nvm cache clear
 ```
 
-#### 3.2 Verify Node.js and NPM installation
+#### 2.2 Verify Node.js and NPM installation
 
 ```sh
 # Check installed Node.js and NPM version:
