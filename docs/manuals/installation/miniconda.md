@@ -9,7 +9,7 @@ tags: [conda, miniconda, python, pip, linux, macos, installation]
 
 ## Official Pages
 
-- Miniconda: <https://www.anaconda.com/docs/getting-started/miniconda/install>
+- **Miniconda**: <https://www.anaconda.com/docs/getting-started/miniconda/install>
 - Quickstart install: <https://www.anaconda.com/docs/getting-started/miniconda/install#quickstart-install-instructions>
     - Linux: <https://www.anaconda.com/docs/getting-started/miniconda/install#linux-2>
     - macOS: <https://www.anaconda.com/docs/getting-started/miniconda/install#macos-2>

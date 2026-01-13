@@ -3,7 +3,7 @@ nav:
   - Miner: miner/
   - Validator: validator/
   - Challenges: challenges/
-  - Guides: guides/
+  - Manuals: manuals/
   # - "*"
   - Development: dev/
   - Release Notes: release-notes.md
