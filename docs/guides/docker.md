@@ -5,8 +5,7 @@ tags: [docker, docker-hub, installation, linux]
 
 # :simple-docker: Docker
 
-- RedTeam Subnet 61 leverages Docker to run validator nodes and miner node, packaging miner solutions as Docker images to ensure consistency and portability across different environments.
-- This guide provides instructions on installing Docker on Linux systems and setting up a Docker Hub account.
+RedTeam Subnet 61 leverages Docker to run validator nodes and miner node, packaging miner solutions as Docker images to ensure consistency and portability across different environments. This guide provides instructions on installing Docker on Linux systems and setting up a Docker Hub account.
 
 ## Official Pages
 
