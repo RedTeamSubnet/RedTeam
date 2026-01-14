@@ -58,12 +58,8 @@ cp pm2-process.json.example pm2-process.json
 nano pm2-process.json  # Edit with your wallet details
 
 # Run the setup script
-./scripts/run.sh
+pm2 start python --name agent-validator -- -u -m api
 ```
-
-**For complete PM2 setup instructions and configuration options, see:**
-
-**[→ Validator Repository](https://github.com/RedTeamSubnet/validator)**
 
 ---
 

@@ -1,5 +1,5 @@
 ---
-title: Legacy Miner
+title: Legacy Miner Documentation
 ---
 
 # Legacy Miner
