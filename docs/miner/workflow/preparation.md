@@ -23,6 +23,7 @@ tags: [preparation]
 - Install **Python (>= v3.10)** and **pip (>= 23)**:
     - **[RECOMMENDED]  [Miniconda (v3)](../../manuals/installation/miniconda.md)**
 - Install [**docker** and **docker compose**](../../manuals/installation/docker.md)
+- Terminal or command line access
 
 ## Set up your workspace environment
 

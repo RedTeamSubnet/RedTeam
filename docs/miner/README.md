@@ -10,46 +10,7 @@ title: Miner
 
 ## Miner Workflow
 
-### 1. Preparation
-
-- Check system requirements
-- Install prerequisites
-- Set up your workspace environment
-
-### 2. Setup Bittensor Wallet
-
-- Install Bittensor CLI
-- Create your Bittensor wallet
-- Fund your wallet with TAO tokens
-- Register as a miner on RedTeam Subnet 61
-
-### 3. Development
-
-- Clone or download relevant repositories and resources
-- Choose challenge to solve
-- Set up challenge environment
-- Implement your own solution for the challenge
-- Test your solution locally
-
-### 4. Packaging and submission
-
-- Build your solution as a docker image
-- Publish your docker image to Docker Hub (commit)
-- Configure miner node with your wallet and commit (Docker Hub image hash ID)
-- Run miner node to submit your commit (solution)
-
-### 5. Evaluation and reward
-
-- Wait validators to fetch your commit and scoring system to evaluate it
-- Monitor your submission status and scores on dashboard
-- Claim your rewards for successful submissions
-
-### 6. Analysis and feedback
-
-- Analyze your solution performance and improve for better results
-- Share your experience and provide feedback
-- Stay updated for future challenges and latest updates from RedTeam Subnet
-- Repeat the process for new challenges and get more incentives
+- This link to [Miner Workflow](workflow/README.md) provides a step-by-step guide on how to prepare, set up wallet, develop, package, submit, evaluate, and analyze your miner solutions on RedTeam Subnet.
 
 ## Incentive mechanism
 

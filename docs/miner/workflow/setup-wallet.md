@@ -1,5 +1,6 @@
 ---
 title: 2. Setup Bittensor Wallet
+tags: [wallet, bittensor]
 ---
 
 # 2. Setup Bittensor Wallet
