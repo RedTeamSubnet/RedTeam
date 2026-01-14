@@ -1,4 +1,6 @@
 nav:
-  - Validator: README.md
-
-
+  - Overview: README.md
+  - Deployment: deployment.md
+  - Getting Started: getting-started.md
+  - Resources: resources.md
+  - Troubleshooting: troubleshooting.md

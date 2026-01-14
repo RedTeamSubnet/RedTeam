@@ -22,8 +22,8 @@ For instance, a programming challenge may involve mimicking human language to by
 
 ## Validator Setup
 
-[Read the full documentation](./1.validator.md)
+[Read the full documentation](./validator/README.md)
 
 ## Miner Setup
 
-[Read the full documentation](./2.miner.md)
+[Read the full documentation](./miner/README.md)
