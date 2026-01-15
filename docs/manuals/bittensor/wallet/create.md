@@ -1,17 +1,19 @@
 ---
-title: "Setup Your Wallet"
-tags: [setup]
+title: "Create Your Wallet"
+tags: [creation]
 ---
 
-# 🛠 Setup Your Bittensor Wallet
+# Create Your Bittensor Wallet
 
-## 1. Prerequisites
+This section provides step-by-step instructions to create your Bittensor wallet using the Bittensor CLI (BTCLI). You will create both a **coldkey** and a **hotkey** wallet, which are essential for participating in the Bittensor network.
+
+## Prerequisites
 
 - Install and open **Terminal** or **Command Line Interface** to run commands.
 - Install **Python (>= v3.10)** and **pip (>= 23)**:
-    - **[RECOMMENDED]  [Miniconda (v3)](../installation/miniconda.md)**
+    - **[RECOMMENDED]  [Miniconda (v3)](../../installation/miniconda.md)**
 
-## 2. Install Bittensor CLI
+## 1. Install Bittensor CLI
 
 First, you need to install the Bittensor CLI (BTCLI) using pip:
 
@@ -19,9 +21,9 @@ First, you need to install the Bittensor CLI (BTCLI) using pip:
 pip install -U bittensor-cli
 ```
 
-## 3. Create your wallets
+## 2. Create your wallets
 
-### 3.1. Create a coldkey
+### 2.1. Create a coldkey
 
 **OPTION A.** Interactively with prompts and password protection:
 
@@ -63,7 +65,7 @@ btcli wallet new-coldkey \
     --verbose
 ```
 
-### 3.2. Create a hotkey
+### 2.2. Create a hotkey
 
 !!! warning "IMPORTANT"
     - Hotkey is linked to the coldkey, so ensure you have created the coldkey first.
@@ -108,7 +110,7 @@ btcli wallet new-hotkey \
 !!! tip "Multiple Hotkeys"
     You can create multiple hotkeys for a single coldkey if needed.
 
-## 4. Verify your wallets
+## 3. Verify your wallets
 
 ```sh
 btcli wallet list --verbose
@@ -119,7 +121,7 @@ btcli wallet list --wallet-path <WALLET_PATH>
 btcli wallet list --wallet-path ~/.bittensor/wallets
 ```
 
-## 5. Next Step
+## 4. Next Step
 
 - [Fund Your Wallet](./fund.md)
 

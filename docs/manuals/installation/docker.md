@@ -7,7 +7,7 @@ tags: [docker, docker-hub, installation, linux]
 
 RedTeam Subnet 61 leverages Docker to run validator nodes and miner node, packaging miner solutions as Docker images to ensure consistency and portability across different environments. This guide provides instructions on installing Docker on Linux systems and setting up a Docker Hub account.
 
-## Official Pages
+## Official pages
 
 - Install Docker: <https://docs.docker.com/engine/install>
 - Install Docker on Ubuntu: <https://docs.docker.com/engine/install/ubuntu>
@@ -89,7 +89,7 @@ save changes and exit from the file editor.
 sudo systemctl restart docker.service
 ```
 
-## 2. Docker Hub Account
+## 2. Docker Hub account
 
 ### 2.1. Create Docker Hub account
 

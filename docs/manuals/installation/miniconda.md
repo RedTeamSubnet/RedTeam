@@ -7,7 +7,7 @@ tags: [conda, miniconda, python, pip, linux, macos, installation]
 
 **Miniconda** is a runtime environment management tool that allows you to install and manage multiple isolated environments with different versions of Python and other packages.
 
-## Official Pages
+## Official pages
 
 - **Miniconda**: <https://www.anaconda.com/docs/getting-started/miniconda/install>
 - Quickstart install: <https://www.anaconda.com/docs/getting-started/miniconda/install#quickstart-install-instructions>

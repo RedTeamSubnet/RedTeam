@@ -10,6 +10,7 @@ This guide walks you through the process of setting up a Bittensor wallet, which
 
 Before you begin, we recommend you read through the Bittensor official documentation pages to understand the concepts and functionalities of Bittensor wallets:
 
+- Bittensor Docs: <https://docs.learnbittensor.org>
 - Bittensor CLI: <https://docs.learnbittensor.org/btcli/overview>
 - Install BTCLI: <https://docs.learnbittensor.org/getting-started/install-btcli>
 - Bittensor Wallets: <https://docs.learnbittensor.org/keys/wallets>
@@ -27,13 +28,7 @@ To participate in the Bittensor network, you need two types of wallets: **coldke
 - **Coldkey**: This is a secure, offline wallet used to hold TAO tokens and make important administrative decisions. Think of it as your "savings account."
 - **Hotkey**: A wallet used for day-to-day operations like mining. This is more like your "checking account," used for frequent transactions but not for storing large amounts of TAO.
 
-## Instructions
+## 🚀 Next Steps
 
-- [Setup Your Wallet](./setup.md)
+- [Create Your Wallet](./create.md)
 - [Fund Your Wallet](./fund.md)
-
----
-
-## References
-
-- <https://docs.learnbittensor.org>

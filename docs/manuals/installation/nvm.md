@@ -1,5 +1,5 @@
 ---
-title: "NVM (Node Version Manager)"
+title: "NVM - Node.js"
 tags: [nvm, node, node.js, npm, js, javascript, linux, macos]
 ---
 
@@ -7,7 +7,7 @@ tags: [nvm, node, node.js, npm, js, javascript, linux, macos]
 
 **NVM** is a tool for managing multiple versions of **Node.js**. It allows you to install, switch between, and manage different versions of Node.js and NPM (Node Package Manager) easily.
 
-## Official Pages
+## Official pages
 
 - **NVM**: <https://github.com/nvm-sh/nvm>
 
@@ -71,17 +71,6 @@ nvm cache clear
 # Check installed Node.js and NPM version:
 node -v
 npm -v
-```
-
-#### [OPTIONAL] Install additional packages
-
-```sh
-# Install essential extra packages:
-npm install -g pm2
-pm2 install pm2-logrotate
-
-# Clean NPM caches:
-npm cache clean --force
 ```
 
 ---

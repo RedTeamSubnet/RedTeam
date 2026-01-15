@@ -7,6 +7,10 @@ tags: [funding]
 
 Bittensor wallets need TAO tokens to perform various operations on the network such as paying transaction fees, registering, staking, and participating in consensus.
 
+## Prerequisites
+
+- [**Bittensor Wallet**](./create.md): You need to have a Bittensor wallet created.
+
 ## 1. Acquire TAO tokens into your wallet
 
 You can acquire TAO tokens through the following methods.
