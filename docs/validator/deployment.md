@@ -66,7 +66,7 @@ pm2 start pm2-process.json
 ## Quick Comparison
 
 | Feature | Docker Compose | PM2 |
-|---------|---|---|
+|---------|----------------|-----|
 | Recommended for | Production | Development/Custom |
 | Setup Complexity | Simple | Moderate |
 | Isolation | ✅ Yes | ❌ No |
