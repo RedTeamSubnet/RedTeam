@@ -6,7 +6,7 @@ title: Deployment Options
 
 The RedTeam Subnet supports two primary methods for running validator nodes:
 
-### Docker Compose (Production - Recommended)
+## Docker Compose (Production - Recommended)
 
 Docker Compose is the recommended method for production deployments. It provides isolation, automated updates, and easier management.
 
@@ -29,7 +29,7 @@ Docker Compose is the recommended method for production deployments. It provides
 
     - Using `latest` bypasses our safety checks and version control.
     - It may cause your validator to pull an incompatible or unstable build.
-    - Let the `wud` service handle updates automatically—it will pull the newest supported version for you.
+    - Let the `wud` service handle updates automatically, it will pull the newest supported version for you.
 
 **For complete setup instructions and advanced configuration, see:**
 
@@ -37,14 +37,14 @@ Docker Compose is the recommended method for production deployments. It provides
 
 ---
 
-### ⚡ PM2 Process Manager (Development/Advanced)
+## ⚡ PM2 Process Manager (Not Recommended)
 
 PM2 is suitable for development, testing, or when you need direct access to the Python environment with custom configurations.
 
 [**PM2 Setup Reference →**](../manuals/installation/pm2.md)
 
 !!! warning "Not Recommended"
-    Running a validator with PM2 is not recommended due to limited isolation and absence of auto updater which risks validator to lost VTrust.
+    Running a validator with PM2 is not recommended due to limited isolation and absence of auto updater which risks validator to lose VTrust.
 
 **Quick Start:**
 
@@ -58,12 +58,8 @@ cp pm2-process.json.example pm2-process.json
 nano pm2-process.json  # Edit with your wallet details
 
 # Run the setup script
-./scripts/run.sh
+pm2 start pm2-process.json
 ```
-
-**For complete PM2 setup instructions and configuration options, see:**
-
-**[→ Validator Repository](https://github.com/RedTeamSubnet/validator)**
 
 ---
 
