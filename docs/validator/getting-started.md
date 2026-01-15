@@ -10,7 +10,7 @@ title: Getting Started
 !!! info "Skip if you already have a validator wallet"
     If you already have a validator wallet with sufficient stake on the RedTeam subnet, you can proceed to **Step 2**.
 
-    - Set up a wallet using [btcli instructions](../manuals/guides/wallet.md)
+    - Set up a wallet using **[btcli instructions](../manuals/guides/wallet.md)**
     - Stake sufficient TAO to your validator wallet on the RedTeam subnet
 
 ### Step 2: Choose Your Deployment Method
