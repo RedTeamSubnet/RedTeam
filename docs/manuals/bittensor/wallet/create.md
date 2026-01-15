@@ -3,7 +3,7 @@ title: "Create Your Wallet"
 tags: [creation]
 ---
 
-# 🏦 Create Your Bittensor Wallet
+# 🗃 Create Your Bittensor Wallet
 
 This section provides step-by-step instructions to create your Bittensor wallet using the Bittensor CLI (BTCLI). You will create both a **coldkey** and a **hotkey** wallet, which are essential for participating in the Bittensor network.
 

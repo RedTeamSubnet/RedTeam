@@ -3,7 +3,7 @@ title: "Fund Your Wallet"
 tags: [funding]
 ---
 
-# 💰 Fund Your Wallet
+# 💸 Fund Your Wallet
 
 Bittensor wallets need TAO tokens to perform various operations on the network such as paying transaction fees, registering, staking, and participating in consensus.
 
