@@ -54,7 +54,7 @@ btcli wallet balance --wallet-path ~/.bittensor/wallets --wallet-name my_wallet
 
 ## 3. Next Step
 
-- [Register Your Miner/Validator](../../miner/registration/register.md)
+- [Register on Subnet](../register.md)
 
 ---
 

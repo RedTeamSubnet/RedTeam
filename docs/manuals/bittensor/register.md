@@ -78,7 +78,7 @@ btcli wallet overview \
     --verbose
 ```
 
-## 3. Next Step
+## 3. Next steps
 
 - [Miner](../../miner/README.md)
 - [Validator](../../validator/README.md)
