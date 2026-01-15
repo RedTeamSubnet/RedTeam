@@ -31,6 +31,7 @@ Miners solve security challenges on RedTeam Subnet and earn TAO rewards based on
 ## Rewards
 
 Earn TAO based on:
+
 - Solution quality and accuracy
 - Validator consensus
 - Challenge difficulty
