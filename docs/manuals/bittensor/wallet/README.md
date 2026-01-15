@@ -28,7 +28,7 @@ To participate in the Bittensor network, you need two types of wallets: **coldke
 - **Coldkey**: This is a secure, offline wallet used to hold TAO tokens and make important administrative decisions. Think of it as your "savings account."
 - **Hotkey**: A wallet used for day-to-day operations like mining. This is more like your "checking account," used for frequent transactions but not for storing large amounts of TAO.
 
-## 🚀 Next Steps
+## 🚀 Next steps
 
 - [Create Your Wallet](./create.md)
 - [Fund Your Wallet](./fund.md)
