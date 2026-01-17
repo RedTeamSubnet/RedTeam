@@ -5,7 +5,7 @@ title: Validator Overview
 # Validator
 
 !!! danger "CRITICAL ANNOUNCEMENT: Mandatory Migration"
-    **Deadline: 22 Jan 2026:** You have one week to migrate your validator to the new repository.
+    **Deadline: 25 Jan 2026:** You have one week to migrate your validator to the new repository.
 
     All validators must switch to the **[Official Validator Repository](https://github.com/RedTeamSubnet/validator)**. Support for the old setup is ending. If you do not migrate within the one-week window, your validator will stop working and you will lose VTRUST.
 
@@ -39,7 +39,7 @@ Validators are essential participants in the RedTeam Subnet that:
 Before you begin, ensure you have:
 
 - ✅ A registered Bittensor wallet with sufficient TAO staked
-- ✅ Validator wallet registered on the RedTeam subnet [Check [btcli instaructions](../manuals/guides/wallet.md)]
+- ✅ Validator wallet registered on the RedTeam subnet [Check [btcli instaructions](../manuals/bittensor/wallet/README.md)]
 - ✅ A system meeting the [minimum requirements](#minimum-system-requirements)
 - ✅ Basic knowledge of Docker or PM2 process management
 

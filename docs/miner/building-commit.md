@@ -4,12 +4,12 @@ This guide shows how to build, package, and submit your challenge solution to Re
 
 ## Available Challenges
 
-Choose a challenge from the [Challenge Menu](../challenges/):
+Choose a challenge from the [Challenge Menu](../challenges/README.md):
 
-- **[AB Sniffer](../challenges/ab_sniffer/)** - Detect automation frameworks (Node.js)
-- **[Humanize Behaviour](../challenges/humanize_behaviour/)** - Mimic human interaction (Python)
-- **[Anti-Detect Automation Detection](../challenges/ada_detection/)** - Detect bots in anti-detect browsers (JavaScript)
-- **[Device Fingerprinter](../challenges/dev_fingerprinter/)** *(Inactive)*
+- **[AB Sniffer](../challenges/ab_sniffer/README.md)** - Detect automation frameworks (Node.js)
+- **[Humanize Behaviour](../challenges/humanize_behaviour/README.md)** - Mimic human interaction (Python)
+- **[Anti-Detect Automation Detection](../challenges/ada_detection/README.md)** - Detect bots in anti-detect browsers (JavaScript)
+- **[Device Fingerprinter](../challenges/dev_fingerprinter/README.md)** *(Inactive)*
 
 ## Submission Process
 
@@ -123,7 +123,7 @@ Each challenge has specific requirements:
 - Human safety: <2 false positives
 - Dedicated path: JSON payload with detection files
 
-See each [challenge's documentation](../challenges/) for complete specifications.
+See each [challenge's documentation](../challenges/README.md) for complete specifications.
 
 ## Troubleshooting
 
@@ -161,5 +161,5 @@ btcli subnet show --wallet-name miner --wallet.hotkey default --netuid 61
 
 - **[Submission Guide](https://github.com/RedTeamSubnet/miner/blob/main/README.md)** - Submit your commit
 - **[Getting Started](getting-started.md)** - Setup and run your miner
-- **[Challenge Menu](../challenges/)** - Explore all challenges
+- **[Challenge Menu](../challenges/README.md)** - Explore all challenges
 - **[Miner Repository](https://github.com/RedTeamSubnet/miner)** - Examples and templates

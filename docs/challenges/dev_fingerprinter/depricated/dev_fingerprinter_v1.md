@@ -3,7 +3,7 @@ title: Device Fingerprinter v1
 ---
 # Device Fingerprinter v1 (Active after September [20]th 2025 10:00 UTC)
 
-![thumnail](../../assets/images/challenges/dev_fingerprinter_v1/thumbnail.png)
+![thumnail](https://github.com/RedTeamSubnet/RedTeam/blob/798158139ddb551993e8241a88c3fdf201f56ec7/docs/assets/images/challenges/dev_fingerprinter_v1/thumbnail.png?raw=true)
 
 ## Overview
 
@@ -35,4 +35,4 @@ Example codes for the Device Fingerprinter v1 can be found in the [`redteam_core
 
 ## Submission Guide
 
-To build and submit your solution, please follow the [Building a Submission Commit](../../../guides/building-commit.md) guide.
+To build and submit your solution, please follow the [Building a Submission Commit](../../../miner/building-commit.md) guide.

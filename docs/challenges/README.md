@@ -46,14 +46,14 @@ Follow these steps to successfully submit your challenge solution:
 - Implement your solution following the provided templates
 - Test locally using the testing guides and validation tools
 - Ensure your code meets all technical constraints and limitations
-- Reference [Testing & Validation](#testing--validation) resources above
+- Reference [Testing & Validation](#testing-validation) resources above
 
 - [X] **Put Submission to Dedicated Path**
 - Place your submission files in the challenge's dedicated submission path (see each challenge README)
 - Verify all required files are included with correct naming
 
 - [X] **Build Commit**
-- Follow the [Building a Submission Commit](../guides/building-commit.md) guide
+- Follow the [Building a Submission Commit](../miner/building-commit.md) guide
 - Build and tag your Docker image
 - Push the image to your Docker Hub repository
 
@@ -64,7 +64,7 @@ Follow these steps to successfully submit your challenge solution:
 
 ## Available Challenges
 
-- **[Auto Browser Sniffer (AB Sniffer)](./ab_sniffer/)** Detect and identify automation frameworks by analyzing behavior and technical signatures.
-- **[Humanize Behaviour](./humanize_behaviour/)** Develop bot scripts that mimic natural human interaction with web forms.
-- **[Anti-Detect Automation Detection (AAD)](./ada_detection/)** Detect browser automation inside anti-detect environments where fingerprints are masked.
-- **[Device Fingerprinter](./dev_fingerprinter/) Inactive** Create browser SDKs that accurately fingerprint and identify devices.
+- **[Auto Browser Sniffer (AB Sniffer)](ab_sniffer/README.md)** Detect and identify automation frameworks by analyzing behavior and technical signatures.
+- **[Humanize Behaviour](humanize_behaviour/README.md)** Develop bot scripts that mimic natural human interaction with web forms.
+- **[Anti-Detect Automation Detection (AAD)](ada_detection/README.md)** Detect browser automation inside anti-detect environments where fingerprints are masked.
+- **[Device Fingerprinter](dev_fingerprinter/README.md) Inactive** Create browser SDKs that accurately fingerprint and identify devices.

@@ -2,9 +2,9 @@
 title: Getting Started
 ---
 
-## Getting Started
+# Getting Started
 
-### Step 1: Prepare Your Environment
+## Step 1: Prepare Your Environment
 
 !!! warning "System Requirements"
     - **CPU**: 2+ cores
@@ -18,9 +18,9 @@ title: Getting Started
     - miniconda: [Install Miniconda](../manuals/installation/miniconda.md)
     - nvm: [Install NVM](../manuals/installation/nvm.md)
     - pm2: [Install PM2](../manuals/installation/pm2.md)
-- Set up a wallet: [Wallet Setup Guide](../manuals/wallet.md)
+- Set up a wallet: [Wallet Setup Guide](../manuals/bittensor/wallet/README.md)
 
-### Step 2: Create Workspace
+## Step 2: Create Workspace
 
 ```sh
 mkdir -pv ~/workspaces/projects/redteam61
@@ -29,7 +29,7 @@ python3.10 -m venv redteam
 source redteam/bin/activate
 ```
 
-### Step 3: Clone the Miner Repository
+## Step 3: Clone the Miner Repository
 
 ```sh
 git clone https://github.com/RedTeamSubnet/miner.git agent-miner
@@ -73,13 +73,6 @@ Repository structure:
     docker compose logs -f
     docker compose ps
     ```
-
-    #### Stop
-
-    ```sh
-    ./compose.sh stop
-    ```
-
 === "PM2"
 
     #### Configure
@@ -103,16 +96,16 @@ Repository structure:
     pm2 status
     ```
 
-### Step 5: Monitor Your Miner
+## Step 5: Monitor Your Miner
 
-#### Check Status
+### Check Status
 
 ```sh
 btcli subnet list --netuid 61
 btcli subnet show_stake --wallet-name miner --wallet.hotkey default --netuid 61
 ```
 
-#### Track Performance
+### Track Performance
 
 - Visit the [RedTeam Dashboard](https://dashboard.theredteam.io) to monitor your miner's performance, scores, and earnings.
 - Monitor scores and validator feedback
@@ -136,6 +129,6 @@ btcli subnet show --wallet-name miner --wallet.hotkey default --netuid 61
 
 ## Next Steps
 
-- **[Challenge Menu](../challenges/)** - Browse available challenges
+- **[Challenge Menu](../challenges/README.md)** - Browse available challenges
 - **[Building Submissions](building-commit.md)** - Detailed submission guide
 - **[Miner Repository](https://github.com/RedTeamSubnet/miner)** - Examples and templates
