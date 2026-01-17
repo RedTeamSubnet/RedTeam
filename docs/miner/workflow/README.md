@@ -6,10 +6,11 @@ tags: [workflow]
 # Miner Workflow
 
 - [**1. Preparation**](./preparation.md)
-- **2. Setup Your Bittensor Wallet**
+- [**2. Setup Bittensor Wallet**](../../manuals/bittensor/wallet/README.md)
     - [**2.1. Create Your Wallet**](../../manuals/bittensor/wallet/create.md)
     - [**2.2. Fund Your Wallet**](../../manuals/bittensor/wallet/fund.md)
     - [**2.3. Register Your Wallet on Subnet**](../../manuals/bittensor/register.md)
+- [**3. Development**](./development.md)
 
 ## 3. Development
 
