@@ -72,11 +72,11 @@ Each file must be named exactly as shown and contain self-contained JavaScript (
 
 ## Challenge Versions
 
-- [**v1** (Active after Dec 15, 2025 10:00 UTC)](./ada_detection_v1.md) - Payload-based detection with human safety gate
+- [**v1** (Active after Dec 15, 2025 10:00 UTC)](./v1.md) - Payload-based detection with human safety gate
 
 ## Resources & Guides
 
-- [Building a Submission Commit](../../guides/building-commit.md) - General submission instructions
+- [Building a Submission Commit](../../miner/building-commit.md) - General submission instructions
 - [NSTBrowser Official](https://www.nstbrowser.io/en/pricing) - Professional plan required for local testing
 - [Challenge Repository](https://github.com/RedTeamSubnet/ada-detection-challenge/)
 - [Miner Repository](https://github.com/RedTeamSubnet/miner/)

@@ -12,7 +12,7 @@ Miners solve security challenges on RedTeam Subnet and earn TAO rewards based on
 2. **[Miner Repository](https://github.com/RedTeamSubnet/miner)** - Examples and challenge templates
 3. **[Building Submissions](building-commit.md)** - Package and submit your solution
 4. **[Submission Guide](https://github.com/RedTeamSubnet/miner/blob/main/README.md)** - Submit your commit
-5. **[Challenge Menu](../challenges/)** - Browse available challenges
+5. **[Challenge Menu](../challenges/README.md)** - Browse available challenges
 
 ## Mining Process
 
@@ -23,10 +23,10 @@ Miners solve security challenges on RedTeam Subnet and earn TAO rewards based on
 
 ## Available Challenges
 
-- **[AB Sniffer](../challenges/ab_sniffer/)** - Detect automation frameworks
-- **[Humanize Behaviour](../challenges/humanize_behaviour/)** - Mimic human interaction
-- **[Anti-Detect Automation Detection](../challenges/ada_detection/)** - Detect bots in anti-detect browsers
-- **[Device Fingerprinter](../challenges/dev_fingerprinter/)** *(Inactive)*
+- **[AB Sniffer](../challenges/ab_sniffer/README.md)** - Detect automation frameworks
+- **[Humanize Behaviour](../challenges/humanize_behaviour/README.md)** - Mimic human interaction
+- **[Anti-Detect Automation Detection](../challenges/ada_detection/README.md)** - Detect bots in anti-detect browsers
+- **[Device Fingerprinter](../challenges/dev_fingerprinter/README.md)** *(Inactive)*
 
 ## Rewards
 
@@ -36,4 +36,4 @@ Earn TAO based on:
 - Validator consensus
 - Challenge difficulty
 
-See [Challenge Menu](../challenges/) for specifications and [Getting Started](getting-started.md) to begin mining.
+See [Challenge Menu](../challenges/README.md) for specifications and [Getting Started](getting-started.md) to begin mining.
