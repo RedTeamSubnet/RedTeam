@@ -48,7 +48,11 @@ conda activate redteam
 
 ## 2. Setup Your Bittensor Wallet
 
-- [**Bittensor Wallet**](../../manuals/bittensor/wallet/README.md)
+- [**Bittensor Wallet**](../../manuals/bittensor/wallet/README.md):
     - [**2.1. Create Your Wallet**](../../manuals/bittensor/wallet/create.md)
     - [**2.2. Fund Your Wallet**](../../manuals/bittensor/wallet/fund.md)
-    - [**2.3. Register Your Wallet on Subnet**](../../manuals/bittensor/register.md)
+- [**2.3. Register Your Wallet on Subnet**](../../manuals/bittensor/register.md)
+
+## 3. Next step
+
+- [**Development**](./development.md)

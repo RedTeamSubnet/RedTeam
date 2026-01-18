@@ -8,7 +8,7 @@ tags: [workflow]
 - [**1. Preparation**](./preparation.md)
 - [**2. Development**](./development.md)
 
-## 3. Development
+## 2. Development
 
 - Clone or download relevant repositories and resources
 - Choose challenge to solve
