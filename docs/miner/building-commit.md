@@ -28,7 +28,7 @@ Place your solution files in the **dedicated path** specified in each challenge'
 - **Humanize Behaviour v5**: `examples/humanize_behaviour_v5/src/bot/bot.py`
 - **ADA Detection v1**: `examples/ada_detection_v1/src/detections/`
 
-Read documentation about submission example templates: [About Submission Examples](about_submission_templates.md)
+Read documentation about submission example templates: [About Submission Examples](./components/submission_templates.md)
 
 ### 2. Test Locally
 
@@ -99,6 +99,5 @@ docker inspect --format='{{index .RepoDigests 0}}' myuser/ab_sniffer:1.0.0
 ## Next Steps
 
 - **[Submission Guide](https://github.com/RedTeamSubnet/miner/blob/main/README.md)** - Submit your commit
-- **[Getting Started](getting-started.md)** - Setup and run your miner
 - **[Challenge Menu](../challenges/README.md)** - Explore all challenges
 - **[Miner Repository](https://github.com/RedTeamSubnet/miner)** - Examples and templates
