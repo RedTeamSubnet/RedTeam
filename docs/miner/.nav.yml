@@ -1,4 +1,4 @@
 nav:
   - Miner: README.md
-  - Building Submissions: building-commit.md
+  - Workflow: workflow/
   - "*"
