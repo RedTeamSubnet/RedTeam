@@ -47,41 +47,34 @@ The following columns provide comprehensive information about each of your submi
 
 ##### Identification & Tracking
 
-- **Miner UID**: Your unique miner identifier on the RedTeam Subnet. This remains constant across all your submissions.
-
-- **Image Digest**: A unique identifier (hash) of your Docker image. Each code change produces a different digest, helping track which exact version of your code was submitted.
-
+- **Miner UID**: Submitted miner's UID on the network.
+- **Image Digest**: A unique identifier (hash) of your Docker image.
 - **Commit Time**: When you submitted your code to the system. This marks the official timestamp of your submission.
-
-- **Scored Time**: When the submission was evaluated and received a score. Submissions may spend time in the queue before scoring.
+- **Scored Time**: Indicates the time when the submission was evaluated and received a score.
 
 ##### Scoring & Performance
 
 - **Score**: The raw performance score your submission received during evaluation (typically 0.0 - 1.0).
-
 - **Penalty**: The highest similarity score detected between your submission and other miners' submissions. This value ranges from 0.0 (completely unique code) to 1.0 (identical code). Higher penalties indicate greater code similarity and will reduce your final score.
-
-- **Final Score**: Your actual score after all adjustments, including decay over time. This is what determines your rewards.
+- **Final Score**: Miners' actual score after all adjustments, including decay over time. This is what determines your rewards.
 
 ##### Status & Notes
 
-- **Status**: The current stage of your submission in the evaluation process (see Status Lifecycle section for details).
-
-- **Note**: Additional information from validators about your submission, such as failure reasons or special notes.
+- **Status**: The current status of miner's submission in the evaluation process ([Status Lifecycle](#submission-status-lifecycle)).
+- **Note**: Additional information from centralized scoring server about your submission, such as failure reasons or special notes.
 
 ##### Debug & Transparency Information
 
 These three columns contain detailed JSON data that you can expand by clicking on them:
 
-- **Validation Output**: Shows what happened when validators tested your submission:
+- **Validation Output**: Result of internal validation checksL
     - Which validation checks passed or failed
-    - Error messages if something went wrong
     - Details about what was validated
     - Helpful for debugging rejected submissions
 
 - **Comparison Logs**: Reveals how your submission compares to others:
     - Similarity scores against other miners' submissions
-    - Why your score was adjusted based on similarities
+    - Reason of similarity scored for each comparison
     - Helps you understand the plagiarism detection results
 
 - **Result JSON**: Detailed scoring results from the evaluation (when available):
@@ -98,9 +91,16 @@ Every submission moves through several statuses as it's evaluated and processed.
 
 Your submission typically follows this journey:
 
-1. **Received** → 2. **Validated** → 3. **Accepted or Rejected** → 4. **Decaying** → 5. **Decayed**
-
-However, if validation fails, it may go directly to **Invalid**.
+```mermaid
+graph LR
+    A[Received] --> V[Valid?]
+    V -->|Yes| C{Accepted?}
+    C -->|Yes| D[Accepted]
+    C -->|No| E[Rejected]
+    D --> F[Decaying]
+    F --> G[Decayed]
+    V -->|No| I[Invalid]
+```
 
 ### Detailed Status Explanations
 
@@ -114,11 +114,11 @@ Your submission has just arrived and is waiting to be scored. The system is queu
 
 #### **Validated**
 
-Your submission has been scored and passed validation checks. It has been reviewed and accepted into the evaluation system.
+Your submission has been scored and reached to validators for getting an incentive
 
-- **What it means**: Your code was tested and validation checks passed
-- **What to do**: Check your "Validation Output" if you want to see the test results
-- **Next step**: Status will change to "Accepted" or "Rejected" based on scoring results
+- **What it means**: Your code has been reached to validators.
+- **What to do**: Check your wallet for incentives.
+- **Next step**: Status will change to Decaying once the submission's age exceeds 10 days limit
 
 #### **Accepted**
 
@@ -128,8 +128,10 @@ Great! Your submission has been accepted and is eligible for rewards. It passed 
     - Passed validation checks (Valid)
     - Score exceeded the challenge's minimum acceptable score
     - Penalty (similarity score) is below 0.6 (sufficiently unique)
-- **What to do**: Monitor it in the "Decaying" phase to see how long you can maintain rewards
+- **What to do**: Wait till it gets validated status by validators and start earning rewards
 - **Next step**: Over time, it will enter "Decaying" status as your submission ages
+!!! warning "Important: Submission Override"
+    When you submit a new commit, it **immediately replaces** your previous submission. The old submission will no longer earn rewards, even if it was "Accepted". This means you cannot hold multiple active submissions at once. Submit strategically!
 
 #### **Rejected**
 
@@ -150,9 +152,6 @@ Your submission was evaluated but did not meet acceptance criteria.
 
 **Next step**: Submit a new, improved version that addresses the rejection reason
 
-!!! warning "Important: Submission Override"
-    When you submit a new commit, it **immediately replaces** your previous submission. The old submission will no longer earn rewards, even if it was "Accepted". This means you cannot hold multiple active submissions at once. Submit strategically!
-
 #### **Invalid**
 
 Your submission failed a critical validation step and cannot be accepted. This is different from "Rejected" because the submission couldn't even complete validation.
@@ -168,7 +167,7 @@ Your submission is still earning rewards, but the score is gradually decreasing 
 - **What it means**: Your submission is active but older, so its reward value is declining
 - **Example**: "Decaying 50%" means your score has lost 50% of its value
 - **What to do**: If you're unhappy with the decay rate, submit a new version to potentially earn a higher score
-- **Timeline**: Submissions decay over approximately 5-15 days (exact timeline depends on challenge settings)
+- **Timeline**: Submissions decay over approximately 10-15 days
 
 #### **Decayed**
 
