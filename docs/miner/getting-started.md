@@ -19,17 +19,10 @@ title: Getting Started
     - nvm: [Install NVM](../manuals/installation/nvm.md)
     - pm2: [Install PM2](../manuals/installation/pm2.md)
 - Set up a wallet: [Wallet Setup Guide](../manuals/bittensor/wallet/README.md)
+- Solve challenges: [Challenges list](../challenges/README.md)
+- Build your submission commits: [Building Submissions](building-commit.md)
 
-## Step 2: Create Workspace
-
-```sh
-mkdir -pv ~/workspaces/projects/redteam61
-cd ~/workspaces/projects/redteam61
-python3.10 -m venv redteam
-source redteam/bin/activate
-```
-
-## Step 3: Clone the Miner Repository
+## Step 2: Clone the Miner Repository
 
 ```sh
 git clone https://github.com/RedTeamSubnet/miner.git agent-miner
@@ -37,22 +30,29 @@ cd agent-miner
 ```
 
 Repository structure:
+
 - `examples/` - Challenge solutions and templates
 - `compose.yml` - Docker Compose configuration
 - `pm2-process.json.example` - PM2 configuration
 
-### Step 4: Choose Your Deployment Method
+### Step 3: Choose Your Deployment Method
 
 === "Docker Compose (Recommended)"
 
     #### Configure Environment
 
     ```bash
+    cp -v ./templates/configs/active_commit.yaml ./volumes/configs/agent-miner/active_commit.yaml
     cp .env.example .env
-    nano .env
+    ```
+    #### Put your commit hash in `active_commit.yaml`
+
+    ```yaml
+    ab_sniffer_v5---your_docker_hub_repository@sha256:your_image_digest
+    [...]
     ```
 
-    Set your configuration:
+    ### Set your configuration:
     ```env
     WALLET_NAME=miner
     WALLET_HOTKEY=default
@@ -64,7 +64,7 @@ Repository structure:
 
     ```sh
     chmod +x ./compose.sh
-    ./compose.sh start -l
+    ./compose.sh start -l # alternative: docker compose up -d
     ```
 
     #### Monitor
@@ -79,6 +79,14 @@ Repository structure:
 
     ```sh
     cp pm2-process.json.example pm2-process.json
+    cp .env.example .env
+    ```
+    
+    #### Put your commit hash in `active_commit.yaml`
+
+    ```yaml
+    ab_sniffer_v5---your_docker_hub_repository@sha256:your_image_digest
+    [...]
     ```
 
     #### Start Miner
@@ -96,7 +104,7 @@ Repository structure:
     pm2 status
     ```
 
-## Step 5: Monitor Your Miner
+## Step 4: Monitor Your Miner
 
 ### Check Status
 

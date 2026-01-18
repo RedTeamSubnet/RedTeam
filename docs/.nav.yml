@@ -5,6 +5,6 @@ nav:
   - Challenges: challenges/
   - Manuals: manuals/
   # - "*"
-  - Development: dev/
+  # - Development: dev/
   - Release Notes: release-notes.md
   - About: about/

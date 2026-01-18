@@ -1,6 +1,6 @@
 # Building a Submission Commit
 
-This guide shows how to build, package, and submit your challenge solution to RedTeam Subnet.
+This guide shows how to build your challenge solution for RedTeam Subnet.
 
 ## Available Challenges
 
@@ -94,67 +94,6 @@ docker push myuser/ab_sniffer:1.0.0
 
 # Get digest and register
 docker inspect --format='{{index .RepoDigests 0}}' myuser/ab_sniffer:1.0.0
-```
-
-## Requirements & Constraints
-
-Each challenge has specific requirements:
-
-**AB Sniffer:**
-
-- Language: Node.js
-- OS: Ubuntu 24.04
-- Similarity limit: <60%
-- Dedicated path: `examples/ab_sniffer_v5/src/detections/`
-
-**Humanize Behaviour:**
-
-- Language: Python 3.10
-- OS: Ubuntu 24.04
-- Max script size: 2,000 lines
-- Dependencies: Pre-January 1, 2025
-- Similarity limit: <60%
-- Dedicated path: `examples/humanize_behaviour_v5/src/bot/bot.py`
-
-**ADA Detection:**
-
-- Language: JavaScript (ES6+)
-- Environment: NST-Browser only
-- Human safety: <2 false positives
-- Dedicated path: JSON payload with detection files
-
-See each [challenge's documentation](../challenges/README.md) for complete specifications.
-
-## Troubleshooting
-
-**Docker build fails:**
-
-```bash
-docker build --progress=plain -t test:latest .
-```
-
-**Push permission denied:**
-
-```bash
-# Ensure image name matches your Docker Hub username
-docker build -t <your-username>/solution:1.0.0 .
-```
-
-**SHA256 digest not found:**
-
-```bash
-# Image must be pushed first
-docker push <username>/solution:1.0.0
-sleep 5
-docker inspect --format='{{index .RepoDigests 0}}' <username>/solution:1.0.0
-```
-
-**Registration fails:**
-
-```bash
-# Check wallet balance and registration
-btcli wallet balance --wallet-name miner
-btcli subnet show --wallet-name miner --wallet.hotkey default --netuid 61
 ```
 
 ## Next Steps
