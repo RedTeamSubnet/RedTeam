@@ -10,11 +10,11 @@ tags: [preparation]
 !!! warning "System Requirements"
     Below is the minimum system requirements for running a miner node:
 
-    - **CPU**: 2 cores
-    - **RAM**: 8GB
-    - **Storage**: 50GB
-    - **OS**: Linux-based OS (Ubuntu >= 22.04 LTS)
-    - Stable internet connection
+    - **CPU**: 2+ cores
+    - **RAM**: 8GB+
+    - **Storage**: 50GB+
+    - **OS**: Linux-based (Ubuntu 22.04 LTS+ recommended)
+    - **Network**: Stable internet connection
 
 ## Prerequisites
 
@@ -27,7 +27,7 @@ tags: [preparation]
 
 ## 1. Set up your workspace environment
 
-Prepare projects directory (if not exists):
+1.1. Prepare projects directory (if not exists):
 
 ```sh
 # Create projects directory:
@@ -37,7 +37,7 @@ mkdir -pv ~/workspaces/projects/redteam61
 cd ~/workspaces/projects/redteam61
 ```
 
-Create conda environment with python 3.10 and pip:
+1.2. Create conda environment with python 3.10 and pip:
 
 ```sh
 conda create -y -n redteam python=3.10 pip
@@ -45,3 +45,10 @@ conda create -y -n redteam python=3.10 pip
 # Activate conda environment:
 conda activate redteam
 ```
+
+## 2. Setup Your Bittensor Wallet
+
+- [**Bittensor Wallet**](../../manuals/bittensor/wallet/README.md)
+    - [**2.1. Create Your Wallet**](../../manuals/bittensor/wallet/create.md)
+    - [**2.2. Fund Your Wallet**](../../manuals/bittensor/wallet/fund.md)
+    - [**2.3. Register Your Wallet on Subnet**](../../manuals/bittensor/register.md)

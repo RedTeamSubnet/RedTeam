@@ -1,6 +1,5 @@
 nav:
   - Miner Workflow: README.md
   - 1. Preparation: preparation.md
-  - 2. Setup Bittensor Wallet: ../../manuals/bittensor/wallet/
-  - 3. Development: development.md
+  - 2. Development: development.md
   - "*"
