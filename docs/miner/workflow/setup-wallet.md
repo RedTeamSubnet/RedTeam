@@ -1,9 +1,11 @@
 ---
-title: 2. Setup Bittensor Wallet
+title: "2. Setup Your Bittensor Wallet"
 tags: [wallet, setup]
 ---
 
-# 2. Setup Bittensor Wallet
+# 2. Setup Your Bittensor Wallet
+
+You need to set up your Bittensor wallet to participate in the RedTeam Subnet challenges. This involves creating a new wallet, funding it with TAO tokens, and registering it on the RedTeam Subnet 61.
 
 ## Prerequisites
 
@@ -17,4 +19,10 @@ tags: [wallet, setup]
 
 ## Next Step
 
-- [**3. Choose challenge**](../../challenges/README.md) to solve.
+- [**3. Choose Challenge to Solve**](../../challenges/README.md)
+
+---
+
+## References
+
+- [Bittensor Wallet](../../manuals/bittensor/wallet/README.md)

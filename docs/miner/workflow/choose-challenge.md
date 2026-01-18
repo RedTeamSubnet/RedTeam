@@ -1,17 +1,19 @@
 ---
-title: 3. Choose challenge
+title: "3. Choose Challenge to Solve"
 tags: [challenge]
 ---
 
-# 3. Choose challenge
+# 3. Choose Challenge to Solve
+
+You need to choose a challenge from the RedTeam Subnet challenges to work on. Each challenge has its own repository and documentation that outlines the requirements and objectives.
 
 ## Prerequisites
 
-- [**Register your wallet on Subnet**](../../manuals/bittensor/wallet/register.md): Ensure you have registered your wallet on the RedTeam subnet 61.
+- [**2. Setup Your Bittensor Wallet**](./setup-wallet.md): Set up your Bittensor wallet to participate in the RedTeam Subnet challenges.
 
 ## Challenges
 
-- [**RedTeam subnet - challenges**](./../../challenges/README.md): Review the list of available challenges and select one that aligns with your interests
+- [**RedTeam subnet - challenges**](./../../challenges/README.md): Review the list of available challenges and select one that aligns with your interests.
 
 ### Auto Browser Sniffer Challenge
 
@@ -46,16 +48,6 @@ git clone https://github.com/RedTeamSubnet/humanize-behaviour-challenge.git && \
     cd humanize-behaviour-challenge
 ```
 
-## Setup challenge environment
-
-Follow the specific challenge documentation to set up the environment required for the selected challenge. This may include installing dependencies, configuring settings, and preparing datasets.
-
-## Develop your solution
-
-Start implementing your own solution for the chosen challenge. Refer to the challenge documentation for guidelines, requirements, and evaluation criteria.
-
-## Test your solution
-
-Thoroughly test your solution locally to ensure it meets the challenge requirements and performs as expected, before proceeding to packaging and submission.
-
 ## Next step
+
+- [**4. Develop Solution for Challenge**](./develop-solution.md)

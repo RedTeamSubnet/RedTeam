@@ -6,16 +6,16 @@ tags: [workflow]
 # Miner Workflow
 
 1. [**Preparation Environment**](./prepare-environment.md): Prepare your workspace and environment
-2. [**Setup Bittensor Wallet**](../../manuals/bittensor/wallet/create.md): Create, fund, and register your wallet
+2. [**Setup Your Bittensor Wallet**](../../manuals/bittensor/wallet/create.md): Create, fund, and register your wallet
     1. [**Create Your Wallet**](../../manuals/bittensor/wallet/create.md): Create a new Bittensor wallet
     2. [**Fund Your Wallet**](../../manuals/bittensor/wallet/fund.md): Fund your wallet with TAO tokens
     3. [**Register Your Wallet on Subnet**](../../manuals/bittensor/wallet/register.md): Register your wallet on the RedTeam Subnet
-3. [**Choose challenge**](./choose-challenge.md): Choose challenge to solve
-4. [**Development**](./development.md): Develop your solution for the challenge
+3. [**Choose Challenge to Solve**](./choose-challenge.md): Select a challenge from available options
+4. [**Develop Solution for Challenge**](./develop-solution.md): Implement and test your solution
 
-5. [**Packaging and submission**](./packaging_submission.md): Package and submit your solution
+<!-- 5. [**Packaging and submission**](./packaging_submission.md): Package and submit your solution
 6. [**Evaluation and reward**](./evaluation_reward.md): Get evaluated and earn rewards
-7. [**Analysis and feedback**](./analysis_feedback.md): Analyze your performance and provide feedback
+7. [**Analysis and feedback**](./analysis_feedback.md): Analyze your performance and provide feedback -->
 
 ## 4. Development
 

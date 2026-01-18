@@ -1,9 +1,11 @@
 ---
-title: 1. Prepare Environment
+title: "1. Prepare Environment"
 tags: [preparation]
 ---
 
 # 1. Prepare Environment
+
+You need to install and set up the necessary tools and dependencies to prepare your workspace for participating in the RedTeam Subnet challenges.
 
 ## System requirements
 
@@ -48,4 +50,4 @@ conda activate redteam
 
 ## Next step
 
-- [**2. Setup Bittensor Wallet**](./setup-wallet.md) for Miner node.
+- [**2. Setup Your Bittensor Wallet**](./setup-wallet.md) for Miner node.

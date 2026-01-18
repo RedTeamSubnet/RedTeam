@@ -1,6 +1,7 @@
 nav:
   - Miner Workflow: README.md
   - 1. Prepare Environment: prepare-environment.md
-  - 2. Setup Bittensor Wallet: setup-wallet.md
-  - 3. Choose challenge: choose-challenge.md
+  - 2. Setup Your Bittensor Wallet: setup-wallet.md
+  - 3. Choose Challenge to Solve: choose-challenge.md
+  - 4. Develop Solution for Challenge: develop-solution.md
   - "*"
