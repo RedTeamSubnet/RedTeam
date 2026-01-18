@@ -1,12 +1,8 @@
----
-title: Getting Started
----
-
-# Getting Started
+# Getting Started for Miners
 
 ## Step 1: Prepare Your Environment
 
-!!! warning "System Requirements"
+???+ warning inline end "System Requirements"
     - **CPU**: 2+ cores
     - **RAM**: 8GB minimum
     - **Storage**: 50GB available
@@ -20,11 +16,11 @@ title: Getting Started
     - pm2: [Install PM2](../manuals/installation/pm2.md)
 - Set up a wallet: [Wallet Setup Guide](../manuals/bittensor/wallet/README.md)
 - Solve challenges: [Challenges list](../challenges/README.md)
-- Build your submission commits: [Building Submissions](building-commit.md)
+- Build your submission commits: [Building Submissions](../miner/building-commit.md)
 
 ## Step 2: Clone the Miner Repository
 
-```sh
+```bash
 git clone https://github.com/RedTeamSubnet/miner.git agent-miner
 cd agent-miner
 ```
@@ -52,17 +48,16 @@ Repository structure:
     [...]
     ```
 
-    ### Set your configuration:
+    ### Set your configuration in `.env`:
     ```env
-    WALLET_NAME=miner
-    WALLET_HOTKEY=default
-    NETUID=61
-    SUBTENSOR_NETWORK=finney
+    RT_MINER_WALLET_NAME="miner" 
+    RT_MINER_HOTKEY_NAME="default"
+    RT_BTCLI_WALLET_DIR="${HOME}/.bittensor/wallets"
     ```
 
-    #### Start Miner
+    #### Start Miner Node
 
-    ```sh
+    ``` bash
     chmod +x ./compose.sh
     ./compose.sh start -l # alternative: docker compose up -d
     ```
@@ -88,10 +83,17 @@ Repository structure:
     ab_sniffer_v5---your_docker_hub_repository@sha256:your_image_digest
     [...]
     ```
+    
+    ### Set your configuration in `.env`:
+    ```bash
+    RT_MINER_WALLET_NAME="miner" 
+    RT_MINER_HOTKEY_NAME="default"
+    RT_BTCLI_WALLET_DIR="${HOME}/.bittensor/wallets"
+    ```
 
-    #### Start Miner
+    #### Start Miner Node
 
-    ```sh
+    ```bash
     pm2 start pm2-process.json
     pm2 logs agent-miner
     ```
@@ -138,5 +140,5 @@ btcli subnet show --wallet-name miner --wallet.hotkey default --netuid 61
 ## Next Steps
 
 - **[Challenge Menu](../challenges/README.md)** - Browse available challenges
-- **[Building Submissions](building-commit.md)** - Detailed submission guide
+- **[Building Submissions](../miner/building-commit.md)** - Detailed submission guide
 - **[Miner Repository](https://github.com/RedTeamSubnet/miner)** - Examples and templates

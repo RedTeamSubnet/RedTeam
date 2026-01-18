@@ -8,7 +8,7 @@ Miners solve security challenges on RedTeam Subnet and earn TAO rewards based on
 
 ## Quick Start
 
-1. **[Getting Started](getting-started.md)** - Complete setup guide
+1. **[Getting Started](../getting_started/miner-getting-started.md)** - Quick setup guide
 2. **[Miner Repository](https://github.com/RedTeamSubnet/miner)** - Examples and challenge templates
 3. **[Challenge Menu](../challenges/README.md)** - Browse available challenges
 4. **[Building Submissions](building-commit.md)** - Package and submit your solution
@@ -36,4 +36,4 @@ Earn TAO based on:
 - Validator consensus
 - Challenge difficulty
 
-See [Challenge Menu](../challenges/README.md) for specifications and [Getting Started](getting-started.md) to begin mining.
+See [Challenge Menu](../challenges/README.md) for specifications and [Miner workflow](./workflow/README.md) to begin mining.
