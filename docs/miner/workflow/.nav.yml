@@ -1,5 +1,6 @@
 nav:
   - Miner Workflow: README.md
-  - 1. Preparation: preparation.md
-  - 2. Development: development.md
+  - 1. Prepare Environment: prepare-environment.md
+  - 2. Setup Bittensor Wallet: setup-wallet.md
+  - 3. Choose challenge: choose-challenge.md
   - "*"

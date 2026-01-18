@@ -52,9 +52,9 @@ btcli wallet balance --wallet-path <WALLET_PATH> --wallet-name <WALLET_NAME>
 btcli wallet balance --wallet-path ~/.bittensor/wallets --wallet-name my_wallet
 ```
 
-## 3. Next Step
+## 3. Next step
 
-- [Register on Subnet](../register.md)
+- [Register on Subnet](./register.md)
 
 ---
 

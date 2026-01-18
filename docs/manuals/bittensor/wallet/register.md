@@ -7,7 +7,7 @@ tags: [registration, subnet]
 
 ## Prerequisites
 
-- [**Funded Wallet**](./wallet/fund.md): Ensure you have a Bittensor wallet funded with sufficient TAO tokens to cover the [**registration cost of subnet 61**](https://taostats.io/subnets/61/registration).
+- [**Funded Wallet**](./fund.md): Ensure you have a Bittensor wallet funded with sufficient TAO tokens to cover the [**registration cost of subnet 61**](https://taostats.io/subnets/61/registration).
 
 ## 1. Register your wallet on subnet
 
@@ -80,8 +80,8 @@ btcli wallet overview \
 
 ## 3. Next steps
 
-- [Miner](../../miner/README.md)
-- [Validator](../../validator/README.md)
+- [Miner](../../../miner/README.md)
+- [Validator](../../../validator/README.md)
 
 ---
 

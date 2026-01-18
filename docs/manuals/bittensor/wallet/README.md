@@ -32,3 +32,4 @@ To participate in the Bittensor network, you need two types of wallets: **coldke
 
 - [Create Your Wallet](./create.md)
 - [Fund Your Wallet](./fund.md)
+- [Register on Subnet](./register.md)

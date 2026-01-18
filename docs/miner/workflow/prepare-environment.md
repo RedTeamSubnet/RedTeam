@@ -1,9 +1,9 @@
 ---
-title: 1. Preparation
+title: 1. Prepare Environment
 tags: [preparation]
 ---
 
-# 1. Preparation
+# 1. Prepare Environment
 
 ## System requirements
 
@@ -25,9 +25,9 @@ tags: [preparation]
     - **[RECOMMENDED]  [Miniconda (v3)](../../manuals/installation/miniconda.md)**
 - Install [**docker** and **docker compose**](../../manuals/installation/docker.md)
 
-## 1. Set up your workspace environment
+## Set up your workspace environment
 
-1.1. Prepare projects directory (if not exists):
+### 1. Prepare projects directory (if not exists)
 
 ```sh
 # Create projects directory:
@@ -37,7 +37,7 @@ mkdir -pv ~/workspaces/projects/redteam61
 cd ~/workspaces/projects/redteam61
 ```
 
-1.2. Create conda environment with python 3.10 and pip:
+### 2. Create conda environment with python 3.10 and pip
 
 ```sh
 conda create -y -n redteam python=3.10 pip
@@ -46,13 +46,6 @@ conda create -y -n redteam python=3.10 pip
 conda activate redteam
 ```
 
-## 2. Setup Your Bittensor Wallet
+## Next step
 
-- [**Bittensor Wallet**](../../manuals/bittensor/wallet/README.md):
-    - [**2.1. Create Your Wallet**](../../manuals/bittensor/wallet/create.md)
-    - [**2.2. Fund Your Wallet**](../../manuals/bittensor/wallet/fund.md)
-- [**2.3. Register Your Wallet on Subnet**](../../manuals/bittensor/register.md)
-
-## 3. Next step
-
-- [**Development**](./development.md)
+- [**2. Setup Bittensor Wallet**](./setup-wallet.md) for Miner node.
