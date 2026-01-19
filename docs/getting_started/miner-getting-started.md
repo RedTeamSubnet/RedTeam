@@ -27,7 +27,6 @@ cd agent-miner
 
 Repository structure:
 
-- `examples/` - Challenge solutions and templates
 - `compose.yml` - Docker Compose configuration
 - `pm2-process.json.example` - PM2 configuration
 

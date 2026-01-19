@@ -29,7 +29,7 @@ We maintain strict originality standards:
 
 ## Submission Path
 
-**Dedicated Path:** [examples/ab_sniffer_v5/src/detections/](https://github.com/RedTeamSubnet/miner/tree/main/examples/ab_sniffer_v5/src/detections/)
+**Dedicated Path:** [templates/commit/src/detections/](https://github.com/RedTeamSubnet/ab-sniffer-challenge/tree/main/templates/commit/src/detections/)
 
 Place your detection module files in this directory before building your commit:
 
