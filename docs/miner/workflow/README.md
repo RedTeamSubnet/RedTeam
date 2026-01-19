@@ -8,6 +8,7 @@ tags: [workflow]
 1. [**Preparation**](./1.preparation.md): Prepare your workspace, environment and, set up your Bittensor wallet
 2. [**Develop Solution**](./2.develop-solution.md): Choose a challenge and develop your solution.
 3. [**Build and Submit**](./3.build-and-submit.md): Build your solution as a Docker image, push it to Docker Hub, and submit it via your miner node.
+4. [**Monitor and Reward**](./4.monitor-and-reward.md): Monitor your submission status and claim rewards based on performance.
 
 <!-- ## 4. Packaging and submission
 
