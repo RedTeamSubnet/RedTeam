@@ -52,7 +52,7 @@ We maintain strict originality standards:
 
 ## Submission Path
 
-**Dedicated Path:** [examples/ada_detection_v1/src/detections/](https://github.com/RedTeamSubnet/miner/tree/main/examples/ada_detection_v1/src/detections/)
+**Dedicated Path:** [templates/commit/src/detections/](https://github.com/RedTeamSubnet/ada-detection-challenge/tree/main/templates/commit/src/detections/)
 
 Submit your detection scripts as a JSON payload with the following structure:
 

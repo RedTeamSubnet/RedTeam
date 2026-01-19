@@ -2,7 +2,7 @@
 
 ## Overview
 
-[Miner submission examples](https://github.com/RedTeamSubnet/miner/tree/main/examples) are standardized structures that miners use to package their solutions for RedTeam challenges. They provide a complete, ready-to-use framework that defines how your code will communicate with the RedTeam validation system.
+Submission templates in each challenge repository are standardized structures that miners use to package their solutions for RedTeam challenges. They provide a complete, ready-to-use framework that defines how your code will communicate with the RedTeam validation system.
 
 ## Example Components
 
@@ -45,7 +45,7 @@ Returns service status:
 - **Must** match the exact schema defined for your challenge
 
 !!! note "Data Types"
-    Challenge-specific data types are defined in `examples/src/data_types.py` file of each challenge example.
+    Challenge-specific data types are defined in the `templates/commit/src/data_types.py` file in each challenge repository.
 
 ## Template Files - Do Not Modify
 

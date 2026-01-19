@@ -15,18 +15,14 @@ Choose a challenge from the [Challenge Menu](../challenges/README.md):
 
 ### 1. Implement Your Solution
 
-Clone the [miner repository](https://github.com/RedTeamSubnet/miner) and navigate to your challenge:
+Clone the repository for the challenge you're participating in:
 
 ```bash
-git clone https://github.com/RedTeamSubnet/miner.git 
-cd miner/examples/<challenge_name>
+git clone https://github.com/RedTeamSubnet/<challenge>.git 
+cd <challenge>/templates/commit
 ```
 
-Place your solution files in the **dedicated path** specified in each challenge's README:
-
-- **AB Sniffer v5**: `examples/ab_sniffer_v5/src/detections/`
-- **Humanize Behaviour v5**: `examples/humanize_behaviour_v5/src/bot/bot.py`
-- **ADA Detection v1**: `examples/ada_detection_v1/src/detections/`
+Place your solution files in the **dedicated path** specified in each challenge's README. You can find each challenge README in the [Challenge Menu](../challenges/README.md). 
 
 Read documentation about submission example templates: [About Submission Examples](./components/submission_templates.md)
 
@@ -81,8 +77,8 @@ myuser/ab_sniffer@sha256:abc123def456...
 
 ```bash
 # Clone repository
-git clone https://github.com/RedTeamSubnet/miner.git
-cd miner/examples/ab_sniffer_v5
+git clone https://github.com/RedTeamSubnet/ab-sniffer-challenge.git
+cd ab-sniffer-challenge/templates/commit
 
 # Implement solution in src/detections/
 # Place your .js detection files

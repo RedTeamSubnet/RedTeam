@@ -30,7 +30,7 @@ We maintain strict originality standards:
 
 ## Submission Path
 
-**Dedicated Path:** [examples/humanize_behaviour_v5/src/bot/](https://github.com/RedTeamSubnet/miner/tree/main/examples/humanize_behaviour_v5/src/bot/)
+**Dedicated Path:** [templates/commit/src/bot/](https://github.com/RedTeamSubnet/humanize-behaviour-challenge/tree/main/templates/commit/src/bot/)
 
 Place your bot script in this directory before building your commit:
 
