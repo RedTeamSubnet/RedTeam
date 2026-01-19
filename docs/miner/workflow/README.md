@@ -5,14 +5,9 @@ tags: [workflow]
 
 # Miner Workflow
 
-1. [**Preparation Environment**](./1.prepare-environment.md): Prepare your workspace and environment
-2. [**Setup Your Bittensor Wallet**](./2.setup-wallet.md): Create, fund, and register your wallet
-    1. [**Create Your Wallet**](../../manuals/bittensor/wallet/create.md): Create a new Bittensor wallet
-    2. [**Fund Your Wallet**](../../manuals/bittensor/wallet/fund.md): Fund your wallet with TAO tokens
-    3. [**Register Your Wallet on Subnet**](../../manuals/bittensor/wallet/register.md): Register your wallet on the RedTeam Subnet
-3. [**Choose Challenge to Solve**](./3.choose-challenge.md): Select a challenge from available options
-4. [**Develop Solution for Challenge**](./4.develop-solution.md): Implement and test your solution
-5. [**Build Solution and Submit**](./5.build-solution.md): Package and submit your solution for evaluation
+1. [**Preparation**](./1.preparation.md): Prepare your workspace, environment and, set up your Bittensor wallet
+2. [**Develop Solution for Challenge**](./4.develop-solution.md): Implement and test your solution
+3. [**Build Solution and Submit**](./5.build-solution.md): Package and submit your solution for evaluation
 
 <!-- ## 4. Packaging and submission
 
