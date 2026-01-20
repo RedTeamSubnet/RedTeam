@@ -76,7 +76,7 @@ Each file must be named exactly as shown and contain self-contained JavaScript (
 
 ## Resources & Guides
 
-- [Building a Submission Commit](../../miner/building-commit.md) - General submission instructions
+- [Building a Submission Commit](../../miner/workflow/3.build-and-submit.md) - General submission instructions
 - [NSTBrowser Official](https://www.nstbrowser.io/en/pricing) - Professional plan required for local testing
 - [Challenge Repository](https://github.com/RedTeamSubnet/ada-detection-challenge/)
 - [Miner Repository](https://github.com/RedTeamSubnet/miner/)

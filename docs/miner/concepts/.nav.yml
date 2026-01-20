@@ -1,3 +1,5 @@
 nav:
-  - submission_templates.md
+  - roadmap.md
+  - submission-templates.md
+  - validation.md
   - "*"

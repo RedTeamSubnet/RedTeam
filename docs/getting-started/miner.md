@@ -16,7 +16,7 @@
     - pm2: [Install PM2](../manuals/installation/pm2.md)
 - Set up a wallet: [Wallet Setup Guide](../manuals/bittensor/wallet/README.md)
 - Solve challenges: [Challenges list](../challenges/README.md)
-- Build your submission commits: [Building Submissions](../miner/building-commit.md)
+- Build your submission commits: [Building Submissions](../miner/workflow/3.build-and-submit.md)
 
 ## Step 2: Clone the Miner Repository
 
@@ -139,5 +139,5 @@ btcli subnet show --wallet-name miner --wallet.hotkey default --netuid 61
 ## Next Steps
 
 - **[Challenge Menu](../challenges/README.md)** - Browse available challenges
-- **[Building Submissions](../miner/building-commit.md)** - Detailed submission guide
+- **[Building Submissions](../miner/workflow/3.build-and-submit.md)** - Detailed submission guide
 - **[Miner Repository](https://github.com/RedTeamSubnet/miner)** - Examples and templates

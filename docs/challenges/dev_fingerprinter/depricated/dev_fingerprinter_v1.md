@@ -35,4 +35,4 @@ Example codes for the Device Fingerprinter v1 can be found in the [`redteam_core
 
 ## Submission Guide
 
-To build and submit your solution, please follow the [Building a Submission Commit](../../../miner/building-commit.md) guide.
+To build and submit your solution, please follow the [Building a Submission Commit](../../../miner/workflow/3.build-and-submit.md) guide.

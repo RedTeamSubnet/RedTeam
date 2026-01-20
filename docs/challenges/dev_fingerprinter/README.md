@@ -37,7 +37,7 @@ Ensure your script keeps the `runFingerprinting()` function signature and export
 
 ## Submission
 
-For general instructions on how to build and push your submission, please refer to the [Building a Submission Commit](../../miner/building-commit.md) guide.
+For general instructions on how to build and push your submission, please refer to the [Building a Submission Commit](../../miner/workflow/3.build-and-submit.md) guide.
 
 ## 📑 References
 

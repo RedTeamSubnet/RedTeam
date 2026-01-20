@@ -1,5 +1,5 @@
 ---
-title: Miner Workflow
+title: "Miner Workflow"
 tags: [workflow]
 ---
 
@@ -29,3 +29,4 @@ tags: [workflow]
 - Share your experience and provide feedback
 - Stay updated for future challenges and latest updates from RedTeam Subnet
 - Repeat the process for new challenges and get more incentives -->
+

@@ -1,6 +1,6 @@
 nav:
   - Home: README.md
-  - Getting Started: getting_started
+  - Getting Started: getting-started/
   - Miner: miner/
   - Validator: validator/
   - Challenges: challenges/

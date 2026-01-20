@@ -56,7 +56,7 @@ Place your detection module files in this directory before building your commit:
 
 ## Resources & Guides
 
-- [Building a Submission Commit](../../miner/building-commit.md) - General submission instructions
+- [Building a Submission Commit](../../miner/workflow/3.build-and-submit.md) - General submission instructions
 - [ESLint Configuration Check](https://replit.com/@redteamsn61/absnifferv1eslintcheck#README.md) - Pre-submission validation on Replit
 - [Challenge Repository](https://github.com/RedTeamSubnet/ab-sniffer-challenge/)
 - [Miner Repository](https://github.com/RedTeamSubnet/miner/)

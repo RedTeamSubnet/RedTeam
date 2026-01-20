@@ -53,7 +53,7 @@ Follow these steps to successfully submit your challenge solution:
 - Verify all required files are included with correct naming
 
 - [X] **Build Commit**
-- Follow the [Building a Submission Commit](../miner/building-commit.md) guide
+- Follow the [Building a Submission Commit](../miner/workflow/3.build-and-submit.md) guide
 - Build and tag your Docker image
 - Push the image to your Docker Hub repository
 
