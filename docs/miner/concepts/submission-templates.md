@@ -1,4 +1,9 @@
-# About Submission Examples
+---
+title: "Submission Templates"
+tags: [submission, templates]
+---
+
+# Submission Templates
 
 ## Overview
 

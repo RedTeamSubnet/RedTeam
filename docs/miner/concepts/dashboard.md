@@ -1,10 +1,13 @@
 ---
-title: About Dashboard
+title: Dashboard
+tags: [dashboard, monitoring, results, performance]
 ---
 
-## Miner Dashboard Overview
+# Dashboard
 
-The Miner Dashboard is a comprehensive monitoring and analytics interface that provides real-time visibility into your submission lifecycle, scoring progress, and detailed performance metrics. It displays all your commits throughout their evaluation process and offers transparency into validation, comparison, and scoring results.
+## Overview
+
+The Dashboard is a comprehensive monitoring and analytics interface that provides real-time visibility into your submission lifecycle, scoring progress, and detailed performance metrics. It displays all your commits throughout their evaluation process and offers transparency into validation, comparison, and scoring results.
 
 ### Quick Reference: What You'll See
 

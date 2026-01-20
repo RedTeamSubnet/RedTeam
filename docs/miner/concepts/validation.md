@@ -1,8 +1,11 @@
 ---
-title: About Validation
+title: Validation
+tags: [validation, concepts]
 ---
 
-## Validation Overview
+# Validation
+
+## Overview
 
 The Validation Service is a critical component of the RedTeam Subnet that ensures all miner submissions meet security, integrity, and fairness standards. It performs comprehensive checks on your code before it can be accepted for scoring and rewards.
 
@@ -115,6 +118,7 @@ If your submission fails validation, you'll see an **"Invalid"** status on your 
 ### Example Issues
 
 **Too much code**:
+
 ```javascript
 // ❌ Don't do this - has extra functions
 function myChallenge() { /* ... */ }
@@ -127,6 +131,7 @@ function myChallenge() { /* ... */ }
 ```
 
 **Code style issues**:
+
 ```python
 # ❌ Don't do this
 def myFunc( ):  # Extra spaces
@@ -144,7 +149,7 @@ def my_func():
 These are three different processes:
 
 | Process | What It Does | Outcome |
-|---------|------------|---------|
+| --------- | ------------ | --------- |
 | **Validation** | Checks code quality, structure, and compliance | Valid or Invalid |
 | **Scoring** | Evaluates how well your code solves the challenge | Numeric score (0.0 - 1.0) |
 | **Acceptance** | Determines if you earn rewards based on validation + score + penalty | Accepted or Rejected |
@@ -184,7 +189,7 @@ A submission must be **Valid** before it can even be scored. If it's Invalid, th
 
 ## Related Topics
 
-- See each [Challenges](../../challenges/README.md) requirements for specific validation rules 
+- See each [Challenges](../../challenges/README.md) requirements for specific validation rules
 - See [Dashboard Documentation](dashboard.md) to understand how to interpret your validation results
 - See [Status Lifecycle](dashboard.md#submission-status-lifecycle) for details on the Invalid status
 - Visit the [Testing Playground](https://replit.com/@redteamsn61/absnifferv1eslintcheck?v=2#README.md) to test your code before submitting
