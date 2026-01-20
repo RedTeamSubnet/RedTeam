@@ -706,8 +706,6 @@
       
         
       
-        
-      
     
     
     
@@ -769,14 +767,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../workflow/1.prepare-environment/" class="md-nav__link">
+      <a href="../workflow/1.preparation/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    1. Prepare Environment
+    1. Preparation
   
 
     
@@ -797,14 +795,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../workflow/2.setup-wallet/" class="md-nav__link">
+      <a href="../workflow/2.develop-solution/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    2. Setup Your Bittensor Wallet
+    2. Develop Solution
   
 
     
@@ -825,14 +823,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../workflow/3.choose-challenge/" class="md-nav__link">
+      <a href="../workflow/3.build-and-submit/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    3. Choose Challenge to Solve
+    3. Build and Submit
   
 
     
@@ -853,42 +851,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../workflow/4.develop-solution/" class="md-nav__link">
+      <a href="../workflow/4.monitor-and-reward/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    4. Develop Solution for Challenge
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../workflow/5.build-solution/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    5. Building Solution
+    4. Monitor and Reward
   
 
     
@@ -3213,16 +3183,11 @@
 </ul>
 <h2 id="submission-process">Submission Process</h2>
 <h3 id="1-implement-your-solution">1. Implement Your Solution</h3>
-<p>Clone the <a href="https://github.com/RedTeamSubnet/miner">miner repository</a> and navigate to your challenge:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/RedTeamSubnet/miner.git<span class="w"> </span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nb">cd</span><span class="w"> </span>miner/examples/&lt;challenge_name&gt;
+<p>Clone the repository for the challenge you're participating in:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/RedTeamSubnet/&lt;challenge&gt;.git<span class="w"> </span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nb">cd</span><span class="w"> </span>&lt;challenge&gt;/templates/commit
 </span></code></pre></div>
-<p>Place your solution files in the <strong>dedicated path</strong> specified in each challenge's README:</p>
-<ul>
-<li><strong>AB Sniffer v5</strong>: <code>examples/ab_sniffer_v5/src/detections/</code></li>
-<li><strong>Humanize Behaviour v5</strong>: <code>examples/humanize_behaviour_v5/src/bot/bot.py</code></li>
-<li><strong>ADA Detection v1</strong>: <code>examples/ada_detection_v1/src/detections/</code></li>
-</ul>
+<p>Place your solution files in the <strong>dedicated path</strong> specified in each challenge's README. You can find each challenge README in the <a href="../../challenges/">Challenge Menu</a>. </p>
 <p>Read documentation about submission example templates: <a href="../components/submission_templates/">About Submission Examples</a></p>
 <h3 id="2-test-locally">2. Test Locally</h3>
 <p>Validate your solution before submitting:</p>
@@ -3253,8 +3218,8 @@
 </span></code></pre></div>
 <h2 id="complete-example">Complete Example</h2>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># Clone repository</span>
-</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/RedTeamSubnet/miner.git
-</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="nb">cd</span><span class="w"> </span>miner/examples/ab_sniffer_v5
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/RedTeamSubnet/ab-sniffer-challenge.git
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="nb">cd</span><span class="w"> </span>ab-sniffer-challenge/templates/commit
 </span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>
 </span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="c1"># Implement solution in src/detections/</span>
 </span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="c1"># Place your .js detection files</span>

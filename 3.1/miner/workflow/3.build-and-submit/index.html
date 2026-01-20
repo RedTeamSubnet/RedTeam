@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://docs.theredteam.io/3.1/miner/workflow/1.prepare-environment/">
+        <link rel="canonical" href="https://docs.theredteam.io/3.1/miner/workflow/3.build-and-submit/">
       
       
-        <link rel="prev" href="../">
+        <link rel="prev" href="../2.develop-solution/">
       
       
-        <link rel="next" href="../2.setup-wallet/">
+        <link rel="next" href="../4.monitor-and-reward/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>1. Prepare Environment - RedTeam Subnet - Docs</title>
+        <title>3. Build and Submit - RedTeam Subnet - Docs</title>
       
     
     
@@ -82,7 +82,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#1-prepare-environment" class="md-skip">
+        <a href="#3-build-and-submit" class="md-skip">
           Skip to content
         </a>
       
@@ -119,7 +119,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              1. Prepare Environment
+              3. Build and Submit
             
           </span>
         </div>
@@ -719,8 +719,6 @@
       
         
       
-        
-      
     
     
     
@@ -782,6 +780,62 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.preparation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1. Preparation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.develop-solution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2. Develop Solution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -801,7 +855,7 @@
   <span class="md-ellipsis">
     
   
-    1. Prepare Environment
+    3. Build and Submit
   
 
     
@@ -819,7 +873,7 @@
   <span class="md-ellipsis">
     
   
-    1. Prepare Environment
+    3. Build and Submit
   
 
     
@@ -845,10 +899,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#system-requirements" class="md-nav__link">
+  <a href="#prerequisites" class="md-nav__link">
     <span class="md-ellipsis">
       
-        System requirements
+        Prerequisites
       
     </span>
   </a>
@@ -856,10 +910,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#11-prerequisites" class="md-nav__link">
+  <a href="#31-build-docker-image" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1.1. Prerequisites
+        3.1. Build docker image
       
     </span>
   </a>
@@ -867,24 +921,135 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#12-prepare-projects-directory-if-not-exists" class="md-nav__link">
+  <a href="#32-push-docker-image" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1.2. Prepare projects directory (if not exists)
+        3.2. Push docker image
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.2. Push docker image">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#321-create-docker-hub-account" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2.1. Create Docker Hub account
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#13-create-conda-environment-with-python-310-and-pip" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#322-docker-login" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1.3. Create conda environment with python 3.10 and pip
+        3.2.2. Docker Login
       
     </span>
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#323-push-docker-image-to-docker-hub" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2.3. Push docker image to Docker Hub
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#324-get-sha256-digest-as-commit-hash" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2.4. Get SHA256 digest as commit hash
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#33-submit-your-solution-as-miner-commit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3. Submit your solution as miner commit
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.3. Submit your solution as miner commit">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#331-clone-miner-node-repository" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3.1. Clone miner node repository
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#332-configure-active-commit-file-to-submit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3.2. Configure active commit file to submit
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#333-configure-environment-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3.3. Configure environment variables
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#334-check-docker-compose-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3.4. Check docker compose configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#335-start-miner-node-to-submit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3.5. Start miner node to submit
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -915,98 +1080,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../2.setup-wallet/" class="md-nav__link">
+      <a href="../4.monitor-and-reward/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    2. Setup Your Bittensor Wallet
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../3.choose-challenge/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    3. Choose Challenge to Solve
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../4.develop-solution/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    4. Develop Solution for Challenge
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../5.build-solution/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    5. Building Solution
+    4. Monitor and Reward
   
 
     
@@ -3187,10 +3268,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#system-requirements" class="md-nav__link">
+  <a href="#prerequisites" class="md-nav__link">
     <span class="md-ellipsis">
       
-        System requirements
+        Prerequisites
       
     </span>
   </a>
@@ -3198,10 +3279,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#11-prerequisites" class="md-nav__link">
+  <a href="#31-build-docker-image" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1.1. Prerequisites
+        3.1. Build docker image
       
     </span>
   </a>
@@ -3209,24 +3290,135 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#12-prepare-projects-directory-if-not-exists" class="md-nav__link">
+  <a href="#32-push-docker-image" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1.2. Prepare projects directory (if not exists)
+        3.2. Push docker image
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.2. Push docker image">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#321-create-docker-hub-account" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2.1. Create Docker Hub account
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#13-create-conda-environment-with-python-310-and-pip" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#322-docker-login" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1.3. Create conda environment with python 3.10 and pip
+        3.2.2. Docker Login
       
     </span>
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#323-push-docker-image-to-docker-hub" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2.3. Push docker image to Docker Hub
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#324-get-sha256-digest-as-commit-hash" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2.4. Get SHA256 digest as commit hash
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#33-submit-your-solution-as-miner-commit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3. Submit your solution as miner commit
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.3. Submit your solution as miner commit">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#331-clone-miner-node-repository" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3.1. Clone miner node repository
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#332-configure-active-commit-file-to-submit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3.2. Configure active commit file to submit
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#333-configure-environment-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3.3. Configure environment variables
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#334-check-docker-compose-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3.4. Check docker compose configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#335-start-miner-node-to-submit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3.5. Start miner node to submit
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -3262,6 +3454,27 @@
       
       
       
+        <span class="md-tag">build</span>
+      
+    
+      
+      
+      
+      
+        <span class="md-tag">commit</span>
+      
+    
+      
+      
+      
+      
+        <span class="md-tag">docker</span>
+      
+    
+      
+      
+      
+      
         <span class="md-tag">miner</span>
       
     
@@ -3269,7 +3482,14 @@
       
       
       
-        <span class="md-tag">preparation</span>
+        <span class="md-tag">publish</span>
+      
+    
+      
+      
+      
+      
+        <span class="md-tag">submit</span>
       
     
       
@@ -3286,47 +3506,117 @@
   
 
 
-<h1 id="1-prepare-environment">1. Prepare Environment</h1>
-<p>You need to install and set up the necessary tools and dependencies to prepare your workspace for participating in the RedTeam Subnet challenges.</p>
-<h2 id="system-requirements">System requirements</h2>
-<div class="admonition warning">
-<p class="admonition-title">System Requirements</p>
-<p>Below is the minimum system requirements for running a miner node:</p>
+<h1 id="3-build-and-submit">3. Build and Submit</h1>
+<p>In this step, you will build your solution into a Docker image, push it to Docker Hub, and obtain the SHA256 digest required for submission.</p>
+<h2 id="prerequisites">Prerequisites</h2>
 <ul>
-<li><strong>CPU</strong>: 2+ cores</li>
-<li><strong>RAM</strong>: 8GB+</li>
-<li><strong>Storage</strong>: 50GB+</li>
-<li><strong>OS</strong>: Linux-based (Ubuntu 22.04 LTS+ recommended)</li>
-<li><strong>Network</strong>: Stable internet connection</li>
+<li><a href="../1.preparation/"><strong>1. Preparation</strong></a></li>
+<li><a href="../2.develop-solution/"><strong>2. Develop Solution</strong></a></li>
+</ul>
+<h2 id="31-build-docker-image">3.1. Build docker image</h2>
+<p>This step assumes you've already cloned the challenge repository and implemented your solution in the <code>templates/commit</code> directory or in your working directory as mentioned in the <a href="../2.develop-solution/">previous step</a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Arguments</p>
+<p>Make sure to replace the placeholders:</p>
+<ul>
+<li><code>&lt;USERNAME&gt;</code> with your Docker Hub username.</li>
+<li><code>&lt;CHALLENGE_NAME&gt;</code> with the name of the challenge (e.g., <code>ab_sniffer</code>, <code>ada_detection</code>, <code>humanize_behaviour</code>, etc.).</li>
+<li><code>&lt;VERSION&gt;</code> with your version tag (e.g., <code>1.0.0</code>, <code>v1</code>, etc.).</li>
 </ul>
 </div>
-<h2 id="11-prerequisites">1.1. Prerequisites</h2>
-<ul>
-<li>Install and open <strong>Terminal</strong> or <strong>Command Line Interface</strong> to run commands.</li>
-<li>Install <strong>curl</strong></li>
-<li>Install <a href="https://git-scm.com/install"><strong>git</strong></a></li>
-<li>Install <strong>Python (&gt;= v3.10)</strong> and <strong>pip (&gt;= 23)</strong>:<ul>
-<li><strong>[RECOMMENDED]  <a href="../../../manuals/installation/miniconda/">Miniconda (v3)</a></strong></li>
-</ul>
-</li>
-<li>Install <a href="../../../manuals/installation/docker/"><strong>docker</strong> and <strong>docker compose</strong></a></li>
-</ul>
-<h2 id="12-prepare-projects-directory-if-not-exists">1.2. Prepare projects directory (if not exists)</h2>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Create projects directory:</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>mkdir<span class="w"> </span>-pv<span class="w"> </span>~/workspaces/projects/redteam61
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># Enter into projects directory:</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="nb">cd</span><span class="w"> </span>~/workspaces/projects/redteam61
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </span>&lt;USERNAME&gt;/&lt;CHALLENGE_NAME&gt;:&lt;VERSION&gt;<span class="w"> </span>.
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="c1"># For example:</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </span>myuser/ab_sniffer:1.0.0<span class="w"> </span>.
 </span></code></pre></div>
-<h2 id="13-create-conda-environment-with-python-310-and-pip">1.3. Create conda environment with python 3.10 and pip</h2>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>conda<span class="w"> </span>create<span class="w"> </span>-y<span class="w"> </span>-n<span class="w"> </span>redteam<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.10<span class="w"> </span>pip
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="c1"># Activate conda environment:</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>conda<span class="w"> </span>activate<span class="w"> </span>redteam
+<h2 id="32-push-docker-image">3.2. Push docker image</h2>
+<h3 id="321-create-docker-hub-account">3.2.1. Create Docker Hub account</h3>
+<p>Sign up at <a href="https://hub.docker.com">https://hub.docker.com</a>, if you don't have an account yet.</p>
+<h3 id="322-docker-login">3.2.2. Docker Login</h3>
+<p>You need to login using your Docker Hub credentials before pushing the image:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>docker<span class="w"> </span>login
+</span></code></pre></div>
+<h3 id="323-push-docker-image-to-docker-hub">3.2.3. Push docker image to Docker Hub</h3>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>docker<span class="w"> </span>push<span class="w"> </span>&lt;USERNAME&gt;/&lt;REPO_NAME&gt;:&lt;VERSION&gt;
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="c1"># For example:</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>docker<span class="w"> </span>push<span class="w"> </span>my_username/my_repo:1.0.0
+</span></code></pre></div>
+<h3 id="324-get-sha256-digest-as-commit-hash">3.2.4. Get SHA256 digest as commit hash</h3>
+<div class="admonition warning">
+<p class="admonition-title">FOR SUBMISSION</p>
+<p>Save the SHA256 digest of your pushed docker image, which is required for submission for <strong>miner commit hash</strong>!</p>
+</div>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>docker<span class="w"> </span>inspect<span class="w"> </span>--format<span class="o">=</span><span class="s1">&#39;{{index .RepoDigests 0}}&#39;</span><span class="w"> </span>&lt;USERNAME&gt;/&lt;REPO_NAME&gt;:&lt;VERSION&gt;
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="c1"># For example:</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>docker<span class="w"> </span>inspect<span class="w"> </span>--format<span class="o">=</span><span class="s1">&#39;{{index .RepoDigests 0}}&#39;</span><span class="w"> </span>my_username/my_repo:1.0.0
+</span></code></pre></div>
+<p>Output:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>my_username/my_repo@sha256:abc123def456...
+</span></code></pre></div>
+<h2 id="33-submit-your-solution-as-miner-commit">3.3. Submit your solution as miner commit</h2>
+<h3 id="331-clone-miner-node-repository">3.3.1. Clone miner node repository</h3>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/RedTeamSubnet/miner.git<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span><span class="nb">cd</span><span class="w"> </span>miner
+</span></code></pre></div>
+<h3 id="332-configure-active-commit-file-to-submit">3.3.2. Configure active commit file to submit</h3>
+<div class="admonition danger">
+<p class="admonition-title">IMPORTANT</p>
+<p>Make sure to change the commit hash with your own pushed docker image <strong>SHA256 digest as commit hash</strong> in the <strong><code>active_commit.yaml</code></strong> file:</p>
+</div>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># Copy template active commit file:</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>cp<span class="w"> </span>-v<span class="w"> </span>./templates/configs/active_commit.yaml<span class="w"> </span>./volumes/configs/agent-miner/active_commit.yaml
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="c1"># Change active commit file with your own commit hash:</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>nano<span class="w"> </span>./volumes/configs/agent-miner/active_commit.yaml
+</span></code></pre></div>
+<p><code>`active_commit.yaml</code> format:</p>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;CHALLENGE_NAME&gt;---&lt;USERNAME&gt;/&lt;REPO_NAME&gt;@sha256:&lt;DIGEST&gt;</span>
+</span></code></pre></div>
+<p>For example:</p>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ab_sniffer_v5---my_username/my_repo@sha256:abc123def456...</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ada_detection_v3---my_username/my_repo@sha256:abc123def456...</span>
+</span></code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Multiple commits for different challenges</p>
+<p>You can add multiple commits for different challenges in the same <code>active_commit.yaml</code> file.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Only one commit per challenge/day</p>
+<ul>
+<li>Only one commit per challenge is allowed in the <code>active_commit.yaml</code> file. If you add multiple commits for the same challenge, only the last one will be considered during submission and others will be ignored.</li>
+<li>We are allowing only one commit per challenge/day for submission to avoid spam, abuse, unnecessary network load, and fair evaluation for all participants.</li>
+</ul>
+</div>
+<h3 id="333-configure-environment-variables">3.3.3. Configure environment variables</h3>
+<div class="admonition danger">
+<p class="admonition-title">IMPORTANT</p>
+<p>Make sure to change the <strong>wallet directory</strong>, <strong>wallet name</strong>, and <strong>hotkey name</strong> variables in the <strong><code>.env</code></strong> file to match your wallet and hotkey:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="nv">RT_BTCLI_WALLET_DIR</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">HOME</span><span class="si">}</span><span class="s2">/.bittensor/wallets&quot;</span><span class="w"> </span><span class="c1"># !!! CHANGE THIS TO REAL WALLET DIRECTORY !!!</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="nv">RT_MINER_WALLET_NAME</span><span class="o">=</span><span class="s2">&quot;miner&quot;</span><span class="w"> </span><span class="c1"># !!! CHANGE THIS TO REAL MINER WALLET NAME !!!</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="nv">RT_MINER_HOTKEY_NAME</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="w"> </span><span class="c1"># !!! CHANGE THIS TO REAL MINER HOTKEY NAME !!!</span>
+</span></code></pre></div>
+</div>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1"># Copy &#39;.env.example&#39; file to &#39;.env&#39; file:</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>cp<span class="w"> </span>-v<span class="w"> </span>./.env.example<span class="w"> </span>./.env
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="c1"># Edit environment variables to fit in your environment</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>nano<span class="w"> </span>./.env
+</span></code></pre></div>
+<h3 id="334-check-docker-compose-configuration">3.3.4. Check docker compose configuration</h3>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="c1">## Check docker compose configuration is valid:</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>./compose.sh<span class="w"> </span>validate
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="c1"># Or:</span>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>docker<span class="w"> </span>compose<span class="w"> </span>config
+</span></code></pre></div>
+<h3 id="335-start-miner-node-to-submit">3.3.5. Start miner node to submit</h3>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1">## Start docker compose:</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>./compose.sh<span class="w"> </span>start<span class="w"> </span>-l
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="c1"># Or:</span>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>--remove-orphans<span class="w"> </span>--force-recreate<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="w">    </span>docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>--tail<span class="w"> </span><span class="m">100</span>
 </span></code></pre></div>
 <h2 id="next-step">Next step</h2>
 <ul>
-<li><a href="../2.setup-wallet/"><strong>2. Setup Your Bittensor Wallet</strong></a> for Miner node.</li>
+<li><a href="../4.monitor-and-reward/"><strong>4. Monitor and Reward</strong></a></li>
 </ul>
 
 
@@ -3366,7 +3656,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../" class="md-footer__link md-footer__link--prev" aria-label="Previous: Miner Workflow">
+          <a href="../2.develop-solution/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 2. Develop Solution">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -3376,20 +3666,20 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                Miner Workflow
+                2. Develop Solution
               </div>
             </div>
           </a>
         
         
           
-          <a href="../2.setup-wallet/" class="md-footer__link md-footer__link--next" aria-label="Next: 2. Setup Your Bittensor Wallet">
+          <a href="../4.monitor-and-reward/" class="md-footer__link md-footer__link--next" aria-label="Next: 4. Monitor and Reward">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                2. Setup Your Bittensor Wallet
+                4. Monitor and Reward
               </div>
             </div>
             <div class="md-footer__button md-icon">

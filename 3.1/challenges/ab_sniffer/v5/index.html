@@ -714,8 +714,6 @@
       
         
       
-        
-      
     
     
     
@@ -777,14 +775,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../miner/workflow/1.prepare-environment/" class="md-nav__link">
+      <a href="../../../miner/workflow/1.preparation/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    1. Prepare Environment
+    1. Preparation
   
 
     
@@ -805,14 +803,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../miner/workflow/2.setup-wallet/" class="md-nav__link">
+      <a href="../../../miner/workflow/2.develop-solution/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    2. Setup Your Bittensor Wallet
+    2. Develop Solution
   
 
     
@@ -833,14 +831,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../miner/workflow/3.choose-challenge/" class="md-nav__link">
+      <a href="../../../miner/workflow/3.build-and-submit/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    3. Choose Challenge to Solve
+    3. Build and Submit
   
 
     
@@ -861,42 +859,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../miner/workflow/4.develop-solution/" class="md-nav__link">
+      <a href="../../../miner/workflow/4.monitor-and-reward/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    4. Develop Solution for Challenge
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../miner/workflow/5.build-solution/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    5. Building Solution
+    4. Monitor and Reward
   
 
     
@@ -1611,6 +1581,23 @@
   </a>
   
 </li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#submission-templates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Submission Templates
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Submission Templates">
+      <ul class="md-nav__list">
         
           <li class="md-nav__item">
   <a href="#final-step" class="md-nav__link">
@@ -3331,6 +3318,23 @@
   
 </li>
         
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#submission-templates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Submission Templates
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Submission Templates">
+      <ul class="md-nav__list">
+        
           <li class="md-nav__item">
   <a href="#final-step" class="md-nav__link">
     <span class="md-ellipsis">
@@ -3394,10 +3398,10 @@
 <p>For general challenge information, technical requirements, and plagiarism policies, please refer to the <a href="../">AB Sniffer README</a>.</p>
 <hr />
 <h2 id="example-code">Example Code</h2>
-<p>Example codes for AB Sniffer v5 can be found in the <a href="https://github.com/RedTeamSubnet/ab-sniffer-challenge/tree/main/src/templates/static/detections"><code>detections</code></a> directory.</p>
+<p>Example codes for AB Sniffer v5 can be found in the <a href="https://github.com/RedTeamSubnet/ab-sniffer-challenge/tree/main/templates/commit/src/detections/"><code>templates/commit/src/detections/</code></a> directory.</p>
 <h3 id="mandatory-requirements">Mandatory Requirements</h3>
 <ol>
-<li>Use the templates provided in the <a href="https://github.com/RedTeamSubnet/miner/tree/main/examples/ab_sniffer_v5/src/detections"><code>examples/ab_sniffer_v5/src/detections/</code></a> directory for each framework.</li>
+<li>Use the templates provided in the <a href="https://github.com/RedTeamSubnet/ab-sniffer-challenge/tree/main/templates/commit/src/detections/"><code>templates/commit/src/detections/</code></a> directory for each framework.</li>
 <li>Implement the detection logic within the individual files found in the <code>src/detections/</code> directory. <strong>Do not</strong> change the function names (e.g., <code>detect_nodriver</code>, <code>detect_botasaurus</code>).</li>
 <li>Your detection functions must:</li>
 <li>Return a <strong>boolean</strong> value: <code>true</code> if the specific framework for that file is detected, and <code>false</code> otherwise.</li>
@@ -3466,6 +3470,8 @@
 </ul>
 <h3 id="pre-submission-check">Pre-Submission Check</h3>
 <p>Before submitting, you <strong>must</strong> ensure your code passes our ESLint configuration. You can do this by using our provided playground environment on <a href="https://replit.com/@redteamsn61/absnifferv1eslintcheck#README.md">Replit</a>. Submissions that do not pass the linting check will be rejected.</p>
+<h2 id="submission-templates">Submission Templates</h2>
+<p>Templates and building instructions can be found in the <a href="https://github.com/RedTeamSubnet/ab-sniffer-challenge/tree/main/templates/commit">AB Sniffer repository</a>.</p>
 <h3 id="final-step">Final Step</h3>
 <p>After completing your implementation, follow the <a href="../../../miner/building-commit/">Building a Submission Commit</a> guide to package and submit your solution.</p>
 
