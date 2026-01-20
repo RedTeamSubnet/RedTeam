@@ -1,4 +1,10 @@
-# Getting Started for Validators
+---
+title: Validator
+tags:
+    - validator
+---
+
+# Getting Started - Validator
 
 ## Step 1: Prepare Your Environment
 

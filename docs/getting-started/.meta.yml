@@ -1,6 +1,4 @@
 tags:
   - getting started
-  - miner
-  - validator
-hide:
-  - tags
+# hide:
+#   - tags
