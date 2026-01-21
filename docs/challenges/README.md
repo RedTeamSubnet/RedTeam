@@ -15,7 +15,7 @@ Each challenge focuses on a specific problem space, with multiple versions relea
 Each challenge maintains version history in its documentation:
 
 - **Active Versions**: Current challenges accepting submissions (see each challenge's README)
-- **Deprecated Versions**: Previous challenge iterations stored in `depricated/` folders for historical reference
+- **Deprecated Versions**: Previous challenge iterations stored in `deprecated/` folders for historical reference
 - **Inactive Challenges**: Challenges that are no longer accepting submissions (marked in the navigation below)
 
 !!! warning "Important"

@@ -50,9 +50,9 @@ Place your detection module files in this directory before building your commit:
 
 **Deprecated:**
 
-- [v4 (Oct 16, 2025)](./depricated/v4.md)
-- [v2 (July 15, 2025)](./depricated/v2.md)
-- [v1 (June 10, 2025)](./depricated/v1.md)
+- [v4 (Oct 16, 2025)](./deprecated/v4.md)
+- [v2 (July 15, 2025)](./deprecated/v2.md)
+- [v1 (June 10, 2025)](./deprecated/v1.md)
 
 ## Resources & Guides
 

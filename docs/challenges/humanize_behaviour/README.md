@@ -46,9 +46,9 @@ Ensure your bot script follows the template structure and keeps the `run_bot()` 
 
 **Deprecated:**
 
-- [v3 (April 11, 2025)](./depricated/v3.md)
-- [v2 (March 18, 2025)](./depricated/v2.md)
-- [v1 (Feb 12, 2025)](./depricated/v1.md)
+- [v3 (April 11, 2025)](./deprecated/v3.md)
+- [v2 (March 18, 2025)](./deprecated/v2.md)
+- [v1 (Feb 12, 2025)](./deprecated/v1.md)
 
 ## Resources & Guides
 

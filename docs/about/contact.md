@@ -11,7 +11,7 @@ If you have any questions, suggestions, or need assistance, feel free to reach o
 - [:fontawesome-brands-github: GitHub Discussions](https://github.com/RedTeamSubnet/RedTeam/discussions) - For technical discussions, bug reports, and feature requests.
 - [:fontawesome-solid-blog: Blog](https://blog.theredteam.io) - To get the latest technical articles, announcements, and insights from our team.
 - [:fontawesome-brands-twitter: Twitter](https://x.com/_redteam_) - To get the latest marketing, business updates, and news.
-- [:fontawesome-solid-envelope: Email](mailto:oscar@theredmteam.io) - For more formal inquiries, subnet-related, legal matters, partnership proposals, or investment opportunities.
+- [:fontawesome-solid-envelope: Email](mailto:oscar@theredteam.io) - For more formal inquiries, subnet-related, legal matters, partnership proposals, or investment opportunities.
 
 !!! tip "Preferred"
-    We prefer **Discord** channel for real-time communication and quick responses.
+    We prefer **discord** channel for real-time communication and quick responses.
