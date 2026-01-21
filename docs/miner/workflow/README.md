@@ -11,13 +11,7 @@ tags: [workflow]
 4. [**Submit Commit**](./4.submit-commit.md): Submit your published commit (solution) to the RedTeam Subnet for evaluation.
 5. [**Monitor and Reward**](./5.monitor-and-reward.md): Monitor your submission status and claim rewards based on performance.
 
-<!-- ## 4. Packaging and submission
-
-- Build your solution as a docker image
-- Publish your docker image to Docker Hub (commit)
-- Configure miner node with your wallet and commit (Docker Hub image hash ID)
-- Run miner node to submit your commit (solution)
-
+<!--
 ## 5. Evaluation and reward
 
 - Wait validators to fetch your commit and scoring system to evaluate it
@@ -29,4 +23,5 @@ tags: [workflow]
 - Analyze your solution performance and improve for better results
 - Share your experience and provide feedback
 - Stay updated for future challenges and latest updates from RedTeam Subnet
-- Repeat the process for new challenges and get more incentives -->
+- Repeat the process for new challenges and get more incentives
+-->
