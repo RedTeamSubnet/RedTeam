@@ -4,6 +4,8 @@ title: Validator
 
 # 🛡️ Validator
 
+**Validator node repository**: <https://github.com/RedTeamSubnet/validator>
+
 !!! danger "CRITICAL ANNOUNCEMENT: Mandatory Migration"
     **Deadline: 25 Jan 2026:** You have one week to migrate your validator to the new repository.
 

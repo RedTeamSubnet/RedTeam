@@ -9,7 +9,7 @@ tags:
 ## Step 1: Prerequisites
 
 ???+ warning inline end "System Requirements"
-    - **Server**: Bare Metal Server
+    - **Server**: Bare metal
     - **CPU**: 8+ cores
     - **RAM**: 32GB+
     - **Storage**: 512GB+
