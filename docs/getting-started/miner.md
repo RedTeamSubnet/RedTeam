@@ -121,24 +121,41 @@ docker compose up -d --remove-orphans --force-recreate && \
 
 ## Step 4: Monitor your miner
 
-### Track Performance
-
-- Visit the [RedTeam Dashboard](https://dashboard.theredteam.io) to monitor your miner's performance, scores, and earnings.
-- Monitor scores and validator feedback
-- Optimize solution and resubmit
-
-### Check miner status on RedTeam Subnet
+- Visit the [**RedTeam Dashboard**](https://dashboard.theredteam.io) to monitor your miner's performance, score, and our evaluation system feedback.
+- Check miner status on RedTeam Subne:
 
 ```sh
 # Check subnet seat info:
 btcli subnet show --netuid 61
 
-# Check miner wallet registration status:
+# Check miner wallet status:
 btcli wallet overview \
     --wallet-path ~/.bittensor/wallets \
     --wallet-name my_wallet \
     --wallet-hotkey my_hotkey \
     --netuid 61 \
+    --verbose
+```
+
+## Step 5: Optimize your solution
+
+- Check submission analysis and feedback on the [**RedTeam Dashboard**](https://dashboard.theredteam.io)
+- Based on scores and feedback, refine and improve your solution.
+- Rebuild and republish your docker image with the updated solution.
+- Update the `active_commit.yaml` file with the new commit hash.
+- Restart the miner node to resubmit the improved solution.
+
+## Step 6: Check your rewards
+
+- After successful scoring and validation, rewards will be distributed to your registered wallet based on your performance.
+- Ensure your wallet is secure and monitor your balance regularly.
+- Check your wallet balance to see the rewards earned:
+
+```sh
+btcli wallet balance \
+    --wallet-path ~/.bittensor/wallets \
+    --wallet-name my_wallet \
+    --wallet-hotkey my_hotkey \
     --verbose
 ```
 
