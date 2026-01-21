@@ -46,7 +46,7 @@ Follow these steps to successfully submit your challenge solution:
 - Implement your solution following the provided templates
 - Test locally using the testing guides and validation tools
 - Ensure your code meets all technical constraints and limitations
-- Reference [Testing & Validation](#testing--validation) resources above
+- Reference [Testing & Validation](#testing-validation) resources above
 
 - [X] **Put Submission to Dedicated Path**
 - Place your submission files in the challenge's dedicated submission path (see each challenge README)

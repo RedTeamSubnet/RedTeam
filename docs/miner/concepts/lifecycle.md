@@ -1,9 +1,9 @@
 ---
-title: Roadmap
-tags: [roadmap]
+title: "Miner Lifecycle"
+tags: [lifecycle]
 ---
 
-# Miner Roadmap
+# Miner Lifecycle
 
 ## Stages
 

@@ -6,27 +6,29 @@ title: Miner
 
 Miners solve security challenges on RedTeam Subnet and earn TAO rewards based on solution quality and accuracy.
 
-## Quick Start
+**Miner node repository**: <https://github.com/RedTeamSubnet/miner>
 
-1. **[Getting Started](../getting-started/miner.md)** - Quick setup guide
-2. **[Miner Repository](https://github.com/RedTeamSubnet/miner)** - Examples and challenge templates
-3. **[Challenge Menu](../challenges/README.md)** - Browse available challenges
-4. **[Building Submissions](./workflow/3.build-and-publish.md)** - Package and submit your solution
-5. **[Submission Guide](https://github.com/RedTeamSubnet/miner/blob/main/README.md)** - Submit your commit
+## Quick start
 
-## Mining Process
+- [**Getting Started**](../getting-started/miner.md) - Quick run miner node guide
+- [**Challenges**](../challenges/README.md) - Browse available challenges
+- [**Miner Lifecycle**](./concepts/lifecycle.md) - Miner lifecycle and roadmap
+- [**Miner Workflow**](./workflow/README.md) - Step-by-step guide to participate as a miner
 
-1. **Setup** - Install prerequisites, create wallet, register on Subnet 61
-2. **Develop** - Choose a challenge, implement solution, test locally
-3. **Submit** - Build Docker image, push to Docker Hub, register commit
-4. **Earn** - Get evaluated by validators, monitor scores, receive rewards
+## Miner workflow
 
-## Available Challenges
+1. [**Preparation**](./workflow/1.preparation.md): Prepare your workspace, environment and, set up your Bittensor wallet
+2. [**Develop Solution**](./workflow/2.develop-solution.md): Choose a challenge and develop your solution.
+3. [**Build and Publish**](./workflow/3.build-and-publish.md): Build your solution as a Docker image, publish it to Docker Hub.
+4. [**Submit Commit**](./workflow/4.submit-commit.md): Submit your published commit (solution) to the RedTeam Subnet for evaluation.
+5. [**Monitor and Reward**](./workflow/5.monitor-and-reward.md): Monitor your submission status and claim rewards based on performance.
 
-- **[AB Sniffer](../challenges/ab_sniffer/README.md)** - Detect automation frameworks
-- **[Humanize Behaviour](../challenges/humanize_behaviour/README.md)** - Mimic human interaction
-- **[Anti-Detect Automation Detection](../challenges/ada_detection/README.md)** - Detect bots in anti-detect browsers
-- **[Device Fingerprinter](../challenges/dev_fingerprinter/README.md)** *(Inactive)*
+## Challenges
+
+- [**AB Sniffer**](../challenges/ab_sniffer/README.md) - Detect automation frameworks
+- [**Humanize Behaviour**](../challenges/humanize_behaviour/README.md) - Mimic human interaction
+- [**Anti-Detect Automation Detection**](../challenges/ada_detection/README.md) - Detect bots in anti-detect browsers
+- [**Device Fingerprinter**](../challenges/dev_fingerprinter/README.md) *(Inactive)*
 
 ## Rewards
 
@@ -36,4 +38,8 @@ Earn TAO based on:
 - Validator consensus
 - Challenge difficulty
 
-See [Challenge Menu](../challenges/README.md) for specifications and [Miner workflow](./workflow/README.md) to begin mining.
+---
+
+## References
+
+- Mining in Bittensor: <https://docs.learnbittensor.org/miners>
