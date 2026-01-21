@@ -3,7 +3,7 @@ title: "Submission Templates"
 tags: [submission, templates]
 ---
 
-# Submission Templates
+# 🧩 Submission Templates
 
 ## Overview
 

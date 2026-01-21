@@ -1,8 +1,8 @@
 ---
-title: Validator Overview
+title: Validator
 ---
 
-# Validator
+# 🛡️ Validator
 
 !!! danger "CRITICAL ANNOUNCEMENT: Mandatory Migration"
     **Deadline: 25 Jan 2026:** You have one week to migrate your validator to the new repository.

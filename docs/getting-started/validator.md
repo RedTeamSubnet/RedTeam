@@ -4,7 +4,7 @@ tags:
     - validator
 ---
 
-# Getting Started - Validator
+# 🛡️ Getting Started - Validator
 
 ## Step 1: Prepare Your Environment
 

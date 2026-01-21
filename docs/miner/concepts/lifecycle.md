@@ -3,7 +3,7 @@ title: "Miner Lifecycle"
 tags: [lifecycle]
 ---
 
-# Miner Lifecycle
+# ♻️ Miner Lifecycle
 
 ## Stages
 

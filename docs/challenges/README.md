@@ -1,8 +1,8 @@
 ---
-title: Challenge Menu
+title: Challenges
 ---
 
-# RedTeam Challenge Menu
+# ❓ Challenges
 
 ## Overview
 

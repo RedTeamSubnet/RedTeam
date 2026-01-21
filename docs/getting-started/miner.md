@@ -4,7 +4,7 @@ tags:
     - miner
 ---
 
-# Getting Started - Miner
+# ⛏ Getting Started - Miner
 
 ## Step 1: Prerequisites
 

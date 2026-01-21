@@ -3,7 +3,7 @@ title: Dashboard
 tags: [dashboard, monitoring, results, performance]
 ---
 
-# Dashboard
+# 📊 Dashboard
 
 ## Overview
 

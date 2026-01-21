@@ -3,7 +3,7 @@ title: Validation
 tags: [validation, concepts]
 ---
 
-# Validation
+# ✅ Validation
 
 ## Overview
 

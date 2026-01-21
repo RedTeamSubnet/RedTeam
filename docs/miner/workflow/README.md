@@ -3,7 +3,7 @@ title: "Miner Workflow"
 tags: [workflow]
 ---
 
-# Miner Workflow
+# 🔄 Miner Workflow
 
 1. [**Preparation**](./1.preparation.md): Prepare your workspace, environment and, set up your Bittensor wallet
 2. [**Develop Solution**](./2.develop-solution.md): Choose a challenge and develop your solution.
