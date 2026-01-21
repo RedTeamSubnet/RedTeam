@@ -120,14 +120,11 @@ docker compose up -d --remove-orphans --force-recreate && \
     docker compose logs -f --tail 100
 ```
 
+!!! warning "IMPORTANT"
+    - You need to keep the miner node running continuously to submit solutions and earn rewards during the challenge period (at 2 least days).
+    - Stopping the miner node could halt submission communications with validators and affect your earnings.
+
 ## Step 4: Monitor your miner
-
-### Check Status
-
-```sh
-btcli subnet list --netuid 61
-btcli subnet show_stake --wallet-name miner --wallet.hotkey default --netuid 61
-```
 
 ### Track Performance
 
@@ -135,24 +132,23 @@ btcli subnet show_stake --wallet-name miner --wallet.hotkey default --netuid 61
 - Monitor scores and validator feedback
 - Optimize solution and resubmit
 
-## Troubleshooting
-
-**Docker permission denied:**
+### Check miner status on RedTeam Subnet
 
 ```sh
-sudo usermod -aG docker $USER
-newgrp docker
+# Check subnet seat info:
+btcli subnet show --netuid 61
+
+# Check miner wallet registration status:
+btcli wallet overview \
+    --wallet-path ~/.bittensor/wallets \
+    --wallet-name my_wallet \
+    --wallet-hotkey my_hotkey \
+    --netuid 61 \
+    --verbose
 ```
 
-**Miner not registering:**
+## Next steps
 
-```sh
-btcli wallet balance --wallet-name miner
-btcli subnet show --wallet-name miner --wallet.hotkey default --netuid 61
-```
-
-## Next Steps
-
-- **[Challenge Menu](../challenges/README.md)** - Browse available challenges
-- **[Building Submissions](../miner/workflow/3.build-and-submit.md)** - Detailed submission guide
-- **[Miner Repository](https://github.com/RedTeamSubnet/miner)** - Examples and templates
+- [**Miner documentation**](../miner/README.md)
+- [**Challenges documentation**](../challenges/README.md)
+- [**Miner node repository**](https://github.com/RedTeamSubnet/miner)

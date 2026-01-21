@@ -47,11 +47,28 @@ btcli subnet register \
     --yes
 ```
 
-!!! info "Notes"
+!!! info "INFO"
     - It may take a few moments for the registration to be processed on the network.
     - The registration cost is effectively burnt once you have successfully registered.
 
+!!! success "SUCCESS"
+    After successful registration, your wallet will be listed as a member and will take a seat (UID) in the subnet.
+
 ## 2. Verify your registration
+
+!!! tip "TIP"
+    Take note of your seat UID, as it might be useful for future reference or monitoring your subnet activities.
+
+### Check subnet seat info
+
+```sh
+btcli subnet show --netuid <SUBNET_NETUID>
+
+# For example:
+btcli subnet show --netuid 61
+```
+
+### Check wallet registration status
 
 **OPTION A.** Check overall all wallets:
 
