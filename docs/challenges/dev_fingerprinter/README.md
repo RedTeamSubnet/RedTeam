@@ -31,13 +31,14 @@ We maintain strict originality standards:
 **Dedicated Path:** `examples/dev_fingerprinter_v1/src/fingerprinter/`
 
 Place your fingerprinting script in this directory before building your commit:
+
 - `fingerprinter.js` - Your main fingerprinting implementation
 
 Ensure your script keeps the `runFingerprinting()` function signature and export unchanged.
 
 ## Submission
 
-For general instructions on how to build and push your submission, please refer to the [Building a Submission Commit](../../miner/workflow/3.build-and-submit.md) guide.
+For general instructions on how to build and push your submission, please refer to the [Building a Submission Commit](../../miner/workflow/3.build-and-publish.md) guide.
 
 ## 📑 References
 

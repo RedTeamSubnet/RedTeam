@@ -26,7 +26,7 @@ tags:
     - [Fund your wallet](../manuals/bittensor/wallet/fund.md)
     - [Register your wallet](../manuals/bittensor/wallet/register.md)
 - Implement your own solution to [**solve challenges**](../challenges/README.md)
-- [**Build and publish**](../miner/workflow/3.build-and-submit.md) your solution as commit
+- [**Build and publish**](../miner/workflow/3.build-and-publish.md) your solution as commit
 
 ## Step 2: Clone the miner repository
 
@@ -101,7 +101,7 @@ cp -v ./.env.example ./.env
 nano ./.env
 ```
 
-### 3.3. Check docker compose configuration
+### 3.3. Validate docker compose configuration
 
 ```sh
 ## Check docker compose configuration is valid:

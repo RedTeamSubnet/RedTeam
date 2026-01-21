@@ -53,7 +53,7 @@ Ensure your bot script follows the template structure and keeps the `run_bot()` 
 ## Resources & Guides
 
 - [Testing Manual](./testing_manuals.md) - Local testing guidelines for bot scripts
-- [Building a Submission Commit](../../miner/workflow/3.build-and-submit.md) - General submission instructions
+- [Building a Submission Commit](../../miner/workflow/3.build-and-publish.md) - General submission instructions
 
 ## 📑 References
 
