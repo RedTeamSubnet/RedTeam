@@ -92,7 +92,7 @@ plugins:
   - tags
   - search
   - awesome-nav
-  - mkdocstrings
+  # - mkdocstrings
 extra:
   version:
     provider: mike
@@ -111,6 +111,4 @@ extra:
       link: https://medium.com/@TheRedTeam
     - icon: fontawesome/brands/x-twitter
       link: https://x.com/_redteam_
-    - icon: fontawesome/brands/docker
-      link: https://hub.docker.com/u/redteamsubnet61
 copyright: Copyright &copy; 2026 - RedTeam Subnet.
