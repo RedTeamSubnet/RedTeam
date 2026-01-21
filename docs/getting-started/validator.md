@@ -6,93 +6,92 @@ tags:
 
 # 🛡️ Getting Started - Validator
 
-## Step 1: Prepare Your Environment
+## Step 1: Prerequisites
 
-!!! warning inline end "System Requirements"
-    - **Server Type**: Bare Metal Server
-    - **CPU**: 8-Core CPU
-    - **RAM**: 32 GB
-    - **Storage**: 512 GB
-    - **OS**: Ubuntu 22.04 LTS or later
+???+ warning inline end "System Requirements"
+    - **Server**: Bare Metal Server
+    - **CPU**: 8+ cores
+    - **RAM**: 32GB+
+    - **Storage**: 512GB+
+    - **OS**: Ubuntu 22.04 LTS+ recommended
+    - **Network**: Stable high-speed internet connection
 
-- Install Prerequisites
-    - Docker: [Install Docker](../manuals/installation/docker.md)
-    - miniconda: [Install Miniconda](../manuals/installation/miniconda.md)
-    - nvm: [Install NVM](../manuals/installation/nvm.md)
-    - pm2: [Install PM2](../manuals/installation/pm2.md)
-- Set up a wallet: [Wallet Setup Guide](../manuals/bittensor/wallet/README.md)
+- Install [**git**](https://git-scm.com/install) to clone repositories.
+- Install **Python (>= v3.10)** and **pip (>= 23)**:
+    - **[RECOMMENDED]  [Miniconda (v3)](../manuals/installation/miniconda.md)**
+- Install [**docker** and **docker compose**](../manuals/installation/docker.md)
+- Setup your [**Bittensor wallet**](../manuals/bittensor/wallet/README.md)
+- Stake sufficient TOA tokens to run a validator node on RedTeam Subnet.
 
-## Step 2: Clone the Validator Repository
+## Step 2: Clone the validator repository
 
-```bash
-git clone https://github.com/RedTeamSubnet/validator.git agent-validator
-cd agent-validator
-```
-
-**Repository structure:**
-
-- `src/validator` - Validator source code
-- `templates` - Configuration templates
-- `compose.yml` - Docker Compose configuration
-- `pm2-process.json.example` - PM2 configuration
-
-## Step 3: Choose Your Deployment Method
-
-=== "Docker Compose (Recommended)"
-
-    1. Follow the setup instructions in the `README.md`
-    2. Configure 
-
-        ```bash
-        cp pm2-process.json.example pm2-process.json
-        cp .env.example .env
-        ```
-    
-    3. Set your configuration in `.env`:
-
-        ```bash
-        RT_BTCLI_WALLET_DIR="${HOME}/.bittensor/wallets"
-        RT_VALIDATOR_WALLET_NAME="validator"
-        RT_VALIDATOR_HOTKEY_NAME="default"
-        ```
-    4. Run: 
-
-        ```bash
-        ./compose.sh start -l
-        # Alternative: docker compose up -d
-        ``` 
-=== "PM2"
-
-    1. Configure: 
-
-        ```bash
-        cp pm2-process.json.example pm2-process.json 
-        cp .env.example .env
-        ```
-    2. Set your configuration in `.env`:
-
-        ```bash
-        RT_BTCLI_WALLET_DIR="${HOME}/.bittensor/wallets"
-        RT_VALIDATOR_WALLET_NAME="validator"
-        RT_VALIDATOR_HOTKEY_NAME="default"
-        ```
-    3. Run PM2: 
-
-        ```bash
-        pm2 start pm2-process.json
-        ```
-    4. For detailed instructions, see [Validator Repository](https://github.com/RedTeamSubnet/validator)
-
-## Step 4: Monitor Your Validator
-
-Once running, monitor your validator's performance:
+Create a dedicated directory for RedTeam Subnet projects (if not exists):
 
 ```sh
-# Docker Compose
-docker compose logs -f
+# Create projects directory:
+mkdir -pv ~/workspaces/projects/redteam61
 
-# PM2
-pm2 logs agent-validator
+# Enter into projects directory:
+cd ~/workspaces/projects/redteam61
 ```
 
-Check your validator's performance and VTRUST score on the network.
+Clone the validator repository:
+
+```bash
+git clone https://github.com/RedTeamSubnet/validator.git && \
+    cd validator
+```
+
+## Step 3: Run validator node
+
+### 3.1. Configure environment variables
+
+!!! danger "IMPORTANT"
+    Make sure to change the **wallet directory**, **wallet name**, and **hotkey name** variables in the **`.env`** file to match your wallet and hotkey:
+
+    ```sh
+    RT_BTCLI_WALLET_DIR="${HOME}/.bittensor/wallets" # !!! CHANGE THIS TO REAL WALLET DIRECTORY !!!
+    RT_MINER_WALLET_NAME="miner" # !!! CHANGE THIS TO REAL MINER WALLET NAME !!!
+    RT_MINER_HOTKEY_NAME="default" # !!! CHANGE THIS TO REAL MINER HOTKEY NAME !!!
+    ```
+
+```sh
+# Copy '.env.example' file to '.env' file:
+cp -v ./.env.example ./.env
+
+# Edit environment variables to fit in your environment
+nano ./.env
+```
+
+### 3.2. Validate docker compose configuration
+
+```sh
+# Check docker compose configuration is valid:
+./compose.sh validate
+# Or:
+docker compose config
+```
+
+### 3.3. Start validator node as docker container
+
+```sh
+# Start docker compose:
+./compose.sh start -l
+# Or:
+docker compose up -d --remove-orphans --force-recreate && \
+    docker compose logs -f --tail 100
+```
+
+## Step 4: Monitor your validator
+
+Once running, monitor your validator's logs:
+
+```sh
+# Check validator logs:
+./compose.sh logs agent-validator
+# Or:
+docker compose logs -f --tail 100 agent-validator
+```
+
+!!! warning "IMPORTANT"
+    Check your validator's performance and VTRUST score on the network.

@@ -99,7 +99,7 @@ nano ./.env
 ### 3.3. Validate docker compose configuration
 
 ```sh
-## Check docker compose configuration is valid:
+# Check docker compose configuration is valid:
 ./compose.sh validate
 # Or:
 docker compose config
@@ -108,7 +108,7 @@ docker compose config
 ### 3.4. Start miner node to submit
 
 ```sh
-## Start docker compose:
+# Start docker compose:
 ./compose.sh start -l
 # Or:
 docker compose up -d --remove-orphans --force-recreate && \
