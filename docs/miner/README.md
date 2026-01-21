@@ -30,14 +30,6 @@ Miners solve security challenges on RedTeam Subnet and earn TAO rewards based on
 - [**Anti-Detect Automation Detection**](../challenges/ada_detection/README.md) - Detect bots in anti-detect browsers
 - [**Device Fingerprinter**](../challenges/dev_fingerprinter/README.md) *(Inactive)*
 
-## Rewards
-
-Earn TAO based on:
-
-- Solution quality and accuracy
-- Validator consensus
-- Challenge difficulty
-
 ---
 
 ## References

@@ -15,22 +15,17 @@ tags:
     - **OS**: Linux-based (Ubuntu 22.04 LTS+ recommended)
     - **Network**: Stable internet connection
 
-- Install and open **Terminal** or **Command Line Interface** to run commands.
-- Install **curl** to download files from the internet.
 - Install [**git**](https://git-scm.com/install) to clone repositories.
 - Install **Python (>= v3.10)** and **pip (>= 23)**:
     - **[RECOMMENDED]  [Miniconda (v3)](../manuals/installation/miniconda.md)**
 - Install [**docker** and **docker compose**](../manuals/installation/docker.md)
 - Setup your [**Bittensor wallet**](../manuals/bittensor/wallet/README.md)
-    - [Create your wallet](../manuals/bittensor/wallet/create.md)
-    - [Fund your wallet](../manuals/bittensor/wallet/fund.md)
-    - [Register your wallet](../manuals/bittensor/wallet/register.md)
 - Implement your own solution to [**solve challenges**](../challenges/README.md)
 - [**Build and publish**](../miner/workflow/3.build-and-publish.md) your solution as commit
 
 ## Step 2: Clone the miner repository
 
-Create a dedicated directory for RedTeam Subnet projects:
+Create a dedicated directory for RedTeam Subnet projects (if not exists):
 
 ```sh
 # Create projects directory:
