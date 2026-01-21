@@ -1,3 +1,4 @@
 nav:
+  - faq.md
+  - contact.md
   - "*"
-  - FAQ: faq.md

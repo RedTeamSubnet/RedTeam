@@ -1,8 +1,9 @@
 ---
-title: Frequently Asked Questions
+title: FAQ
+tags: [faq]
 ---
 
-# Frequently Asked Questions
+# ⁉️ FAQ
 
 ## Submission Issues
 
