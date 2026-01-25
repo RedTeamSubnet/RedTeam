@@ -74,7 +74,7 @@ class MainConfig(BaseSettings):
     )
 
     STORAGE_API_URL: AnyHttpUrl = Field(
-        default="https://storage-api.theredteam.io",
+        default=AnyHttpUrl("https://storage-api.theredteam.io"),
         description="Full URL for storing miners' work (auto-generated)",
     )
     BITTENSOR: BittensorConfig = Field(

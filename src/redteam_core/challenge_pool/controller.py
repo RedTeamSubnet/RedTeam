@@ -242,8 +242,8 @@ class Controller:
             payload = {
                 "miner_script": _miner_script,
             }
-            _internal_services_url = constants.INTERNAL_SERVICES.URL
-            _validator_endpoint = f"{_internal_services_url}check/challenge/{self.challenge_info.get('challenge_type', 'default')}/"
+            _internal_services_url = constants.INTERNAL_SERVICES.API_URL
+            _validator_endpoint = f"{_internal_services_url}/check/challenge/{self.challenge_info.get('challenge_type', 'default')}/"
             headers = {
                 "Content-Type": "application/json",
                 "X-API-KEY": constants.INTERNAL_SERVICES.API_KEY,
@@ -329,7 +329,7 @@ class Controller:
             }
 
             response = requests.post(
-                f"{constants.INTERNAL_SERVICES.URL}compare",
+                f"{constants.INTERNAL_SERVICES.API_URL}/compare",
                 timeout=self.challenge_info.get("challenge_compare_timeout", 60),
                 verify=False,
                 json=payload,
@@ -374,7 +374,7 @@ class Controller:
             }
 
             response = requests.post(
-                f"{constants.INTERNAL_SERVICES.URL}compare/baseline-scripts",
+                f"{constants.INTERNAL_SERVICES.API_URL}/compare/baseline-scripts",
                 timeout=self.challenge_info.get("challenge_compare_timeout", 60),
                 verify=False,
                 json=payload,

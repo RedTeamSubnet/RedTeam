@@ -23,8 +23,9 @@ class InternalServicesConfig(BaseConfig):
         default=os.getenv("RT_INTERNAL_SERVICES_API_KEY", "default_api_key"),
         description="API key for internal services authentication",
     )
-    URL: Optional[AnyHttpUrl] = Field(
-        default=None, description="Full URL for internal services (auto-generated)"
+    API_URL: AnyHttpUrl = Field(
+        default=AnyHttpUrl("http://localhost:8000/api/v1"),
+        description="Full URL for internal services (auto-generated)",
     )
 
     model_config = SettingsConfigDict(env_prefix=ENV_PREFIX_INTERNAL_SERVICES)
