@@ -198,7 +198,7 @@ class Controller:
     ):
         """Fill comparison logs for miner commit."""
         for _outputs in comparison_results:
-            _target_script = _outputs.get("target", "script_1")
+            _target_script = _outputs.get("target", "[ ERROR ] Script not found!")
             _similarity_score = _outputs.get("similarity_score", 1.0)
 
             if isinstance(_similarity_score, int):
@@ -213,8 +213,8 @@ class Controller:
                 similarity_score=_similarity_score,
                 reason=_outputs.get("reason", "Unknown"),
             )
-            if f"{_target_script}" not in miner_commit.comparison_logs:
-                miner_commit.comparison_logs[f"{_target_script}"] = []
+            if f"{_target_script[25:]}" not in miner_commit.comparison_logs:
+                miner_commit.comparison_logs[f"{_target_script[25:]}"] = []
 
             miner_commit.comparison_logs[f"{_target_script[25:]}"].append(
                 comparison_log
