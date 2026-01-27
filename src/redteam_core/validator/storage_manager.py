@@ -109,7 +109,7 @@ class StorageManager:
                 url=f"{_base_url_path}/fetch-validator-state",
                 headers=self.validator_request_header_fn(body),
                 json=body,
-                timeout=60,
+                timeout=150,
             )
 
             # If successful, return the state

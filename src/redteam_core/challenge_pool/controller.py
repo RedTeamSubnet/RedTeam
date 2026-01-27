@@ -250,7 +250,7 @@ class Controller:
             }
             response = requests.post(
                 _validator_endpoint,
-                timeout=self.challenge_info.get("challenge_compare_timeout", 60),
+                timeout=self.challenge_info.get("challenge_compare_timeout", 150),
                 verify=False,
                 json=payload,
                 headers=headers,
@@ -330,7 +330,7 @@ class Controller:
 
             response = requests.post(
                 f"{constants.INTERNAL_SERVICES.API_URL}/compare",
-                timeout=self.challenge_info.get("challenge_compare_timeout", 60),
+                timeout=self.challenge_info.get("challenge_compare_timeout", 300),
                 verify=False,
                 json=payload,
                 headers=headers,
@@ -375,7 +375,7 @@ class Controller:
 
             response = requests.post(
                 f"{constants.INTERNAL_SERVICES.API_URL}/compare/baseline-scripts",
-                timeout=self.challenge_info.get("challenge_compare_timeout", 60),
+                timeout=self.challenge_info.get("challenge_compare_timeout", 150),
                 verify=False,
                 json=payload,
                 headers=headers,
