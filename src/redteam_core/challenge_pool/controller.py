@@ -348,7 +348,7 @@ class Controller:
             bt.logging.error(f"Error in comparison request: {str(e)}")
             return [
                 {
-                    "target": "Error",
+                    "target": "Error while comparing outputs",
                     "similarity_score": 0.0,
                     "reason": f"Error: {str(e)}",
                 }
