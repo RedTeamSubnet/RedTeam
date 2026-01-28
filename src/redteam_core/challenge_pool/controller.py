@@ -1,6 +1,7 @@
 from abc import abstractmethod
 import copy
 import time
+import traceback
 from typing import Union
 
 import bittensor as bt
@@ -114,6 +115,89 @@ class Controller:
             ssl_verify=_ssl_verify,
         )
 
+    def start_challenge(self):
+        """
+        Initiates the challenge lifecycle by setting up and executing the challenge Docker container.
+
+        This process involves:
+        1. Building and running the challenge container within an isolated Docker network.
+        2. Generating or retrieving challenge inputs to evaluate miners.
+        3. Iteratively running each miner's Docker container to submit and score their solutions.
+        4. Collecting and logging the results, including any errors encountered during execution.
+        5. Cleaning up Docker resources to ensure no residual containers or images remain.
+
+        The method ensures that each miner's submission is evaluated against the challenge inputs,
+        and comparison logs are generated to assess performance relative to reference commits.
+        """
+        self._setup_challenge()
+
+        num_task = self.challenge_info.get(
+            "num_tasks", constants.N_CHALLENGES_PER_EPOCH
+        )
+        # Start with seed inputs and generate more if needed to reach num_task
+        challenge_inputs = self.seed_inputs.copy()
+        remaining_tasks = max(0, num_task - len(challenge_inputs))
+        if remaining_tasks > 0:
+            challenge_inputs.extend(
+                [self._get_challenge_from_container() for _ in range(remaining_tasks)]
+            )
+
+        bt.logging.debug(
+            f"[CONTROLLER] Generated {len(challenge_inputs)} challenge inputs"
+        )
+
+        for miner_commit in self.miner_commits:
+            uid, hotkey = miner_commit.miner_uid, miner_commit.miner_hotkey
+
+            try:
+                self._setup_miner_container(miner_commit)
+
+                self._generate_scoring_logs(miner_commit, challenge_inputs)
+
+                self._run_reference_comparison_inputs(miner_commit)
+
+                self._score_miner_with_new_inputs(miner_commit, challenge_inputs)
+
+            except Exception as e:
+                bt.logging.error(f"Error while processing miner {uid} - {hotkey}: {e}")
+                bt.logging.error(traceback.format_exc())
+                if not miner_commit.scoring_logs:
+                    miner_commit.scoring_logs.append(
+                        ScoringLog(
+                            miner_input=None,
+                            miner_output=None,
+                            score=0,
+                            error=str(e),
+                        )
+                    )
+
+            docker_utils.remove_container_by_port(
+                client=self.docker_client,
+                port=constants.MINER_DOCKER_PORT,
+            )
+            docker_utils.clean_docker_resources(
+                client=self.docker_client,
+                remove_containers=True,
+                remove_images=False,
+            )
+
+        bt.logging.debug(
+            f"[CONTROLLER] Challenge completed, cleaning up challenge container"
+        )
+
+        docker_utils.remove_container(
+            client=self.docker_client,
+            container_name=self.challenge_name,
+            stop_timeout=10,
+            force=True,
+            remove_volumes=True,
+        )
+        docker_utils.clean_docker_resources(
+            client=self.docker_client,
+            remove_containers=True,
+            remove_images=False,
+        )
+
     def _setup_miner_container(self, miner_commit: MinerChallengeCommit):
         """Setup and validate miner container. Raises if validation or setup fails."""
 
@@ -159,6 +243,9 @@ class Controller:
         current_commits_to_compare = self._get_current_commits_to_compare(
             miner_commit=miner_commit
         )
+        reference_commits = (
+            self.reference_comparison_commits + current_commits_to_compare
+        )
         _is_valid_submission = self._validate_miner_submission(miner_commit)
         if not _is_valid_submission:
             bt.logging.warning(
@@ -180,45 +267,78 @@ class Controller:
             miner_commit.comparison_logs["check/validation"] = [comparison_log]
             return
 
-        bt.logging.info(f"[CONTROLLER] Running comparison with reference commit")
+        for reference_commit in reference_commits:
 
-        _miner_output = miner_commit.scoring_logs[0].miner_output.copy()
-
-        _compare_results = self._compare_outputs(miner_output=_miner_output)
-        if _compare_results:
-            self._fill_comparison_logs(
-                miner_commit,
-                _compare_results,
+            _unique_commit_key = (
+                f"{reference_commit.miner_uid}_{reference_commit.encrypted_commit[:10]}"
             )
+            bt.logging.info(
+                f"[CONTROLLER] Running comparison with reference commit {_unique_commit_key}"
+            )
+            if _unique_commit_key not in miner_commit.comparison_logs:
+                miner_commit.comparison_logs[_unique_commit_key] = []
+            reference_log = reference_commit.scoring_logs[0]
+
+            if (
+                reference_log.miner_input is None
+                or reference_log.miner_output is None
+                or not miner_commit.scoring_logs
+                or miner_commit.scoring_logs[0].miner_output is None
+            ):
+                bt.logging.warning(
+                    f"[CONTROLLER] Skipping comparison with {reference_commit.docker_hub_id} for miner because the reference log is missing input or output."
+                )
+                continue
+
+            _miner_output = miner_commit.scoring_logs[0].miner_output.copy()
+            _reference_output = reference_log.miner_output.copy()
+
+            _compare_result = self._compare_outputs(
+                miner_output=_miner_output, reference_output=_reference_output
+            )
+            _similarity_score = _compare_result.get("similarity_score", 1.0)
+            _similarity_reason = _compare_result.get("reason", "Unknown")
+
+            self._exclude_output_keys(_miner_output, _reference_output)
+
+            if (
+                miner_commit.miner_hotkey == reference_commit.miner_hotkey
+                and _similarity_score < self.max_self_comparison_score
+            ):
+                bt.logging.warning(
+                    f"[CONTROLLER] Skipping self-comparison for {miner_commit.miner_hotkey} with {reference_commit.miner_hotkey} due to low similarity score {_similarity_score}"
+                )
+                continue
+
+            comparison_log = ComparisonLog(
+                miner_input=reference_log.miner_input,
+                miner_output=_miner_output,
+                reference_output=_reference_output,
+                reference_hotkey=reference_commit.miner_hotkey,
+                reference_similarity_score=reference_commit.penalty,
+                similarity_score=_similarity_score,
+                reason=_similarity_reason,
+            )
+
+            miner_commit.comparison_logs[_unique_commit_key].append(comparison_log)
+            if _similarity_score > self.challenge_info["comparison_config"].get(
+                "min_acceptable_score", 0.6
+            ):
+                bt.logging.warning(
+                    f"[CONTROLLER] Stopping comparison because of high similarity threshold is reached, similarity score {_similarity_score}"
+                )
+                return
+
+            if (
+                _unique_commit_key in miner_commit.comparison_logs
+                and not miner_commit.comparison_logs[_unique_commit_key]
+            ):
+                bt.logging.info(
+                    f"[CONTROLLER] Removing empty comparison logs for {_unique_commit_key} for miner."
+                )
+                del miner_commit.comparison_logs[_unique_commit_key]
         self._compare_with_baseline(miner_commit)
         return
-
-    def _fill_comparison_logs(
-        self, miner_commit: MinerChallengeCommit, comparison_results: list[dict]
-    ):
-        """Fill comparison logs for miner commit."""
-        for _outputs in comparison_results:
-            _target_script = _outputs.get("target", "[ ERROR ] Script not found!")
-            _similarity_score = _outputs.get("similarity_score", 1.0)
-
-            if isinstance(_similarity_score, int):
-                _similarity_score = float(_similarity_score)
-            elif not isinstance(_similarity_score, float):
-                _similarity_score = 1.0
-            if _outputs.get("target_miner_uid", None) == miner_commit.miner_uid:
-                _similarity_score = min(
-                    _similarity_score, self.max_self_comparison_score
-                )
-            comparison_log = ComparisonLog(
-                similarity_score=_similarity_score,
-                reason=_outputs.get("reason", "Unknown"),
-            )
-            if f"{_target_script[25:]}" not in miner_commit.comparison_logs:
-                miner_commit.comparison_logs[f"{_target_script[25:]}"] = []
-
-            miner_commit.comparison_logs[f"{_target_script[25:]}"].append(
-                comparison_log
-            )
 
     def _validate_miner_submission(self, miner_commit: MinerChallengeCommit) -> bool:
         """
@@ -301,7 +421,9 @@ class Controller:
                 ),
             )
 
-    def _compare_outputs(self, miner_output: dict) -> list[dict]:
+    def _compare_outputs(
+        self, miner_output: dict, reference_output: dict
+    ) -> list[dict]:
         """
         Send comparison request to challenge container's /compare endpoint.
 
@@ -319,6 +441,9 @@ class Controller:
                 "challenge_type": self.challenge_info.get("challenge_type", None),
                 "challenge_name": self.challenge_info.get("name", None),
                 "miner_script": miner_output.get(
+                    self.challenge_info.get("script_path_identifier", None), None
+                ),
+                "reference_script": reference_output.get(
                     self.challenge_info.get("script_path_identifier", None), None
                 ),
                 "identifier": self.challenge_info.get("script_path_identifier", None),
