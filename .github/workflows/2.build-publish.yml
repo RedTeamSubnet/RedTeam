@@ -5,37 +5,64 @@ on:
     workflows: ["1. Bump Version"]
     types:
       - completed
-    branches:
-      - main
   push:
     tags:
       - "v*.*.*"
 
 jobs:
-  build_publish:
-    name: Build and Publish
-    runs-on: ubuntu-22.04
+  test:
+    name: 2.1. Test
+    runs-on: ubuntu-24.04
     permissions:
-      contents: write
-      actions: write
+      contents: read
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v3
+        uses: actions/checkout@v5
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build reward-app
+          python-version: "3.10"
+      - name: Install dependencies
         run: |
-          ./services/rewarding/scripts/build.sh -c -u -g=${{ secrets.IMG_REGISTRY }}
-      - name: Build validator
+          python -m pip install -U pip
+          python -m pip install .[test]
+      - name: Test with pytest
+        run: ./scripts/test.sh -l
+
+  build_publish:
+    needs: test
+    name: 2.2. Build and Publish
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Get latest version
         run: |
-          ./neurons/validator/scripts/build.sh -c -u -g=${{ secrets.IMG_REGISTRY }}
-      - name: Build miner
+          git pull origin main
+          echo "Current version: v$(./scripts/get-version.sh)"
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - name: Install dependencies
         run: |
-          ./neurons/miner/scripts/build.sh -c -u -g=${{ secrets.IMG_REGISTRY }}
-      - name: Trigger release
+          python -m pip install -U pip
+          python -m pip install -r ./requirements/requirements.build.txt
+      # - name: Build and publish package
+      #   run: |
+      #     echo -e "[testpypi]\nusername = __token__\npassword = ${{ secrets.TEST_PYPI_API_TOKEN }}" > ~/.pypirc
+      #     ./scripts/build.sh -c -u
+      #     rm -rfv ~/.pypirc
+      #   run: |
+      #     echo -e "[pypi]\nusername = __token__\npassword = ${{ secrets.PYPI_API_TOKEN }}" > ~/.pypirc
+      #     ./scripts/build.sh -c -u -p
+      #     rm -rfv ~/.pypirc
+      - name: Build the package
+        run: |
+          ./scripts/build.sh -c
+      - name: Create release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh workflow run 3.create-release.yml
+        run: ./scripts/release.sh

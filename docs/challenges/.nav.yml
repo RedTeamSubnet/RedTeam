@@ -1,0 +1,8 @@
+nav:
+  - README.md
+  - Active Challenges:
+    -   ab_sniffer : ./ab_sniffer
+    -   ada_detection : ./ada_detection
+    -   humanize_behaviour : ./humanize_behaviour
+  - Inactive Challenges:
+    -   dev_fingerprinter : ./dev_fingerprinter

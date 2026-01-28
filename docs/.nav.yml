@@ -1,0 +1,11 @@
+nav:
+  - Home: README.md
+  - Getting Started: getting-started/
+  - Miner: miner/
+  - Validator: validator/
+  - Challenges: challenges/
+  - Manuals: manuals/
+  # - "*"
+  # - Development: dev/
+  - release-notes.md
+  - About: about/

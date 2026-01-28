@@ -1,6 +1,6 @@
 # File created using '.gitignore Generator' for Visual Studio Code: https://bit.ly/vscode-gig
-# Created by https://www.toptal.com/developers/gitignore/api/zsh,xcode,windows,visualstudiocode,vim,sublimetext,ssh,python,powershell,macos,linux,jupyternotebooks,jetbrains+all,monodevelop,node,nodechakratimetraveldebug
-# Edit at https://www.toptal.com/developers/gitignore?templates=zsh,xcode,windows,visualstudiocode,vim,sublimetext,ssh,python,powershell,macos,linux,jupyternotebooks,jetbrains+all,monodevelop,node,nodechakratimetraveldebug
+# Created by https://www.toptal.com/developers/gitignore/api/zsh,xcode,windows,visualstudiocode,vim,sublimetext,ssh,python,powershell,node,macos,linux,jupyternotebooks,jetbrains+all,obsidian
+# Edit at https://www.toptal.com/developers/gitignore?templates=zsh,xcode,windows,visualstudiocode,vim,sublimetext,ssh,python,powershell,node,macos,linux,jupyternotebooks,jetbrains+all,obsidian
 
 ### JetBrains+all ###
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio, WebStorm and Rider
@@ -152,16 +152,6 @@ Temporary Items
 # iCloud generated files
 *.icloud
 
-### MonoDevelop ###
-#User Specific
-*.userprefs
-*.usertasks
-
-#Mono Project Files
-*.pidb
-*.resources
-test-results/
-
 ### Node ###
 # Logs
 logs
@@ -302,13 +292,9 @@ dist
 # SvelteKit build / generate output
 .svelte-kit
 
-### NodeChakraTimeTravelDebug ###
-# gitignore template for NodeChakra Time Travel Debug
-# website: https://marketplace.visualstudio.com/items?itemName=ttd-trace-tools.node-chakracore-time-travel-debugger
-
-# Ignore time-travel trace files
-# https://github.com/mrkmarron/node-chakracore-time-travel-debugger#notes
-_ttd_log_
+### Obsidian ###
+# config dir
+.obsidian/
 
 ### PowerShell ###
 # Exclude packaged modules
@@ -637,12 +623,11 @@ zsdoc/data
 # Zunit tests' output
 /tests/_output/*
 !/tests/_output/.gitkeep
-.vscode/launch.json
-redteam_core/challenge_pool/ab_sniffer_v1/src/package-lock.json
 
-# End of https://www.toptal.com/developers/gitignore/api/zsh,xcode,windows,visualstudiocode,vim,sublimetext,ssh,python,powershell,macos,linux,jupyternotebooks,jetbrains+all,monodevelop,node,nodechakratimetraveldebug
+# End of https://www.toptal.com/developers/gitignore/api/zsh,xcode,windows,visualstudiocode,vim,sublimetext,ssh,python,powershell,node,macos,linux,jupyternotebooks,jetbrains+all,obsidian
 
 # Custom rules (everything added below won't be overriden by 'Generate .gitignore File' if you use 'Update' option)
+
 
 # Directories:
 log/
@@ -650,6 +635,9 @@ logs/
 backup/
 backups/
 tmp/
+data/
+dataset/
+datasets/
 .benchmarks/
 
 # Files:
@@ -658,25 +646,25 @@ logs
 backup
 backups
 tmp
+data
+dataset
+datasets
 .benchmarks
-env
 *.bak
+example.py
+test.py
+
+
+
+redteam_core/challenge_pool/ab_sniffer_v1/src/package-lock.json
+.cache_*
 pm2-process.json
 compose.override.yml
 compose.override.yaml
-.obsidian/
-# Specific directories:
+
+
 volumes/**
-
-
-redteam_core.egg-info/
 ./.cache/
-.cache_*
-
-data/
-logs/
-
-
 validator_env/
 miner_env/
 .rewardapp_cache/

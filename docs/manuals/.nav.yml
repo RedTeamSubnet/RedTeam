@@ -1,0 +1,4 @@
+nav:
+  - Bittensor: bittensor/
+  - "*"
+  - troubleshooting.md

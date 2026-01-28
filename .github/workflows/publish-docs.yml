@@ -1,6 +1,7 @@
 name: Publish Docs
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
@@ -11,12 +12,12 @@ on:
 jobs:
   deploy:
     name: Publish Docs
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     permissions:
       contents: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
       - name: Set up Python
@@ -33,4 +34,4 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          mkdocs gh-deploy --force
+          ./scripts/docs.sh -p
