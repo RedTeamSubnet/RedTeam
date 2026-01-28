@@ -1,5 +1,18 @@
 # Changelog
 
+## v4.0.1 (2026-01-28)
+
+<!-- Release notes generated using configuration in .github/release.yml at v4.0.1 -->
+
+## What's Changed
+### 💬 Other
+* chore(deps): update pytest requirement from <9.0.0,>=8.0.2 to >=8.0.2,<10.0.0 by @dependabot[bot] in https://github.com/RedTeamSubnet/RedTeam/pull/101
+
+## New Contributors
+* @dependabot[bot] made their first contribution in https://github.com/RedTeamSubnet/RedTeam/pull/101
+
+**Full Changelog**: https://github.com/RedTeamSubnet/RedTeam/compare/v4.0.0...v4.0.1
+
 ## v4.0.0 (2026-01-28)
 
 <!-- Release notes generated using configuration in .github/release.yml at v4.0.0 -->
