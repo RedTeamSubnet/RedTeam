@@ -1,10 +1,21 @@
 ---
-title: "Release Notes"
+title: Release Notes
 hide:
   - navigation
 ---
 
 # 📌 Release Notes
+
+## v4.0.0 (2026-01-28)
+
+<!-- Release notes generated using configuration in .github/release.yml at v4.0.0 -->
+
+## What's Changed
+### 💥 Breaking Changes
+* Refactor: Restructuring & Separation by @aliyuldashev in https://github.com/RedTeamSubnet/RedTeam/pull/94
+
+
+**Full Changelog**: https://github.com/RedTeamSubnet/RedTeam/compare/v3.1.2...v4.0.0
 
 ## v3.1.2 (2025-12-23)
 
