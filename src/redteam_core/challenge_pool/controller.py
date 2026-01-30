@@ -700,11 +700,6 @@ class Controller:
         pass
 
     @abstractmethod
-    def start_challenge(self):
-        """Initiates the challenge lifecycle by setting up and executing the challenge Docker container."""
-        pass
-
-    @abstractmethod
     def _score_miner_with_new_inputs(
         self, miner_commit: MinerChallengeCommit, challenge_inputs
     ):
