@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=70.0.0,<81.0.0", "setuptools-scm>=8.0.4,<10.0.0"]
+requires = ["setuptools>=70.0.0,<83.0.0", "setuptools-scm>=8.0.4,<10.0.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
