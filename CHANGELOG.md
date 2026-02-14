@@ -1,5 +1,18 @@
 # Changelog
 
+## v4.1.0 (2026-02-14)
+
+<!-- Release notes generated using configuration in .github/release.yml at v4.1.0 -->
+
+## What's Changed
+### ✨ Features
+* New challenge & improve stability by @aliyuldashev in https://github.com/RedTeamSubnet/RedTeam/pull/104
+### 💬 Other
+* chore(deps): update setuptools requirement from <81.0.0,>=70.0.0 to >=70.0.0,<83.0.0 by @dependabot[bot] in https://github.com/RedTeamSubnet/RedTeam/pull/103
+
+
+**Full Changelog**: https://github.com/RedTeamSubnet/RedTeam/compare/v4.0.1...v4.1.0
+
 ## v4.0.1 (2026-01-28)
 
 <!-- Release notes generated using configuration in .github/release.yml at v4.0.1 -->
