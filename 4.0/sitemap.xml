@@ -2,230 +2,234 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://docs.theredteam.io/4.0/</loc>
-         <lastmod>2026-01-28</lastmod>
+         <lastmod>2026-02-14</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.0/release-notes/</loc>
-         <lastmod>2026-01-28</lastmod>
+         <lastmod>2026-02-14</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.0/about/authors/</loc>
-         <lastmod>2026-01-28</lastmod>
+         <lastmod>2026-02-14</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.0/about/contact/</loc>
-         <lastmod>2026-01-28</lastmod>
+         <lastmod>2026-02-14</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.0/about/faq/</loc>
-         <lastmod>2026-01-28</lastmod>
+         <lastmod>2026-02-14</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.0/about/license/</loc>
-         <lastmod>2026-01-28</lastmod>
+         <lastmod>2026-02-14</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.0/challenges/</loc>
-         <lastmod>2026-01-28</lastmod>
+         <lastmod>2026-02-14</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.0/challenges/ab_sniffer/</loc>
-         <lastmod>2026-01-28</lastmod>
+         <lastmod>2026-02-14</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.0/challenges/ab_sniffer/testing_manuals/</loc>
-         <lastmod>2026-01-28</lastmod>
+         <lastmod>2026-02-14</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.0/challenges/ab_sniffer/v5/</loc>
-         <lastmod>2026-01-28</lastmod>
+         <lastmod>2026-02-14</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.0/challenges/ab_sniffer/deprecated/v1/</loc>
-         <lastmod>2026-01-28</lastmod>
+         <lastmod>2026-02-14</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.0/challenges/ab_sniffer/deprecated/v2/</loc>
-         <lastmod>2026-01-28</lastmod>
+         <lastmod>2026-02-14</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.0/challenges/ab_sniffer/deprecated/v4/</loc>
-         <lastmod>2026-01-28</lastmod>
+         <lastmod>2026-02-14</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.0/challenges/ada_detection/</loc>
-         <lastmod>2026-01-28</lastmod>
+         <lastmod>2026-02-14</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.0/challenges/ada_detection/testing_manuals/</loc>
-         <lastmod>2026-01-28</lastmod>
+         <lastmod>2026-02-14</lastmod>
     </url>
     <url>
-         <loc>https://docs.theredteam.io/4.0/challenges/ada_detection/v1/</loc>
-         <lastmod>2026-01-28</lastmod>
+         <loc>https://docs.theredteam.io/4.0/challenges/ada_detection/v2/</loc>
+         <lastmod>2026-02-14</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.theredteam.io/4.0/challenges/ada_detection/depricated/v1/</loc>
+         <lastmod>2026-02-14</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.0/challenges/dev_fingerprinter/</loc>
-         <lastmod>2026-01-28</lastmod>
+         <lastmod>2026-02-14</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.0/challenges/dev_fingerprinter/deprecated/dev_fingerprinter_v1/</loc>
-         <lastmod>2026-01-28</lastmod>
+         <lastmod>2026-02-14</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.0/challenges/dev_fingerprinter/deprecated/device_fingerprinting_overview/</loc>
-         <lastmod>2026-01-28</lastmod>
+         <lastmod>2026-02-14</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.0/challenges/humanize_behaviour/</loc>
-         <lastmod>2026-01-28</lastmod>
+         <lastmod>2026-02-14</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.0/challenges/humanize_behaviour/testing_manuals/</loc>
-         <lastmod>2026-01-28</lastmod>
+         <lastmod>2026-02-14</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.0/challenges/humanize_behaviour/v5/</loc>
-         <lastmod>2026-01-28</lastmod>
+         <lastmod>2026-02-14</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.0/challenges/humanize_behaviour/deprecated/v1/</loc>
-         <lastmod>2026-01-28</lastmod>
+         <lastmod>2026-02-14</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.0/challenges/humanize_behaviour/deprecated/v2/</loc>
-         <lastmod>2026-01-28</lastmod>
+         <lastmod>2026-02-14</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.0/challenges/humanize_behaviour/deprecated/v3/</loc>
-         <lastmod>2026-01-28</lastmod>
+         <lastmod>2026-02-14</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.0/dev/contributing/</loc>
-         <lastmod>2026-01-28</lastmod>
+         <lastmod>2026-02-14</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.0/dev/related-projects/</loc>
-         <lastmod>2026-01-28</lastmod>
+         <lastmod>2026-02-14</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.0/dev/roadmap/</loc>
-         <lastmod>2026-01-28</lastmod>
+         <lastmod>2026-02-14</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.0/diagrams/humanize_behaviour/flow.general/</loc>
-         <lastmod>2026-01-28</lastmod>
+         <lastmod>2026-02-14</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.0/diagrams/humanize_behaviour/flow.small/</loc>
-         <lastmod>2026-01-28</lastmod>
+         <lastmod>2026-02-14</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.0/getting-started/miner/</loc>
-         <lastmod>2026-01-28</lastmod>
+         <lastmod>2026-02-14</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.0/getting-started/validator/</loc>
-         <lastmod>2026-01-28</lastmod>
+         <lastmod>2026-02-14</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.0/manuals/troubleshooting/</loc>
-         <lastmod>2026-01-28</lastmod>
+         <lastmod>2026-02-14</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.0/manuals/bittensor/wallet/</loc>
-         <lastmod>2026-01-28</lastmod>
+         <lastmod>2026-02-14</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.0/manuals/bittensor/wallet/create/</loc>
-         <lastmod>2026-01-28</lastmod>
+         <lastmod>2026-02-14</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.0/manuals/bittensor/wallet/fund/</loc>
-         <lastmod>2026-01-28</lastmod>
+         <lastmod>2026-02-14</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.0/manuals/bittensor/wallet/register/</loc>
-         <lastmod>2026-01-28</lastmod>
+         <lastmod>2026-02-14</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.0/manuals/installation/docker/</loc>
-         <lastmod>2026-01-28</lastmod>
+         <lastmod>2026-02-14</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.0/manuals/installation/miniconda/</loc>
-         <lastmod>2026-01-28</lastmod>
+         <lastmod>2026-02-14</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.0/manuals/installation/nvm/</loc>
-         <lastmod>2026-01-28</lastmod>
+         <lastmod>2026-02-14</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.0/manuals/installation/pm2/</loc>
-         <lastmod>2026-01-28</lastmod>
+         <lastmod>2026-02-14</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.0/miner/</loc>
-         <lastmod>2026-01-28</lastmod>
+         <lastmod>2026-02-14</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.0/miner/concepts/dashboard/</loc>
-         <lastmod>2026-01-28</lastmod>
+         <lastmod>2026-02-14</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.0/miner/concepts/incentive/</loc>
-         <lastmod>2026-01-28</lastmod>
+         <lastmod>2026-02-14</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.0/miner/concepts/lifecycle/</loc>
-         <lastmod>2026-01-28</lastmod>
+         <lastmod>2026-02-14</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.0/miner/concepts/submission-templates/</loc>
-         <lastmod>2026-01-28</lastmod>
+         <lastmod>2026-02-14</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.0/miner/concepts/validation/</loc>
-         <lastmod>2026-01-28</lastmod>
+         <lastmod>2026-02-14</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.0/miner/workflow/</loc>
-         <lastmod>2026-01-28</lastmod>
+         <lastmod>2026-02-14</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.0/miner/workflow/1.preparation/</loc>
-         <lastmod>2026-01-28</lastmod>
+         <lastmod>2026-02-14</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.0/miner/workflow/2.develop-solution/</loc>
-         <lastmod>2026-01-28</lastmod>
+         <lastmod>2026-02-14</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.0/miner/workflow/3.build-and-publish/</loc>
-         <lastmod>2026-01-28</lastmod>
+         <lastmod>2026-02-14</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.0/miner/workflow/4.submit-commit/</loc>
-         <lastmod>2026-01-28</lastmod>
+         <lastmod>2026-02-14</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.0/miner/workflow/5.monitor-and-reward/</loc>
-         <lastmod>2026-01-28</lastmod>
+         <lastmod>2026-02-14</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.0/validator/</loc>
-         <lastmod>2026-01-28</lastmod>
+         <lastmod>2026-02-14</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.0/validator/deployment/</loc>
-         <lastmod>2026-01-28</lastmod>
+         <lastmod>2026-02-14</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.0/validator/resources/</loc>
-         <lastmod>2026-01-28</lastmod>
+         <lastmod>2026-02-14</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.0/validator/troubleshooting/</loc>
-         <lastmod>2026-01-28</lastmod>
+         <lastmod>2026-02-14</lastmod>
     </url>
 </urlset>
