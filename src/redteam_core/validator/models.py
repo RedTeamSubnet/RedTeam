@@ -114,6 +114,26 @@ class MinerChallengeCommit(BaseModel):
             accepted=self.accepted,
         )
 
+    def remove_lower_than_highest_score(self):
+        """Remove all comparison logs that have scores lower than the highest score across all logs."""
+        if not self.comparison_logs:
+            return
+
+        highest_score = self.get_higest_comparison_score()
+
+        if highest_score == 0.0:
+            return
+
+        filtered_logs = {}
+        for ref_commit, logs in self.comparison_logs.items():
+            highest_scoring_logs = [
+                log for log in logs if log.similarity_score == highest_score
+            ]
+            if highest_scoring_logs:
+                filtered_logs[ref_commit] = highest_scoring_logs
+
+        self.comparison_logs = filtered_logs
+
     def remove_redundant_logs(self):
         """This is temporary function to clear scoring logs except in index 0 and comparison logs except the highest similarity score log."""
         if len(self.scoring_logs) > 1:
@@ -127,7 +147,7 @@ class MinerChallengeCommit(BaseModel):
                 self.comparison_logs[ref_commit] = [highest_log]
 
     def get_higest_comparison_score(self) -> float:
-        """Get the minimum and maximum similarity score from all comparison logs."""
+        """Get the maximum similarity score from all comparison logs."""
         if not self.comparison_logs:
             return 0.0
 

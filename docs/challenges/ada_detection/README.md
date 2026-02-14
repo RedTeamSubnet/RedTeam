@@ -2,7 +2,7 @@
 
 ## Overview
 
-The **Anti-Detect Automation Detection (AAD)** challenge evaluates a participant`s ability to reliably detect browser automation frameworks operating inside anti-detect browsers, while preserving human safety.
+The **Anti-Detect Automation Detection (AAD)** challenge evaluates a participant's ability to reliably detect browser automation frameworks operating inside anti-detect browsers, while preserving human safety.
 
 Evaluation runs simulate real-world anti-detect usage where static signals are masked and fingerprints are fresh. Detection must rely on runtime behavior and orchestration patterns.
 
@@ -17,13 +17,13 @@ Each evaluation run involves:
 !!! Info "NST-Browser Dependency"
     Participants need an API key from the [NSTBrowser](https://www.nstbrowser.io/en/pricing) dashboard (Professional plan recommended) for local testing.
 
-## Features of ADA Detection v1
+## Features of ADA Detection v2
 
-- **Behavior-first detection**: Focus on runtime behavioral analysis inside NST-Browser; static driver fingerprints are spoofed.
-- **Payload-based flow**: Detection scripts run in-page, send payloads to local `/_payload` when automation is confirmed, and must stay silent during human sessions.
-- **Human safety gate**: Random human interactions are injected; flagging more than 2 humans as bots zeros the submission.
-- **Target coverage update**: Required detectors include `automation`, `nodriver`, `playwright`, `patchright`, and `puppeteer`.
-- **Fresh profiles, no state**: Each run uses a fresh profile with zero shared state between runs.
+- **Hardened NSTBrowser Environment**: Advanced obfuscation including dynamic fingerprinting and hardware simulation (8GB RAM, 16 Cores).
+- **Engine-Level Stealth**: `AutomationControlled` flags are disabled at the browser engine level to eliminate static detection signals.
+- **Fail-Fast Scoring**: High-stakes evaluation where missing critical targets (Selenium) or exceeding miss limits results in an immediate 0.0 score.
+- **Protocol-Level Verification**: Mandatory detection of low-level communication patterns (Webdriver and WebSocket).
+- **Selenium Safety Gate**: Mandatory detection of `seleniumbase` and `selenium_driverless` is required for incentive eligibility.
 - **Similarity/time decay**: Similarity penalties apply to lookalike submissions; scores decay over 15 days to encourage refreshed heuristics.
 
 ## Evaluation Flow
@@ -31,9 +31,9 @@ Each evaluation run involves:
 1. **Submission Received**: Detection scripts are submitted via the `/score` endpoint.
 2. **Task Generation**: A randomized sequence of multiple automation framework runs and human interactions is generated.
 3. **NST-Browser Launch**: A clean instance is started for each task.
-4. **Execution**: Automation frameworks connect via WebSocket, while humans interact manually.
+4. **Execution**: Automation frameworks connect via WebSocket or WebDriver, while humans interact manually.
 5. **Detection Phase**: Scripts may emit detection payloads to `/_payload`.
-6. **Scoring**: Results are aggregated and normalized.
+6. **Scoring**: Results are aggregated and normalized using the Fail-Fast pillars.
 
 ## Technical Constraints
 
@@ -59,11 +59,16 @@ Submit your detection scripts as a JSON payload with the following structure:
 ```json
 {
   "detection_files": [
-    { "file_name": "automation.js", "content": "..." },
     { "file_name": "nodriver.js", "content": "..." },
     { "file_name": "playwright.js", "content": "..." },
     { "file_name": "patchright.js", "content": "..." },
-    { "file_name": "puppeteer.js", "content": "..." }
+    { "file_name": "puppeteer.js", "content": "..." },
+    { "file_name": "puppeteer_extra.js", "content": "..." },
+    { "file_name": "zendriver.js", "content": "..." },
+    { "file_name": "selenium_driverless.js", "content": "..." },
+    { "file_name": "seleniumbase.js", "content": "..." },
+    { "file_name": "webdriver.js", "content": "..." },
+    { "file_name": "websocket.js", "content": "..." }
   ]
 }
 ```
@@ -72,7 +77,8 @@ Each file must be named exactly as shown and contain self-contained JavaScript (
 
 ## Challenge Versions
 
-- [**v1** (Active after Dec 15, 2025 10:00 UTC)](./v1.md) - Payload-based detection with human safety gate
+- [**v2** (Active after Feb 14, 2026 14:00 UTC)](./v2.md) - Hardened detection with Fail-Fast scoring
+- [**v1** (Deprecated)](./depricated/v1.md)
 
 ## Resources & Guides
 

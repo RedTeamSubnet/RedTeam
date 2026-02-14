@@ -1,8 +1,8 @@
-ada_detection_v1:
-  name: "ada_detection_v1"
+ada_detection_v2:
+  name: "ada_detection_v2"
   description: "Detect anti-detect automation frameworks"
-  challenge_incentive_weight: 0.5
-  challenge_image: "redteamsubnet61/ada_detection:v1.0.0-251215"
+  challenge_incentive_weight: 0.6
+  challenge_image: "redteamsubnet61/ada_detection:v2.0.0-260214"
   target: ada_detection.controller.AADController
   challenge_manager: ada_detection.challenge_manager.AADChallengeManager
   script_path_identifier: "detection_files"
@@ -14,10 +14,10 @@ ada_detection_v1:
     X-API-KEY: "${RT_CHALLENGE_API_KEY}"
   comparison_config:
     max_unique_commits: 15
-    max_self_comparison_score: 0.7
+    max_self_comparison_score: 0.8
     min_acceptable_score: 0.6
   challenge_container_run_kwargs:
-    name: "ada_detection_v1"
+    name: "ada_detection_v2"
     platform: "linux/amd64"
     privileged: true
     environment:
@@ -37,7 +37,7 @@ ada_detection_v1:
     mem_limit: "12g"
     network: "redteam_local"
     environment:
-      CHALLENGE_NAME: "ada_detection_v1"
+      CHALLENGE_NAME: "ada_detection_v2"
   protocols:
     challenger: "http"
     challenger_ssl_verify: false
@@ -46,13 +46,11 @@ ada_detection_v1:
   resource_limits:
     num_cpus: 4
     mem_limit: "12g"
-  environment:
-    ENV: "PRODUCTION"
 
 ab_sniffer_v5:
   name: "ab_sniffer_v5"
   description: "Detect the driver type of the framework"
-  challenge_incentive_weight: 0.5
+  challenge_incentive_weight: 0.4
   challenge_image: "redteamsubnet61/ab_sniffer:v5.0.0-251202"
   target: ab_sniffer.controller.ABSController
   challenge_manager: ab_sniffer.challenge_manager.ABSChallengeManager
@@ -65,7 +63,7 @@ ab_sniffer_v5:
     X-API-KEY: "${RT_CHALLENGE_API_KEY}"
   comparison_config:
     max_unique_commits: 15
-    max_self_comparison_score: 0.7
+    max_self_comparison_score: 0.8
     min_acceptable_score: 0.6
   challenge_container_run_kwargs:
     name: "ab_sniffer_v5"
