@@ -2,7 +2,7 @@ ada_detection_v2:
   name: "ada_detection_v2"
   description: "Detect anti-detect automation frameworks"
   challenge_incentive_weight: 0.6
-  challenge_image: "redteamsubnet61/ada_detection:v1.0.0-251215"
+  challenge_image: "redteamsubnet61/ada_detection:v2.0.0-260214"
   target: ada_detection.controller.AADController
   challenge_manager: ada_detection.challenge_manager.AADChallengeManager
   script_path_identifier: "detection_files"
@@ -46,8 +46,6 @@ ada_detection_v2:
   resource_limits:
     num_cpus: 4
     mem_limit: "12g"
-  environment:
-    ENV: "PRODUCTION"
 
 ab_sniffer_v5:
   name: "ab_sniffer_v5"
