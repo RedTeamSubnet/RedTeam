@@ -2,7 +2,7 @@ ada_detection_v2:
   name: "ada_detection_v2"
   description: "Detect anti-detect automation frameworks"
   challenge_incentive_weight: 0.6
-  challenge_image: "redteamsubnet61/ada_detection:v2.0.0-260214"
+  challenge_image: "redteamsubnet61/ada_detection:v2.0.1-260216"
   target: ada_detection.controller.AADController
   challenge_manager: ada_detection.challenge_manager.AADChallengeManager
   script_path_identifier: "detection_files"
