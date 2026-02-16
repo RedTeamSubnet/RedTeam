@@ -1,5 +1,13 @@
 # Changelog
 
+## v4.1.1 (2026-02-16)
+
+<!-- Release notes generated using configuration in .github/release.yml at v4.1.1 -->
+
+
+
+**Full Changelog**: https://github.com/RedTeamSubnet/RedTeam/compare/v4.1.0...v4.1.1
+
 ## v4.1.0 (2026-02-14)
 
 <!-- Release notes generated using configuration in .github/release.yml at v4.1.0 -->
