@@ -84,44 +84,18 @@ def create_network(
     for network isolation if internet access is blocked.
     """
     try:
-        # Check if network exists
+
         networks = client.networks.list(names=[network_name])
         if not networks:
-            network = client.networks.create(name=network_name, driver="bridge")
-            bt.logging.info(f"Network '{network_name}' created successfully.")
+            client.networks.create(
+                name=network_name, driver="bridge", internal=not allow_internet
+            )
+            bt.logging.info(
+                f"Network '{network_name}' created successfully with internet access blocked."
+            )
         else:
-            network = client.networks.get(network_name)
+            client.networks.get(network_name)
             bt.logging.info(f"Network '{network_name}' already exists.")
-
-        if not allow_internet:
-            # Set up network isolation
-            network_info = client.api.inspect_network(network.id)
-            subnet = network_info["IPAM"]["Config"][0]["Subnet"]
-
-            # Define iptables rules for network isolation
-            # fmt: off
-            iptables_commands = [
-                ["iptables", "-I", "FORWARD", "-s", subnet, "!", "-d", subnet, "-j", "DROP"],
-                ["iptables", "-t", "nat", "-I", "POSTROUTING", "-s", subnet, "-j", "RETURN"]
-            ]
-            # fmt: on
-
-            # Apply iptables rules
-            for cmd in iptables_commands:
-                try:
-                    # Try with sudo first
-                    subprocess.run(["sudo"] + cmd, check=True)
-                except subprocess.CalledProcessError:
-                    # Fallback without sudo if that fails
-                    subprocess.run(cmd, check=True)
-
-            bt.logging.info(
-                f"Network '{network_name}' configured with internet access blocked"
-            )
-        else:
-            bt.logging.info(
-                f"Network '{network_name}' configured with internet access allowed"
-            )
 
     except docker.errors.APIError as e:
         bt.logging.error(f"Failed to create/configure network: {e}")
@@ -311,12 +285,13 @@ def check_container_alive(
     ssl_verify=None,
     timeout=None,
     start_time=None,
+    ip="localhost",
 ):
     """Check when the container is running successfully"""
     if not start_time:
         start_time = time.time()
     while not is_container_alive(
-        port=health_port, protocol=protocol, ssl_verify=ssl_verify
+        port=health_port, protocol=protocol, ssl_verify=ssl_verify, ip=ip
     ) and (not timeout or time.time() - start_time < timeout):
         container.reload()
         if container.status in ["exited", "dead"]:
@@ -333,12 +308,10 @@ def check_container_alive(
             time.sleep(5)
 
 
-def is_container_alive(port=10001, protocol="http", ssl_verify=None):
+def is_container_alive(port=10001, protocol="http", ssl_verify=None, ip=None):
     try:
-        response = requests.get(
-            f"{protocol}://localhost:{port}/health",
-            verify=ssl_verify,
-        )
+        url = f"{protocol}://{ip}:{port}/health"
+        response = requests.get(url, verify=ssl_verify)
         if response.status_code == 200:
             return True
     except requests.exceptions.ConnectionError:

@@ -48,6 +48,7 @@ class Controller:
         self.docker_client = docker_utils.create_docker_client()
 
         self.local_network = "redteam_local"
+        self.miner_ip = None
 
         self.max_self_comparison_score = self.challenge_info["comparison_config"].get(
             "max_self_comparison_score", 0.9
@@ -218,9 +219,16 @@ class Controller:
             client=self.docker_client,
             image=miner_commit.docker_hub_id,
             detach=True,
-            ports={f"{constants.MINER_DOCKER_PORT}/tcp": constants.MINER_DOCKER_PORT},
             **self.challenge_info.get("miner_container_run_kwargs", {}),
         )
+        miner_container.reload()
+        _local_network = miner_container.attrs["NetworkSettings"]["Networks"].get(
+            self.local_network, None
+        )
+        if _local_network:
+            self.miner_ip = _local_network.get("IPAddress", None)
+        else:
+            self.miner_ip = "localhost"
 
         # Check miner container health
         _protocol, _ssl_verify = self._check_protocol(is_challenger=False)
@@ -231,6 +239,7 @@ class Controller:
             ssl_verify=_ssl_verify,
             timeout=self.challenge_info.get("docker_run_timeout", 600),
             start_time=miner_start_time,
+            ip=self.miner_ip,
         )
 
     def _run_reference_comparison_inputs(self, miner_commit: MinerChallengeCommit):
@@ -557,7 +566,7 @@ class Controller:
         try:
             _protocol, _ssl_verify = self._check_protocol(is_challenger=False)
             response = requests.post(
-                f"{_protocol}://localhost:{constants.MINER_DOCKER_PORT}/solve",
+                f"{_protocol}://{self.miner_ip}:{constants.MINER_DOCKER_PORT}/solve",
                 timeout=self.challenge_info.get("challenge_solve_timeout", 60),
                 verify=_ssl_verify,
                 json=miner_input,
