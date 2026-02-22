@@ -1,13 +1,10 @@
 bittensor~=9.9.0
 cryptography>=41.0.7,<50.0.0
 docker>=7.0.0,<8.0.0
-pandas>=2.1.4,<3.0.0
-datasets>=2.16.1,<3.0.0
 diskcache>=5.6.3,<6.0.0
 substrate-interface>=1.7.11,<1.8
 python-dotenv>=1.0.1,<2.0.0
 pydantic[email,timezone]>=2.0.3,<3.0.0
 pydantic-settings>=2.8.1,<3.0.0
-GitPython~=3.1.44
 ab_sniffer @ git+https://github.com/RedTeamSubnet/ab-sniffer-challenge.git@v5.0.2
 ada_detection @ git+https://github.com/RedTeamSubnet/ada-detection-challenge.git@v2.0.0
