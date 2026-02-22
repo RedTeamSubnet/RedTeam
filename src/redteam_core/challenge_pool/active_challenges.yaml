@@ -72,6 +72,8 @@ dev_fingerprinter_v2:
     environment:
       ENV: "PRODUCTION"
       DFP_CHALLENGE_API_KEY: "${RT_CHALLENGE_API_KEY}"
+      DFP_CHALLENGE_PROXY_INTER_BASE_URL: "${DFP_CHALLENGE_PROXY_INTER_BASE_URL}"
+      DFP_API_CONFIG_DIR: "${DFP_API_CONFIG_DIR}"
     volumes:
       - "${RT_CHALLENGE_LOGS_DIR}:/var/log/rest.rt-dfp-challenger"
   miner_container_run_kwargs:
