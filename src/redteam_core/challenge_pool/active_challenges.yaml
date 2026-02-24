@@ -73,7 +73,7 @@ dev_fingerprinter_v2:
       ENV: "PRODUCTION"
       DFP_CHALLENGE_API_KEY: "${RT_CHALLENGE_API_KEY}"
       DFP_CHALLENGE_PROXY_INTER_BASE_URL: "${DFP_CHALLENGE_PROXY_INTER_BASE_URL}"
-      DFP_API_CONFIGS_DIR: "${DFP_API_CONFIGS_DIR}"
+      DFP_API_CONFIGS_DIR: "/etc/configs"
       DFP_CHALLENGE_SMTP_HOST: "${DFP_CHALLENGE_SMTP_HOST}"
       DFP_CHALLENGE_SMTP_PORT: "${DFP_CHALLENGE_SMTP_PORT}"
       DFP_CHALLENGE_SMTP_USER: "${DFP_CHALLENGE_SMTP_USER}"
@@ -81,6 +81,7 @@ dev_fingerprinter_v2:
       DFP_CHALLENGE_EMAIL_SENDER: "${DFP_CHALLENGE_EMAIL_SENDER}"
     volumes:
       - "${RT_CHALLENGE_LOGS_DIR}:/var/log/rest.rt-dfp-challenger"
+      - "${DFP_API_DEVICES_PATH}:/etc/configs/devices.json"
   miner_container_run_kwargs:
     cpu_count: 4
     mem_limit: "12g"
