@@ -51,7 +51,7 @@ dev_fingerprinter_v2:
   name: "dev_fingerprinter_v2"
   description: "Cross browser fingerprinting challenge"
   challenge_incentive_weight: 0.6
-  challenge_image: ""
+  challenge_image: "redteamsubnet61/dev_fingerprinter:v2.0.0-260226"
   target: dev_fingerprinter.controller.DFPController
   challenge_manager: dev_fingerprinter.challenge_manager.DFPChallengeManager
   script_path_identifier: "fingerprinter_js"
