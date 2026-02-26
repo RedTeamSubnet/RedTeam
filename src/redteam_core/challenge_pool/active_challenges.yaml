@@ -1,7 +1,7 @@
 ada_detection_v2:
   name: "ada_detection_v2"
   description: "Detect anti-detect automation frameworks"
-  challenge_incentive_weight: 0.5
+  challenge_incentive_weight: 0.4
   challenge_image: "redteamsubnet61/ada_detection:v2.0.1-260216"
   target: ada_detection.controller.AADController
   challenge_manager: ada_detection.challenge_manager.AADChallengeManager
@@ -50,7 +50,7 @@ ada_detection_v2:
 dev_fingerprinter_v2:
   name: "dev_fingerprinter_v2"
   description: "Cross browser fingerprinting challenge"
-  challenge_incentive_weight: 0.5
+  challenge_incentive_weight: 0.6
   challenge_image: ""
   target: dev_fingerprinter.controller.DFPController
   challenge_manager: dev_fingerprinter.challenge_manager.DFPChallengeManager
