@@ -1,7 +1,7 @@
 ada_detection_v2:
   name: "ada_detection_v2"
   description: "Detect anti-detect automation frameworks"
-  challenge_incentive_weight: 0.6
+  challenge_incentive_weight: 0.4
   challenge_image: "redteamsubnet61/ada_detection:v2.0.1-260216"
   target: ada_detection.controller.AADController
   challenge_manager: ada_detection.challenge_manager.AADChallengeManager
@@ -47,15 +47,15 @@ ada_detection_v2:
     num_cpus: 4
     mem_limit: "12g"
 
-ab_sniffer_v5:
-  name: "ab_sniffer_v5"
-  description: "Detect the driver type of the framework"
-  challenge_incentive_weight: 0.4
-  challenge_image: "redteamsubnet61/ab_sniffer:v5.0.0-251202"
-  target: ab_sniffer.controller.ABSController
-  challenge_manager: ab_sniffer.challenge_manager.ABSChallengeManager
-  script_path_identifier: "detection_files"
-  challenge_type: "abs"
+dev_fingerprinter_v2:
+  name: "dev_fingerprinter_v2"
+  description: "Cross browser fingerprinting challenge"
+  challenge_incentive_weight: 0.6
+  challenge_image: "redteamsubnet61/dev_fingerprinter:v2.0.0-260226"
+  target: dev_fingerprinter.controller.DFPController
+  challenge_manager: dev_fingerprinter.challenge_manager.DFPChallengeManager
+  script_path_identifier: "fingerprinter_js"
+  challenge_type: "dfp"
   challenge_solve_timeout: 60
   docker_run_timeout: 900
   num_tasks: 1
@@ -66,23 +66,28 @@ ab_sniffer_v5:
     max_self_comparison_score: 0.8
     min_acceptable_score: 0.6
   challenge_container_run_kwargs:
-    name: "ab_sniffer_v5"
+    name: "dev_fingerprinter_v2"
     platform: "linux/amd64"
     privileged: true
     environment:
       ENV: "PRODUCTION"
-      ABS_CHALLENGE_API_KEY: "${RT_CHALLENGE_API_KEY}"
-      ABS_CHALLENGE_VERIFICATION_API_KEY: "${RT_CHALLENGE_VERIFICATION_API_KEY}"
-      ABS_CHALLENGE_VERIFICATION_ENDPOINT: "${RT_CHALLENGE_VERIFICATION_ENDPOINT}"
-      ABS_CHALLENGE_VERIFICATION_STARTUP_URL: "${RT_CHALLENGE_VERIFICATION_STARTUP_URL}"
+      DFP_CHALLENGE_API_KEY: "${RT_CHALLENGE_API_KEY}"
+      DFP_CHALLENGE_PROXY_INTER_BASE_URL: "${DFP_CHALLENGE_PROXY_INTER_BASE_URL}"
+      DFP_API_CONFIGS_DIR: "/etc/configs"
+      DFP_CHALLENGE_SMTP_HOST: "${DFP_CHALLENGE_SMTP_HOST}"
+      DFP_CHALLENGE_SMTP_PORT: "${DFP_CHALLENGE_SMTP_PORT}"
+      DFP_CHALLENGE_SMTP_USER: "${DFP_CHALLENGE_SMTP_USER}"
+      DFP_CHALLENGE_SMTP_PASSWORD: "${DFP_CHALLENGE_SMTP_PASSWORD}"
+      DFP_CHALLENGE_EMAIL_SENDER: "${DFP_CHALLENGE_EMAIL_SENDER}"
     volumes:
-      - "${RT_CHALLENGE_LOGS_DIR}:/var/log/rest.rt-abs-challenger"
+      - "${RT_CHALLENGE_LOGS_DIR}:/var/log/rest.rt-dfp-challenger"
+      - "${DFP_API_DEVICES_PATH}:/etc/configs/devices.json"
   miner_container_run_kwargs:
     cpu_count: 4
     mem_limit: "12g"
     network: "redteam_local"
     environment:
-      CHALLENGE_NAME: "ab_sniffer_v5"
+      CHALLENGE_NAME: "dev_fingerprinter_v2"
   protocols:
     challenger: "http"
     challenger_ssl_verify: false

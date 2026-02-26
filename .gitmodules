@@ -1,6 +1,6 @@
-[submodule "src/challenges/ab_sniffer"]
-	path = src/challenges/ab_sniffer
-	url = ../ab-sniffer-challenge.git
 [submodule "src/challenges/ada_detection"]
 	path = src/challenges/ada_detection
 	url = ../ada-detection-challenge.git
+[submodule "src/challenges/dev_fingerprinter"]
+	path = src/challenges/dev_fingerprinter
+	url = https://github.com/RedTeamSubnet/dev-fingerprinter-challenge.git
