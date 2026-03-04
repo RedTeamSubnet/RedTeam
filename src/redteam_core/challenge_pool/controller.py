@@ -664,7 +664,14 @@ class Controller:
     ) -> list[MinerChallengeCommit]:
         _all_current_commits = []
         for commit in self.miner_commits:
-            if commit.scoring_logs and (commit.miner_uid != miner_commit.miner_uid):
+            if (
+                commit.scoring_logs
+                and commit.miner_uid != miner_commit.miner_uid
+                and (
+                    not commit.scoring_logs[0].error
+                    or "high comparison score" in commit.scoring_logs[0].error
+                )
+            ):
                 _all_current_commits.append(commit)
         return _all_current_commits
 
