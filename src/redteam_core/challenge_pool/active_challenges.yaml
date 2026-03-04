@@ -80,7 +80,7 @@ dev_fingerprinter_v2:
       DFP_CHALLENGE_SMTP_PASSWORD: "${DFP_CHALLENGE_SMTP_PASSWORD}"
       DFP_CHALLENGE_EMAIL_SENDER: "${DFP_CHALLENGE_EMAIL_SENDER}"
     volumes:
-      - "${RT_CHALLENGE_LOGS_DIR}:/var/log/rest.rt-dfp-challenger"
+      - "${RT_CHALLENGE_LOGS_DIR}:/var/log/rest.dfp-challenger"
       - "${DFP_API_DEVICES_PATH}:/etc/configs/devices.json"
   miner_container_run_kwargs:
     cpu_count: 4
