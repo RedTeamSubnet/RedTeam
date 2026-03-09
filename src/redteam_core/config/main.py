@@ -58,7 +58,7 @@ class MainConfig(BaseSettings):
     )
 
     REVEAL_INTERVAL: int = Field(
-        default=3600 * 24,
+        default=3600 * 3,
         description="Time interval for revealing commits (seconds)",
         ge=1,
     )
