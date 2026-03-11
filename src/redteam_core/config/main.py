@@ -58,7 +58,7 @@ class MainConfig(BaseSettings):
     )
 
     REVEAL_INTERVAL: int = Field(
-        default=3600 * 24,
+        default=3600 * 3,
         description="Time interval for revealing commits (seconds)",
         ge=1,
     )
@@ -89,7 +89,7 @@ class MainConfig(BaseSettings):
     def _check_all(self) -> Self:
         if self.TESTNET:
             self.REVEAL_INTERVAL = 30
-            self.EPOCH_LENGTH = 30
+            self.EPOCH_LENGTH = 100
             self.MIN_VALIDATOR_STAKE = -1
 
         return self
@@ -117,17 +117,14 @@ class MainConfig(BaseSettings):
 
     def is_commit_on_time(self, commit_timestamp: float) -> bool:
         """
-        Validator do scoring every day at SCORING_HOUR.
-        So the commit time should be submitted before the previous day's SCORING_HOUR.
+        Check if the commit is more than 3 hours old.
         """
         if self.TESTNET:
             return True
 
-        today_closed_time = datetime.datetime.now(datetime.timezone.utc).replace(
-            hour=self.SCORING_HOUR, minute=0, second=0, microsecond=0
-        )
-        previous_day_closed_time = today_closed_time - datetime.timedelta(days=1)
-        return commit_timestamp < previous_day_closed_time.timestamp()
+        current_time = datetime.datetime.now(datetime.timezone.utc)
+        three_hours_ago = current_time - datetime.timedelta(hours=3)
+        return commit_timestamp <= three_hours_ago.timestamp()
 
 
 constants = MainConfig(VERSION=__version__)
