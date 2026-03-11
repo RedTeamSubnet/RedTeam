@@ -1,5 +1,16 @@
 # Changelog
 
+## v4.3.0 (2026-03-11)
+
+<!-- Release notes generated using configuration in .github/release.yml at v4.3.0 -->
+
+## What's Changed
+### ✨ Features
+* Update DFP version and reduce reveal interval to 3 hours by @aliyuldashev in https://github.com/RedTeamSubnet/RedTeam/pull/109
+
+
+**Full Changelog**: https://github.com/RedTeamSubnet/RedTeam/compare/v4.2.2...v4.3.0
+
 ## v4.2.2 (2026-03-04)
 
 <!-- Release notes generated using configuration in .github/release.yml at v4.2.2 -->
