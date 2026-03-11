@@ -117,7 +117,7 @@ class MainConfig(BaseSettings):
 
     def is_commit_on_time(self, commit_timestamp: float) -> bool:
         """
-        Check is commit more then 3 hours ago.
+        Check if the commit is more than 3 hours old.
         """
         if self.TESTNET:
             return True
