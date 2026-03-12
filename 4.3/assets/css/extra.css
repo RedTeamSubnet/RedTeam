@@ -1,0 +1,17 @@
+[data-md-color-scheme="redteam"] {
+	--md-primary-fg-color:        #CB1E40;
+	--md-primary-fg-color--light: #CB1E40;
+	--md-primary-fg-color--dark:  #CB1E40;
+
+	--md-accent-fg-color: #CB1E40;
+	--md-typeset-a-color: #CB1E40;
+}
+
+[data-md-color-scheme="slate"] {
+	--md-primary-fg-color:        #CB1E40;
+	--md-primary-fg-color--light: #CB1E40;
+	--md-primary-fg-color--dark:  #CB1E40;
+
+	--md-accent-fg-color: #CB1E40;
+	--md-typeset-a-color: #CB1E40;
+}
