@@ -2,4 +2,6 @@ nav:
   - lifecycle.md
   - submission-templates.md
   - validation.md
+  - comparison.md
+  - reveal-interval.md
   - "*"
