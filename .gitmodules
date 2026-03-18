@@ -4,3 +4,6 @@
 [submodule "src/challenges/dev_fingerprinter"]
 	path = src/challenges/dev_fingerprinter
 	url = https://github.com/RedTeamSubnet/dev-fingerprinter-challenge.git
+[submodule "src/challenges/historical_fingerprinter"]
+	path = src/challenges/historical_fingerprinter
+	url = git@github.com:RedTeamSubnet/historical-fingerprinter-challenge.git
