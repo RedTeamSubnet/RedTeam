@@ -6,6 +6,17 @@ hide:
 
 # 📌 Release Notes
 
+## v4.3.1 (2026-03-18)
+
+<!-- Release notes generated using configuration in .github/release.yml at v4.3.1 -->
+
+## What's Changed
+### 💬 Other
+* documentation to clarify and streamline the process for building and publishing a miner solution as a Docker image. by @abdibekbolot in https://github.com/RedTeamSubnet/RedTeam/pull/110
+
+
+**Full Changelog**: https://github.com/RedTeamSubnet/RedTeam/compare/v4.3.0...v4.3.1
+
 ## v4.3.0 (2026-03-11)
 
 <!-- Release notes generated using configuration in .github/release.yml at v4.3.0 -->
