@@ -25,7 +25,7 @@ historical_fingerprinter_v1:
       HFP_CHALLENGE_API_KEY: "${RT_CHALLENGE_API_KEY}"
       HFP_CHALLENGE_METRICS_CSV_PATH: "/etc/historical_fingerprinter/metrics.csv"
       HFP_CHALLENGE_ACCEPTABLE_MISS_COUNT: 10
-      HFP_CHALLENGE_SINGLE_REQUEST_TIMEOUT: 2
+      HFP_CHALLENGE_SINGLE_REQUEST_TIMEOUT: 0.5
       HFP_CHALLENGE_FINGERPRINTER_PORT: 10003
     volumes:
       - "${RT_CHALLENGE_LOGS_DIR}:/var/log/historical_fingerprinter"
