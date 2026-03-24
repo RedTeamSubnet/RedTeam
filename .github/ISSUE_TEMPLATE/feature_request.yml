@@ -1,0 +1,172 @@
+name: Feature Request
+description: Suggest a new feature or enhancement for RedTeam Core
+title: "[Feature]: "
+labels: ["enhancement", "feature-request"]
+assignees:
+  - aliyuldashev
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a new feature! Your ideas help make RedTeam Core better.
+        
+        Please search [existing issues](../../issues) to see if this has been suggested before.
+
+  - type: input
+    id: contact
+    attributes:
+      label: Contact Details
+      description: How can we get in touch with you for follow-up questions?
+      placeholder: ex. email@example.com or Discord username
+    validations:
+      required: false
+
+  - type: textarea
+    id: feature-summary
+    attributes:
+      label: Feature Summary
+      description: Provide a clear and concise description of the feature you'd like to see
+      placeholder: "Add support for custom challenge types with dynamic scoring algorithms"
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem-statement
+    attributes:
+      label: Problem Statement
+      description: |
+        What problem does this feature solve? What's the current limitation?
+        Help us understand the "why" behind your request.
+      placeholder: |
+        Currently, challenge creators are limited to predefined challenge types.
+        This makes it difficult to implement domain-specific challenges that require
+        custom evaluation logic or specialized scoring mechanisms.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: Proposed Solution
+      description: |
+        Describe the solution you'd like to see implemented.
+        Be as detailed as possible about the expected behavior.
+      placeholder: |
+        Add a plugin system that allows:
+        1. Custom challenge type registration
+        2. User-defined scoring functions
+        3. Dynamic challenge configuration
+        4. Integration with existing validator logic
+    validations:
+      required: true
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component Area
+      description: Which part of RedTeam Core would this feature affect?
+      multiple: true
+      options:
+        - Challenge System
+        - Miner Logic
+        - Validator Logic
+        - API Endpoints
+        - Scoring Algorithm
+        - Network Protocol
+        - Docker/Deployment
+        - Documentation
+        - CLI Tools
+        - Core Library
+        - Submodule Integration
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: How important is this feature to you?
+      options:
+        - Critical (blocks current work)
+        - High (significantly improves workflow)
+        - Medium (nice to have)
+        - Low (minor improvement)
+      default: 2
+    validations:
+      required: true
+
+  - type: dropdown
+    id: complexity
+    attributes:
+      label: Implementation Complexity (Your Estimate)
+      description: How complex do you think this feature would be to implement?
+      options:
+        - Simple (configuration change)
+        - Medium (new functionality)
+        - Complex (architectural changes)
+        - Major (significant redesign)
+        - "I'm not sure"
+      default: 4
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternative Solutions
+      description: |
+        Have you considered any alternative approaches?
+        Are there workarounds you're currently using?
+      placeholder: |
+        Current workaround: Manually modifying challenge code for each use case.
+        Alternative: Creating a configuration-based system instead of full plugins.
+    validations:
+      required: false
+
+  - type: textarea
+    id: use-cases
+    attributes:
+      label: Use Cases
+      description: |
+        Provide specific examples of how this feature would be used.
+        Include real-world scenarios if possible.
+      placeholder: |
+        Use case 1: Security research team wants to test custom ML model evasion techniques
+        Use case 2: Educational institution needs domain-specific cybersecurity challenges
+        Use case 3: Competition organizers require custom scoring for specialized events
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: requirements
+    attributes:
+      label: Technical Requirements
+      description: What technical aspects should be considered?
+      options:
+        - label: Backward compatibility is important
+        - label: Should work with existing Docker setup
+        - label: Needs comprehensive documentation
+        - label: Should include test coverage
+        - label: Must maintain network protocol compatibility
+        - label: Performance impact should be minimal
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: |
+        Any other information, mockups, related issues, or resources that would help?
+      placeholder: |
+        - Link to related research papers
+        - Similar implementations in other projects
+        - Mockups or diagrams
+        - Performance benchmarks or requirements
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution Interest
+      description: Are you interested in helping implement this feature?
+      options:
+        - label: I'd like to contribute code for this feature
+        - label: I can help with testing and feedback
+        - label: I can provide documentation or examples
+        - label: I'm available for technical discussions

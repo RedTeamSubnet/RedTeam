@@ -1,0 +1,17 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 𝕭 RedTeam Community in Bittensor
+    url: https://discord.com/channels/799672011265015819/1319313447435108413
+    about: Join the RedTeam community channel in Bittensor for discussions and support
+  - name: 𝕭 Our Discord Community
+    url: https://discord.gg/kNFhgStX
+    about: Join our Discord server for real-time chat and community support
+  - name: 📖 Documentation
+    url: https://docs.theredteam.io
+    about: Check our comprehensive documentation for setup guides and API references
+  - name: 🚀 Discussions
+    url: https://github.com/RedTeamSubnet/RedTeam/discussions
+    about: General discussions, ideas, and community Q&A (use if discussions are enabled)
+  - name: 🔒 Security Issues
+    url: mailto:javohir.hbai@gmail.com
+    about: Report security vulnerabilities privately via email

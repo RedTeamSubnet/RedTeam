@@ -1,0 +1,154 @@
+name: Documentation Issue
+description: Report problems with documentation or suggest improvements
+title: "[Docs]: "
+labels: ["documentation", "triage"]
+assignees:
+  - aliyuldashev
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Help us improve RedTeam Core documentation! Clear docs make the project accessible to everyone.
+
+  - type: dropdown
+    id: doc-type
+    attributes:
+      label: Documentation Type
+      description: What kind of documentation issue is this?
+      options:
+        - README.md
+        - API Documentation
+        - Setup/Installation Guide
+        - Challenge Documentation
+        - Code Comments
+        - Examples/Tutorials
+        - MkDocs Site
+        - Changelog
+        - Contributing Guide
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: issue-category
+    attributes:
+      label: Issue Category
+      description: What type of documentation issue?
+      options:
+        - Missing Information
+        - Incorrect/Outdated Info
+        - Unclear Instructions
+        - Broken Links
+        - Formatting Issues
+        - Missing Examples
+        - Translation Issue
+        - New Documentation Needed
+    validations:
+      required: true
+
+  - type: input
+    id: location
+    attributes:
+      label: Documentation Location
+      description: Where is this documentation located?
+      placeholder: "docs/setup.md, README.md line 45, or URL: https://..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: current-content
+    attributes:
+      label: Current Content (if applicable)
+      description: |
+        If reporting incorrect information, paste the current content here.
+      placeholder: |
+        Current text:
+        "Run the miner with: python miner.py --netuid 1"
+      render: markdown
+    validations:
+      required: false
+
+  - type: textarea
+    id: expected-content
+    attributes:
+      label: Expected/Suggested Content
+      description: |
+        What should the documentation say instead? 
+        Provide your suggested improvement.
+      placeholder: |
+        Suggested text:
+        "Run the miner with: python neurons/miner.py --netuid 37 --wallet.name your-wallet"
+        
+        Also add explanation of required parameters and common options.
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: |
+        Why is this change needed? What problem does it solve?
+        Who would benefit from this improvement?
+      placeholder: |
+        New users are confused about the correct netuid and wallet parameters.
+        Current instructions lead to connection errors on the actual network.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: user-type
+    attributes:
+      label: Target Audience
+      description: Who would benefit most from this documentation fix?
+      multiple: true
+      options:
+        - New Users/Beginners
+        - Experienced Developers
+        - Challenge Creators
+        - System Administrators
+        - API Users
+        - Contributors
+        - Researchers
+
+  - type: checkboxes
+    id: improvement-type
+    attributes:
+      label: Improvement Areas
+      description: What aspects could be improved?
+      options:
+        - label: Add more examples
+        - label: Include troubleshooting section
+        - label: Add screenshots/diagrams
+        - label: Improve code formatting
+        - label: Add cross-references
+        - label: Include performance tips
+        - label: Add FAQ section
+        - label: Better organization/structure
+
+  - type: textarea
+    id: additional-suggestions
+    attributes:
+      label: Additional Suggestions
+      description: |
+        Any other ideas for improving this documentation?
+        Related sections that could be updated?
+      placeholder: |
+        Also consider:
+        - Adding a quickstart guide
+        - Including common error solutions
+        - Creating video tutorials for complex setup
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: contribution-offer
+    attributes:
+      label: Contribution Offer
+      description: Can you help improve this documentation?
+      options:
+        - label: I can write the improved content
+        - label: I can review/proofread changes
+        - label: I can provide examples or screenshots
+        - label: I can test the updated instructions

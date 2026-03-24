@@ -1,0 +1,134 @@
+name: Question/Help
+description: Ask questions or get help with RedTeam Core
+title: "[Question]: "
+labels: ["question", "help-wanted"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Need help with RedTeam Core? We're here to assist!
+        
+        Before asking, please:
+        - Check the [documentation](../../docs)
+        - Search [existing issues](../../issues)
+        - Look through [discussions](../../discussions) if available
+
+  - type: dropdown
+    id: question-category
+    attributes:
+      label: Question Category
+      description: What area is your question about?
+      options:
+        - Setup/Installation
+        - Configuration
+        - Challenge Development
+        - Miner Operation
+        - Validator Operation
+        - API Usage
+        - Performance/Optimization
+        - Troubleshooting
+        - Best Practices
+        - Architecture/Design
+        - Contributing
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Your Question
+      description: |
+        What would you like to know? Be as specific as possible.
+      placeholder: |
+        How do I configure my miner to connect to a specific validator?
+        I'm getting connection timeouts and I'm not sure what parameters to adjust.
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-tried
+    attributes:
+      label: What Have You Tried?
+      description: |
+        What steps have you already taken to solve this?
+        This helps us avoid suggesting things you've already tried.
+      placeholder: |
+        - Read the setup documentation
+        - Tried different port configurations
+        - Checked firewall settings
+        - Looked at log files
+    validations:
+      required: false
+
+  - type: textarea
+    id: current-setup
+    attributes:
+      label: Current Setup
+      description: |
+        Describe your current configuration and environment.
+        This helps us provide more accurate help.
+      placeholder: |
+        - OS: Ubuntu 22.04
+        - Python: 3.10.12
+        - RedTeam: v4.3.1
+        - Network: testnet/mainnet
+        - Setup: Docker/local/cloud
+        - Wallet: coldkey/hotkey names
+      render: text
+    validations:
+      required: false
+
+  - type: textarea
+    id: expected-outcome
+    attributes:
+      label: Expected Outcome
+      description: |
+        What are you trying to achieve? What would success look like?
+      placeholder: |
+        I want my miner to successfully connect and participate in challenges,
+        earning rewards while maintaining stable performance.
+    validations:
+      required: false
+
+  - type: textarea
+    id: relevant-logs
+    attributes:
+      label: Relevant Logs or Errors
+      description: |
+        If you're experiencing issues, please include relevant log output.
+        Remove any sensitive information (keys, personal data).
+      render: shell
+    validations:
+      required: false
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How urgent is this question?
+      options:
+        - Not urgent (learning/exploring)
+        - Moderate (affects development)
+        - High (blocks current work)
+        - Critical (production issue)
+      default: 0
+
+  - type: input
+    id: contact
+    attributes:
+      label: Contact Info (Optional)
+      description: How can we reach you for follow-up questions?
+      placeholder: Discord username, email, etc.
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: |
+        Any other information that might be helpful?
+        Screenshots, configuration files, related resources, etc.
+    validations:
+      required: false
