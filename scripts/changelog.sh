@@ -132,18 +132,18 @@ generate_pr_changelog() {
 # Generate changelog using commit analysis
 generate_commit_changelog() {
     echo "[INFO]: Collecting commit data for analysis..." >&2
-    
+
     local commits_data
     commits_data=$(collect_commit_data "${_PROJECT_DIR}")
-    
+
     if [ -z "${commits_data}" ]; then
         echo "[WARN]: No commits found since last release, falling back to PR method" >&2
         generate_pr_changelog
         return 0
     fi
-    
+
     get_commit_stats "${commits_data}"
-    
+
     # Try to generate changelog with Gemini
     if [ -n "${GEMINI_API_KEY}" ]; then
         echo "[INFO]: Generating changelog with Gemini AI..." >&2
@@ -161,7 +161,7 @@ generate_commit_changelog() {
     else
         echo "[WARN]: GEMINI_API_KEY not set, using fallback method" >&2
     fi
-    
+
     # Fallback to simple commit list
     echo "[INFO]: Generating simple changelog from commits..." >&2
     local _release_tag
@@ -174,9 +174,9 @@ generate_commit_changelog() {
 main() {
     local _changelog_title="# Changelog"
     local _release_entry
-    
+
     echo "[INFO]: Generating changelog entry..." >&2
-    
+
     # Generate changelog content based on mode
     if [ "${USE_COMMIT_ANALYSIS}" == "true" ]; then
         _release_entry=$(generate_commit_changelog)
@@ -184,9 +184,9 @@ main() {
         echo "[INFO]: Using PR-based changelog generation (legacy mode)" >&2
         _release_entry=$(generate_pr_changelog)
     fi
-    
+
     echo "[INFO]: Updating changelog file..." >&2
-    
+
     # Update CHANGELOG.md
     if ! grep -q "^${_changelog_title}" "${CHANGELOG_FILE_PATH}"; then
         echo -e "${_changelog_title}\n\n" > "${CHANGELOG_FILE_PATH}"
@@ -198,7 +198,7 @@ main() {
     echo "[OK]: Updated changelog"
 
     echo "[INFO]: Updating release notes..." >&2
-    
+
     # Update release notes
     local _release_notes_header="---\ntitle: Release Notes\nhide:\n  - navigation\n---\n\n# 📌 Release Notes"
     if ! grep -q "^# 📌 Release Notes" "${RELEASE_NOTES_FILE_PATH}"; then

@@ -4,7 +4,7 @@
 # Filter out automated commits (github-actions, bots, etc.)
 filter_automated_commits() {
     local commits_data="${1}"
-    
+
     # Skip commits from automated accounts
     echo "${commits_data}" | grep -v -E "(github-actions@|dependabot\[bot\]|renovate\[bot\]|bot@|action@)"
 }
@@ -14,26 +14,26 @@ generate_changelog_with_gemini() {
     local commits_data="${1}"
     local api_key="${GEMINI_API_KEY}"
     local model="${GEMINI_MODEL:-gemini-pro}"
-    
+
     if [ -z "${api_key}" ]; then
         echo "[ERROR]: GEMINI_API_KEY not set" >&2
         return 1
     fi
-    
+
     if [ -z "${commits_data}" ]; then
         echo "[ERROR]: No commit data provided" >&2
         return 1
     fi
-    
+
     # Filter out automated commits
     local filtered_commits
     filtered_commits=$(filter_automated_commits "${commits_data}")
-    
+
     if [ -z "${filtered_commits}" ]; then
         echo "[WARN]: No user commits found after filtering automated commits" >&2
         return 1
     fi
-    
+
     # Create improved prompt for Gemini
     local prompt
     prompt=$(cat <<EOF
@@ -47,9 +47,8 @@ ${filtered_commits}
 Rules:
 1. Group into: ## Features, ## Improvements, ## Bug Fixes, ## Other Changes
 2. Skip empty sections
-3. One line per change: "- Description (@author)"
-4. Be concise and user-focused
-5. NO intro phrases like "Here's a changelog" or explanations
+3. One line per change: "- Description (@author)". But be careful to this case where username includes space you need to skip `@` simbol and use only username.
+4. NO intro phrases like "Here's a changelog" or explanations
 EOF
 )
 
@@ -61,11 +60,7 @@ EOF
             parts: [{
                 text: $prompt
             }]
-        }],
-        generationConfig: {
-            temperature: 0.3,
-            maxOutputTokens: 1024
-        }
+        }]
     }')
 
     # Make API request
@@ -92,11 +87,11 @@ EOF
 # Fallback changelog generation (simple format)
 generate_fallback_changelog() {
     local commits_data="${1}"
-    
+
     # Filter out automated commits
     local filtered_commits
     filtered_commits=$(filter_automated_commits "${commits_data}")
-    
+
     if [ -z "${filtered_commits}" ]; then
         echo "## Changes"
         echo ""
@@ -104,10 +99,10 @@ generate_fallback_changelog() {
         echo ""
         return 0
     fi
-    
+
     echo "## Changes"
     echo ""
-    
+
     # Process commit data and create simple changelog
     echo "${filtered_commits}" | while IFS='|' read -r hash author email date message; do
         [ -z "${hash}" ] && continue
@@ -115,6 +110,6 @@ generate_fallback_changelog() {
         clean_message=$(echo "${message}" | sed -E 's/^(feat|fix|docs|style|refactor|test|chore)(\([^)]+\))?: //')
         echo "- ${clean_message} (@${author})"
     done
-    
+
     echo ""
 }

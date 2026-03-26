@@ -41,7 +41,7 @@ if [ "${USE_COMMIT_ANALYSIS}" == "true" ] && [ -f "${_SCRIPT_DIR}/lib/commit-col
     if command -v jq >/dev/null 2>&1 && command -v curl >/dev/null 2>&1; then
         # shellcheck source=./lib/commit-collector.sh
         source "${_SCRIPT_DIR}/lib/commit-collector.sh"
-        # shellcheck source=./lib/gemini-client.sh  
+        # shellcheck source=./lib/gemini-client.sh
         source "${_SCRIPT_DIR}/lib/gemini-client.sh"
     else
         echo "[WARN]: Missing jq/curl, disabling commit analysis for release notes" >&2
@@ -115,20 +115,30 @@ fi
 
 ## --- Release Notes Generation --- ##
 
+# Ensure commit analysis has full tag/history context in CI checkouts.
+prepare_git_history_for_notes() {
+	git fetch --tags --force >/dev/null 2>&1 || true
+	if git rev-parse --is-shallow-repository >/dev/null 2>&1 && [ "$(git rev-parse --is-shallow-repository)" = "true" ]; then
+		git fetch --unshallow --tags >/dev/null 2>&1 || true
+	fi
+}
+
 # Generate release notes using commit analysis (similar to changelog)
 generate_commit_release_notes() {
     echo "[INFO]: Generating release notes from commit analysis..." >&2
-    
+
+	prepare_git_history_for_notes
+
     local commits_data
     commits_data=$(collect_commit_data "${_PROJECT_DIR}")
-    
+
     if [ -z "${commits_data}" ]; then
         echo "[WARN]: No commits found for release notes" >&2
         return 1
     fi
-    
+
     get_commit_stats "${commits_data}"
-    
+
     # Try to generate release notes with Gemini
     if [ -n "${GEMINI_API_KEY}" ]; then
         echo "[INFO]: Generating AI-powered release notes..." >&2
@@ -142,7 +152,7 @@ generate_commit_release_notes() {
     else
         echo "[INFO]: GEMINI_API_KEY not set, using fallback method" >&2
     fi
-    
+
     # Fallback to simple commit list
     echo "[INFO]: Generating simple release notes from commits..." >&2
     generate_fallback_changelog "${commits_data}"
@@ -163,7 +173,7 @@ main()
 	local _current_version
 	_current_version="$(./scripts/get-version.sh)"
 	echo "[INFO]: Creating release for version: 'v${_current_version}'..."
-	
+
 	# Generate release notes based on method choice
 	if [ "${_USE_COMMIT_ANALYSIS}" == "true" ]; then
 		local release_notes
@@ -179,7 +189,7 @@ main()
 		generate_simple_release_notes
 		gh release create "v${_current_version}" ./dist/* --generate-notes
 	fi
-	
+
 	echo "[OK]: Release 'v${_current_version}' created successfully."
 }
 

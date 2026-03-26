@@ -5,9 +5,9 @@
 get_commits_since_last_release() {
     local repo_path="${1:-.}"
     local format="${2:-%H|%an|%ae|%ad|%s}"
-    
+
     cd "${repo_path}" || return 1
-    
+
     # Get latest tag
     local latest_tag
     latest_tag=$(git describe --tags --abbrev=0 2>/dev/null) || {
@@ -15,7 +15,18 @@ get_commits_since_last_release() {
         git log --pretty=format:"${format}" --date=short
         return 0
     }
-    
+
+    # Changelog job runs after release creation, so HEAD can be the current tag.
+    # In that case, use the previous tag as baseline.
+    if git describe --tags --exact-match HEAD >/dev/null 2>&1; then
+        latest_tag=$(git tag --merged HEAD --sort=-creatordate | sed -n '2p')
+        if [ -z "${latest_tag}" ]; then
+            echo "[WARN]: HEAD is tagged but no previous tag found, using all commits" >&2
+            git log --pretty=format:"${format}" --date=short
+            return 0
+        fi
+    fi
+
     # Get commits since latest tag
     git log "${latest_tag}..HEAD" --pretty=format:"${format}" --date=short
 }
@@ -29,18 +40,18 @@ get_submodules() {
 get_submodule_commits() {
     local submodule_path="${1}"
     local format="${2:-%H|%an|%ae|%ad|%s}"
-    
+
     if [ ! -d "${submodule_path}" ]; then
         echo "[WARN]: Submodule path '${submodule_path}' not found" >&2
         return 1
     fi
-    
+
     cd "${submodule_path}" || return 1
-    
+
     # Get commits from last 30 days or since last tag
     local latest_tag
     latest_tag=$(git describe --tags --abbrev=0 2>/dev/null)
-    
+
     if [ -n "${latest_tag}" ]; then
         git log "${latest_tag}..HEAD" --pretty=format:"${format}" --date=short 2>/dev/null || true
     else
