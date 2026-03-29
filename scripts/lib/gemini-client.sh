@@ -47,7 +47,7 @@ ${filtered_commits}
 Rules:
 1. Group into: ## Features, ## Improvements, ## Bug Fixes, ## Other Changes
 2. Skip empty sections
-3. One line per change: "- Description (@author)". But be careful to this case where username includes space you need to skip `@` simbol and use only username.
+3. One line per change: "- Description (@author)". But be careful to this case where username includes space you need to skip `@` symbol and use only username.
 4. NO intro phrases like "Here's a changelog" or explanations
 EOF
 )
