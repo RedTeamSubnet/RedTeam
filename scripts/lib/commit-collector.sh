@@ -9,18 +9,17 @@ source "${SCRIPT_DIR}/git-utils.sh"
 # Collect all commit data
 collect_commit_data() {
     local project_dir="${1:-..}"
-    cd "${project_dir}" || return 1
 
     echo "[INFO]: Collecting commits from main repository..." >&2
 
     # Validate main repo
-    if ! validate_git_repo "."; then
+    if ! validate_git_repo "${project_dir}"; then
         return 1
     fi
 
     # Collect main repo commits
     local main_commits
-    main_commits=$(get_commits_since_last_release ".")
+    main_commits=$(get_commits_since_last_release "${project_dir}")
 
     echo "[INFO]: Collecting commits from submodules..." >&2
 
