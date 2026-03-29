@@ -3,4 +3,4 @@
 	url = ../ada-detection-challenge.git
 [submodule "src/challenges/historical_fingerprinter"]
 	path = src/challenges/historical_fingerprinter
-	url = git@github.com:RedTeamSubnet/historical-fingerprinter-challenge.git
+	url = https://github.com/RedTeamSubnet/historical-fingerprinter-challenge.git
