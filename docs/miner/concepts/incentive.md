@@ -14,11 +14,13 @@ Bittensor's incentive mechanism is the core economic engine that rewards miners 
 Miners earn TAO by participating in subnet challenges and achieving high performance scores. The reward system operates through a two-stage process:
 
 ### 1. Performance Evaluation
+
 - **Validators** assess miner submissions according to subnet-specific criteria
 - Each validator assigns **weights** (scores) to miners based on solution quality
 - Weights range from 0.0 to 1.0, representing relative performance rankings
 
 ### 2. Emission Distribution
+
 - **[Yuma Consensus](https://docs.learnbittensor.org/learn/yuma-consensus)** aggregates validator weights, weighted by stake
 - Miners receive **41% of subnet emissions** proportional to their performance
 - Emissions are distributed every **tempo** (approximately 360 blocks, ~72 minutes)
@@ -36,11 +38,12 @@ Validators play a critical role in determining miner emissions:
 - **Emission Calculation**: Validator stake influences the weight of their evaluations
 
 Validators are incentivized to provide accurate, honest evaluations because:
+
 - Inaccurate weights are penalized through **clipping** and **bond adjustments**
 - Consistent consensus alignment builds stronger **EMA bonds** for higher future emissions
 
 | Recipient | Share | Details |
-|-----------|--------|---------|
+| ----------- | -------- | --------- |
 | **Miners** | 41% | Proportional to Yuma Consensus scores |
 | **Validators** | 41% | Based on bonds to high-performing miners |
 | **Subnet Owner** | 18% | Fixed portion for maintenance and development |
@@ -54,7 +57,7 @@ Miner TAO earnings are calculated through:
 3. **Share Calculation**: Proportion of total miner rankings in subnet
 4. **Emission Amount**: 41% × Subnet TAO emission × Miner's share
 
-```
+```txt
 Miner TAO = 0.41 × Subnet_TAO_Emission × (Miner_Ranking / Total_Rankings)
 ```
 
@@ -65,6 +68,7 @@ Miner TAO = 0.41 × Subnet_TAO_Emission × (Miner_Ranking / Total_Rankings)
     - Submit regularly during active periods (before decay)
 
 ### Performance Optimization
+
 - **Quality over Quantity**: Single high-scoring submission often outperforms multiple mediocre ones
 - **Continuous Improvement**: Older submissions decay over ~10-15 days, encouraging updates
 
