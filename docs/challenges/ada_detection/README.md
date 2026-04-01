@@ -77,7 +77,7 @@ Each file must be named exactly as shown and contain self-contained JavaScript (
 
 ## Challenge Versions
 
-- [**v2** (Active after Feb 14, 2026 14:00 UTC)](./v2.md) - Hardened detection with Fail-Fast scoring
+- [**v2** (Active after Feb 14, 2026 14:00 UTC)](depricated/v2.md) - Hardened detection with Fail-Fast scoring
 - [**v1** (Deprecated)](./depricated/v1.md)
 
 ## Resources & Guides
