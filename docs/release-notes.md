@@ -6,6 +6,42 @@ hide:
 
 # 📌 Release Notes
 
+## v4.4.0 (2026-04-01)
+
+## Changes
+
+- Update navigation and documentation for Historical Fingerprinter challenge (@aliyuldashev)
+- Update historical_fingerprinter configuration for API data directory (@aliyuldashev)
+- Update historical fingerprinter version and challenge image in configuration (@aliyuldashev)
+- Update README and v1 documentation for clarity and formatting (@aliyuldashev)
+- Remove ada_detection submodule and add dev_fingerprinter submodule (@aliyuldashev)
+- Improve clarity and structure in incentive mechanism documentation (@aliyuldashev)
+- Clean up formatting and improve clarity in issue templates (@aliyuldashev)
+- Clean up bug report template formatting and improve clarity (@aliyuldashev)
+- Merge remote-tracking branch 'origin/main' into dev (@aliyuldashev)
+- Merge remote-tracking branch 'origin/docs/incentive' into challenge/hfp (@aliyuldashev)
+- Merge pull request #113 from RedTeamSubnet/challenge/hfp (@ali yuldashev)
+- Update test case weights and improve challenge documentation (@aliyuldashev)
+- Update environment variable references (@aliyuldashev)
+- Refactor commit data collection to use project directory for git commands (@aliyuldashev)
+- Add initial documentation for Historical Fingerprinter challenge (@aliyuldashev)
+- Update scripts/lib/gemini-client.sh (@ali yuldashev)
+- Update .gitmodules (@ali yuldashev)
+- update subproject commit for historical_fingerprinter (@aliyuldashev)
+- remove unused dev_fingerprinter submodule from .gitmodules (@aliyuldashev)
+- integrate Gemini API for enhanced changelog and release notes generation with commit analysis (@aliyuldashev)
+- Merge pull request #112 from RedTeamSubnet/dependabot/pip/setuptools-scm-gte-8.0.4-and-lt-11.0.0 (@B. Batkhuu)
+- enhance release script with commit analysis for AI-generated release notes (@aliyuldashev)
+- update contact links in issue template for better community engagement and security reporting (@aliyuldashev)
+- add issue templates for bug reports, feature requests, documentation, challenges, and questions (@aliyuldashev)
+- update security issue reporting link in issue template for clarity (@aliyuldashev)
+- enhance changelog automation with commit analysis and Gemini integration (@aliyuldashev)
+- add historical_fingerprinter subproject (@aliyuldashev)
+- update challenge configuration for historical_fingerprinter (@aliyuldashev)
+- reduce single request timeout for historical_fingerprinter (@aliyuldashev)
+- adding new challenge repo (@aliyuldashev)
+- enhance incentive mechanism documentation with detailed reward calculation and validator roles (@Baratov Sokhibjon)
+
 ## v4.3.1 (2026-03-18)
 
 <!-- Release notes generated using configuration in .github/release.yml at v4.3.1 -->
