@@ -10,24 +10,24 @@
       
       
       
-        <link rel="canonical" href="https://docs.theredteam.io/4.3/challenges/ada_detection/v2/">
+        <link rel="canonical" href="https://docs.theredteam.io/4.3/challenges/historical_fingerprinter/testing_manuals/">
       
       
-        <link rel="prev" href="../">
+        <link rel="prev" href="../v1/">
       
       
-        <link rel="next" href="../testing_manuals/">
+        <link rel="next" href="../../dev_fingerprinter/">
       
       
         
       
       
       <link rel="icon" href="../../../assets/images/logo.dark.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
-        <title>Anti-Detect Automation Detection v2 - RedTeam Subnet - Docs</title>
+        <title>Testing Manual - RedTeam Subnet - Docs</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#anti-detect-automation-detection-v2-active-after-2026-february-14-1400-utc" class="md-skip">
+        <a href="#historical-fingerprinter-testing-manual" class="md-skip">
           Skip to content
         </a>
       
@@ -117,7 +117,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Anti-Detect Automation Detection v2
+              Testing Manual
             
           </span>
         </div>
@@ -1517,8 +1517,6 @@
       
         
       
-        
-      
     
     
     
@@ -1543,7 +1541,7 @@
   <span class="md-ellipsis">
     
   
-    ada_detection
+    historical_fingerprinter
   
 
     
@@ -1565,12 +1563,40 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    ada_detection
+    historical_fingerprinter
   
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../v1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Fingerprinter v1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
               
             
               
@@ -1596,7 +1622,7 @@
   <span class="md-ellipsis">
     
   
-    Anti-Detect Automation Detection v2
+    Testing Manual
   
 
     
@@ -1614,7 +1640,7 @@
   <span class="md-ellipsis">
     
   
-    Anti-Detect Automation Detection v2
+    Testing Manual
   
 
     
@@ -1648,14 +1674,91 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Overview">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quick-start-guide" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick Start Guide
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Quick Start Guide">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#browser-hardening-features" class="md-nav__link">
+  <a href="#prerequisites" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Browser Hardening Features
+        Prerequisites
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-0-clone-the-repository-skip-if-you-cloned-already" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 0: Clone the Repository [skip if you cloned already]
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-1-provide-your-all-scripts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Provide Your all Scripts
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-update-configuration-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Update Configuration Files
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-setting-up-environmental-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: Setting up environmental variables
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4-start-the-challenge-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4: Start the Challenge Server
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4-test-your-bot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4: Test Your Bot
       
     </span>
   </a>
@@ -1668,127 +1771,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#target-frameworks-protocols" class="md-nav__link">
+  <a href="#important-notes" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Target Frameworks &amp; Protocols
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Target Frameworks &amp; Protocols">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#selenium-safety-gate" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Selenium Safety Gate
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#submission-format" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Submission Format
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Submission Format">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#rules" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Rules
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#scoring-system-the-three-pillars" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Scoring System: The Three Pillars
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Scoring System: The Three Pillars">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#1-human-detection" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        1. Human Detection
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#2-framework-detection" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2. Framework Detection
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#3-protocol-accuracy" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3. Protocol Accuracy
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#final-formula" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Final Formula
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#incentive-eligibility" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Incentive Eligibility
+        Important Notes
       
     </span>
   </a>
@@ -1796,49 +1782,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#similarity-time-decay" class="md-nav__link">
+  <a href="#troubleshooting" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Similarity &amp; Time Decay
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Similarity &amp; Time Decay">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#example" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Example
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#submission-guide" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Submission Guide
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#submission-templates" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Submission Templates
+        Troubleshooting
       
     </span>
   </a>
@@ -1848,126 +1795,6 @@
     </ul>
   
 </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../testing_manuals/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Testing Manual
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-      
-        
-      
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_2_1_4" >
-        
-          
-          <label class="md-nav__link" for="__nav_5_2_1_4" id="__nav_5_2_1_4_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Depricated
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_2_1_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_2_1_4">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Depricated
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../depricated/v1/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Anti-Detect Automation Detection
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
       
     </li>
   
@@ -2262,6 +2089,8 @@
       
         
       
+        
+      
     
     
     
@@ -2327,6 +2156,99 @@
       
         
       
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_1" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../ada_detection/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ada_detection
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5_3_1" id="__nav_5_3_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    ada_detection
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ada_detection/testing_manuals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing Manual
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
         
       
     
@@ -2342,7 +2264,143 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_1" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_1_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_3_1_3" id="__nav_5_3_1_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Depricated
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_3_1_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_1_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Depricated
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ada_detection/depricated/v1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Anti-Detect Automation Detection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ada_detection/depricated/v2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Anti-Detect Automation Detection v2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_2" >
         
           
           <div class="md-nav__link md-nav__container">
@@ -2364,14 +2422,14 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_5_3_1" id="__nav_5_3_1_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_5_3_2" id="__nav_5_3_2_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_3_1_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3_1">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_2">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -2467,10 +2525,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_1_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_2_4" >
         
           
-          <label class="md-nav__link" for="__nav_5_3_1_4" id="__nav_5_3_1_4_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_3_2_4" id="__nav_5_3_2_4_label" tabindex="0">
             
   
   
@@ -2488,8 +2546,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_3_1_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3_1_4">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_3_2_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_2_4">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -2631,7 +2689,7 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3" >
         
           
           <div class="md-nav__link md-nav__container">
@@ -2653,14 +2711,14 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_5_3_2" id="__nav_5_3_2_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_5_3_3" id="__nav_5_3_3_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_3_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3_2">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_3">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -2756,10 +2814,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_2_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_4" >
         
           
-          <label class="md-nav__link" for="__nav_5_3_2_4" id="__nav_5_3_2_4_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_3_3_4" id="__nav_5_3_3_4_label" tabindex="0">
             
   
   
@@ -2777,8 +2835,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_3_2_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3_2_4">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_3_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_3_4">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -3654,14 +3712,91 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Overview">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quick-start-guide" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick Start Guide
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Quick Start Guide">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#browser-hardening-features" class="md-nav__link">
+  <a href="#prerequisites" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Browser Hardening Features
+        Prerequisites
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-0-clone-the-repository-skip-if-you-cloned-already" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 0: Clone the Repository [skip if you cloned already]
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-1-provide-your-all-scripts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Provide Your all Scripts
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-update-configuration-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Update Configuration Files
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-setting-up-environmental-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: Setting up environmental variables
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4-start-the-challenge-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4: Start the Challenge Server
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4-test-your-bot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4: Test Your Bot
       
     </span>
   </a>
@@ -3674,127 +3809,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#target-frameworks-protocols" class="md-nav__link">
+  <a href="#important-notes" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Target Frameworks &amp; Protocols
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Target Frameworks &amp; Protocols">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#selenium-safety-gate" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Selenium Safety Gate
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#submission-format" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Submission Format
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Submission Format">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#rules" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Rules
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#scoring-system-the-three-pillars" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Scoring System: The Three Pillars
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Scoring System: The Three Pillars">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#1-human-detection" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        1. Human Detection
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#2-framework-detection" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2. Framework Detection
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#3-protocol-accuracy" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3. Protocol Accuracy
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#final-formula" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Final Formula
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#incentive-eligibility" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Incentive Eligibility
+        Important Notes
       
     </span>
   </a>
@@ -3802,49 +3820,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#similarity-time-decay" class="md-nav__link">
+  <a href="#troubleshooting" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Similarity &amp; Time Decay
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Similarity &amp; Time Decay">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#example" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Example
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#submission-guide" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Submission Guide
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#submission-templates" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Submission Templates
+        Troubleshooting
       
     </span>
   </a>
@@ -3874,14 +3853,14 @@
       
       
       
-        <span class="md-tag">ada_detection</span>
+        <span class="md-tag">challenges</span>
       
     
       
       
       
       
-        <span class="md-tag">challenges</span>
+        <span class="md-tag">historical_fingerprinter</span>
       
     
   </nav>
@@ -3891,110 +3870,62 @@
   
 
 
-<h1 id="anti-detect-automation-detection-v2-active-after-2026-february-14-1400-utc">Anti-Detect Automation Detection v2 (Active after 2026 February 14 14:00 UTC)</h1>
+<h1 id="historical-fingerprinter-testing-manual">Historical Fingerprinter Testing Manual</h1>
+<p>This manual provides instructions for testing the Historical Fingerprinter challenge using Docker and Docker Compose.</p>
 <h2 id="overview">Overview</h2>
-<p><strong>ADA Detection v2</strong> focuses on advanced behavioral detection inside <strong>NSTBrowser</strong> environments. This version introduces hardened detection requirements where static signals are masked and engine-level obfuscation is active.</p>
-<h3 id="browser-hardening-features">Browser Hardening Features</h3>
 <ul>
-<li><strong>Dynamic Fingerprinting</strong>: Every session generates unique, randomized browser identifiers to prevent static pattern matching.</li>
-<li><strong>Hardware Simulation</strong>: Realistic signals are injected for <code>deviceMemory</code> (8GB), <code>hardwareConcurrency</code> (16), and screen resolution (1280x1024).</li>
-<li><strong>Engine-Level Stealth</strong>: Disables <code>AutomationControlled</code> flags at the browser engine level, eliminating traditional automation leaks.</li>
+<li>Tests are designed to evaluate the effectiveness of your detection scripts against the Historical Fingerprinter challenge.</li>
+<li>Uses Docker for easy submission and testing</li>
 </ul>
-<p>Scoring has transitioned to a <strong>Fail-Fast</strong> model, emphasizing accuracy across three critical pillars: Human Detection, Framework Detection (with a Selenium Safety Gate), and Protocol Accuracy.</p>
-<p>For general challenge information, environment details, and plagiarism policies, please refer to the <a href="../">AAD README</a>.</p>
-<hr />
-<h2 id="target-frameworks-protocols">Target Frameworks &amp; Protocols</h2>
-<p>Participants must submit detection scripts for the following frameworks and protocols:</p>
+<h2 id="quick-start-guide">Quick Start Guide</h2>
+<h3 id="prerequisites">Prerequisites</h3>
 <ul>
-<li><strong>Frameworks</strong>: <code>nodriver</code>, <code>playwright</code>, <code>patchright</code>, <code>puppeteer</code>, <code>puppeteer_extra</code>, <code>zendriver</code>, <code>selenium_driverless</code>, <code>seleniumbase</code></li>
-<li><strong>Protocols</strong>: <code>webdriver</code>, <code>websocket</code></li>
+<li>Docker</li>
+<li>Docker Compose</li>
 </ul>
-<p>Missing any of these scripts results in an invalid submission.</p>
-<h3 id="selenium-safety-gate">Selenium Safety Gate</h3>
-<p>Missing detection for either <code>seleniumbase</code> or <code>selenium_driverless</code> results in an immediate <strong>final score of 0.0</strong>. These frameworks are the primary automation vectors in v2; failure to detect them indicates a fundamental gap in the detection logic.</p>
-<hr />
-<h2 id="submission-format">Submission Format</h2>
-<p>Submissions must follow this structure:</p>
-<div class="language-json highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">{</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="nt">&quot;detection_files&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;file_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;nodriver.js&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/* logic */&quot;</span><span class="w"> </span><span class="p">},</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;file_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;playwright.js&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/* logic */&quot;</span><span class="w"> </span><span class="p">},</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;file_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;patchright.js&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/* logic */&quot;</span><span class="w"> </span><span class="p">},</span>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;file_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;puppeteer.js&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/* logic */&quot;</span><span class="w"> </span><span class="p">},</span>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;file_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;puppeteer_extra.js&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/* logic */&quot;</span><span class="w"> </span><span class="p">},</span>
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;file_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;zendriver.js&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/* logic */&quot;</span><span class="w"> </span><span class="p">},</span>
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;file_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;selenium_driverless.js&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/* logic */&quot;</span><span class="w"> </span><span class="p">},</span>
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;file_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;seleniumbase.js&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/* logic */&quot;</span><span class="w"> </span><span class="p">},</span>
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;file_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;webdriver.js&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/* logic */&quot;</span><span class="w"> </span><span class="p">},</span>
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;file_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;websocket.js&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/* logic */&quot;</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">  </span><span class="p">]</span>
-</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="p">}</span>
+<h3 id="step-0-clone-the-repository-skip-if-you-cloned-already">Step 0: Clone the Repository [skip if you cloned already]</h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>git<span class="w"> </span>clone<span class="w"> </span>git@github.com:RedTeamSubnet/historical-fingerprinter-challenge.git<span class="w"> </span>historical_fingerprinter
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nb">cd</span><span class="w"> </span>historical_fingerprinter
 </span></code></pre></div>
-<h3 id="rules">Rules</h3>
+<h3 id="step-1-provide-your-all-scripts">Step 1: Provide Your all Scripts</h3>
 <ul>
-<li>File names must match the framework/protocol names exactly.</li>
-<li>Each file detects <strong>only its own framework or protocol</strong>.</li>
-<li>No extra files or outputs are allowed.</li>
+<li>Paste all of your all 3 scripts into <strong>src/hfp_challenge/challenge/fingerprinter/src/submissions</strong> folder with matching names.</li>
 </ul>
-<hr />
-<h2 id="scoring-system-the-three-pillars">Scoring System: The Three Pillars</h2>
-<p>ADA v2 uses a <strong>Fail-Fast</strong> scoring model. If a submission fails any of the three critical pillars, the final score is immediately set to <strong>0.0</strong>.</p>
-<h3 id="1-human-detection">1. Human Detection</h3>
-<p>Miners must distinguish between automated tasks and human-injected sessions.</p>
-<ul>
-<li><strong>Limit</strong>: You are allowed a maximum of <strong>1 mistake</strong>. Exceeding this limit results in an immediate <strong>score of 0.0</strong>.</li>
-<li><strong>Weight</strong>: Perfect detection grants 1.0 point for this pillar. Partial penalties apply for a single miss based on the ratio of human injections.</li>
-</ul>
-<h3 id="2-framework-detection">2. Framework Detection</h3>
-<p>Points are earned for correctly identifying the specific automation framework.</p>
-<ul>
-<li><strong>Selenium Gate</strong>: Missing <code>seleniumbase</code> or <code>selenium_driverless</code> zeros the entire score.</li>
-<li><strong>Density</strong>: You earn <strong>1.0 point</strong> for a framework only if you detect it perfectly in <strong>all 3 of its runs</strong>.</li>
-<li><strong>Collision</strong>: Reporting more than one framework or an incorrect protocol for a given session results in a collision penalty (earning only 0.1 points instead of 1.0).</li>
-</ul>
-<h3 id="3-protocol-accuracy">3. Protocol Accuracy</h3>
-<p>Validates the low-level communication patterns of the browser.</p>
-<ul>
-<li><strong>Webdriver Protocol</strong>: Expected to be <code>true</code> for Selenium-based frameworks and <code>false</code> for others (human, playwright, etc.).</li>
-<li><strong>Websocket Protocol</strong>: Expected to be <code>true</code> for non-Selenium frameworks (playwright, puppeteer, etc.) and <code>false</code> for human sessions and Selenium.</li>
-<li><strong>Threshold</strong>: You are allowed a maximum of <strong>1 miss</strong> per protocol type. Exceeding this limit results in an immediate <strong>score of 0.0</strong>.</li>
-</ul>
-<h3 id="final-formula">Final Formula</h3>
-<p>The final score is normalized between 0.0 and 1.0 using the formula:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>Final Score = (Human Score + Framework Score + Protocol Score) / 10
+<h3 id="step-2-update-configuration-files">Step 2: Update Configuration Files</h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>cp<span class="w"> </span>.env.example<span class="w"> </span>.env
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>cp<span class="w"> </span>./templates/compose/compose.override.dev.yml<span class="w"> </span>./compose.override.yml
 </span></code></pre></div>
-<p><strong>(Where 10 = 8 frameworks + 1 human pillar + 1 protocol pillar)</strong></p>
-<hr />
-<h2 id="incentive-eligibility">Incentive Eligibility</h2>
-<p>To maintain high detection standards, a minimum performance threshold is required for incentives:</p>
+<h3 id="step-3-setting-up-environmental-variables">Step 3: Setting up environmental variables</h3>
 <ul>
-<li><strong>Minimum Score</strong>: <strong>0.6</strong></li>
-<li>This threshold ensures that miners identify the main automation vectors (Selenium) and maintain high human safety while allowing for minor misses in other categories.</li>
+<li>Change <code>HFP_CHALLENGE_API_KEY</code> with your own preferred API key. You can use any string as API key, but make sure to update it in your detection scripts as well.</li>
 </ul>
-<hr />
-<h2 id="similarity-time-decay">Similarity &amp; Time Decay</h2>
-<ul>
-<li><strong>Similarity check:</strong> Submissions are compared against other SDKs; high similarity incurs penalties.</li>
-<li><strong>Score decay:</strong> Scores decay over 15 days to incentivize refreshed heuristics.</li>
-</ul>
-<h3 id="example">Example</h3>
-<p>Assume:</p>
-<ul>
-<li>8 frameworks total</li>
-<li>Perfect human accuracy → 1.0</li>
-<li>Perfect protocol accuracy → 1.0</li>
-<li>6 frameworks detected perfectly → 6.0 points</li>
-</ul>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>Final Score = (1.0 + 1.0 + 6.0) / 10
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>            = 8.0 / 10
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>            = 0.8
+<h3 id="step-4-start-the-challenge-server">Step 4: Start the Challenge Server</h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>challenge-api
 </span></code></pre></div>
-<p>Any excessive human misclassification, protocol misses, or missing Selenium detection would reduce this to <strong>0.0</strong>.</p>
-<hr />
-<h2 id="submission-guide">Submission Guide</h2>
-<p>To build and submit your solution, please follow the <a href="../../../miner/workflow/3.build-and-publish/">Building a Submission Commit</a> guide.</p>
-<h2 id="submission-templates">Submission Templates</h2>
-<p>Templates and building instructions can be found in the <a href="https://github.com/RedTeamSubnet/ada-detection-challenge/tree/main/templates/commit">ADA Detection repository</a>.</p>
+<h3 id="step-4-test-your-bot">Step 4: Test Your Bot</h3>
+<ul>
+<li>Visit <a href="https://localhost:10001/docs">https://localhost:10001/docs</a></li>
+<li>Authenticate using provided authentication API that you put into the <code>.env</code> with <code>HFP_CHALLENGE_API_KEY</code> variable.
+    <img alt="alt text" src="https://github.com/RedTeamSubnet/historical-fingerprinter-challenge/blob/08e3deea03d551a5d97b9f93c41b7b31a5c2ee01/docs/images/image.png?raw=true" /></li>
+<li>Test your detection files by running the <code>/score</code> endpoint</li>
+<li>if you see the warning log(like <code>Please visit endpoint &lt;URI&gt; to complete human verification for the task.</code>) then open given uri in log in your browser to complete human verification in your side.</li>
+</ul>
+<h2 id="important-notes">Important Notes</h2>
+<ul>
+<li>The server runs on port 10001 by default</li>
+<li>Make sure port 10001 is available on your system</li>
+<li>All interactions are logged for analysis. Miners can check logs by running <code>docker compose logs -f</code></li>
+<li>All commands must be executed from challenge's root directory.</li>
+<li>If you want score justification, you can check all results with <code>results</code> endpoint after running the <code>score</code> endpoint.</li>
+</ul>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<p>If you encounter issues:</p>
+<ol>
+<li>Check if Docker is running</li>
+<li>Verify port 10001 is not in use</li>
+<li>Check Docker logs using <code>docker compose logs</code></li>
+<li>Ensure you have proper permissions to run Docker commands</li>
+</ol>
 
 
 
@@ -4037,7 +3968,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../" class="md-footer__link md-footer__link--prev" aria-label="Previous: Anti-Detect Automation Detection (AAD) Challenge">
+          <a href="../v1/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Historical Fingerprinter v1">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -4047,20 +3978,20 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                Anti-Detect Automation Detection (AAD) Challenge
+                Historical Fingerprinter v1
               </div>
             </div>
           </a>
         
         
           
-          <a href="../testing_manuals/" class="md-footer__link md-footer__link--next" aria-label="Next: Testing Manual">
+          <a href="../../dev_fingerprinter/" class="md-footer__link md-footer__link--next" aria-label="Next: Device Fingerprinter Challenge">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Testing Manual
+                Device Fingerprinter Challenge
               </div>
             </div>
             <div class="md-footer__button md-icon">
