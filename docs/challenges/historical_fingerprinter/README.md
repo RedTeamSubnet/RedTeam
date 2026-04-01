@@ -8,7 +8,7 @@ Miners must demonstrate the ability to preprocess raw metrics, generate unique f
 
 ## Challenge Flow
 
-1. **Data Collection**: Browser metrics are collected using official CreepJS
+1. **Data Collection**: Browser metrics are collected using official [CreepJS](https://github.com/abrahamjuliot/creepjs)
 2. **Submission**: Miners submit three Python files containing their SDK implementation
 3. **Processing**: The system sends browser metrics one by one to the miner's SDK
 4. **Fingerprinting**: Miner must preprocess the metrics and generate a unique fingerprint
@@ -19,7 +19,7 @@ Miners must demonstrate the ability to preprocess raw metrics, generate unique f
 - **Development Language**: Python
 - **Operating System**: Ubuntu 24.04
 - **Environment**: Docker container environment
-- **Architecture**: amd64 (ARM64 at your own risk)
+- **Architecture**: amd64
 
 ## General Guidelines
 
@@ -31,11 +31,11 @@ Miners must demonstrate the ability to preprocess raw metrics, generate unique f
 
 The following packages are pre-installed in the challenge environment:
 
-- `sqlalchemy` - Database ORM
+- `sqlite3` - SQLite database (built-in)
 - `math` - Mathematical utilities
 - `fastapi` - Web framework
+- `requests` - HTTP library
 - `pydantic` - Data validation
-- `sqlite3` - SQLite database (built-in)
 - Standard library modules (`hashlib`, `json`, `logging`, `typing`)
 
 Miners **cannot install any additional packages**. All required functionality must be implemented using the pre-installed packages and Python standard library.
@@ -68,26 +68,9 @@ Miners have full flexibility to define their own database schema and implementat
 
 - Each file is limited to a maximum of **1000 lines**
 
-## Fingerprinting Fields
-
-The following browser metrics are collected and should be processed:
-
-| Category | Fields |
-|----------|--------|
-| Canvas | `canvas_geometry`, `canvas_text`, `canvas_winding` |
-| WebGL | `gpu_renderer`, `gpu_vendor` |
-| Fonts | `fonts`, `font_preferences` |
-| Screen | `screen_resolution`, `color_depth`, `screen_frame` |
-| Navigator | `languages`, `platform`, `vendor`, `vendor_flavors`, `hardware_concurrency`, `device_memory` |
-| System | `architecture`, `cpu_class`, `os_cpu`, `timezone` |
-| Browser | `browser_name`, `browser_version` |
-| Storage | `cookies_enabled`, `local_storage`, `session_storage`, `indexed_db`, `open_database` |
-| Audio | `audio_hash` |
-| Other | `math_signature`, `plugins_count`, `max_touch_points`, `hdr`, `contrast`, `forced_colors`, `inverted_colors`, `monochrome`, `reduced_motion`, `pdf_viewer_enabled` |
-
 ## Database Schema
 
-Miners can define their own database schema within the `initialize_db` function. Below is an example schema for reference:
+Miners can define their own database schema within the `initialize_db` function. **Below is an example schema for reference**:
 
 ```sql
 CREATE TABLE IF NOT EXISTS fingerprints (
@@ -145,11 +128,12 @@ CREATE TABLE IF NOT EXISTS fingerprints (
 
 The challenge exposes a single endpoint:
 
-```
+```txt
 POST /fingerprint
 ```
 
 **Request Body:**
+
 ```json
 {
     "products": {
@@ -165,6 +149,7 @@ POST /fingerprint
 ```
 
 **Response:**
+
 ```json
 {
     "fingerprint": "sha256_hash_here",
