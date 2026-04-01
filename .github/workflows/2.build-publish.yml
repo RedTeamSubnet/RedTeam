@@ -65,4 +65,7 @@ jobs:
       - name: Create release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          USE_COMMIT_ANALYSIS: "true"
+          GEMINI_MODEL: ${{ secrets.GEMINI_MODEL }}
         run: ./scripts/release.sh

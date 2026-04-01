@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+# Git utility functions for changelog generation
+
+# Get commits since last tag/release
+get_commits_since_last_release() {
+    local repo_path="${1:-.}"
+    local format="${2:-%H|%an|%ae|%ad|%s}"
+
+    # Get latest tag
+    local latest_tag
+    latest_tag=$(git -C "${repo_path}" describe --tags --abbrev=0 2>/dev/null) || {
+        echo "[WARN]: No previous tags found, using all commits" >&2
+        git -C "${repo_path}" log --pretty=format:"${format}" --date=short
+        return 0
+    }
+
+    # Changelog job runs after release creation, so HEAD can be the current tag.
+    # In that case, use the previous tag as baseline.
+    if git -C "${repo_path}" describe --tags --exact-match HEAD >/dev/null 2>&1; then
+        latest_tag=$(git -C "${repo_path}" tag --merged HEAD --sort=-creatordate | sed -n '2p')
+        if [ -z "${latest_tag}" ]; then
+            echo "[WARN]: HEAD is tagged but no previous tag found, using all commits" >&2
+            git -C "${repo_path}" log --pretty=format:"${format}" --date=short
+            return 0
+        fi
+    fi
+
+    # Get commits since latest tag
+    git -C "${repo_path}" log "${latest_tag}..HEAD" --pretty=format:"${format}" --date=short
+}
+
+# Get submodule information
+get_submodules() {
+    git submodule status | awk '{print $2}' 2>/dev/null || true
+}
+
+# Get commits from a specific submodule since its last update
+get_submodule_commits() {
+    local submodule_path="${1}"
+    local format="${2:-%H|%an|%ae|%ad|%s}"
+
+    if [ ! -d "${submodule_path}" ]; then
+        echo "[WARN]: Submodule path '${submodule_path}' not found" >&2
+        return 1
+    fi
+
+    local latest_tag
+    latest_tag=$(git -C "${submodule_path}" describe --tags --abbrev=0 2>/dev/null)
+
+    if [ -n "${latest_tag}" ]; then
+        git -C "${submodule_path}" log "${latest_tag}..HEAD" --pretty=format:"${format}" --date=short 2>/dev/null || true
+    else
+        git -C "${submodule_path}" log --since="30 days ago" --pretty=format:"${format}" --date=short 2>/dev/null || true
+    fi
+}
+
+# Validate git repository
+validate_git_repo() {
+    local repo_path="${1:-.}"
+    if ! git -C "${repo_path}" rev-parse --git-dir >/dev/null 2>&1; then
+        echo "[ERROR]: Not a git repository: ${repo_path}" >&2
+        return 1
+    fi
+    return 0
+}

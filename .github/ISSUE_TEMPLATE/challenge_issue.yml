@@ -1,0 +1,172 @@
+name: Challenge Issue
+description: Report problems or improvements for specific challenges (Ada Detection, Dev Fingerprinter, etc.)
+title: "[Challenge]: "
+labels: ["challenge", "triage"]
+assignees:
+  - aliyuldashev
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Report issues specific to RedTeam challenges or suggest improvements.
+
+        For general bugs, please use the [Bug Report](./bug_report.yml) template instead.
+
+  - type: dropdown
+    id: challenge-type
+    attributes:
+      label: Challenge Type
+      description: Which challenge is this issue about?
+      options:
+        - Ada Detection Challenge
+        - Dev Fingerprinter Challenge
+        - Historical Fingerprinter Challenge
+        - Challenge System (General)
+        - New Challenge Proposal
+        - Other (specify in description)
+      default: 0
+    validations:
+      required: true
+
+  - type: dropdown
+    id: issue-type
+    attributes:
+      label: Issue Type
+      description: What kind of issue is this?
+      options:
+        - Bug/Error in Challenge
+        - Performance Issue
+        - Scoring Problem
+        - False Positive/Negative
+        - Documentation Issue
+        - Challenge Improvement
+        - New Test Case
+        - Configuration Problem
+    validations:
+      required: true
+
+  - type: textarea
+    id: issue-description
+    attributes:
+      label: Issue Description
+      description: |
+        Describe the issue in detail. Include:
+        - What you were trying to do
+        - What happened vs what you expected
+        - How this affects challenge participants
+      placeholder: |
+        The Ada Detection challenge incorrectly flags legitimate browser automation
+        as bot behavior when using specific timing patterns, leading to false positives
+        for valid solutions.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction-data
+    attributes:
+      label: Reproduction Data
+      description: |
+        Provide test data, inputs, or steps that reproduce this issue.
+        **Remove any sensitive information** (tokens, private keys, personal data).
+      placeholder: |
+        Test payload:
+        ```json
+        {
+          "browser": "chrome",
+          "actions": [...],
+          "timing": [100, 200, 150]
+        }
+        ```
+
+        Expected score: 0.85
+        Actual score: 0.12
+      render: markdown
+    validations:
+      required: false
+
+  - type: input
+    id: challenge-version
+    attributes:
+      label: Challenge Version/Commit
+      description: What version of the challenge are you testing against?
+      placeholder: "v2.0.3 or commit hash: abc123def"
+    validations:
+      required: false
+
+  - type: textarea
+    id: environment-details
+    attributes:
+      label: Environment Details
+      description: |
+        Provide details about your testing environment
+      placeholder: |
+        - RedTeam Core: v4.3.1
+        - Challenge running in: Docker/Local/Cloud
+        - Browser (if applicable): Chrome 120.0
+        - Test framework: pytest/custom
+        - Network latency: 50ms
+      render: text
+    validations:
+      required: false
+
+  - type: textarea
+    id: logs-output
+    attributes:
+      label: Logs and Output
+      description: |
+        Include relevant logs, error messages, or challenge output.
+        Remove sensitive information.
+      placeholder: Paste logs here...
+      render: shell
+    validations:
+      required: false
+
+  - type: dropdown
+    id: impact-level
+    attributes:
+      label: Impact Level
+      description: How severely does this affect challenge participants?
+      options:
+        - Critical (challenge unusable)
+        - High (significant scoring issues)
+        - Medium (affects some scenarios)
+        - Low (minor issue)
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: Proposed Solution
+      description: |
+        If you have ideas for fixing this issue, please describe them.
+        Include any relevant code snippets or algorithm changes.
+      placeholder: |
+        Suggested fix:
+        1. Adjust timing threshold from 100ms to 50ms
+        2. Add whitelist for legitimate automation patterns
+        3. Improve scoring algorithm to weight behavior patterns differently
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: testing-checklist
+    attributes:
+      label: Testing Checklist
+      description: Have you verified these aspects?
+      options:
+        - label: I followed documentation and setup instructions in docs.theredteam.io
+        - label: I tested with multiple browsers/environments
+        - label: I verified this isn't a configuration issue
+        - label: I checked the challenge documentation
+        - label: I can reproduce this consistently
+
+  - type: textarea
+    id: additional-info
+    attributes:
+      label: Additional Information
+      description: |
+        Any other context, related issues, or helpful information?
+        Screenshots, performance metrics, or research links are welcome.
+    validations:
+      required: false

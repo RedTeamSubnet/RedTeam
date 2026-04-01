@@ -77,23 +77,6 @@ class Controller:
             allow_internet=False,
         )
 
-        # Set log volume with date path location for easy analysis
-        _challenge_run_kwargs = self.challenge_info.get(
-            "challenge_container_run_kwargs", {}
-        )
-        _challenge_volume = _challenge_run_kwargs.get("volumes", {})[0].split(":")
-        _volume_container_path = _challenge_volume[-1]
-        _volume_host_path = _challenge_volume[0]
-
-        _current_date = time.strftime("%Y-%m-%d")
-        _new_volume_host_path = (
-            f"{_volume_host_path}{_current_date}/logs/{self.challenge_name}"
-        )
-        _challenge_run_kwargs["volumes"] = [
-            f"{_new_volume_host_path}:{_volume_container_path}"
-        ] + _challenge_run_kwargs.get("volumes", [])[1:]
-
-        # Run challenge container
         self.challenge_container = docker_utils.run_container(
             client=self.docker_client,
             image=self.challenge_info["challenge_image"],
@@ -101,13 +84,12 @@ class Controller:
             ports={
                 f"{constants.CHALLENGE_DOCKER_PORT}/tcp": constants.CHALLENGE_DOCKER_PORT
             },
-            **_challenge_run_kwargs,
+            **self.challenge_info.get("challenge_container_run_kwargs", {}),
         )
         bt.logging.info(
             f"[CONTROLLER] Challenge container started: {self.challenge_container.status}"
         )
 
-        # Check challenge container health
         _protocol, _ssl_verify = self._check_protocol(is_challenger=True)
         docker_utils.check_container_alive(
             container=self.challenge_container,

@@ -7,7 +7,7 @@ on:
       - completed
 
 jobs:
-  build_publish:
+  update_changelog:
     name: Update Changelog
     runs-on: ubuntu-24.04
     permissions:
@@ -15,9 +15,21 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
-      - name: Update changelog
+        with:
+          fetch-depth: 0  # Fetch full history for commit analysis
+          submodules: recursive  # Include submodules
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq curl
+
+      - name: Update changelog with commit analysis
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          USE_COMMIT_ANALYSIS: "true"
+          GEMINI_MODEL: ${{ secrets.GEMINI_MODEL }}
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
