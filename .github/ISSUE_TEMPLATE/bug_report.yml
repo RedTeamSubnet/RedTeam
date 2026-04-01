@@ -9,7 +9,7 @@ body:
     attributes:
       value: |
         Thanks for taking the time to report this bug! This helps us improve RedTeam Core.
-        
+
         Please search [existing issues](../../issues) to avoid duplicates.
 
   - type: input
@@ -32,7 +32,6 @@ body:
         Example:
         - Expected: Challenge should validate and return score
         - Actual: Challenge throws validation error and crashes
-      value: ""
     validations:
       required: true
 
@@ -78,7 +77,7 @@ body:
         - Challenge System
         - API Endpoints
         - Ada Detection Challenge
-        - Dev Fingerprinter Challenge  
+        - Dev Fingerprinter Challenge
         - Historical Fingerprinter Challenge
         - Core Library
         - Docker/Compose Setup
