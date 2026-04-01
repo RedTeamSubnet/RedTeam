@@ -7,7 +7,7 @@ body:
     attributes:
       value: |
         Need help with RedTeam Core? We're here to assist!
-        
+
         Before asking, please:
         - Check the [documentation](../../docs)
         - Search [existing issues](../../issues)

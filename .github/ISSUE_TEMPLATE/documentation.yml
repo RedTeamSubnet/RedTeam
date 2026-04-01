@@ -73,12 +73,12 @@ body:
     attributes:
       label: Expected/Suggested Content
       description: |
-        What should the documentation say instead? 
+        What should the documentation say instead?
         Provide your suggested improvement.
       placeholder: |
         Suggested text:
         "Run the miner with: python neurons/miner.py --netuid 37 --wallet.name your-wallet"
-        
+
         Also add explanation of required parameters and common options.
       render: markdown
     validations:

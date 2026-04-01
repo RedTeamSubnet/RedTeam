@@ -9,7 +9,7 @@ body:
     attributes:
       value: |
         Thanks for suggesting a new feature! Your ideas help make RedTeam Core better.
-        
+
         Please search [existing issues](../../issues) to see if this has been suggested before.
 
   - type: input
