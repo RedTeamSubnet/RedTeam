@@ -19,6 +19,10 @@ historical_fingerprinter_v1:
   challenge_container_run_kwargs:
     name: "historical_fingerprinter_v1"
     platform: "linux/amd64"
+    ulimits:
+      - Name: "nofile"
+        Soft: 65536
+        Hard: 65536
     privileged: true
     environment:
       ENV: "PRODUCTION"
