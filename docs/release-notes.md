@@ -6,6 +6,14 @@ hide:
 
 # 📌 Release Notes
 
+## v4.4.1 (2026-04-08)
+
+## Bug Fixes
+- hfp challenge ulimit issue (@aliyuldashev)
+
+## Other Changes
+- update challenge images to latest versions (@aliyuldashev)
+
 ## v4.4.0 (2026-04-01)
 
 ## Changes
