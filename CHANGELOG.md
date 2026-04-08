@@ -1,5 +1,10 @@
 # Changelog
 
+## v4.4.2 (2026-04-08)
+
+## Other Changes
+- updating challenge versions (@aliyuldashev)
+
 ## v4.4.1 (2026-04-08)
 
 ## Bug Fixes
