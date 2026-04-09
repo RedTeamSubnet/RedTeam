@@ -1,5 +1,10 @@
 # Changelog
 
+## v4.4.3 (2026-04-09)
+
+## Other Changes
+- update historical_fingerprinter to version 1.1.3 (@aliyuldashev)
+
 ## v4.4.2 (2026-04-08)
 
 ## Other Changes
