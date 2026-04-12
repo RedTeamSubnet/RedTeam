@@ -136,10 +136,24 @@ class Controller:
                 self._setup_miner_container(miner_commit)
 
                 self._generate_scoring_logs(miner_commit, challenge_inputs)
-
-                self._run_reference_comparison_inputs(miner_commit)
+                _max_comparison_score = self._check_comparison_score(miner_commit)
+                if _max_comparison_score > 0.8:
+                    bt.logging.info(
+                        f"[CONTROLLER] Max comparison score {_max_comparison_score} > 0.8, skipping comparison validation."
+                    )
+                    miner_commit.comparison_logs = {
+                        "skipped": [
+                            ComparisonLog(
+                                similarity_score=_max_comparison_score,
+                                reason="high similarity detected",
+                            )
+                        ]
+                    }
+                else:
+                    self._run_reference_comparison_inputs(miner_commit)
 
                 self._score_miner_with_new_inputs(miner_commit, challenge_inputs)
+                self.same_score_comparison(miner_commit)
 
             except Exception as e:
                 bt.logging.error(f"Error while processing miner {uid} - {hotkey}: {e}")
@@ -257,6 +271,11 @@ class Controller:
 
             miner_commit.comparison_logs["check/validation"] = [comparison_log]
             return
+        _reference_commit_limit = self.challenge_info["comparison_config"].get(
+            "max_unique_commits", None
+        )
+        if _reference_commit_limit:
+            reference_commits = reference_commits[:_reference_commit_limit]
 
         for reference_commit in reference_commits:
 
@@ -471,6 +490,167 @@ class Controller:
                     "reason": f"Error: {str(e)}",
                 }
             ]
+
+    def same_score_comparison(self, miner_commit: MinerChallengeCommit) -> None:
+        if not miner_commit.scoring_logs:
+            bt.logging.warning(
+                f"[CONTROLLER] No scoring logs found for miner {miner_commit.miner_hotkey}, skipping same score comparison."
+            )
+        _scoring_log = miner_commit.scoring_logs[0]
+        _commit_score = _scoring_log.score
+        if _commit_score is None or _commit_score <= 0.4:
+            return
+        reference_commits_in_range = []
+        for ref_commit in self.reference_comparison_commits:
+            if not ref_commit.scoring_logs:
+                continue
+            _ref_score = ref_commit.scoring_logs[0].score
+            if _ref_score is None:
+                continue
+            if abs(_ref_score - _commit_score) <= 0.1:
+                reference_commits_in_range.append(ref_commit)
+        if not reference_commits_in_range:
+            bt.logging.info(
+                f"[CONTROLLER] No reference commits found with score in range for miner {miner_commit.miner_hotkey}, skipping same score comparison."
+            )
+            return
+        for ref_commit in reference_commits_in_range:
+            _comparison_logs = self._compare_same_score_outputs(
+                miner_output=_scoring_log.miner_output,
+                reference_output=ref_commit.scoring_logs[0].miner_output,
+            )
+            if (
+                "similarity_score" in _comparison_logs
+                and _comparison_logs["similarity_score"]
+                >= self.comparison_min_acceptable_score
+            ):
+                _unique_commit_key = (
+                    f"{ref_commit.miner_uid}_{ref_commit.encrypted_commit[:10]}"
+                )
+                miner_commit.comparison_logs[_unique_commit_key] = [
+                    ComparisonLog(
+                        similarity_score=_comparison_logs["similarity_score"],
+                        reason=_comparison_logs.get(
+                            "reason", "similarity score above threshold"
+                        ),
+                    )
+                ]
+
+    def _compare_same_score_outputs(
+        self,
+        miner_output: dict,
+        reference_output: dict,
+    ) -> list[dict]:
+        """
+        Send comparison request to challenge container's /compare endpoint.
+
+        Args:
+            miner_input: The input used for both outputs
+            miner_output: The output from the current miner
+            reference_output: The output from the reference miner
+
+        Returns:
+            dict: Comparison score between 0 and 1, and reason for the score
+        """
+        _miner_metadata = {
+            "score": miner_output.get("score", 0),
+            "telemetry": miner_output.get("telemetry", {}),
+        }
+        reference_metadata = {
+            "score": reference_output.get("score", 0),
+            "telemetry": reference_output.get("telemetry", {}),
+        }
+        try:
+            payload = {
+                "challenge_type": self.challenge_info.get("challenge_type", None),
+                "challenge_name": self.challenge_info.get("name", None),
+                "miner_script": miner_output.get(
+                    self.challenge_info.get("script_path_identifier", None), None
+                ),
+                "reference_script": reference_output.get(
+                    self.challenge_info.get("script_path_identifier", None), None
+                ),
+                "miner_metadata": _miner_metadata,
+                "reference_metadata": reference_metadata,
+            }
+            headers = {
+                "Content-Type": "application/json",
+                "X-API-KEY": constants.INTERNAL_SERVICES.API_KEY,
+            }
+
+            response = requests.post(
+                f"{constants.INTERNAL_SERVICES.API_URL}/compare/same-score",
+                timeout=self.challenge_info.get("challenge_compare_timeout", 300),
+                verify=False,
+                json=payload,
+                headers=headers,
+            )
+            if response.status_code == 404:
+                bt.logging.warning(f"No accepted submission to compare against.")
+                return None
+
+            response_data = response.json()
+            data = response_data.get("data", [])
+
+            return data
+
+        except Exception as e:
+            bt.logging.error(f"Error in comparison request: {str(e)}")
+            return [
+                {
+                    "target": "Error while comparing outputs",
+                    "similarity_score": 0.0,
+                    "reason": f"Error: {str(e)}",
+                }
+            ]
+
+    def _check_comparison_score(self, miner_commit: MinerChallengeCommit) -> float:
+        compare_url = f"{constants.INTERNAL_SERVICES.API_URL}/compare/all"
+        try:
+            _miner_output = miner_commit.scoring_logs[0].miner_output.copy()
+
+            current_commits_to_compare = self._get_current_commits_to_compare(
+                miner_commit
+            )
+            reference_commits = (
+                self.reference_comparison_commits + current_commits_to_compare
+            )
+
+            max_score = 0.0
+            headers = {
+                "Content-Type": "application/json",
+                "X-API-KEY": constants.INTERNAL_SERVICES.API_KEY,
+            }
+            for reference_commit in reference_commits:
+                if reference_commit.miner_uid == miner_commit.miner_uid:
+                    continue
+                _reference_output = reference_commit.scoring_logs[0].miner_output.copy()
+                payload = {
+                    "challenge_type": self.challenge_info.get("challenge_type", None),
+                    "miner_script": _miner_output.get(
+                        self.challenge_info.get("script_path_identifier", None), None
+                    ),
+                    "reference_script": _reference_output.get(
+                        self.challenge_info.get("script_path_identifier", None), None
+                    ),
+                }
+                response = requests.post(
+                    compare_url, json=payload, timeout=30, verify=False, headers=headers
+                )
+                response.raise_for_status()
+                data = response.json()
+
+                similarity_score = data.get("data", {}).get("similarity_score", 0.0)
+                if similarity_score:
+                    max_score = max(max_score, similarity_score)
+
+            return max_score
+
+        except Exception as exc:
+            bt.logging.error(
+                f"[CONTROLLER] Error while checking comparison score: {exc}"
+            )
+            return 0.0
 
     def _compare_with_baseline(self, miner_commit: MinerChallengeCommit):
         try:
