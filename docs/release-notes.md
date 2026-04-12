@@ -6,6 +6,14 @@ hide:
 
 # 📌 Release Notes
 
+## v4.4.4 (2026-04-12)
+
+## Features
+- Enhance comparison logic and add same score comparison functionality (@aliyuldashev)
+
+## Other Changes
+- Updating challenge version (@aliyuldashev)
+
 ## v4.4.3 (2026-04-09)
 
 ## Other Changes
