@@ -27,6 +27,7 @@ historical_fingerprinter_v1:
     environment:
       ENV: "PRODUCTION"
       HFP_CHALLENGE_API_KEY: "${RT_CHALLENGE_API_KEY}"
+      HFP_CHALLENGE_API_LOGS_DIR: "/var/log/historical_fingerprinter"
       HFP_CHALLENGE_API_DATA_DIR: "/var/lib/historical_fingerprinter"
       HFP_CHALLENGE_ACCEPTABLE_MISS_COUNT: "${HFP_CHALLENGE_ACCEPTABLE_MISS_COUNT}"
       HFP_CHALLENGE_SINGLE_REQUEST_TIMEOUT: "${HFP_CHALLENGE_SINGLE_REQUEST_TIMEOUT}"

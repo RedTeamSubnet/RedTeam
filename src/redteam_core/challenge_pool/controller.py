@@ -606,6 +606,7 @@ class Controller:
 
     def _check_comparison_score(self, miner_commit: MinerChallengeCommit) -> float:
         compare_url = f"{constants.INTERNAL_SERVICES.API_URL}/compare/all"
+        max_score = 0.0
         try:
             _miner_output = miner_commit.scoring_logs[0].miner_output.copy()
 
@@ -616,11 +617,11 @@ class Controller:
                 self.reference_comparison_commits + current_commits_to_compare
             )
 
-            max_score = 0.0
             headers = {
                 "Content-Type": "application/json",
                 "X-API-KEY": constants.INTERNAL_SERVICES.API_KEY,
             }
+
             for reference_commit in reference_commits:
                 if reference_commit.miner_uid == miner_commit.miner_uid:
                     continue
@@ -634,8 +635,13 @@ class Controller:
                         self.challenge_info.get("script_path_identifier", None), None
                     ),
                 }
+
                 response = requests.post(
-                    compare_url, json=payload, timeout=30, verify=False, headers=headers
+                    compare_url,
+                    json=payload,
+                    timeout=100,
+                    verify=False,
+                    headers=headers,
                 )
                 response.raise_for_status()
                 data = response.json()
@@ -650,7 +656,7 @@ class Controller:
             bt.logging.error(
                 f"[CONTROLLER] Error while checking comparison score: {exc}"
             )
-            return 0.0
+            return max_score
 
     def _compare_with_baseline(self, miner_commit: MinerChallengeCommit):
         try:
