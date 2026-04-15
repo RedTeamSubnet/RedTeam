@@ -6,6 +6,11 @@ hide:
 
 # 📌 Release Notes
 
+## v4.4.5 (2026-04-15)
+
+## Other Changes
+- Updating timeout and setting log directory (@aliyuldashev)
+
 ## v4.4.4 (2026-04-12)
 
 ## Features
