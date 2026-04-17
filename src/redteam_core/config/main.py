@@ -58,8 +58,8 @@ class MainConfig(BaseSettings):
     )
 
     REVEAL_INTERVAL: int = Field(
-        default=3600 * 3,
-        description="Time interval for revealing commits (seconds)",
+        default=3600 * 24,
+        description="Time interval for commit cooldown(seconds)",
         ge=1,
     )
     EPOCH_LENGTH: int = Field(
