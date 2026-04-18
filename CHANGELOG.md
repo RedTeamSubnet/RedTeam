@@ -1,5 +1,10 @@
 # Changelog
 
+## v4.5.1 (2026-04-18)
+
+## Bug Fixes
+- update commit time check to 24 hours (@aliyuldashev)
+
 ## v4.5.0 (2026-04-18)
 
 ## Features
