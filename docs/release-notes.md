@@ -6,6 +6,15 @@ hide:
 
 # 📌 Release Notes
 
+## v4.5.0 (2026-04-18)
+
+## Features
+- Rename REVEAL_INTERVAL to COMMIT_COOLDOWN and update references (@aliyuldashev)
+- Increase commit cooldown to 1 day (@aliyuldashev)
+
+## Other Changes
+- Merge pull request #118 from RedTeamSubnet/rt-496-increase-the-commit-cooldown-to-1-day (@aliyuldashev)
+
 ## v4.4.5 (2026-04-15)
 
 ## Other Changes
