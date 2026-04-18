@@ -650,6 +650,9 @@ class Controller:
                 if similarity_score:
                     max_score = max(max_score, similarity_score)
 
+            bt.logging.info(
+                f"Max comparison score for miner {miner_commit.miner_hotkey}: {max_score}"
+            )
             return max_score
 
         except Exception as exc:

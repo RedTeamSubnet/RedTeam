@@ -57,9 +57,9 @@ class MainConfig(BaseSettings):
         le=65535,
     )
 
-    REVEAL_INTERVAL: int = Field(
-        default=3600 * 3,
-        description="Time interval for revealing commits (seconds)",
+    COMMIT_COOLDOWN: int = Field(
+        default=3600 * 24,
+        description="Time interval for commit cooldown(seconds)",
         ge=1,
     )
     EPOCH_LENGTH: int = Field(
@@ -88,7 +88,7 @@ class MainConfig(BaseSettings):
     @model_validator(mode="after")
     def _check_all(self) -> Self:
         if self.TESTNET:
-            self.REVEAL_INTERVAL = 30
+            self.COMMIT_COOLDOWN = 30
             self.EPOCH_LENGTH = 100
             self.MIN_VALIDATOR_STAKE = -1
 
