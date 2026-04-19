@@ -28,6 +28,7 @@ class Controller:
         challenge_info: dict,
         miner_commits: list[MinerChallengeCommit],
         reference_comparison_commits: list[MinerChallengeCommit],
+        miners_docker_info: dict[str, dict],
         seed_inputs: list[dict] = [],
     ):
         """
@@ -44,6 +45,7 @@ class Controller:
         self.miner_commits = miner_commits
         self.reference_comparison_commits = reference_comparison_commits
         self.seed_inputs = seed_inputs
+        self.miners_docker_info = miners_docker_info
 
         self.docker_client = docker_utils.create_docker_client()
 
@@ -175,7 +177,7 @@ class Controller:
             docker_utils.clean_docker_resources(
                 client=self.docker_client,
                 remove_containers=True,
-                remove_images=False,
+                remove_images=True,
             )
 
         bt.logging.debug(
@@ -211,10 +213,13 @@ class Controller:
         )
 
         miner_start_time = time.time()
+        miner_docker_info = self.miners_docker_info.get(str(miner_commit.miner_uid), {})
         miner_container = docker_utils.run_container(
+            is_miner=True,
             client=self.docker_client,
             image=miner_commit.docker_hub_id,
             detach=True,
+            miner_docker_info=miner_docker_info,
             **self.challenge_info.get("miner_container_run_kwargs", {}),
         )
         miner_container.reload()

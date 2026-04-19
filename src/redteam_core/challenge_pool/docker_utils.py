@@ -13,6 +13,7 @@ import requests
 def run_container(
     client: docker.DockerClient,
     image: str,
+    is_miner: bool = False,
     **container_run_kwargs,
 ) -> docker.models.containers.Container:
     """
@@ -26,6 +27,21 @@ def run_container(
     Returns:
         Container instance
     """
+    if is_miner:
+        _miner_docker_info = container_run_kwargs.get("miner_docker_info", {})
+        _miner_username = _miner_docker_info.get("dockerhub_username", None)
+        _miner_pat = _miner_docker_info.get("personal_access_token", None)
+        if not _miner_username or not _miner_pat:
+            raise ValueError(
+                "Miner Docker image requires authentication. Please provide 'dockerhub_username' and 'personal_access_token'."
+            )
+        _auth_config = {
+            "username": _miner_username,
+            "password": _miner_pat,
+        }
+        client.images.pull(image, auth_config=_auth_config, platform="linux/amd64")
+        del container_run_kwargs["miner_docker_info"]
+
     _run_kwargs = copy.deepcopy(container_run_kwargs)
 
     # Prepare DeviceRequest
@@ -235,11 +251,17 @@ def clean_docker_resources(
                     container.remove(force=True)
 
         if remove_images:
-            # Delete all dangling images
-            bt.logging.info("Removing dangling images...")
-            for image in client.images.list(filters={"dangling": True}):
-                bt.logging.info(f"Removing image {image.id}...")
-                client.images.remove(image.id, force=True, noprune=False)
+            used_image_ids = set()
+            for container in client.containers.list(all=True):
+                used_image_ids.add(container.image.id)
+
+            for image in client.images.list():
+                if image.id not in used_image_ids:
+                    try:
+                        client.images.remove(image.id, force=True)
+                        bt.logging.info(f"Removed: {image.id}")
+                    except docker.errors.APIError as e:
+                        bt.logging.info(f"Skipped {image.id}: {e}")
 
         # Delete unused resources (volumes, build cache)
         if prune_volumes:
