@@ -1,5 +1,13 @@
 # Changelog
 
+## v4.5.2 (2026-04-19)
+
+## Features
+- Enhance run_container to support miner authentication and improve image cleanup (@aliyuldashev)
+
+## Other Changes
+- Update subproject commits for dev_fingerprinter and historical_fingerprinter (@aliyuldashev)
+
 ## v4.5.1 (2026-04-18)
 
 ## Bug Fixes
