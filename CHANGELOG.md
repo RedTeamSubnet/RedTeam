@@ -1,5 +1,19 @@
 # Changelog
 
+## v4.5.3 (2026-04-20)
+
+## Features
+- Update submission workflow to include Docker Hub credentials configuration and security guidelines (@abdibekbolot)
+- Enhance challenge score calculations to include Docker usernames (@aliyuldashev)
+
+## Improvements
+- Update documentation for Docker Hub Registry and Personal Access Token (PAT) usage (@abdibekbolot)
+- Update .env variable table formatting for clarity in Docker Hub credentials section (@abdibekbolot)
+- Add documentation for Docker Hub Registry and Personal Access Token (PAT) usage (@abdibekbolot)
+
+## Other Changes
+- Merge remote-tracking branch 'origin/main' into dev (@aliyuldashev)
+
 ## v4.5.2 (2026-04-19)
 
 ## Features
