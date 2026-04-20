@@ -26,7 +26,7 @@ class MinerManager:
     ):
         self.challenge_managers = challenge_managers
 
-    def _get_challenge_scores(self, n_uids: int) -> np.ndarray:
+    def _get_challenge_scores(self, n_uids: int, docker_usernames: dict) -> np.ndarray:
         """
         Aggregate challenge scores for all miners from all challenges using challenge managers.
         Combines scores from each challenge based on their incentive weights and applies
@@ -54,7 +54,9 @@ class MinerManager:
                 valid_weights_sum += manager.challenge_incentive_weight
                 valid_challenges.append(manager)
 
-            normalized_challenge_scores = self.exclude_same_miner(challenge_scores)
+            normalized_challenge_scores = self.exclude_same_miner(
+                challenge_scores, docker_usernames=docker_usernames
+            )
             bt.logging.info(
                 f"Challenge {manager.challenge_name} challenge_scores: {normalized_challenge_scores.tolist()}"
             )
@@ -103,11 +105,12 @@ class MinerManager:
     def exclude_same_miner(
         self,
         scores,
+        docker_usernames: dict,
         ignore_ip: str = "0.0.0.0",
     ) -> np.ndarray:
         """
         Keep only the best-scoring submission among miners that are considered the same entity.
-        'Same entity' is defined as any submissions that share an IP or have overlapping coldkeys
+        'Same entity' is defined as any submissions that share an IP, Docker username or have overlapping coldkeys
         (across one or more IPs). Among each connected group, only the max score is kept.
 
         Returns:
@@ -126,9 +129,9 @@ class MinerManager:
             num_uids = max(len(ips), len(coldkeys), len(scores))
 
         # 1) Group submissions by IP (skip zeros up front)
-        #    ip_groups[ip] -> list of dicts with index, coldkey, score
+        #    ip_groups[ip] -> list of dicts with index, coldkey, score, docker_username
         ip_groups: Dict[str, Dict[str, List[Any]]] = defaultdict(
-            lambda: {"index": [], "coldkey": [], "score": []}
+            lambda: {"index": [], "coldkey": [], "score": [], "docker_username": []}
         )
         for idx, (ip, ck, sc) in enumerate(zip(ips, coldkeys, scores)):
             if sc == 0:
@@ -136,6 +139,7 @@ class MinerManager:
             ip_groups[ip]["index"].append(idx)
             ip_groups[ip]["coldkey"].append(ck)
             ip_groups[ip]["score"].append(sc)
+            ip_groups[ip]["docker_username"].append(docker_usernames.get(idx))
 
         # Optionally drop a placeholder IP
         if ignore_ip in ip_groups:
@@ -153,10 +157,25 @@ class MinerManager:
                 continue
             _is_new_miner = True
             for miner_info in _miner_info.values():
-                if not set(info["coldkey"]).isdisjoint(set(miner_info["coldkey"])):
+                overlaps_coldkey = not set(info["coldkey"]).isdisjoint(
+                    set(miner_info["coldkey"])
+                )
+
+                incoming_usernames = {
+                    u for u in info["docker_username"] if u is not None
+                }
+                existing_usernames = {
+                    u for u in miner_info["docker_username"] if u is not None
+                }
+                overlaps_docker = bool(
+                    incoming_usernames
+                ) and not incoming_usernames.isdisjoint(existing_usernames)
+
+                if overlaps_coldkey or overlaps_docker:
                     miner_info["index"].extend(info["index"])
                     miner_info["coldkey"].extend(info["coldkey"])
                     miner_info["score"].extend(info["score"])
+                    miner_info["docker_username"].extend(info["docker_username"])
                     miner_info.setdefault("ip", []).append(ip)
                     _is_new_miner = False
 
@@ -198,7 +217,7 @@ class MinerManager:
 
         return scores
 
-    def get_onchain_scores(self, n_uids: int) -> np.ndarray:
+    def get_onchain_scores(self, n_uids: int, docker_usernames: dict) -> np.ndarray:
         """
         Returns a numpy array of weighted scores combining:
         1. Challenge scores (based on performance improvements)
@@ -209,7 +228,9 @@ class MinerManager:
         - ALPHA_BURN_WEIGHT (50%)
         """
         # Get challenge performance scores
-        challenge_scores = self._get_challenge_scores(n_uids)
+        challenge_scores = self._get_challenge_scores(
+            n_uids, docker_usernames=docker_usernames
+        )
         # Get alpha burn scores
         alpha_burn_scores = self._get_alpha_burn_scores(n_uids)
 
