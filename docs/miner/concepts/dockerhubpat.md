@@ -1,5 +1,5 @@
 ---
-title: Docker Hub Registry
+title: Docker Hub Registry & PAT
 tags:
   - miner
   - docker
@@ -7,29 +7,34 @@ tags:
   - pat
 ---
 
-# 🐳 Docker Hub Registry
+# 🐳 Docker Hub Registry & PAT
 
 !!! note ""
-    Need to install Docker first? See the [Docker installation guide](https://docs.theredteam.io/latest/manuals/installation/docker/).
+    Need to install Docker first? See the [Docker installation guide](../../manuals/installation/docker.md).
 
 ---
 
 ## 🔑 One Username Policy
 
-Your `active_commit` must reference images from a **single Docker Hub username**. All image references should follow this format:
+Your `active_commit.yaml` must reference images from a **single Docker Hub username**. All image entries follow this format:
 
 ```
-<your-username>/<repository>:<tag>
+<CHALLENGE_NAME>---<USERNAME>/<REPO_NAME>@sha256:<DIGEST>
 ```
 
-Using multiple usernames will cause authentication failures during the validation process because only one set of credentials is used for pulling.
+For example:
+
+```yaml
+- ab_sniffer_v5---myusername/my-ab-sniffer@sha256:a5fff733d574ae0c9...
+- humanize_behaviou_v4---myusername/my-humanize@sha256:f84f4d5a1799082...
+```
 
 !!! warning "Common mistake"
-    If you collaborate with others, make sure everyone pushes to repositories under the **same** Docker Hub username. Mixing usernames like `alice/solver` and `bob/detector` in one `active_commit` will break image pulls.
+    All entries must use the **same** Docker Hub username. Mixing usernames like `alice/solver` and `bob/detector` in one `active_commit.yaml` will cause authentication failures because only one set of credentials is used for pulling.
 
 ---
 
-## 🔒 Private Repositories
+## 🔒 Private Repository
 
 Your Docker Hub repository should be set to **private**. Public repositories expose your solution to other participants.
 
@@ -53,7 +58,7 @@ Your Docker Hub repository should be set to **private**. Public repositories exp
 
 ## 🎫 Generating a Personal Access Token (PAT)
 
-A PAT is a secure alternative to your Docker Hub password. It can be scoped to specific permissions and revoked at any time — much safer than sharing your account password.
+A PAT is a secure alternative to your Docker Hub password. It can be scoped to specific permissions and revoked at any time.
 
 ### Step 1 — Sign in to Docker Hub
 
@@ -81,11 +86,11 @@ You can get there in two ways:
 Your token will be shown **only once**. Copy it immediately and store it somewhere safe.
 
 !!! danger "Don't lose your token!"
-    Docker Hub will **never** show this token value again. If you lose it, you'll need to revoke it and generate a new one. Store it in a password manager or an encrypted file.
+    Docker Hub will **never** show this token value again. If you lose it, you'll need to revoke it and generate a new one.
 
 ### Step 5 — Verify it works
 
-Before plugging the PAT into your miner config, quickly verify it from your terminal:
+Before using the PAT in your miner, quickly verify it from your terminal:
 
 ```bash
 docker login -u <your-username>
@@ -98,30 +103,28 @@ Login Succeeded
 ```
 
 ??? example "One-liner for scripts"
-    If you prefer a non-interactive login (useful in CI/CD or automation scripts):
+    If you prefer a non-interactive login:
 
     ```bash
     echo "<your-pat>" | docker login -u <your-username> --password-stdin
     ```
 
-### Step 6 — Use the token in your miner
+---
 
-Provide your credentials in the miner configuration:
+## 📝 Using the PAT in Your Miner
 
-| Field | Value |
-|---|---|
-| `docker_hub_username` | Your Docker Hub username |
-| `docker_hub_pat` | The PAT you generated |
+After generating your PAT, paste it into the `personal_access_token.txt` file:
 
-!!! warning "Keep your PAT out of version control"
-    Never hardcode your PAT in source code or commit it to Git. Use environment variables or a `.env` file:
+```bash
+# Copy template file (if not done yet):
+cp -v ./templates/configs/personal_access_token.txt ./volumes/configs/agent-miner/personal_access_token.txt
 
-    ```bash
-    export DOCKER_HUB_USERNAME="your-username"
-    export DOCKER_HUB_PAT="dckr_pat_xxxxxxxxxxxxx"
-    ```
+# Edit and paste your PAT:
+nano ./volumes/configs/agent-miner/personal_access_token.txt
+```
 
-    Add `.env` to your `.gitignore` if you use a dotenv file.
+!!! danger "Never commit your PAT"
+    Make sure `personal_access_token.txt` is not tracked by Git. If you accidentally expose a PAT, revoke it immediately from the [security settings page](https://hub.docker.com/settings/security) and generate a new one.
 
 ---
 
@@ -136,26 +139,24 @@ You can manage all your tokens from the [security settings page](https://hub.doc
     | **Regenerate** | You want a new value but keep the same name and permissions |
     | **Create new** | You need a separate token for a different purpose |
 
-    You can have multiple tokens, but only **one** should be used for your miner configuration.
-
 ---
 
 ## ❓ Troubleshooting
 
 ??? question "Authentication failed during image pull"
-    - Double-check that the PAT is correct and hasn't been revoked.
+    - Double-check that the PAT in `personal_access_token.txt` is correct and hasn't been revoked.
     - Make sure you're using the PAT, not your Docker Hub password.
     - Verify the token hasn't expired — check the [security settings page](https://hub.docker.com/settings/security).
 
 ??? question "Repository not found"
-    - Confirm the image name matches exactly: `<username>/<repo>:<tag>`.
+    - Confirm the image reference in `active_commit.yaml` matches exactly: `<username>/<repo>@sha256:<hash>`.
     - Ensure the PAT belongs to the same account that owns the repository.
     - Check that the repository actually exists on Docker Hub.
 
-??? question "Multiple username errors in `active_commit`"
-    - All images in your `active_commit` must use the **same** Docker Hub username.
+??? question "Multiple username errors in `active_commit.yaml`"
+    - All entries in your `active_commit.yaml` must use the **same** Docker Hub username.
     - If you need images from different sources, push them all under one account first.
 
 ??? question "My images are publicly visible"
-    - Go to each repository's **Settings** → **Visibility** → switch to **Private**.
+    - Go to your repository's **Settings** → **Visibility** → switch to **Private**.
     - Set your default visibility to private to prevent this in the future (see the tip above).
