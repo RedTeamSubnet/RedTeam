@@ -139,7 +139,7 @@ class MinerManager:
             ip_groups[ip]["index"].append(idx)
             ip_groups[ip]["coldkey"].append(ck)
             ip_groups[ip]["score"].append(sc)
-            ip_groups[ip]["docker_username"].append(docker_usernames.get(idx))
+            ip_groups[ip]["docker_username"].append(docker_usernames.get(str(idx)))
 
         # Optionally drop a placeholder IP
         if ignore_ip in ip_groups:
