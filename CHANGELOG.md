@@ -1,5 +1,10 @@
 # Changelog
 
+## v4.5.4 (2026-04-21)
+
+## Bug Fixes
+- ensure docker_username retrieval uses string index for consistency (@aliyuldashev)
+
 ## v4.5.3 (2026-04-20)
 
 ## Features
