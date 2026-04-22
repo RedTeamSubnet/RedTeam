@@ -54,10 +54,10 @@ flowradar_v1:
   name: "flowradar_v1"
   description: "Detect VPN using Network Flow data"
   challenge_incentive_weight: 0.6
-  challenge_image: "redteamsubnet61/flowradar:v1.0.0"
-  target: flowradar.controller.FLRController
-  challenge_manager: flowradar.challenge_manager.FLRChallengeManager
-  script_path_identifier: "fingerprinter_js"
+  challenge_image: "redteamsubnet61/flowradar:0.0.3"
+  target: flr_challenge.controller.FLRController
+  challenge_manager: flr_challenge.challenge_manager.FLRChallengeManager
+  script_path_identifier: "submission_py"
   challenge_type: "flr"
   challenge_solve_timeout: 60
   docker_run_timeout: 900
