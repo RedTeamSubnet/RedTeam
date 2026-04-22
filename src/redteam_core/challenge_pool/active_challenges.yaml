@@ -78,9 +78,10 @@ flowradar_v1:
     privileged: true
     environment:
       ENV: "PRODUCTION"
+      FLR_API_DATA_DIR: "/var/lib/flowradar-challenge"
     volumes:
-      - "${RT_CHALLENGE_LOGS_DIR}:/var/log/rest.flr-challenger"
-      - "${FLR_API_DEVICES_PATH}:/etc/configs/devices.json"
+      - "${RT_CHALLENGE_LOGS_DIR}:/var/log/flowradar-challenge"
+      - "${FLR_API_DATA_DIR}:/var/lib/flowradar-challenge"
   miner_container_run_kwargs:
     cpu_count: 4
     mem_limit: "12g"
