@@ -54,10 +54,10 @@ flowradar_v1:
   name: "flowradar_v1"
   description: "Detect VPN using Network Flow data"
   challenge_incentive_weight: 0.6
-  challenge_image: "redteamsubnet61/flowradar:0.0.3"
+  challenge_image: "redteamsubnet61/flowradar-challenge:0.0.4"
   target: flr_challenge.controller.FLRController
   challenge_manager: flr_challenge.challenge_manager.FLRChallengeManager
-  script_path_identifier: "submission_py"
+  script_path_identifier: "commit_files"
   challenge_type: "flr"
   challenge_solve_timeout: 60
   docker_run_timeout: 900
@@ -79,6 +79,7 @@ flowradar_v1:
     environment:
       ENV: "PRODUCTION"
       FLR_API_DATA_DIR: "/var/lib/flowradar-challenge"
+      FLR_CHALLENGE_API_KEY: "${RT_CHALLENGE_API_KEY}"
     volumes:
       - "${RT_CHALLENGE_LOGS_DIR}:/var/log/flowradar-challenge"
       - "${FLR_API_DATA_DIR}:/var/lib/flowradar-challenge"
