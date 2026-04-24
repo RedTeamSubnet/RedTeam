@@ -1,7 +1,7 @@
 historical_fingerprinter_v1:
   name: "historical_fingerprinter_v1"
   description: "Detect anti-detect automation frameworks"
-  challenge_incentive_weight: 0.6
+  challenge_incentive_weight: 0.4
   challenge_image: "redteamsubnet61/historical_fingerprinter:1.1.3"
   target: hfp_challenge.controller.HFPController
   challenge_manager: hfp_challenge.challenge_manager.HFPChallengeManager
@@ -50,15 +50,15 @@ historical_fingerprinter_v1:
     num_cpus: 4
     mem_limit: "12g"
 
-dev_fingerprinter_v2:
-  name: "dev_fingerprinter_v2"
-  description: "Cross browser fingerprinting challenge"
-  challenge_incentive_weight: 0.4
-  challenge_image: "redteamsubnet61/dev_fingerprinter:v2.0.3-260408"
-  target: dev_fingerprinter.controller.DFPController
-  challenge_manager: dev_fingerprinter.challenge_manager.DFPChallengeManager
-  script_path_identifier: "fingerprinter_js"
-  challenge_type: "dfp"
+flowradar_v1:
+  name: "flowradar_v1"
+  description: "Detect VPN using Network Flow data"
+  challenge_incentive_weight: 0.6
+  challenge_image: "redteamsubnet61/flowradar-challenge:1.0.0"
+  target: flr_challenge.controller.FLRController
+  challenge_manager: flr_challenge.challenge_manager.FLRChallengeManager
+  script_path_identifier: "commit_files"
+  challenge_type: "flr"
   challenge_solve_timeout: 60
   docker_run_timeout: 900
   num_tasks: 1
@@ -69,28 +69,26 @@ dev_fingerprinter_v2:
     max_self_comparison_score: 0.8
     min_acceptable_score: 0.6
   challenge_container_run_kwargs:
-    name: "dev_fingerprinter_v2"
+    name: "flowradar_v1"
     platform: "linux/amd64"
+    ulimits:
+      - Name: "nofile"
+        Soft: 65536
+        Hard: 65536
     privileged: true
     environment:
       ENV: "PRODUCTION"
-      DFP_CHALLENGE_API_KEY: "${RT_CHALLENGE_API_KEY}"
-      DFP_CHALLENGE_PROXY_INTER_BASE_URL: "${DFP_CHALLENGE_PROXY_INTER_BASE_URL}"
-      DFP_API_CONFIGS_DIR: "/etc/configs"
-      DFP_CHALLENGE_SMTP_HOST: "${DFP_CHALLENGE_SMTP_HOST}"
-      DFP_CHALLENGE_SMTP_PORT: "${DFP_CHALLENGE_SMTP_PORT}"
-      DFP_CHALLENGE_SMTP_USER: "${DFP_CHALLENGE_SMTP_USER}"
-      DFP_CHALLENGE_SMTP_PASSWORD: "${DFP_CHALLENGE_SMTP_PASSWORD}"
-      DFP_CHALLENGE_EMAIL_SENDER: "${DFP_CHALLENGE_EMAIL_SENDER}"
+      FLR_API_DATA_DIR: "/var/lib/flowradar-challenge"
+      FLR_CHALLENGE_API_KEY: "${RT_CHALLENGE_API_KEY}"
     volumes:
-      - "${RT_CHALLENGE_LOGS_DIR}:/var/log/rest.dfp-challenger"
-      - "${DFP_API_DEVICES_PATH}:/etc/configs/devices.json"
+      - "${RT_CHALLENGE_LOGS_DIR}:/var/log/flowradar-challenge"
+      - "${FLR_API_DATA_DIR}:/var/lib/flowradar-challenge"
   miner_container_run_kwargs:
     cpu_count: 4
     mem_limit: "12g"
     network: "redteam_local"
     environment:
-      CHALLENGE_NAME: "dev_fingerprinter_v2"
+      CHALLENGE_NAME: "flowradar_v1"
   protocols:
     challenger: "http"
     challenger_ssl_verify: false
