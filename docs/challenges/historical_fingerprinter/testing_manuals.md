@@ -46,13 +46,13 @@ cp ./templates/compose/compose.override.dev.yml ./compose.override.yml
 docker compose up -d challenge-api
 ```
 
-### Step 4: Test Your Bot
+### Step 5: Test Your Detection Scripts
 
 - Visit <https://localhost:10001/docs>
 - Authenticate using provided authentication API that you put into the `.env` with `HFP_CHALLENGE_API_KEY` variable.
     ![alt text](https://github.com/RedTeamSubnet/historical-fingerprinter-challenge/blob/08e3deea03d551a5d97b9f93c41b7b31a5c2ee01/docs/images/image.png?raw=true)
 - Test your detection files by running the `/score` endpoint
-- if you see the warning log(like `Please visit endpoint <URI> to complete human verification for the task.`) then open given uri in log in your browser to complete human verification in your side.
+- Check your score and justification by running the `/results` endpoint
 
 ## Important Notes
 
