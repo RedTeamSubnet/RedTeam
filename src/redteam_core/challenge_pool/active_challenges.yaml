@@ -54,7 +54,7 @@ flowradar_v1:
   name: "flowradar_v1"
   description: "Detect VPN using Network Flow data"
   challenge_incentive_weight: 0.6
-  challenge_image: "redteamsubnet61/flowradar-challenge:0.0.4"
+  challenge_image: "redteamsubnet61/flowradar-challenge:1.0.0"
   target: flr_challenge.controller.FLRController
   challenge_manager: flr_challenge.challenge_manager.FLRChallengeManager
   script_path_identifier: "commit_files"
