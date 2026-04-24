@@ -46,13 +46,12 @@ cp ./templates/compose/compose.override.dev.yml ./compose.override.yml
 docker compose up -d challenge-api
 ```
 
-### Step 4: Test Your Bot
+### Step 5: Test Your Detector Script
 
 - Visit <https://localhost:10001/docs>
 - Authenticate using provided authentication API that you put into the `.env` with `FLR_CHALLENGE_API_KEY` variable.
     ![alt text](https://github.com/RedTeamSubnet/historical-fingerprinter-challenge/blob/08e3deea03d551a5d97b9f93c41b7b31a5c2ee01/docs/images/image.png?raw=true)
 - Test your detection files by running the `/score` endpoint
-- if you see the warning log(like `Please visit endpoint <URI> to complete human verification for the task.`) then open given uri in log in your browser to complete human verification in your side.
 
 ## Important Notes
 
@@ -70,4 +69,4 @@ If you encounter issues:
 2. Verify port 10001 is not in use
 3. Check Docker logs using `docker compose logs`
 4. Ensure you have proper permissions to run Docker commands
-5. If you got lower or higher score then expected, you can check the justification of your score by running `results` endpoint after running the `score` endpoint. You can also check the logs for more details on how your detection script performed against the test cases.
+5. If you got lower or higher score than expected, you can check the justification of your score by running `results` endpoint after running the `score` endpoint. You can also check the logs for more details on how your detection script performed against the test cases.
