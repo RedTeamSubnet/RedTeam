@@ -6,6 +6,30 @@ hide:
 
 # 📌 Release Notes
 
+## v4.5.5 (2026-04-24)
+
+## Features
+- Update FlowRadar challenge configuration for image and script path (@aliyuldashev)
+- Update FlowRadar challenge configuration for logging and data directory (@aliyuldashev)
+- Update FlowRadar challenge configuration for image, target, manager, and script path (@aliyuldashev)
+- Adding FlowRadar VPN detection challenge (@aliyuldashev)
+
+## Bug Fixes
+- Miner issues (@aliyuldashev)
+
+## Other Changes
+- Adjust comparison score threshold for validation skipping (@aliyuldashev)
+- Updating testing manuals of hfp challenge (@aliyuldashev)
+- Updating challenge version (@aliyuldashev)
+- Update historical_fingerprinter dependency to version 1.1.6 (@aliyuldashev)
+- Multiple updates (@aliyuldashev)
+- Potential fix for pull request finding (@aliyuldashev)
+- Merge remote-tracking branch 'origin/dependabot/pip/mkdocstrings-gte-1.0.4-and-lt-2.0.0' into rt-474-release-webflow-vpn-detection-challenge (@aliyuldashev)
+- Merge remote-tracking branch 'origin/dependabot/pip/mkdocs-awesome-nav-gte-3.3.0-and-lt-4.0.0' into rt-474-release-webflow-vpn-detection-challenge (@aliyuldashev)
+- Merge pull request #124 from RedTeamSubnet/rt-474-release-webflow-vpn-detection-challenge (@aliyuldashev)
+- Update active challenge yml file to include FLR challenge (@aliyuldashev)
+- Removing old challenge (@aliyuldashev)
+
 ## v4.5.4 (2026-04-21)
 
 ## Bug Fixes
