@@ -3,6 +3,7 @@ nav:
   - Active Challenges:
       - historical_fingerprinter: ./historical_fingerprinter
       - dev_fingerprinter: ./dev_fingerprinter
+      - flowradar vpn detection: ./flowradar
   - Inactive Challenges:
       - ada_detection: ./ada_detection
       - humanize_behaviour: ./humanize_behaviour

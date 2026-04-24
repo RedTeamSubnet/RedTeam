@@ -496,6 +496,7 @@ class Controller:
                 }
             ]
 
+    # TODO: it should be in each child controller
     def same_score_comparison(self, miner_commit: MinerChallengeCommit) -> None:
         if not miner_commit.scoring_logs:
             bt.logging.warning(
