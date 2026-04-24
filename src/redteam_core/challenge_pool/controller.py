@@ -139,9 +139,9 @@ class Controller:
 
                 self._generate_scoring_logs(miner_commit, challenge_inputs)
                 _max_comparison_score = self._check_comparison_score(miner_commit)
-                if _max_comparison_score > 0.8:
+                if _max_comparison_score >= 0.6:
                     bt.logging.info(
-                        f"[CONTROLLER] Max comparison score {_max_comparison_score} > 0.8, skipping comparison validation."
+                        f"[CONTROLLER] Max comparison score {_max_comparison_score} >= 0.6, skipping comparison validation."
                     )
                     miner_commit.comparison_logs = {
                         "skipped": [
