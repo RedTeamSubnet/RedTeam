@@ -23,15 +23,15 @@
       
       
       <link rel="icon" href="../../../assets/images/logo.dark.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
     
     
       
-        <title>Reveal & Timing - RedTeam Subnet - Docs</title>
+        <title>Commit Cooldown & Timing - RedTeam Subnet - Docs</title>
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.618322db.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#reveal-submission-timing" class="md-skip">
+        <a href="#commit-cooldown-submission-timing" class="md-skip">
           Skip to content
         </a>
       
@@ -117,7 +117,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Reveal & Timing
+              Commit Cooldown & Timing
             
           </span>
         </div>
@@ -1132,7 +1132,7 @@
   <span class="md-ellipsis">
     
   
-    Reveal & Timing
+    Commit Cooldown & Timing
   
 
     
@@ -1150,7 +1150,7 @@
   <span class="md-ellipsis">
     
   
-    Reveal & Timing
+    Commit Cooldown & Timing
   
 
     
@@ -1198,22 +1198,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-reveal-lifecycle" class="md-nav__link">
+  <a href="#the-commit-cooldown-lifecycle" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Reveal Lifecycle
+        The Commit Cooldown Lifecycle
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="The Reveal Lifecycle">
+    <nav class="md-nav" aria-label="The Commit Cooldown Lifecycle">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1-decryption-reveal-3-hours" class="md-nav__link">
+  <a href="#1-commit-cooldown-delay-24-hours" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1. Decryption (Reveal) 3 Hours
+        1. Commit Cooldown (Delay) 24 Hours
       
     </span>
   </a>
@@ -1221,10 +1221,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-scoring-evaluation-3-additional-hours" class="md-nav__link">
+  <a href="#2-scoring-evaluation-after-cooldown" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Scoring &amp; Evaluation 3 Additional Hours
+        2. Scoring &amp; Evaluation (After Cooldown)
       
     </span>
   </a>
@@ -3882,22 +3882,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-reveal-lifecycle" class="md-nav__link">
+  <a href="#the-commit-cooldown-lifecycle" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Reveal Lifecycle
+        The Commit Cooldown Lifecycle
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="The Reveal Lifecycle">
+    <nav class="md-nav" aria-label="The Commit Cooldown Lifecycle">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1-decryption-reveal-3-hours" class="md-nav__link">
+  <a href="#1-commit-cooldown-delay-24-hours" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1. Decryption (Reveal) 3 Hours
+        1. Commit Cooldown (Delay) 24 Hours
       
     </span>
   </a>
@@ -3905,10 +3905,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-scoring-evaluation-3-additional-hours" class="md-nav__link">
+  <a href="#2-scoring-evaluation-after-cooldown" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Scoring &amp; Evaluation 3 Additional Hours
+        2. Scoring &amp; Evaluation (After Cooldown)
       
     </span>
   </a>
@@ -4047,12 +4047,12 @@
   
 
 
-<h1 id="reveal-submission-timing">🕒 Reveal &amp; Submission Timing</h1>
+<h1 id="commit-cooldown-submission-timing">🕒 Commit Cooldown &amp; Submission Timing</h1>
 <h2 id="overview">Overview</h2>
-<p>RedTeam miner uses a delayed reveal mechanism to ensure fairness and prevent real-time strategy leaks. Understanding the submission lifecycle is essential for maximizing your daily slots and ensuring your work is properly scored.</p>
+<p>RedTeam miner uses a Commit Cooldown delay to ensure fairness, prevent subnet spamming, and batch submissions for scoring. Understanding the submission lifecycle helps you use your daily slots and get scored reliably.</p>
 <div class="admonition info">
 <p class="admonition-title">Version Requirement</p>
-<p>The <strong>3-hour reveal interval</strong> is a recent update. To ensure your submissions are processed correctly under this window, you <strong>must</strong> be running miner version <strong>v3.0.5</strong> or higher.</p>
+<p>The <strong>24-hour Commit Cooldown</strong> is a recent update. To ensure your submissions are processed correctly under this window, you <strong>must</strong> be running miner version <strong>v3.0.5</strong> or higher.</p>
 </div>
 <h2 id="submission-limits">Submission Limits</h2>
 <p>To maintain network quality and prevent "trial-and-error" testing on production systems, the following limits apply:</p>
@@ -4067,12 +4067,12 @@
 <p class="admonition-title">Spamming Prevention</p>
 <p>The 2-commit limit is designed to allow you to fix critical issues discovered after your first submission is scored. It is <strong>not</strong> intended for simultaneous testing or spamming variations of a solution. Miners who attempt to bypass these limits or push multiple updates before scoring are treated as "testing in production," which can lead to status rejections or rate limiting.</p>
 </div>
-<h2 id="the-reveal-lifecycle">The Reveal Lifecycle</h2>
-<p>The path from <code>git push</code> to a dashboard score typically takes up to <strong>6 hours</strong>.</p>
-<h3 id="1-decryption-reveal-3-hours">1. Decryption (Reveal) 3 Hours</h3>
-<p>Once submitted, your code remains encrypted for approximately <strong>3 hours</strong>. During this time, it is visible on the dashboard as <code>encrypted_commit:...</code>.</p>
-<h3 id="2-scoring-evaluation-3-additional-hours">2. Scoring &amp; Evaluation 3 Additional Hours</h3>
-<p>After decryption, the <a href="../comparison/">Comparison</a>, <a href="../validation/">Validation</a>, and Scoring engines process your code. This phase can take an additional 3 hours depending on network load.</p>
+<h2 id="the-commit-cooldown-lifecycle">The Commit Cooldown Lifecycle</h2>
+<p>The path from <code>git push</code> to a dashboard score typically takes a little over <strong>24 hours</strong>.</p>
+<h3 id="1-commit-cooldown-delay-24-hours">1. Commit Cooldown (Delay) 24 Hours</h3>
+<p>Once submitted, your code remains encrypted for approximately <strong>24 hours</strong>. During this time, it is visible on the dashboard as <code>encrypted_commit:...</code>.</p>
+<h3 id="2-scoring-evaluation-after-cooldown">2. Scoring &amp; Evaluation (After Cooldown)</h3>
+<p>After the cooldown ends, the <a href="../comparison/">Comparison</a>, <a href="../validation/">Validation</a>, and Scoring engines process your code in a batch. This phase starts after the 24-hour delay and may take some additional time depending on network load.</p>
 <table>
 <thead>
 <tr>
@@ -4088,18 +4088,18 @@
 <td style="text-align: left;">Pending</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>Reveal (Decryption)</strong></td>
-<td style="text-align: left;">~3 Hours</td>
+<td style="text-align: left;"><strong>Commit Cooldown (Decryption)</strong></td>
+<td style="text-align: left;">~24 Hours</td>
 <td style="text-align: left;">Reveal / Processing</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Scoring</strong></td>
-<td style="text-align: left;">~3 Hours</td>
+<td style="text-align: left;">After cooldown</td>
 <td style="text-align: left;">Scored / Accepted / Rejected</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Total Time</strong></td>
-<td style="text-align: left;"><strong>~6 Hours</strong></td>
+<td style="text-align: left;"><strong>~24+ Hours</strong></td>
 <td style="text-align: left;">Final Result Visible</td>
 </tr>
 </tbody>
@@ -4110,7 +4110,7 @@
 <p>The RedTeam subnet uses a <strong>Commit-and-Reveal</strong> scheme:</p>
 <ol>
 <li><strong>Commit Phase</strong>: The miner sends an <code>encrypted_commit</code> (ciphertext) to the validator. The decryption key remains secret on the miner's side.</li>
-<li><strong>Reveal Phase</strong>: After the reveal interval, the miner automatically moves the key to <code>public_keys</code>, allowing the validator to decrypt the commit.</li>
+<li><strong>Reveal Phase</strong>: After the Commit Cooldown, the miner automatically moves the key to <code>public_keys</code>, allowing the validator to decrypt the commit.</li>
 </ol>
 <p><strong>The Issue</strong>: If you update your <code>active_commit.yaml</code> with a new Docker hash for an existing challenge <em>before</em> the previous one has finished its reveal cycle, the miner generates a new ciphertext but the validator might still see an old key. This mismatch causes <code>InvalidToken</code> or decryption errors.</p>
 <h3 id="how-to-avoid-corruption">How to Avoid Corruption</h3>
@@ -4121,14 +4121,14 @@
 </ul>
 </li>
 <li><strong>Versioning Your Submissions</strong>: Challenge names in <code>active_commit.yaml</code> (e.g., <code>ab_sniffer_v5</code>, <code>humanize_behaviour_v5</code>) are fixed and cannot be changed. To avoid corruption, do not overwrite the Docker hash in your configuration while a reveal is pending. Instead, version your Docker images/tags and only update the configuration after the previous submission is scored.<ul>
-<li><strong>❌ Avoid</strong>: Updating <code>active_commit.yaml</code> with a new hash for the same challenge before the 3-hour reveal is complete.</li>
+<li><strong>❌ Avoid</strong>: Updating <code>active_commit.yaml</code> with a new hash for the same challenge before the 24-hour cooldown is complete.</li>
 </ul>
 </li>
 <li>
 <p><strong>Clean State (Emergency Only)</strong>: If you accidentally corrupted your local state, you can clear the miner's persistence file to force a full re-submission.</p>
 <div class="admonition warning">
 <p class="admonition-title">Reset Warning</p>
-<p>This resets the reveal interval for <strong>all</strong> challenges. You will have to wait another 3+ hours before scoring begins.</p>
+<p>This resets the Commit Cooldown for <strong>all</strong> challenges. You will have to wait another 24+ hours before scoring begins.</p>
 </div>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Default path for miner state in the mounted volume</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>rm<span class="w"> </span>./volumes/storage/agent-miner/data/commits/commit.pkl
@@ -4150,11 +4150,11 @@
 <li><strong>Submit Your Best Version</strong>: Treat your first daily slot as your primary submission.</li>
 <li><strong>Monitor the Dashboard</strong>: Always wait until your first submission shows a final status (<strong>Accepted</strong>, <strong>Rejected</strong>, or <strong>Invalid</strong>) before pushing a second one.</li>
 <li><strong>Local Testing First</strong>: Use the <a href="../../../challenges/">Testing Manuals</a> to verify your script before pushing.</li>
-<li><strong>Timing Your Pushes</strong>: Ensure your final commit is pushed at least <strong>6-8 hours before 2:00 PM UTC</strong> to hit the daily cutoff.</li>
+<li><strong>Timing Your Pushes</strong>: Ensure your final commit is pushed at least <strong>24+ hours before 2:00 PM UTC</strong> to hit the daily cutoff.</li>
 </ol>
 <div class="admonition tip">
 <p class="admonition-title">Dashboard Visibility</p>
-<p>If you do not see your submission transition to "Scored" within 6-12 hours, check the <strong>Note</strong> column on the dashboard for potential processing errors or validation failures.</p>
+<p>If you do not see your submission transition to "Scored" within 24-36 hours, check the <strong>Note</strong> column on the dashboard for potential processing errors or validation failures.</p>
 </div>
 
 
@@ -4340,10 +4340,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.indexes", "navigation.tracking", "navigation.tabs", "navigation.top", "navigation.footer", "navigation.sections", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.indexes", "navigation.tracking", "navigation.tabs", "navigation.top", "navigation.footer", "navigation.sections", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate"], "search": "../../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.e71a0d61.min.js"></script>
       
     
   </body>
