@@ -4057,15 +4057,12 @@
 <h2 id="submission-limits">Submission Limits</h2>
 <p>To maintain network quality and prevent "trial-and-error" testing on production systems, the following limits apply:</p>
 <ul>
-<li><strong>2 Commits per Day</strong>: Each miner can submit a maximum of two commits per challenge within a 24-hour window.</li>
-<li><strong>One-at-a-Time Rule</strong>: You should only have <strong>one active submission</strong> per challenge at any given time.<ul>
-<li><strong>Overwriting</strong>: If you submit a new commit while a previous one is still in the "Received" status, the new commit will <strong>overwrite</strong> the old one. The previous commit will never be scored, and you will have consumed one of your two daily slots.</li>
-</ul>
-</li>
+<li><strong>1 Commit per Day</strong>: Each miner can submit <strong>one commit per challenge per 24-hour window</strong>.</li>
+<li><strong>Latest Commit Wins</strong>: If you submit multiple commits in the same day, <strong>all earlier commits are canceled</strong> and only the <strong>latest</strong> one is kept for scoring.</li>
 </ul>
 <div class="admonition danger">
 <p class="admonition-title">Spamming Prevention</p>
-<p>The 2-commit limit is designed to allow you to fix critical issues discovered after your first submission is scored. It is <strong>not</strong> intended for simultaneous testing or spamming variations of a solution. Miners who attempt to bypass these limits or push multiple updates before scoring are treated as "testing in production," which can lead to status rejections or rate limiting.</p>
+<p>The 1-commit limit prevents trial-and-error testing in production and keeps the subnet fair. If you push multiple commits in a day, the earlier ones are canceled and you still only get one scored attempt.</p>
 </div>
 <h2 id="the-commit-cooldown-lifecycle">The Commit Cooldown Lifecycle</h2>
 <p>The path from <code>git push</code> to a dashboard score typically takes a little over <strong>24 hours</strong>.</p>
@@ -4147,8 +4144,8 @@
 <hr />
 <h2 id="best-practices-for-miners">Best Practices for Miners</h2>
 <ol>
-<li><strong>Submit Your Best Version</strong>: Treat your first daily slot as your primary submission.</li>
-<li><strong>Monitor the Dashboard</strong>: Always wait until your first submission shows a final status (<strong>Accepted</strong>, <strong>Rejected</strong>, or <strong>Invalid</strong>) before pushing a second one.</li>
+<li><strong>Submit Your Best Version</strong>: You only get one scored commit per day.</li>
+<li><strong>Avoid Re-pushing</strong>: If you push again the same day, your earlier commit is canceled and only the latest one is scored.</li>
 <li><strong>Local Testing First</strong>: Use the <a href="../../../challenges/">Testing Manuals</a> to verify your script before pushing.</li>
 <li><strong>Timing Your Pushes</strong>: Ensure your final commit is pushed at least <strong>24+ hours before 2:00 PM UTC</strong> to hit the daily cutoff.</li>
 </ol>
