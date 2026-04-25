@@ -16,12 +16,11 @@ RedTeam miner uses a Commit Cooldown delay to ensure fairness, prevent subnet sp
 
 To maintain network quality and prevent "trial-and-error" testing on production systems, the following limits apply:
 
-- **2 Commits per Day**: Each miner can submit a maximum of two commits per challenge within a 24-hour window.
-- **One-at-a-Time Rule**: You should only have **one active submission** per challenge at any given time.
-    - **Overwriting**: If you submit a new commit while a previous one is still in the "Received" status, the new commit will **overwrite** the old one. The previous commit will never be scored, and you will have consumed one of your two daily slots.
+- **1 Commit per Day**: Each miner can submit **one commit per challenge per 24-hour window**.
+- **Latest Commit Wins**: If you submit multiple commits in the same day, **all earlier commits are canceled** and only the **latest** one is kept for scoring.
 
 !!! danger "Spamming Prevention"
-    The 2-commit limit is designed to allow you to fix critical issues discovered after your first submission is scored. It is **not** intended for simultaneous testing or spamming variations of a solution. Miners who attempt to bypass these limits or push multiple updates before scoring are treated as "testing in production," which can lead to status rejections or rate limiting.
+    The 1-commit limit prevents trial-and-error testing in production and keeps the subnet fair. If you push multiple commits in a day, the earlier ones are canceled and you still only get one scored attempt.
 
 ## The Commit Cooldown Lifecycle
 
@@ -87,8 +86,8 @@ Rewards follow a daily synchronization window:
 
 ## Best Practices for Miners
 
-1. **Submit Your Best Version**: Treat your first daily slot as your primary submission.
-2. **Monitor the Dashboard**: Always wait until your first submission shows a final status (**Accepted**, **Rejected**, or **Invalid**) before pushing a second one.
+1. **Submit Your Best Version**: You only get one scored commit per day.
+2. **Avoid Re-pushing**: If you push again the same day, your earlier commit is canceled and only the latest one is scored.
 3. **Local Testing First**: Use the [Testing Manuals](../../challenges/README.md) to verify your script before pushing.
 4. **Timing Your Pushes**: Ensure your final commit is pushed at least **24+ hours before 2:00 PM UTC** to hit the daily cutoff.
 
