@@ -1,5 +1,12 @@
 # Changelog
 
+## v4.5.6 (2026-04-26)
+
+## Other Changes
+- update commit limits to reflect one commit per day and latest commit wins policy (@aliyuldashev)
+- update flowradar challenge image version to 1.0.1 (@aliyuldashev)
+- update reveal interval documentation to reflect 24-hour commit cooldown (@aliyuldashev)
+
 ## v4.5.5 (2026-04-24)
 
 ## Features
