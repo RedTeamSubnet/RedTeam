@@ -1,5 +1,10 @@
 # Changelog
 
+## v4.5.7 (2026-04-27)
+
+## Other Changes
+- updating flr version (@aliyuldashev)
+
 ## v4.5.6 (2026-04-26)
 
 ## Other Changes
