@@ -6,6 +6,11 @@ hide:
 
 # 📌 Release Notes
 
+## v4.5.8 (2026-05-03)
+
+## Other Changes
+- update historical_fingerprinter and flr_challenge versions to v1.1.8 and v1.0.3 respectively (@aliyuldashev)
+
 ## v4.5.7 (2026-04-27)
 
 ## Other Changes
