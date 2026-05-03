@@ -2,7 +2,7 @@ historical_fingerprinter_v1:
   name: "historical_fingerprinter_v1"
   description: "Detect anti-detect automation frameworks"
   challenge_incentive_weight: 0.4
-  challenge_image: "redteamsubnet61/historical_fingerprinter:1.1.3"
+  challenge_image: "redteamsubnet61/historical_fingerprinter:1.1.8"
   target: hfp_challenge.controller.HFPController
   challenge_manager: hfp_challenge.challenge_manager.HFPChallengeManager
   script_path_identifier: "commit_files"
@@ -54,7 +54,7 @@ flowradar_v1:
   name: "flowradar_v1"
   description: "Detect VPN using Network Flow data"
   challenge_incentive_weight: 0.6
-  challenge_image: "redteamsubnet61/flowradar-challenge:1.0.2"
+  challenge_image: "redteamsubnet61/flowradar-challenge:1.0.3"
   target: flr_challenge.controller.FLRController
   challenge_manager: flr_challenge.challenge_manager.FLRChallengeManager
   script_path_identifier: "commit_files"
