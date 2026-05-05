@@ -40,11 +40,11 @@ This balanced approach ensures that miners are rewarded both for their technical
 
 ## Validator Setup
 
-[Read the full documentation](./docs/1.validator.md)
+[Read the full documentation](./docs/validator/README.md)
 
 ## Miner Setup
 
-[Read the full documentation](./docs/2.miner.md)
+[Read the full documentation](./docs/miner/README.md)
 
 ---
 
