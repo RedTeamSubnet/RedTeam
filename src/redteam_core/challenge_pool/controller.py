@@ -387,7 +387,7 @@ class Controller:
             }
             response = requests.post(
                 _validator_endpoint,
-                timeout=self.challenge_info.get("challenge_compare_timeout", 150),
+                timeout=self.challenge_info.get("challenge_compare_timeout", 240),
                 verify=False,
                 json=payload,
                 headers=headers,
@@ -688,7 +688,7 @@ class Controller:
             _internal_service_url = str(constants.INTERNAL_SERVICES.API_URL).rstrip("/")
             response = requests.post(
                 f"{_internal_service_url}/compare/baseline-scripts",
-                timeout=self.challenge_info.get("challenge_compare_timeout", 150),
+                timeout=self.challenge_info.get("challenge_compare_timeout", 240),
                 verify=False,
                 json=payload,
                 headers=headers,
