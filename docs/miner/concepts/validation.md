@@ -29,6 +29,11 @@ Your code is automatically scanned for code quality, style issues, and potential
     - Potential bugs and issues
     - Type checking problems
 
+- **Python challenge templates with Ruff config**: Also require Ruff checks (lint and/or format checks) using the shared `.ruff.toml` defined in the challenge repo.
+    - Example commands used by challenge docs:
+      - `ruff --config volumes/configs/.ruff.toml --check <submission_file.py>`
+      - `ruff format --config ../../volumes/configs/.ruff.toml --check <submission_file.py>`
+
 ### Submission Integrity
 
 Beyond linting, validation checks that your submission:
@@ -96,6 +101,10 @@ npm run lint  # Run ESLint
 # For Python challenges
 pip install -r requirements.txt
 pylint src/  # Run Pylint
+
+# For Python challenges that require Ruff
+ruff --config volumes/configs/.ruff.toml --check <submission_file.py>
+ruff format --config ../../volumes/configs/.ruff.toml --check <submission_file.py>
 ```
 
 ## When Validation Fails
@@ -163,10 +172,11 @@ A submission must be **Valid** before it can even be scored. If it's Invalid, th
 ### Before Submitting
 
 1. ✅ **Run the linter locally** to catch style issues early
-2. ✅ **Test in the playground** to verify validation will pass
-3. ✅ **Remove all unnecessary code** - keep only what's required
-4. ✅ **Follow the challenge specs exactly** - don't add extras
-5. ✅ **Check for common issues** - unused functions, wrong file structure, missing files
+2. ✅ **Run Ruff checks when required by the challenge** (using the provided `.ruff.toml`)
+3. ✅ **Test in the playground** to verify validation will pass
+4. ✅ **Remove all unnecessary code** - keep only what's required
+5. ✅ **Follow the challenge specs exactly** - don't add extras
+6. ✅ **Check for common issues** - unused functions, wrong file structure, missing files
 
 ### During Development
 
