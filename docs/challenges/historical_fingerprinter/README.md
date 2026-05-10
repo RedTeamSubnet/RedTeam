@@ -200,7 +200,8 @@ We maintain strict originality standards:
 
 **Current:**
 
-- [**v1** (Active)](./v1.md) - Hardware fingerprinting baseline with weighted scoring
+- [**v2** (Active)](./v2.md) - Cross-browser identity linking with expanded tests, fixed hashing, and Ruff validation
+- [**v1** (Legacy)](./v1.md) - Hardware fingerprinting baseline with weighted scoring
 
 ## Resources & Guides
 
