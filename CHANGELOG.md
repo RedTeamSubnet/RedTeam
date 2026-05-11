@@ -1,5 +1,22 @@
 # Changelog
 
+## v4.6.0 (2026-05-11)
+
+## Features
+- adding hfp-2 (@aliyuldashev)
+- add Historical Fingerprinter v2 documentation and update challenge versions (@aliyuldashev)
+
+## Improvements
+- update challenge dependencies and incentive weights for historical fingerprinter and flowradar (@aliyuldashev)
+
+## Bug Fixes
+- increase default timeout for challenge comparison requests to 240 seconds (@aliyuldashev)
+
+## Other Changes
+- enhance miner lifecycle and validation documentation with detailed flow and Ruff checks (@aliyuldashev)
+- add Ruff format check instructions to FlowRadar v1 documentation (@aliyuldashev)
+- Update SVG logos and documentation for device fingerprinting challenges (@aliyuldashev)
+
 ## v4.5.8 (2026-05-03)
 
 ## Other Changes
