@@ -6,6 +6,11 @@ hide:
 
 # 📌 Release Notes
 
+## v4.6.1 (2026-05-14)
+
+## Other Changes
+- Update historical_fingerprinter version to 2.0.1 in requirements and active challenges (@aliyuldashev)
+
 ## v4.6.0 (2026-05-11)
 
 ## Features
