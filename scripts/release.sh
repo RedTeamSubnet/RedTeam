@@ -172,7 +172,7 @@ main()
 {
 	local _current_version
 	_current_version="$(./scripts/get-version.sh)"
-	echo "[INFO]: Creating release for version: 'v${_current_version}'..."
+	echo "[INFO]: Creating release for version: '${_current_version}'..."
 
 	# Generate release notes based on method choice
 	if [ "${_USE_COMMIT_ANALYSIS}" == "true" ]; then
@@ -180,17 +180,17 @@ main()
 		if release_notes=$(generate_commit_release_notes); then
 			echo "[INFO]: Creating release with enhanced release notes..." >&2
 			# Create release with custom notes
-			echo "${release_notes}" | gh release create "v${_current_version}" ./dist/* --notes-file -
+			echo "${release_notes}" | gh release create "${_current_version}" ./dist/* --notes-file -
 		else
 			echo "[WARN]: Commit analysis failed, falling back to auto-generated notes" >&2
-			gh release create "v${_current_version}" ./dist/* --generate-notes
+			gh release create "${_current_version}" ./dist/* --generate-notes
 		fi
 	else
 		generate_simple_release_notes
-		gh release create "v${_current_version}" ./dist/* --generate-notes
+		gh release create "${_current_version}" ./dist/* --generate-notes
 	fi
 
-	echo "[OK]: Release 'v${_current_version}' created successfully."
+	echo "[OK]: Release '${_current_version}' created successfully."
 }
 
 main
