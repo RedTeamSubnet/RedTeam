@@ -6,6 +6,27 @@ hide:
 
 # 📌 Release Notes
 
+## 4.6.2 (2026-05-19)
+
+## Features
+- Enhance scoring system with detailed breakdown and result handling (src/challenges/historical_fingerprinter) (@aliyuldashev)
+- Add security policy document outlining vulnerability reporting and response procedures (@abdibekbolot)
+- Enhance scoring system with detailed breakdown and result handling (@aliyuldashev)
+
+## Bug Fixes
+- Merge versioning standardization into dev (src/challenges/flowradar) (@abdibekbolot)
+- Standardize versioning - remove v prefix, add date Docker tag, fix workflow trigger (src/challenges/flowradar) (@abdibekbolot)
+- Merge versioning standardization into dev (src/challenges/historical_fingerprinter) (@abdibekbolot)
+- Standardize versioning - remove v prefix, add date Docker tag, fix workflow trigger (src/challenges/historical_fingerprinter) (@abdibekbolot)
+- Update device fingerprinting overview and clean up code formatting (@aliyuldashev)
+- Update subproject commits for flowradar and historical_fingerprinter (@abdibekbolot)
+- Standardize versioning - remove v prefix, add date Docker tag, fix workflow trigger (@abdibekbolot)
+- Standardize versioning - remove v prefix from git tags and release names (@abdibekbolot)
+- Merge versioning standardization into dev (@abdibekbolot)
+
+## Other Changes
+- Add CI/CD versioning standardization design spec (@abdibekbolot)
+
 ## v4.6.1 (2026-05-14)
 
 ## Other Changes
