@@ -1,3 +1,4 @@
+import yaml
 import importlib
 import os
 import json
@@ -13,9 +14,8 @@ if not WORKSPACE_DIR:
     WORKSPACE_DIR = str(workspace_dir)
     os.environ["RT_WORKSPACE_DIR"] = WORKSPACE_DIR
 
-import yaml
 
-from redteam_core.validator.challenge_manager import ChallengeManager
+from redteam_core.validator.challenge_manager import ChallengeManager  # noqa: E402
 
 current_dir = Path(__file__).parent.resolve()
 ACTIVE_CHALLENGES_FILE = os.getenv(

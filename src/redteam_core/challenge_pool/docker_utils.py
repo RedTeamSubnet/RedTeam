@@ -33,7 +33,8 @@ def run_container(
         _miner_pat = _miner_docker_info.get("personal_access_token", None)
         if not _miner_username or not _miner_pat:
             raise ValueError(
-                "Miner Docker image requires authentication. Please provide 'dockerhub_username' and 'personal_access_token'."
+                "Miner Docker image requires authentication. \
+                    Please provide 'dockerhub_username' and 'personal_access_token'."
             )
         _auth_config = {
             "username": _miner_username,

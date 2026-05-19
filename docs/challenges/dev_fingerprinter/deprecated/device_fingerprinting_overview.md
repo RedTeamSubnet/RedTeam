@@ -41,7 +41,7 @@ The Device Fingerprinting challenge (dev_fingerprinter_v1) tests your ability to
     "ts_name": "my-iphone.tail123.ts.net",
     "ts_ip": "100.64.0.1",
     "pushcut_id": "my-iphone",
-    "pushcut_api_key": "jPH2Lacs7ygioCEX",
+    "pushcut_api_key": "jPH2Lacs7ygioCEX",  # pragma: allowlist secret
     "pushcut_server_id": "12345678-1234-1234-1234-123456789012",
     "device_model": "my-iphone-model",
     "fingerprint": null,

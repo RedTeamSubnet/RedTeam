@@ -2,7 +2,6 @@ from abc import abstractmethod
 import copy
 import time
 import traceback
-from typing import Union
 
 import bittensor as bt
 import requests
@@ -141,7 +140,8 @@ class Controller:
                 _max_comparison_score = self._check_comparison_score(miner_commit)
                 if _max_comparison_score >= 0.6:
                     bt.logging.info(
-                        f"[CONTROLLER] Max comparison score {_max_comparison_score} >= 0.6, skipping comparison validation."
+                        f"[CONTROLLER] Max comparison score {_max_comparison_score} >= 0.6,\
+                            skipping comparison validation."
                     )
                     miner_commit.comparison_logs = {
                         "skipped": [
@@ -181,7 +181,7 @@ class Controller:
             )
 
         bt.logging.debug(
-            f"[CONTROLLER] Challenge completed, cleaning up challenge container"
+            "[CONTROLLER] Challenge completed, cleaning up challenge container"
         )
 
         docker_utils.remove_container(
@@ -301,7 +301,8 @@ class Controller:
                 or miner_commit.scoring_logs[0].miner_output is None
             ):
                 bt.logging.warning(
-                    f"[CONTROLLER] Skipping comparison with {reference_commit.docker_hub_id} for miner because the reference log is missing input or output."
+                    f"[CONTROLLER] Skipping comparison with {reference_commit.docker_hub_id} for miner because \
+                        the reference log is missing input or output."
                 )
                 continue
 
@@ -321,7 +322,8 @@ class Controller:
                 and _similarity_score < self.max_self_comparison_score
             ):
                 bt.logging.warning(
-                    f"[CONTROLLER] Skipping self-comparison for {miner_commit.miner_hotkey} with {reference_commit.miner_hotkey} due to low similarity score {_similarity_score}"
+                    f"[CONTROLLER] Skipping self-comparison for {miner_commit.miner_hotkey}\
+                          with {reference_commit.miner_hotkey} due to low similarity score {_similarity_score}"
                 )
                 continue
 
@@ -340,7 +342,8 @@ class Controller:
                 "min_acceptable_score", 0.6
             ):
                 bt.logging.warning(
-                    f"[CONTROLLER] Stopping comparison because of high similarity threshold is reached, similarity score {_similarity_score}"
+                    f"[CONTROLLER] Stopping comparison because of high similarity threshold is reached,\
+                          similarity score {_similarity_score}"
                 )
                 return
 
@@ -380,7 +383,7 @@ class Controller:
             _internal_services_url = str(constants.INTERNAL_SERVICES.API_URL).rstrip(
                 "/"
             )
-            _validator_endpoint = f"{_internal_services_url}/check/challenge/{self.challenge_info.get('challenge_type', 'default')}/"
+            _validator_endpoint = f"{_internal_services_url}/check/challenge/{self.challenge_info.get('challenge_type', 'default')}/"  # noqa: E501
             headers = {
                 "Content-Type": "application/json",
                 "X-API-KEY": constants.INTERNAL_SERVICES.API_KEY,
@@ -388,7 +391,7 @@ class Controller:
             response = requests.post(
                 _validator_endpoint,
                 timeout=self.challenge_info.get("challenge_compare_timeout", 240),
-                verify=False,
+                verify=False,  # nosec
                 json=payload,
                 headers=headers,
             )
@@ -414,7 +417,8 @@ class Controller:
 
             if miner_output is None or error_message:
                 bt.logging.warning(
-                    f"[CONTROLLER - ABSController] Miner {miner_commit.miner_hotkey} failed to produce output for reference comparison: {error_message}"
+                    f"[CONTROLLER - ABSController] Miner {miner_commit.miner_hotkey} \
+                        failed to produce output for reference comparison: {error_message}"
                 )
                 miner_commit.scoring_logs.insert(
                     0,
@@ -473,12 +477,12 @@ class Controller:
             response = requests.post(
                 f"{constants.INTERNAL_SERVICES.API_URL}/compare",
                 timeout=self.challenge_info.get("challenge_compare_timeout", 300),
-                verify=False,
+                verify=False,  # nosec
                 json=payload,
                 headers=headers,
             )
             if response.status_code == 404:
-                bt.logging.warning(f"No accepted submission to compare against.")
+                bt.logging.warning("No accepted submission to compare against.")
                 return None
 
             response_data = response.json()
@@ -500,7 +504,8 @@ class Controller:
     def same_score_comparison(self, miner_commit: MinerChallengeCommit) -> None:
         if not miner_commit.scoring_logs:
             bt.logging.warning(
-                f"[CONTROLLER] No scoring logs found for miner {miner_commit.miner_hotkey}, skipping same score comparison."
+                f"[CONTROLLER] No scoring logs found for miner {miner_commit.miner_hotkey}, \
+                    skipping same score comparison."
             )
         _scoring_log = miner_commit.scoring_logs[0]
         _commit_score = _scoring_log.score
@@ -517,7 +522,8 @@ class Controller:
                 reference_commits_in_range.append(ref_commit)
         if not reference_commits_in_range:
             bt.logging.info(
-                f"[CONTROLLER] No reference commits found with score in range for miner {miner_commit.miner_hotkey}, skipping same score comparison."
+                f"[CONTROLLER] No reference commits found with score in range for miner {miner_commit.miner_hotkey}, \
+                    skipping same score comparison."
             )
             return
         for ref_commit in reference_commits_in_range:
@@ -587,12 +593,12 @@ class Controller:
             response = requests.post(
                 f"{constants.INTERNAL_SERVICES.API_URL}/compare/same-score",
                 timeout=self.challenge_info.get("challenge_compare_timeout", 300),
-                verify=False,
+                verify=False,  # nosec
                 json=payload,
                 headers=headers,
             )
             if response.status_code == 404:
-                bt.logging.warning(f"No accepted submission to compare against.")
+                bt.logging.warning("No accepted submission to compare against.")
                 return None
 
             response_data = response.json()
@@ -646,7 +652,7 @@ class Controller:
                     compare_url,
                     json=payload,
                     timeout=100,
-                    verify=False,
+                    verify=False,  # nosec
                     headers=headers,
                 )
                 response.raise_for_status()
@@ -689,7 +695,7 @@ class Controller:
             response = requests.post(
                 f"{_internal_service_url}/compare/baseline-scripts",
                 timeout=self.challenge_info.get("challenge_compare_timeout", 240),
-                verify=False,
+                verify=False,  # nosec
                 json=payload,
                 headers=headers,
             )
@@ -852,9 +858,7 @@ class Controller:
                 _all_current_commits.append(commit)
         return _all_current_commits
 
-    def _check_protocol(
-        self, is_challenger: bool = True
-    ) -> tuple[str, Union[bool, None]]:
+    def _check_protocol(self, is_challenger: bool = True) -> tuple[str, bool | None]:
         """Check the protocol scheme and SSL/TLS verification for the challenger or miner.
 
         Args:
@@ -865,7 +869,7 @@ class Controller:
         """
 
         _protocol = "http"
-        _ssl_verify: Union[bool, None] = None
+        _ssl_verify: bool | None = None
 
         if "protocols" in self.challenge_info:
             _protocols = self.challenge_info["protocols"]
