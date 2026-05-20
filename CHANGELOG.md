@@ -1,5 +1,17 @@
 # Changelog
 
+## 4.6.3 (2026-05-20)
+
+## Features
+- enhance scoring system with detailed breakdown and result handling (@aliyuldashev)
+
+## Improvements
+- update flowradar challenge image version to '1.1.1-2026-05-20' (@aliyuldashev)
+
+## Bug Fixes
+- merge versioning standardization into dev (@abdibekbolot)
+- standardize versioning - remove v prefix, add date Docker tag, fix workflow trigger (@abdibekbolot)
+
 ## 4.6.2 (2026-05-19)
 
 ## Features
