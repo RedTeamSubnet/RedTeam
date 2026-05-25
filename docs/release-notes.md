@@ -6,6 +6,18 @@ hide:
 
 # 📌 Release Notes
 
+## 4.6.4 (2026-05-25)
+
+## Features
+- Enhance scoring system with detailed breakdown and result handling (Historical Fingerprinter) (@aliyuldashev)
+- Add state_view methods for ScoringLog, ComparisonLog, and MinerChallengeCommit (@aliyuldashev)
+
+## Bug Fixes
+- Merge versioning standardization into dev (FlowRadar) (@abdibekbolot)
+- Standardize versioning - remove v prefix, add date Docker tag, fix workflow trigger (FlowRadar) (@abdibekbolot)
+- Merge versioning standardization into dev (Historical Fingerprinter) (@abdibekbolot)
+- Standardize versioning - remove v prefix, add date Docker tag, fix workflow trigger (Historical Fingerprinter) (@abdibekbolot)
+
 ## 4.6.3 (2026-05-20)
 
 ## Features
