@@ -122,6 +122,23 @@ class ChallengeManager:
         Returns:
             dict: A dictionary containing the serialized state
         """
+        def _serialize_miner_state(miner_state: MinerChallengeInfo) -> dict:
+            if public_view:
+                return miner_state.public_view().model_dump()
+
+            state_data = miner_state.model_dump(exclude={"latest_commit", "best_commit"})
+            if miner_state.latest_commit:
+                state_data["latest_commit"] = miner_state.latest_commit.state_view().model_dump()
+            else:
+                state_data["latest_commit"] = None
+
+            if miner_state.best_commit:
+                state_data["best_commit"] = miner_state.best_commit.state_view().model_dump()
+            else:
+                state_data["best_commit"] = None
+
+            return state_data
+
         state = {
             "unique_commits": [
                 {
@@ -133,11 +150,7 @@ class ChallengeManager:
             ],
             "unique_scored_docker_hub_ids": list(self._unique_scored_docker_hub_ids),
             "miner_states": {
-                str(uid): (
-                    miner_state.public_view().model_dump()
-                    if public_view
-                    else miner_state.model_dump()
-                )
+                str(uid): _serialize_miner_state(miner_state)
                 for uid, miner_state in self.miner_states.items()
             },
         }

@@ -33,6 +33,17 @@ class ScoringLog(BaseModel):
             input_hash=None,
         )
 
+    def state_view(self) -> "ScoringLog":
+        return ScoringLog(
+            score=self.score,
+            miner_input=None,
+            miner_output=None,
+            validation_output=None,
+            error=self.error,
+            baseline_score=self.baseline_score,
+            input_hash=self.input_hash,
+        )
+
 
 class ComparisonLog(BaseModel):
     similarity_score: Optional[float] = None
@@ -62,6 +73,19 @@ class ComparisonLog(BaseModel):
             reference_output=None,
             reason=self.reason,
             error=self.error,
+            reference_hotkey=self.reference_hotkey,
+            reference_similarity_score=self.reference_similarity_score,
+        )
+
+    def state_view(self) -> "ComparisonLog":
+        return ComparisonLog(
+            similarity_score=self.similarity_score,
+            miner_input=None,
+            miner_output=None,
+            reference_output=None,
+            reason=self.reason,
+            error=self.error,
+            input_hash=self.input_hash,
             reference_hotkey=self.reference_hotkey,
             reference_similarity_score=self.reference_similarity_score,
         )
@@ -106,6 +130,28 @@ class MinerChallengeCommit(BaseModel):
             scoring_logs=[log.public_view() for log in self.scoring_logs],
             comparison_logs={
                 ref_commit: [log.public_view() for log in logs]
+                for ref_commit, logs in self.comparison_logs.items()
+            },
+            scored_timestamp=self.scored_timestamp,
+            score=self.score,
+            penalty=self.penalty,
+            accepted=self.accepted,
+        )
+
+    def state_view(self) -> "MinerChallengeCommit":
+        """Returns a compact instance suitable for validator state persistence."""
+        return MinerChallengeCommit(
+            miner_uid=self.miner_uid,
+            miner_hotkey=self.miner_hotkey,
+            challenge_name=self.challenge_name,
+            docker_hub_id=self.docker_hub_id,
+            commit_timestamp=self.commit_timestamp,
+            encrypted_commit=self.encrypted_commit,
+            key=None,
+            commit=self.commit,
+            scoring_logs=[log.state_view() for log in self.scoring_logs],
+            comparison_logs={
+                ref_commit: [log.state_view() for log in logs]
                 for ref_commit, logs in self.comparison_logs.items()
             },
             scored_timestamp=self.scored_timestamp,
