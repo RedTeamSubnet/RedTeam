@@ -1,12 +1,12 @@
-historical_fingerprinter_v2:
-  name: "historical_fingerprinter_v2"
+ab_sniffer_v6:
+  name: "ab_sniffer_v6"
   description: "Detect anti-detect automation frameworks"
   challenge_incentive_weight: 0.4
-  challenge_image: "redteamsubnet61/historical_fingerprinter:2.0.1"
-  target: hfp_challenge.controller.HFPController
-  challenge_manager: hfp_challenge.challenge_manager.HFPChallengeManager
+  challenge_image: "redteamsubnet61/rest-abs-challenge:6.0.0"
+  target: abs_challenge.controller.ABSController
+  challenge_manager: abs_challenge.challenge_manager.ABSChallengeManager
   script_path_identifier: "commit_files"
-  challenge_type: "hfp"
+  challenge_type: "abs"
   challenge_solve_timeout: 60
   docker_run_timeout: 900
   num_tasks: 1
@@ -17,7 +17,7 @@ historical_fingerprinter_v2:
     max_self_comparison_score: 0.8
     min_acceptable_score: 0.6
   challenge_container_run_kwargs:
-    name: "historical_fingerprinter_v2"
+    name: "ab_sniffer_v6"
     platform: "linux/amd64"
     ulimits:
       - Name: "nofile"
@@ -26,21 +26,22 @@ historical_fingerprinter_v2:
     privileged: true
     environment:
       ENV: "PRODUCTION"
-      HFP_API_LOGS_DIR: "/var/log/historical_fingerprinter"
-      HFP_API_DATA_DIR: "/var/lib/historical_fingerprinter"
-      HFP_CHALLENGE_API_KEY: "${RT_CHALLENGE_API_KEY}"
-      HFP_CHALLENGE_ACCEPTABLE_MISS_COUNT: "${HFP_CHALLENGE_ACCEPTABLE_MISS_COUNT}"
-      HFP_CHALLENGE_SINGLE_REQUEST_TIMEOUT: "${HFP_CHALLENGE_SINGLE_REQUEST_TIMEOUT}"
-      HFP_CHALLENGE_FINGERPRINTER_PORT: "${HFP_CHALLENGE_FINGERPRINTER_PORT}"
+      ABS_CHALLENGE_API_KEY: "${RT_CHALLENGE_API_KEY}"
+      ABS_CHALLENGE_VERIFICATION_API_KEY: "${ABS_CHALLENGE_VERIFICATION_API_KEY}"
+      ABS_CHALLENGE_VERIFICATION_ENDPOINT: "${ABS_CHALLENGE_VERIFICATION_ENDPOINT}"
+      ABS_CHALLENGE_VERIFICATION_STARTUP_URL: "${ABS_CHALLENGE_VERIFICATION_STARTUP_URL}"
+      ABS_CHALLENGE_BOT_RUNNER_SERVERS: "${ABS_CHALLENGE_BOT_RUNNER_SERVERS}"
+      ABS_CHALLENGE_BOT_RUNNER_API_KEY: "${ABS_CHALLENGE_BOT_RUNNER_API_KEY}"
+      ABS_CHALLENGE_BOT_RUNNER_PUBLIC_BASE_URL: "${ABS_CHALLENGE_BOT_RUNNER_PUBLIC_BASE_URL}"
+      ABS_CHALLENGE_BOT_RUNNER_BOT: "${ABS_CHALLENGE_BOT_RUNNER_BOT}"
     volumes:
-      - "${RT_CHALLENGE_LOGS_DIR}:/var/log/historical_fingerprinter"
-      - "${HFP_CHALLENGE_API_DATA_DIR}:/var/lib/historical_fingerprinter"
+      - "${RT_CHALLENGE_LOGS_DIR}:/var/log/rest-abs-challenge"
   miner_container_run_kwargs:
     cpu_count: 4
     mem_limit: "12g"
     network: "redteam_local"
     environment:
-      CHALLENGE_NAME: "historical_fingerprinter_v2"
+      CHALLENGE_NAME: "ab_sniffer_v6"
   protocols:
     challenger: "http"
     challenger_ssl_verify: false
