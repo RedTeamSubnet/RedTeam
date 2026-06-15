@@ -6,6 +6,24 @@ hide:
 
 # 📌 Release Notes
 
+## 4.7.0 (2026-06-15)
+
+## Features
+- update ab_sniffer challenge configuration and replace historical_fingerprinter with abs_challenge (@aliyuldashev)
+- update active challenges configuration and enhance environment variable handling (@aliyuldashev)
+- add ab_sniffer submodule for challenge integration (@aliyuldashev)
+
+## Bug Fixes
+- [src/challenges/flowradar] merge versioning standardization into dev (@abdibekbolot)
+- [src/challenges/flowradar] standardize versioning - remove v prefix, add date Docker tag, fix workflow trigger (@abdibekbolot)
+- standardize versioning - remove v prefix, add date Docker tag, fix workflow trigger (@abdibekbolot)
+- merge versioning standardization into dev (@abdibekbolot)
+
+## Other Changes
+- update AB Sniffer challenge documentation for v6, enhancing clarity and structure (@aliyuldashev)
+- Merge pull request #132 from RedTeamSubnet/dev (@aliyuldashev)
+- remove historical_fingerprinter submodule (@aliyuldashev)
+
 ## 4.6.4 (2026-05-25)
 
 ## Features
