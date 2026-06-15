@@ -16,7 +16,7 @@
         <link rel="prev" href="../v5/">
       
       
-        <link rel="next" href="../deprecated/v1/">
+        <link rel="next" href="../v6/">
       
       
         
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#auto-browser-sniffer-testing-manual" class="md-skip">
+        <a href="#ab-sniffer-v6-testing-manual" class="md-skip">
           Skip to content
         </a>
       
@@ -2763,6 +2763,8 @@
       
         
       
+        
+      
     
     
     
@@ -2912,29 +2914,6 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Overview
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#quick-start-guide" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Quick Start Guide
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Quick Start Guide">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
   <a href="#prerequisites" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2944,72 +2923,89 @@
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#step-0-clone-the-repository" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#1-add-and-validate-the-detectors" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Step 0: Clone the Repository
+        1. Add And Validate The Detectors
       
     </span>
   </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-1-provide-your-all-scripts" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Step 1: Provide Your all Scripts
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-2-prepare-setup" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Step 2: Prepare Setup
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-3-start-the-challenge-server" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Step 3: Start the Challenge Server
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-4-test-your-bot" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Step 4: Test Your Bot
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#important-notes" class="md-nav__link">
+  <a href="#2-configure-and-start-the-challenge" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Important Notes
+        2. Configure And Start The Challenge
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-choose-a-reachable-url" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Choose A Reachable URL
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-test-framework-and-headless-classification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Test Framework And Headless Classification
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-test-human-sessions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Test Human Sessions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-run-local-scoring" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Run Local Scoring
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testing-versus-production" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testing Versus Production
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#test-matrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Test Matrix
       
     </span>
   </a>
@@ -3031,6 +3027,34 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../v6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Auto Browser Sniffer v6
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -3064,10 +3088,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_4_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_4_5" >
         
           
-          <label class="md-nav__link" for="__nav_5_3_4_4" id="__nav_5_3_4_4_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_3_4_5" id="__nav_5_3_4_5_label" tabindex="0">
             
   
   
@@ -3085,8 +3109,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_3_4_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3_4_4">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_3_4_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_4_5">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -3954,29 +3978,6 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Overview
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#quick-start-guide" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Quick Start Guide
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Quick Start Guide">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
   <a href="#prerequisites" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3986,72 +3987,89 @@
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#step-0-clone-the-repository" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#1-add-and-validate-the-detectors" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Step 0: Clone the Repository
+        1. Add And Validate The Detectors
       
     </span>
   </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-1-provide-your-all-scripts" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Step 1: Provide Your all Scripts
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-2-prepare-setup" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Step 2: Prepare Setup
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-3-start-the-challenge-server" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Step 3: Start the Challenge Server
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-4-test-your-bot" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Step 4: Test Your Bot
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#important-notes" class="md-nav__link">
+  <a href="#2-configure-and-start-the-challenge" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Important Notes
+        2. Configure And Start The Challenge
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-choose-a-reachable-url" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Choose A Reachable URL
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-test-framework-and-headless-classification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Test Framework And Headless Classification
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-test-human-sessions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Test Human Sessions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-run-local-scoring" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Run Local Scoring
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testing-versus-production" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testing Versus Production
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#test-matrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Test Matrix
       
     </span>
   </a>
@@ -4109,56 +4127,215 @@
   
 
 
-<h1 id="auto-browser-sniffer-testing-manual">Auto Browser Sniffer Testing Manual</h1>
-<p>This manual provides instructions for testing the Auto Browser Sniffer challenge using Docker and Docker Compose.</p>
-<h2 id="overview">Overview</h2>
+<h1 id="ab-sniffer-v6-testing-manual">AB Sniffer v6 Testing Manual</h1>
+<p>This manual covers local miner testing. Local results help improve a submission, but the
+official score is produced by the production scoring environment.</p>
+<h2 id="prerequisites">Prerequisites</h2>
 <ul>
-<li>Tests all detection scripts' ability to detect automation frameworks</li>
-<li>Uses Docker for easy submission and testing</li>
+<li>Docker with the Docker Compose plugin</li>
+<li>A normal browser for human checks</li>
+<li>Miner-controlled runners for all eight target frameworks</li>
+<li>A bot-runner service compatible with the challenge scoring API when using <code>/score</code></li>
+<li>Test hosts or virtual machines for the operating systems being evaluated</li>
+<li>Network access from each runner to the challenge API</li>
 </ul>
-<h2 id="quick-start-guide">Quick Start Guide</h2>
-<h3 id="prerequisites">Prerequisites</h3>
-<ul>
-<li>Docker</li>
-<li>Docker Compose</li>
-</ul>
-<h3 id="step-0-clone-the-repository">Step 0: Clone the Repository</h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/RedTeamSubnet/ab-sniffer-challenge.git<span class="w"> </span>ab_sniffer
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nb">cd</span><span class="w"> </span>ab_sniffer
+<p>The challenge repository does not provide miner-side framework runners. Miners must create
+and configure their own.</p>
+<h2 id="1-add-and-validate-the-detectors">1. Add And Validate The Detectors</h2>
+<p>Clone the current repository and enter it:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/RedTeamSubnet/ab-sniffer.git
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nb">cd</span><span class="w"> </span>ab-sniffer
 </span></code></pre></div>
-<h3 id="step-1-provide-your-all-scripts">Step 1: Provide Your all Scripts</h3>
-<ul>
-<li>Paste all of your scripts for detection into <a href="https://github.com/RedTeamSubnet/ab-sniffer-challenge/tree/main/src/templates/static/detections">detections</a> folder with matching names.</li>
-</ul>
-<h3 id="step-2-prepare-setup">Step 2: Prepare Setup</h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>cp<span class="w"> </span>.env.example<span class="w"> </span>.env
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>cp<span class="w"> </span>./templates/compose/compose.override.dev.yml<span class="w"> </span>./compose.override.yml
+<p>Place the eight framework files and <code>headless.js</code> in:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>src/abs_challenge/challenge/templates/static/detections/
 </span></code></pre></div>
-<h3 id="step-3-start-the-challenge-server">Step 3: Start the Challenge Server</h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>
+<p>Keep every filename and exported <code>window</code> function unchanged. Validate the submission:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>python3<span class="w"> </span>skills/validate-submission/scripts/validate_submission.py
 </span></code></pre></div>
-<h3 id="step-4-test-your-bot">Step 4: Test Your Bot</h3>
+<p>The validator checks the exact nine files, required exports, the 500-line limit, and the
+repository ESLint configuration.</p>
+<h2 id="2-configure-and-start-the-challenge">2. Configure And Start The Challenge</h2>
+<p>Create the environment file:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>cp<span class="w"> </span>.env.example<span class="w"> </span>.env
+</span></code></pre></div>
+<p>Set a private API key and the local port in <code>.env</code>:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>ABS_CHALLENGE_API_KEY=replace_with_your_private_api_key
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>ABS_CHALLENGE_API_PORT=10001
+</span></code></pre></div>
+<p>The included Compose file starts the challenge API only. To use <code>/score</code>, deploy your
+bot-runner separately and configure at least:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>ABS_CHALLENGE_BOT_RUNNER__SERVERS=[{&quot;url&quot;:&quot;http://bot-runner-host:8080&quot;,&quot;device_type&quot;:&quot;linux&quot;}]
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>ABS_CHALLENGE_BOT_RUNNER__API_KEY=replace_with_your_bot_runner_api_key
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>ABS_CHALLENGE_BOT_RUNNER__PUBLIC_BASE_URL=http://challenge-host:10001
+</span></code></pre></div>
+<p>The bot-runner URL must be reachable from the challenge container. The public base URL must
+be reachable from browsers launched by the bot-runner. Use addresses appropriate to your
+network rather than copying the example hostnames unchanged.</p>
+<p>Start the challenge:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>challenge-api
+</span></code></pre></div>
+<p>Confirm that it is healthy:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>ps
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>curl<span class="w"> </span>http://localhost:10001/health
+</span></code></pre></div>
+<p>Protected endpoints such as <code>/score</code> and <code>/results</code> require the API key in the <code>X-API-Key</code>
+header.</p>
+<h2 id="3-choose-a-reachable-url">3. Choose A Reachable URL</h2>
+<p>The detection page is:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>http://&lt;challenge-host&gt;:&lt;port&gt;/_web
+</span></code></pre></div>
+<p>Use <code>localhost</code> only when the browser runner and challenge are on the same host. A runner in
+another container or machine must use a reachable service name, LAN address, or DNS name.
+Do not use <code>0.0.0.0</code> as a destination address.</p>
+<h2 id="4-test-framework-and-headless-classification">4. Test Framework And Headless Classification</h2>
+<p>Run every target framework in headed and headless modes where supported:</p>
 <ul>
-<li>Visit <a href="https://localhost:10001/docs">https://localhost:10001/docs</a></li>
-<li>Authenticate using provided authentication method. You can find Api-Key from <code>.env</code>
-    <img alt="alt text" src="https://github.com/RedTeamSubnet/ab-sniffer-challenge/blob/9e17721265e26689597aa8219b66e49571ccb541/docs/images/image.png?raw=true" /></li>
-<li>Test your detection files by running the <code>/score</code> endpoint</li>
-<li>if you see the warning log(like <code>Please visit endpoint &lt;URI&gt; to complete human verification for the task.</code>) then open given uri in log in your browser to complete human verification in your side.</li>
+<li><code>seleniumbase</code></li>
+<li><code>seleniumdriverless</code></li>
+<li><code>pydoll</code></li>
+<li><code>patchright</code></li>
+<li><code>zendriver</code></li>
+<li><code>nodriver</code></li>
+<li><code>botasaurus</code></li>
+<li><code>puppeteerextra</code></li>
 </ul>
-<h2 id="important-notes">Important Notes</h2>
+<p>For each test, start a clean browser session, open <code>/_web</code>, wait for detection to complete,
+record the results, close the browser, and repeat the run.</p>
+<p>A correct headed automation result has:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>active framework: true
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>all other frameworks: false
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>Headless: false
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>Human: false
+</span></code></pre></div>
+<p>A correct headless automation result has:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>active framework: true
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>all other frameworks: false
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>Headless: true
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>Human: false
+</span></code></pre></div>
+<p><code>headless.js</code> detects the browser's execution mode independently from the framework files.
+It must not rely only on the user-agent string.</p>
+<h2 id="5-test-human-sessions">5. Test Human Sessions</h2>
+<p>Open <code>/_web</code> manually in a normal headed browser without an automation framework. A correct
+human result has:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>all frameworks: false
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>Headless: false
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>Human: true
+</span></code></pre></div>
+<p>Human is inferred from the absence of framework and headless detections; it is not a
+separate detector file. Test multiple clean sessions with normal navigation, typing,
+scrolling, pointer movement, and developer tools usage where relevant.</p>
+<p>Any framework or headless detection during a production human task makes the final score
+zero. Human false-positive testing is therefore mandatory.</p>
+<h2 id="6-run-local-scoring">6. Run Local Scoring</h2>
+<p>After configuring a compatible bot-runner, submit the nine files to the authenticated
+<code>/score</code> endpoint using the API documentation or your own client. Scoring schedules
+automation runs and human verification in a shuffled order. When the logs request human
+verification, open the displayed <code>/_web</code> URL before the human timeout expires.</p>
+<p>After scoring, inspect authenticated <code>/results</code> output for:</p>
 <ul>
-<li>The server runs on port 10001 by default</li>
-<li>Make sure port 10001 is available on your system</li>
-<li>All interactions are logged for analysis</li>
+<li>expected and submitted frameworks;</li>
+<li>missed detections;</li>
+<li>framework collisions;</li>
+<li>expected and reported headless state;</li>
+<li>headless failures; and</li>
+<li>missing or failed tasks.</li>
 </ul>
+<p>Do not optimize only for framework recall. A broad detector may increase local recall while
+creating collisions or human false positives that reduce or zero the official score.</p>
+<h2 id="testing-versus-production">Testing Versus Production</h2>
+<p>Local testing does not reproduce production exactly.</p>
+<table>
+<thead>
+<tr>
+<th>Testing environment</th>
+<th>Production scoring environment</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Miner-created framework runners</td>
+<td>Private RedTeam framework runners and presets</td>
+</tr>
+<tr>
+<td>Locally installed browser, driver, and framework versions</td>
+<td>Versions installed in production runner images</td>
+</tr>
+<tr>
+<td>Miner-selected OS, hardware, flags, patches, extensions, locale, timing, and network</td>
+<td>Production infrastructure, device types, launch settings, resource limits, timing, and network</td>
+</tr>
+<tr>
+<td>Run counts and configurations selected for development</td>
+<td>Run schedule and configuration controlled by the scorer</td>
+</tr>
+<tr>
+<td>Full access to local browser and service diagnostics</td>
+<td>Only the official score and permitted result details determine the outcome</td>
+</tr>
+</tbody>
+</table>
+<p>Noticeable score differences are expected when these environments expose different
+automation signals. Passing local tests does not guarantee the same production result.
+Build robust detectors by testing multiple versions, operating systems, launch modes, and
+runner configurations. Avoid signals that identify only one local setup.</p>
+<h2 id="test-matrix">Test Matrix</h2>
+<p>Record repeated framework and human sessions:</p>
+<table>
+<thead>
+<tr>
+<th>OS</th>
+<th>Framework/session</th>
+<th>Browser version</th>
+<th>Mode</th>
+<th>Expected</th>
+<th>Actual true</th>
+<th>Headless</th>
+<th>Collision</th>
+<th>Pass</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Linux</td>
+<td>nodriver</td>
+<td>Chromium version</td>
+<td>Headed</td>
+<td>nodriver</td>
+<td>nodriver</td>
+<td>false</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Linux</td>
+<td>human</td>
+<td>Chromium version</td>
+<td>Headed</td>
+<td>human</td>
+<td>none</td>
+<td>false</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
 <h2 id="troubleshooting">Troubleshooting</h2>
-<p>If you encounter issues:</p>
-<ol>
-<li>Check if Docker is running</li>
-<li>Verify port 10001 is not in use</li>
-<li>Check Docker logs using <code>docker compose logs</code></li>
-<li>Ensure you have proper permissions to run Docker commands</li>
-</ol>
+<ul>
+<li><strong>Page is unreachable:</strong> check Compose status, port mapping, firewall rules, and the URL
+  used by remote runners.</li>
+<li><strong>Changes do not appear:</strong> rebuild or recreate the container and use a fresh browser
+  session without cached assets.</li>
+<li><strong>No detector runs:</strong> inspect browser console output and challenge logs for JavaScript
+  errors.</li>
+<li><strong>Multiple framework results are true:</strong> remove shared or overly broad signals.</li>
+<li><strong>Human is false:</strong> a framework detector or <code>headless.js</code> produced a false positive.</li>
+<li><strong>Headless is unstable:</strong> repeat clean sessions across browser versions and launch modes.</li>
+</ul>
+<p>Stop the environment when testing is complete:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>down<span class="w"> </span>--remove-orphans
+</span></code></pre></div>
 
 
 
@@ -4218,13 +4395,13 @@
         
         
           
-          <a href="../deprecated/v1/" class="md-footer__link md-footer__link--next" aria-label="Next: Auto Browser Sniffer v1">
+          <a href="../v6/" class="md-footer__link md-footer__link--next" aria-label="Next: Auto Browser Sniffer v6">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Auto Browser Sniffer v1
+                Auto Browser Sniffer v6
               </div>
             </div>
             <div class="md-footer__button md-icon">
