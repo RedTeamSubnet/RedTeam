@@ -1,7 +1,7 @@
 ab_sniffer_v6:
   name: "ab_sniffer_v6"
-  description: "Detect anti-detect automation frameworks"
-  challenge_incentive_weight: 0.4
+  description: "Detect automation frameworks"
+  challenge_incentive_weight: 0.5
   challenge_image: "redteamsubnet61/rest-abs-challenge:6.0.0"
   target: abs_challenge.controller.ABSController
   challenge_manager: abs_challenge.challenge_manager.ABSChallengeManager
@@ -34,6 +34,7 @@ ab_sniffer_v6:
       ABS_CHALLENGE_BOT_RUNNER_API_KEY: "${ABS_CHALLENGE_BOT_RUNNER_API_KEY}"
       ABS_CHALLENGE_BOT_RUNNER_PUBLIC_BASE_URL: "${ABS_CHALLENGE_BOT_RUNNER_PUBLIC_BASE_URL}"
       ABS_CHALLENGE_BOT_RUNNER_BOT: "${ABS_CHALLENGE_BOT_RUNNER_BOT}"
+      ABS_API_LOGS_DIR: "/var/log/rest-abs-challenge"
     volumes:
       - "${RT_CHALLENGE_LOGS_DIR}:/var/log/rest-abs-challenge"
   miner_container_run_kwargs:
@@ -54,7 +55,7 @@ ab_sniffer_v6:
 flowradar_v1:
   name: "flowradar_v1"
   description: "Detect VPN using Network Flow data"
-  challenge_incentive_weight: 0.6
+  challenge_incentive_weight: 0.5
   challenge_image: "redteamsubnet61/flowradar-challenge:1.1.1-2026-05-20"
   target: flr_challenge.controller.FLRController
   challenge_manager: flr_challenge.challenge_manager.FLRChallengeManager
