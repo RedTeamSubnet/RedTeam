@@ -2,7 +2,7 @@ ab_sniffer_v6:
   name: "ab_sniffer_v6"
   description: "Detect automation frameworks"
   challenge_incentive_weight: 0.5
-  challenge_image: "redteamsubnet61/rest-abs-challenge:6.0.0"
+  challenge_image: "redteamsubnet61/rest-abs-challenge:6.0.1"
   target: abs_challenge.controller.ABSController
   challenge_manager: abs_challenge.challenge_manager.ABSChallengeManager
   script_path_identifier: "commit_files"
