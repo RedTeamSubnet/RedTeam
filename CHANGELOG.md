@@ -1,5 +1,15 @@
 # Changelog
 
+## 4.7.1 (2026-06-23)
+
+## Features
+- update abs_challenge dependency to v6.0.1 and adjust challenge image version (@aliyuldashev)
+- update navigation structure for AB Sniffer challenges and deprecate v5 documentation (@aliyuldashev)
+
+## Bug Fixes
+- merge versioning standardization into dev (@abdibekbolot)
+- standardize versioning - remove v prefix, add date Docker tag, fix workflow trigger (@abdibekbolot)
+
 ## 4.7.0 (2026-06-15)
 
 ## Features
