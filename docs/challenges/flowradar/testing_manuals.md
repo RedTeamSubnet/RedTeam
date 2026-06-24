@@ -156,6 +156,14 @@ Invalid model:
 - Write valid JSON to the second trainer argument.
 - Keep it within the configured size limit.
 
+Embedded model weights:
+
+- Do not include pretrained parameters, encoded model blobs, learned
+  coefficients, or fallback weights in either submitted file.
+- Generate all learned weights from `v2_train_data.csv` during the current
+  scoring run.
+- Use only the generated `model` argument in `submissions.py`.
+
 Inference errors:
 
 - Return a Python boolean.

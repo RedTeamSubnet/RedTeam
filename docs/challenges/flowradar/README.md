@@ -51,6 +51,10 @@ select another training file.
 Exactly these two files are required. Duplicate names, additional files,
 path-based names, and empty content are rejected.
 
+Embedding pretrained or externally generated learned weights in either file is
+prohibited. Every model must be trained from `v2_train_data.csv` during the
+current scoring run.
+
 ## Challenge Flow
 
 1. The challenge receives `train.py` and `submissions.py`.
