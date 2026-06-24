@@ -1,5 +1,16 @@
 # Changelog
 
+## 4.7.2 (2026-06-24)
+
+## Features
+- update flowradar challenge to v2.0.0 and rename configuration (@aliyuldashev)
+- update FlowRadar documentation to prohibit embedding model weights in submissions (@aliyuldashev)
+- add FlowRadar v2 challenge documentation and assets (@aliyuldashev)
+- add FlowRadar v1 documentation for historical reference and submission guidelines (@aliyuldashev)
+
+## Other Changes
+- update flowradar subproject commit reference (@aliyuldashev)
+
 ## 4.7.1 (2026-06-23)
 
 ## Features
