@@ -2,71 +2,173 @@
 title: Testing Manual
 ---
 
-# FlowRadar VPN Detection Testing Manual
+# FlowRadar v2 Testing Manual
 
-This manual provides instructions for testing the FlowRadar VPN detection challenge using Docker and Docker Compose.
-
-## Overview
-
-- Tests are designed to evaluate the effectiveness of your VPN detection implementation.
-- Uses Docker for easy submission and testing
-
-## Quick Start Guide
-
-### Prerequisites
+## Prerequisites
 
 - Docker
 - Docker Compose
+- Git
+- Git LFS
+- Python 3.10 or newer for direct script checks
 
-### Step 0: Clone the Repository [skip if you cloned already]
+## Clone and Download Data
 
-```bash
+```sh
 git clone git@github.com:RedTeamSubnet/flowradar-challenge.git flowradar
 cd flowradar
+git lfs pull
 ```
 
-### Step 1: Provide Your `submission.py` Script
+Confirm these files exist:
 
-- Paste your `submission.py` script into **src/flr_challenge/challenge/flowradar/src** folder.
+```text
+volumes/storage/flowradar-challenge/data/v2_train_data.csv
+volumes/storage/flowradar-challenge/data/v2_test_data.csv
+```
 
-### Step 2: Update Configuration Files
+`v2_train_data.csv` is mandatory for training. Do not replace it with v1 data.
 
-```bash
+## Submission Files
+
+Implement:
+
+```text
+src/flr_challenge/challenge/flowradar/src/train.py
+src/flr_challenge/challenge/flowradar/src/submissions.py
+```
+
+The miner output shape is:
+
+```json
+{
+  "commit_files": [
+    {"file_name": "train.py", "content": "..."},
+    {"file_name": "submissions.py", "content": "..."}
+  ]
+}
+```
+
+## Fast Local Checks
+
+Compile both scripts:
+
+```sh
+python3 -m py_compile \
+  src/flr_challenge/challenge/flowradar/src/train.py \
+  src/flr_challenge/challenge/flowradar/src/submissions.py
+```
+
+Run training directly:
+
+```sh
+python3 src/flr_challenge/challenge/flowradar/src/train.py \
+  volumes/storage/flowradar-challenge/data/v2_train_data.csv \
+  /tmp/flowradar_model.json
+```
+
+Validate the model:
+
+```sh
+python3 -m json.tool /tmp/flowradar_model.json >/dev/null
+```
+
+## Configure the Challenge
+
+```sh
 cp .env.example .env
-cp ./templates/compose/compose.override.dev.yml ./compose.override.yml
 ```
 
-### Step 3: Setting up environmental variables
+Production-equivalent dataset configuration:
 
-- Change `FLR_CHALLENGE_API_KEY` with your own preferred API key. You can use any string as API key, but make sure to update it in your detection scripts as well.
-
-### Step 4: Start the Challenge Server
-
-```bash
-docker compose up -d challenge-api
+```dotenv
+FLR_CHALLENGE_TRAIN_CSV_PATH="{data_dir}/v2_train_data.csv"
+FLR_CHALLENGE_TEST_CSV_PATH="{data_dir}/v2_test_data.csv"
 ```
 
-### Step 5: Test Your Detector Script
+Set `FLR_CHALLENGE_API_KEY` in `.env`.
 
-- Visit <https://localhost:10001/docs>
-- Authenticate using provided authentication API that you put into the `.env` with `FLR_CHALLENGE_API_KEY` variable.
-    ![alt text](https://github.com/RedTeamSubnet/historical-fingerprinter-challenge/blob/08e3deea03d551a5d97b9f93c41b7b31a5c2ee01/docs/images/image.png?raw=true)
-- Test your detection files by running the `/score` endpoint
+## Start and Score
 
-## Important Notes
+```sh
+docker compose up -d --build --remove-orphans
+python3 skills/challenge-score/scripts/check_score.py
+```
 
-- The server runs on port 10001 by default
-- Make sure port 10001 is available on your system
-- All interactions are logged for analysis. Miners can check logs by running `docker compose logs -f`
-- All commands must be executed from challenge's root directory.
-- If you want score justification, you can check all results with `results` endpoint after running the `score` endpoint.
+The helper reads both Python files, builds `miner_output.commit_files`, and
+calls `/score`.
+
+Useful endpoints:
+
+```text
+GET  http://localhost:10001/health
+GET  http://localhost:10001/status
+POST http://localhost:10001/score
+GET  http://localhost:10001/results
+GET  http://localhost:10001/telemetry
+```
+
+## Optional V1 Compatibility Test
+
+V1 test data uses 34 columns and label `is_vpn`. Convert it to the v2 shape:
+
+```sh
+python3 - <<'PY'
+from pathlib import Path
+
+import pandas as pd
+
+data_dir = Path("volumes/storage/flowradar-challenge/data")
+v1 = pd.read_csv(data_dir / "v1_test_data.csv")
+v2_columns = pd.read_csv(data_dir / "v2_train_data.csv", nrows=0).columns
+
+v1 = v1.rename(columns={"is_vpn": "vpn_is_enabled"})
+v1 = v1.reindex(columns=v2_columns)
+v1.to_csv(data_dir / "v1_test_v2_shape.csv", index=False)
+PY
+```
+
+Keep production training unchanged:
+
+```dotenv
+FLR_CHALLENGE_TRAIN_CSV_PATH="{data_dir}/v2_train_data.csv"
+FLR_CHALLENGE_TEST_CSV_PATH="{data_dir}/v1_test_v2_shape.csv"
+```
+
+This is only a compatibility test. Restore `v2_test_data.csv` for final
+production-equivalent scoring.
 
 ## Troubleshooting
 
-If you encounter issues:
+Missing training data:
 
-1. Check if Docker is running
-2. Verify port 10001 is not in use
-3. Check Docker logs using `docker compose logs`
-4. Ensure you have proper permissions to run Docker commands
-5. If you got lower or higher score than expected, you can check the justification of your score by running `results` endpoint after running the `score` endpoint. You can also check the logs for more details on how your detection script performed against the test cases.
+- Run `git lfs pull`.
+- Confirm `v2_train_data.csv` is a real CSV, not a small LFS pointer file.
+
+Invalid miner output:
+
+- Include exactly `train.py` and `submissions.py`.
+- Use `file_name` and `content`.
+- Do not include additional files or path-based names.
+
+Invalid model:
+
+- Write valid JSON to the second trainer argument.
+- Keep it within the configured size limit.
+
+Inference errors:
+
+- Return a Python boolean.
+- Handle missing fields and JSON `null`.
+- Do not expect `vpn_is_enabled` inside inference features.
+
+Training timeout:
+
+- Keep training within `FLR_CHALLENGE_TRAINING_TIMEOUT_SECONDS`.
+- Increasing the local timeout does not change production limits.
+
+Inspect logs:
+
+```sh
+docker compose logs -f challenge-api
+```
