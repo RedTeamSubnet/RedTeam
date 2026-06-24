@@ -52,11 +52,11 @@ ab_sniffer_v6:
     num_cpus: 4
     mem_limit: "12g"
 
-flowradar_v1:
-  name: "flowradar_v1"
+flowradar_v2:
+  name: "flowradar_v2"
   description: "Detect VPN using Network Flow data"
   challenge_incentive_weight: 0.5
-  challenge_image: "redteamsubnet61/flowradar-challenge:1.1.1-2026-05-20"
+  challenge_image: "redteamsubnet61/flowradar-challenge:2.0.0"
   target: flr_challenge.controller.FLRController
   challenge_manager: flr_challenge.challenge_manager.FLRChallengeManager
   script_path_identifier: "commit_files"
@@ -71,7 +71,7 @@ flowradar_v1:
     max_self_comparison_score: 0.8
     min_acceptable_score: 0.6
   challenge_container_run_kwargs:
-    name: "flowradar_v1"
+    name: "flowradar_v2"
     platform: "linux/amd64"
     ulimits:
       - Name: "nofile"
@@ -81,6 +81,8 @@ flowradar_v1:
     environment:
       ENV: "PRODUCTION"
       FLR_API_DATA_DIR: "/var/lib/flowradar-challenge"
+      FLR_CHALLENGE_TEST_CSV_PATH: "{data_dir}/v2_test_data.csv"
+      FLR_CHALLENGE_TRAIN_CSV_PATH: "{data_dir}/v2_train_data.csv"
       FLR_CHALLENGE_API_KEY: "${RT_CHALLENGE_API_KEY}"
     volumes:
       - "${RT_CHALLENGE_LOGS_DIR}:/var/log/flowradar-challenge"
@@ -90,7 +92,7 @@ flowradar_v1:
     mem_limit: "12g"
     network: "redteam_local"
     environment:
-      CHALLENGE_NAME: "flowradar_v1"
+      CHALLENGE_NAME: "flowradar_v2"
   protocols:
     challenger: "http"
     challenger_ssl_verify: false
