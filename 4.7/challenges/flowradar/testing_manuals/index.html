@@ -13,10 +13,10 @@
         <link rel="canonical" href="https://docs.theredteam.io/4.7/challenges/flowradar/testing_manuals/">
       
       
-        <link rel="prev" href="../">
+        <link rel="prev" href="../v2/">
       
       
-        <link rel="next" href="../v1/">
+        <link rel="next" href="../../historical_fingerprinter/">
       
       
         
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#flowradar-vpn-detection-testing-manual" class="md-skip">
+        <a href="#flowradar-v2-testing-manual" class="md-skip">
           Skip to content
         </a>
       
@@ -1866,6 +1866,8 @@
       
         
       
+        
+      
     
     
     
@@ -1918,6 +1920,34 @@
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../v2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FlowRadar v2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
               
             
               
@@ -1987,29 +2017,6 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Overview
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#quick-start-guide" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Quick Start Guide
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Quick Start Guide">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
   <a href="#prerequisites" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2019,83 +2026,67 @@
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#step-0-clone-the-repository-skip-if-you-cloned-already" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#clone-and-download-data" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Step 0: Clone the Repository [skip if you cloned already]
+        Clone and Download Data
       
     </span>
   </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-1-provide-your-submissionpy-script" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Step 1: Provide Your submission.py Script
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-2-update-configuration-files" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Step 2: Update Configuration Files
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-3-setting-up-environmental-variables" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Step 3: Setting up environmental variables
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-4-start-the-challenge-server" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Step 4: Start the Challenge Server
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-5-test-your-detector-script" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Step 5: Test Your Detector Script
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#important-notes" class="md-nav__link">
+  <a href="#submission-files" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Important Notes
+        Submission Files
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fast-local-checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fast Local Checks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configure-the-challenge" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configure the Challenge
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#start-and-score" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Start and Score
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#optional-v1-compatibility-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Optional V1 Compatibility Test
       
     </span>
   </a>
@@ -2129,14 +2120,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../v1/" class="md-nav__link">
+      <a href="../../.." class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    FlowRadar v1
+    Deprecated
   
 
     
@@ -3995,29 +3986,6 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Overview
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#quick-start-guide" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Quick Start Guide
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Quick Start Guide">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
   <a href="#prerequisites" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -4027,83 +3995,67 @@
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#step-0-clone-the-repository-skip-if-you-cloned-already" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#clone-and-download-data" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Step 0: Clone the Repository [skip if you cloned already]
+        Clone and Download Data
       
     </span>
   </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-1-provide-your-submissionpy-script" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Step 1: Provide Your submission.py Script
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-2-update-configuration-files" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Step 2: Update Configuration Files
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-3-setting-up-environmental-variables" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Step 3: Setting up environmental variables
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-4-start-the-challenge-server" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Step 4: Start the Challenge Server
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-5-test-your-detector-script" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Step 5: Test Your Detector Script
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#important-notes" class="md-nav__link">
+  <a href="#submission-files" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Important Notes
+        Submission Files
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fast-local-checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fast Local Checks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configure-the-challenge" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configure the Challenge
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#start-and-score" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Start and Score
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#optional-v1-compatibility-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Optional V1 Compatibility Test
       
     </span>
   </a>
@@ -4147,6 +4099,20 @@
         <span class="md-tag">challenges</span>
       
     
+      
+      
+      
+      
+        <span class="md-tag">flowradar</span>
+      
+    
+      
+      
+      
+      
+        <span class="md-tag">vpn-detection</span>
+      
+    
   </nav>
 
 
@@ -4154,62 +4120,134 @@
   
 
 
-<h1 id="flowradar-vpn-detection-testing-manual">FlowRadar VPN Detection Testing Manual</h1>
-<p>This manual provides instructions for testing the FlowRadar VPN detection challenge using Docker and Docker Compose.</p>
-<h2 id="overview">Overview</h2>
-<ul>
-<li>Tests are designed to evaluate the effectiveness of your VPN detection implementation.</li>
-<li>Uses Docker for easy submission and testing</li>
-</ul>
-<h2 id="quick-start-guide">Quick Start Guide</h2>
-<h3 id="prerequisites">Prerequisites</h3>
+<h1 id="flowradar-v2-testing-manual">FlowRadar v2 Testing Manual</h1>
+<h2 id="prerequisites">Prerequisites</h2>
 <ul>
 <li>Docker</li>
 <li>Docker Compose</li>
+<li>Git</li>
+<li>Git LFS</li>
+<li>Python 3.10 or newer for direct script checks</li>
 </ul>
-<h3 id="step-0-clone-the-repository-skip-if-you-cloned-already">Step 0: Clone the Repository [skip if you cloned already]</h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>git<span class="w"> </span>clone<span class="w"> </span>git@github.com:RedTeamSubnet/flowradar-challenge.git<span class="w"> </span>flowradar
+<h2 id="clone-and-download-data">Clone and Download Data</h2>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>git<span class="w"> </span>clone<span class="w"> </span>git@github.com:RedTeamSubnet/flowradar-challenge.git<span class="w"> </span>flowradar
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nb">cd</span><span class="w"> </span>flowradar
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>git<span class="w"> </span>lfs<span class="w"> </span>pull
 </span></code></pre></div>
-<h3 id="step-1-provide-your-submissionpy-script">Step 1: Provide Your <code>submission.py</code> Script</h3>
-<ul>
-<li>Paste your <code>submission.py</code> script into <strong>src/flr_challenge/challenge/flowradar/src</strong> folder.</li>
-</ul>
-<h3 id="step-2-update-configuration-files">Step 2: Update Configuration Files</h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>cp<span class="w"> </span>.env.example<span class="w"> </span>.env
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>cp<span class="w"> </span>./templates/compose/compose.override.dev.yml<span class="w"> </span>./compose.override.yml
+<p>Confirm these files exist:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>volumes/storage/flowradar-challenge/data/v2_train_data.csv
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>volumes/storage/flowradar-challenge/data/v2_test_data.csv
 </span></code></pre></div>
-<h3 id="step-3-setting-up-environmental-variables">Step 3: Setting up environmental variables</h3>
-<ul>
-<li>Change <code>FLR_CHALLENGE_API_KEY</code> with your own preferred API key. You can use any string as API key, but make sure to update it in your detection scripts as well.</li>
-</ul>
-<h3 id="step-4-start-the-challenge-server">Step 4: Start the Challenge Server</h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>challenge-api
+<p><code>v2_train_data.csv</code> is mandatory for training. Do not replace it with v1 data.</p>
+<h2 id="submission-files">Submission Files</h2>
+<p>Implement:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>src/flr_challenge/challenge/flowradar/src/train.py
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>src/flr_challenge/challenge/flowradar/src/submissions.py
 </span></code></pre></div>
-<h3 id="step-5-test-your-detector-script">Step 5: Test Your Detector Script</h3>
-<ul>
-<li>Visit <a href="https://localhost:10001/docs">https://localhost:10001/docs</a></li>
-<li>Authenticate using provided authentication API that you put into the <code>.env</code> with <code>FLR_CHALLENGE_API_KEY</code> variable.
-    <img alt="alt text" src="https://github.com/RedTeamSubnet/historical-fingerprinter-challenge/blob/08e3deea03d551a5d97b9f93c41b7b31a5c2ee01/docs/images/image.png?raw=true" /></li>
-<li>Test your detection files by running the <code>/score</code> endpoint</li>
-</ul>
-<h2 id="important-notes">Important Notes</h2>
-<ul>
-<li>The server runs on port 10001 by default</li>
-<li>Make sure port 10001 is available on your system</li>
-<li>All interactions are logged for analysis. Miners can check logs by running <code>docker compose logs -f</code></li>
-<li>All commands must be executed from challenge's root directory.</li>
-<li>If you want score justification, you can check all results with <code>results</code> endpoint after running the <code>score</code> endpoint.</li>
-</ul>
+<p>The miner output shape is:</p>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">{</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="nt">&quot;commit_files&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="p">{</span><span class="nt">&quot;file_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;train.py&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;...&quot;</span><span class="p">},</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="p">{</span><span class="nt">&quot;file_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;submissions.py&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;...&quot;</span><span class="p">}</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">  </span><span class="p">]</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="p">}</span>
+</span></code></pre></div>
+<h2 id="fast-local-checks">Fast Local Checks</h2>
+<p>Compile both scripts:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>py_compile<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span>src/flr_challenge/challenge/flowradar/src/train.py<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span>src/flr_challenge/challenge/flowradar/src/submissions.py
+</span></code></pre></div>
+<p>Run training directly:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>python3<span class="w"> </span>src/flr_challenge/challenge/flowradar/src/train.py<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span>volumes/storage/flowradar-challenge/data/v2_train_data.csv<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">  </span>/tmp/flowradar_model.json
+</span></code></pre></div>
+<p>Validate the model:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>json.tool<span class="w"> </span>/tmp/flowradar_model.json<span class="w"> </span>&gt;/dev/null
+</span></code></pre></div>
+<h2 id="configure-the-challenge">Configure the Challenge</h2>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>cp<span class="w"> </span>.env.example<span class="w"> </span>.env
+</span></code></pre></div>
+<p>Production-equivalent dataset configuration:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>FLR_CHALLENGE_TRAIN_CSV_PATH=&quot;{data_dir}/v2_train_data.csv&quot;
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>FLR_CHALLENGE_TEST_CSV_PATH=&quot;{data_dir}/v2_test_data.csv&quot;
+</span></code></pre></div>
+<p>Set <code>FLR_CHALLENGE_API_KEY</code> in <code>.env</code>.</p>
+<h2 id="start-and-score">Start and Score</h2>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>--build<span class="w"> </span>--remove-orphans
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>python3<span class="w"> </span>skills/challenge-score/scripts/check_score.py
+</span></code></pre></div>
+<p>The helper reads both Python files, builds <code>miner_output.commit_files</code>, and
+calls <code>/score</code>.</p>
+<p>Useful endpoints:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>GET  http://localhost:10001/health
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>GET  http://localhost:10001/status
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>POST http://localhost:10001/score
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>GET  http://localhost:10001/results
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>GET  http://localhost:10001/telemetry
+</span></code></pre></div>
+<h2 id="optional-v1-compatibility-test">Optional V1 Compatibility Test</h2>
+<p>V1 test data uses 34 columns and label <code>is_vpn</code>. Convert it to the v2 shape:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>python3<span class="w"> </span>-<span class="w"> </span><span class="s">&lt;&lt;&#39;PY&#39;</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="s">from pathlib import Path</span>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="s">import pandas as pd</span>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="s">data_dir = Path(&quot;volumes/storage/flowradar-challenge/data&quot;)</span>
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="s">v1 = pd.read_csv(data_dir / &quot;v1_test_data.csv&quot;)</span>
+</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="s">v2_columns = pd.read_csv(data_dir / &quot;v2_train_data.csv&quot;, nrows=0).columns</span>
+</span><span id="__span-11-9"><a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>
+</span><span id="__span-11-10"><a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a><span class="s">v1 = v1.rename(columns={&quot;is_vpn&quot;: &quot;vpn_is_enabled&quot;})</span>
+</span><span id="__span-11-11"><a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a><span class="s">v1 = v1.reindex(columns=v2_columns)</span>
+</span><span id="__span-11-12"><a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a><span class="s">v1.to_csv(data_dir / &quot;v1_test_v2_shape.csv&quot;, index=False)</span>
+</span><span id="__span-11-13"><a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a><span class="s">PY</span>
+</span></code></pre></div>
+<p>Keep production training unchanged:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>FLR_CHALLENGE_TRAIN_CSV_PATH=&quot;{data_dir}/v2_train_data.csv&quot;
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>FLR_CHALLENGE_TEST_CSV_PATH=&quot;{data_dir}/v1_test_v2_shape.csv&quot;
+</span></code></pre></div>
+<p>This is only a compatibility test. Restore <code>v2_test_data.csv</code> for final
+production-equivalent scoring.</p>
 <h2 id="troubleshooting">Troubleshooting</h2>
-<p>If you encounter issues:</p>
-<ol>
-<li>Check if Docker is running</li>
-<li>Verify port 10001 is not in use</li>
-<li>Check Docker logs using <code>docker compose logs</code></li>
-<li>Ensure you have proper permissions to run Docker commands</li>
-<li>If you got lower or higher score than expected, you can check the justification of your score by running <code>results</code> endpoint after running the <code>score</code> endpoint. You can also check the logs for more details on how your detection script performed against the test cases.</li>
-</ol>
+<p>Missing training data:</p>
+<ul>
+<li>Run <code>git lfs pull</code>.</li>
+<li>Confirm <code>v2_train_data.csv</code> is a real CSV, not a small LFS pointer file.</li>
+</ul>
+<p>Invalid miner output:</p>
+<ul>
+<li>Include exactly <code>train.py</code> and <code>submissions.py</code>.</li>
+<li>Use <code>file_name</code> and <code>content</code>.</li>
+<li>Do not include additional files or path-based names.</li>
+</ul>
+<p>Invalid model:</p>
+<ul>
+<li>Write valid JSON to the second trainer argument.</li>
+<li>Keep it within the configured size limit.</li>
+</ul>
+<p>Embedded model weights:</p>
+<ul>
+<li>Do not include pretrained parameters, encoded model blobs, learned
+  coefficients, or fallback weights in either submitted file.</li>
+<li>Generate all learned weights from <code>v2_train_data.csv</code> during the current
+  scoring run.</li>
+<li>Use only the generated <code>model</code> argument in <code>submissions.py</code>.</li>
+</ul>
+<p>Inference errors:</p>
+<ul>
+<li>Return a Python boolean.</li>
+<li>Handle missing fields and JSON <code>null</code>.</li>
+<li>Do not expect <code>vpn_is_enabled</code> inside inference features.</li>
+</ul>
+<p>Training timeout:</p>
+<ul>
+<li>Keep training within <code>FLR_CHALLENGE_TRAINING_TIMEOUT_SECONDS</code>.</li>
+<li>Increasing the local timeout does not change production limits.</li>
+</ul>
+<p>Inspect logs:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>challenge-api
+</span></code></pre></div>
 
 
 
@@ -4252,7 +4290,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../" class="md-footer__link md-footer__link--prev" aria-label="Previous: FlowRadar VPN Detection Challenge">
+          <a href="../v2/" class="md-footer__link md-footer__link--prev" aria-label="Previous: FlowRadar v2">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -4262,20 +4300,20 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                FlowRadar VPN Detection Challenge
+                FlowRadar v2
               </div>
             </div>
           </a>
         
         
           
-          <a href="../v1/" class="md-footer__link md-footer__link--next" aria-label="Next: FlowRadar v1">
+          <a href="../../historical_fingerprinter/" class="md-footer__link md-footer__link--next" aria-label="Next: Historical Fingerprinter Challenge">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                FlowRadar v1
+                Historical Fingerprinter Challenge
               </div>
             </div>
             <div class="md-footer__button md-icon">

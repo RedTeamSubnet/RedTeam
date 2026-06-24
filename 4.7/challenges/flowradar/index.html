@@ -16,7 +16,7 @@
         <link rel="prev" href="../ab_sniffer/deprecated/v5/">
       
       
-        <link rel="next" href="testing_manuals/">
+        <link rel="next" href="v2/">
       
       
         
@@ -1866,6 +1866,8 @@
       
         
       
+        
+      
     
     
     
@@ -1927,6 +1929,34 @@
   
   
     <li class="md-nav__item">
+      <a href="v2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FlowRadar v2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="testing_manuals/" class="md-nav__link">
         
   
@@ -1955,14 +1985,14 @@
   
   
     <li class="md-nav__item">
-      <a href="v1/" class="md-nav__link">
+      <a href="../.." class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    FlowRadar v1
+    Deprecated
   
 
     
@@ -3832,10 +3862,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#what-you-build" class="md-nav__link">
+  <a href="#production-data" class="md-nav__link">
     <span class="md-ellipsis">
       
-        What You Build
+        Production Data
       
     </span>
   </a>
@@ -3843,10 +3873,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#data" class="md-nav__link">
+  <a href="#submission-shape" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Data
+        Submission Shape
       
     </span>
   </a>
@@ -3854,10 +3884,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#challenge-flow-high-level" class="md-nav__link">
+  <a href="#challenge-flow" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Challenge Flow (High Level)
+        Challenge Flow
       
     </span>
   </a>
@@ -3923,6 +3953,20 @@
         <span class="md-tag">challenges</span>
       
     
+      
+      
+      
+      
+        <span class="md-tag">flowradar</span>
+      
+    
+      
+      
+      
+      
+        <span class="md-tag">vpn-detection</span>
+      
+    
   </nav>
 
 
@@ -3931,40 +3975,75 @@
 
 
 <h1 id="flowradar-vpn-detection-challenge">FlowRadar VPN Detection Challenge</h1>
+<p><img alt="FlowRadar v2 poster" src="../../assets/images/flowradar-v2-poster.png" /></p>
 <h2 id="overview">Overview</h2>
-<p>FlowRadar is a VPN detection challenge. Miners receive network flow features as JSON and must return a single boolean indicating VPN usage.</p>
-<h2 id="what-you-build">What You Build</h2>
-<p>You submit a single <code>submission.py</code> file that implements a VPN detector. The system sends one network flow at a time to your API and expects:</p>
-<div class="language-json highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">{</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="nt">&quot;is_vpn&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">}</span>
-</span></code></pre></div>
-<h2 id="data">Data</h2>
-<ul>
-<li><strong>Training data</strong>: ~51k rows extracted from open-source MIT datasets (collected in 2022)</li>
-<li><strong>Testing data</strong>: internal production dataset collected with modern top VPN providers</li>
-</ul>
-<p>Training data is for local experimentation. Testing data is used for production scoring.</p>
-<h2 id="challenge-flow-high-level">Challenge Flow (High Level)</h2>
+<p>FlowRadar is a network-flow classification challenge for detecting VPN
+traffic. FlowRadar v2 introduces a two-stage miner pipeline:</p>
 <ol>
-<li>Your submission is packaged into a container with a <code>/vpn_detector</code> endpoint.</li>
-<li>The scoring system iterates through flow rows and posts each flow as JSON.</li>
-<li>Your response is compared against ground-truth labels.</li>
-<li>Score is computed using F1.</li>
+<li>Train a model from the mandatory production training dataset.</li>
+<li>Use the generated model to classify production test flows.</li>
+</ol>
+<p>Miners submit two Python files through <code>miner_output.commit_files</code>:</p>
+<ul>
+<li><code>train.py</code></li>
+<li><code>submissions.py</code></li>
+</ul>
+<p>The challenge runs both files inside an isolated FlowRadar container. Miner
+Python is never executed by the main challenge API process.</p>
+<h2 id="production-data">Production Data</h2>
+<ul>
+<li>Training: <code>v2_train_data.csv</code></li>
+<li>100,000 rows</li>
+<li>110 columns</li>
+<li>label: <code>vpn_is_enabled</code></li>
+<li>Scoring: <code>v2_test_data.csv</code></li>
+<li>400,000 rows</li>
+<li>same v2 schema</li>
+</ul>
+<p>The production training dataset is mandatory. Miners cannot replace it or
+select another training file.</p>
+<h2 id="submission-shape">Submission Shape</h2>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">{</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="nt">&quot;miner_output&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="nt">&quot;commit_files&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">      </span><span class="p">{</span><span class="nt">&quot;file_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;train.py&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;...&quot;</span><span class="p">},</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">      </span><span class="p">{</span><span class="nt">&quot;file_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;submissions.py&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;...&quot;</span><span class="p">}</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="p">]</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>Exactly these two files are required. Duplicate names, additional files,
+path-based names, and empty content are rejected.</p>
+<p>Embedding pretrained or externally generated learned weights in either file is
+prohibited. Every model must be trained from <code>v2_train_data.csv</code> during the
+current scoring run.</p>
+<h2 id="challenge-flow">Challenge Flow</h2>
+<ol>
+<li>The challenge receives <code>train.py</code> and <code>submissions.py</code>.</li>
+<li>It starts an isolated FlowRadar container.</li>
+<li>Both files and <code>v2_train_data.csv</code> are mounted read-only.</li>
+<li>The challenge calls the container's <code>POST /train</code> endpoint.</li>
+<li><code>train.py</code> writes a temporary JSON model.</li>
+<li>The challenge replays <code>v2_test_data.csv</code> through <code>/vpn_detector</code>.</li>
+<li><code>submissions.py</code> returns one boolean prediction per flow.</li>
+<li>The final score is calculated using F1.</li>
 </ol>
 <h2 id="challenge-versions">Challenge Versions</h2>
 <ul>
-<li><a href="v1/">v1 (Active)</a></li>
+<li><a href="v2/">v2 (Active)</a></li>
+<li><a href="./v1.md">v1 (Deprecated)</a></li>
 </ul>
 <h2 id="resources">Resources</h2>
 <ul>
+<li><a href="testing_manuals/">FlowRadar v2 Testing Manual</a></li>
 <li><a href="../../miner/workflow/3.build-and-publish/">Building a Submission Commit</a></li>
 <li><a href="../../miner/concepts/dashboard/">Dashboard</a></li>
 </ul>
 <h2 id="references">References</h2>
 <ul>
 <li>RedTeam Subnet: <a href="https://www.theredteam.io">https://www.theredteam.io</a></li>
-<li>FastAPI: <a href="https://fastapi.tiangolo.com">https://fastapi.tiangolo.com</a></li>
+<li>FlowRadar repository: <a href="https://github.com/RedTeamSubnet/flowradar-challenge">https://github.com/RedTeamSubnet/flowradar-challenge</a></li>
+<li>Docker: <a href="https://docs.docker.com">https://docs.docker.com</a></li>
 </ul>
 
 
@@ -4025,13 +4104,13 @@
         
         
           
-          <a href="testing_manuals/" class="md-footer__link md-footer__link--next" aria-label="Next: Testing Manual">
+          <a href="v2/" class="md-footer__link md-footer__link--next" aria-label="Next: FlowRadar v2">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Testing Manual
+                FlowRadar v2
               </div>
             </div>
             <div class="md-footer__button md-icon">
