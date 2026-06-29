@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.7.3 (2026-06-29)
+
+## Other Changes
+- updating challenge versions (@aliyuldashev)
+
 ## 4.7.2 (2026-06-24)
 
 ## Features
