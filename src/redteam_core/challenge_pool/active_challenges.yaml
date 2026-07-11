@@ -55,7 +55,7 @@ ab_sniffer_v6:
 flowradar_v2:
   name: "flowradar_v2"
   description: "Detect VPN using Network Flow data"
-  challenge_incentive_weight: 0.5
+  challenge_incentive_weight: 0.2
   challenge_image: "redteamsubnet61/flowradar-challenge:2.0.1"
   target: flr_challenge.controller.FLRController
   challenge_manager: flr_challenge.challenge_manager.FLRChallengeManager
@@ -93,6 +93,57 @@ flowradar_v2:
     network: "redteam_local"
     environment:
       CHALLENGE_NAME: "flowradar_v2"
+  protocols:
+    challenger: "http"
+    challenger_ssl_verify: false
+    miner: "http"
+    miner_ssl_verify: false
+  resource_limits:
+    num_cpus: 4
+    mem_limit: "12g"
+
+flowprint_v1:
+  name: "flowprint_v1"
+  description: "OS classification via network flow data"
+  challenge_incentive_weight: 0.3
+  challenge_image: "redteamsubnet61/flowprint-challenge:1.0.0"
+  target: flp_challenge.controller.FLPController
+  challenge_manager: flp_challenge.challenge_manager.FLPChallengeManager
+  script_path_identifier: "commit_files"
+  challenge_type: "flp"
+  challenge_solve_timeout: 60
+  docker_run_timeout: 900
+  num_tasks: 1
+  scoring_headers:
+    X-API-KEY: "${RT_CHALLENGE_API_KEY}"
+  comparison_config:
+    max_unique_commits: 15
+    max_self_comparison_score: 0.8
+    min_acceptable_score: 0.6
+  challenge_container_run_kwargs:
+    name: "flowprint_v1"
+    platform: "linux/amd64"
+    ulimits:
+      - Name: "nofile"
+        Soft: 65536
+        Hard: 65536
+    privileged: true
+    environment:
+      ENV: "PRODUCTION"
+      FLP_API_DATA_DIR: "/var/lib/flowprint-challenge"
+      FLP_CHALLENGE_TEST_CSV_PATH: "{data_dir}/v1_test_data.csv"
+      FLP_CHALLENGE_TRAIN_CSV_PATH: "{data_dir}/v1_train_data.csv"
+      FLP_CHALLENGE_API_KEY: "${RT_CHALLENGE_API_KEY}"
+      FLP_CHALLENGE_TRAINING_TIMEOUT_SECONDS: 600
+    volumes:
+      - "${RT_CHALLENGE_LOGS_DIR}:/var/log/flowprint-challenge"
+      - "${FLP_API_DATA_DIR}:/var/lib/flowprint-challenge"
+  miner_container_run_kwargs:
+    cpu_count: 4
+    mem_limit: "12g"
+    network: "redteam_local"
+    environment:
+      CHALLENGE_NAME: "flowprint_v1"
   protocols:
     challenger: "http"
     challenger_ssl_verify: false

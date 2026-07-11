@@ -4,3 +4,6 @@
 [submodule "src/challenges/ab_sniffer"]
 	path = src/challenges/ab_sniffer
 	url = https://github.com/RedTeamSubnet/ab-sniffer-challenge.git
+[submodule "src/challenges/flowprint"]
+	path = src/challenges/flowprint
+	url = https://github.com/RedTeamSubnet/flowprint-challenge.git
