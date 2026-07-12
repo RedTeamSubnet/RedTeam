@@ -131,8 +131,8 @@ flowprint_v1:
     environment:
       ENV: "PRODUCTION"
       FLP_API_DATA_DIR: "/var/lib/flowprint-challenge"
-      FLP_CHALLENGE_TEST_CSV_PATH: "{data_dir}/v1_test_data.csv"
-      FLP_CHALLENGE_TRAIN_CSV_PATH: "{data_dir}/v1_train_data.csv"
+      FLP_CHALLENGE_TEST_CSV_PATH: "{data_dir}/flow_data_test_200k.csv"
+      FLP_CHALLENGE_TRAIN_CSV_PATH: "{data_dir}/flow_data_train_150k.csv"
       FLP_CHALLENGE_API_KEY: "${RT_CHALLENGE_API_KEY}"
       FLP_CHALLENGE_TRAINING_TIMEOUT_SECONDS: 600
     volumes:
