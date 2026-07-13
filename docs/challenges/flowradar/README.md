@@ -69,7 +69,7 @@ current scoring run.
 ## Challenge Versions
 
 - [v2 (Active)](./v2.md)
-- [v1 (Deprecated)](./v1.md)
+- [v1 (Deprecated)](./depricated/v1.md)
 
 ## Resources
 

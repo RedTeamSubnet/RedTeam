@@ -3,4 +3,4 @@ nav:
   - v2.md
   - testing_manuals.md
   - Deprecated:
-      - v1.md
+      - v1: depricated/v1.md

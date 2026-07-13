@@ -77,7 +77,7 @@ Miner TAO = 0.41 × Subnet_TAO_Emission × (Miner_Ranking / Total_Rankings)
 
 ## Related Topics
 
-- See [Mining in Bittensor](../miners) for registration and participation details
+- See [Mining in Bittensor](../README.md) for registration and participation details
 - See [Dashboard](dashboard.md) for monitoring submission performance and rewards
 - See [Lifecycle](lifecycle.md) for the complete miner journey
 - Visit [TAO.app](https://tao.app) for current subnet emissions and flows

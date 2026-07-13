@@ -52,7 +52,7 @@ Place your detection module files in this directory before building your commit:
 
 **Deprecated:**
 
-- [v5 (Dec 02, 2025)](./v5.md)
+- [v5 (Dec 02, 2025)](./deprecated/v5.md)
 - [v4 (Oct 16, 2025)](./deprecated/v4.md)
 - [v2 (July 15, 2025)](./deprecated/v2.md)
 - [v1 (June 10, 2025)](./deprecated/v1.md)
