@@ -295,8 +295,7 @@ class Controller:
             reference_log = reference_commit.scoring_logs[0]
 
             if (
-                reference_log.miner_input is None
-                or reference_log.miner_output is None
+                reference_log.miner_output is None
                 or not miner_commit.scoring_logs
                 or miner_commit.scoring_logs[0].miner_output is None
             ):
@@ -483,7 +482,10 @@ class Controller:
             )
             if response.status_code == 404:
                 bt.logging.warning("No accepted submission to compare against.")
-                return None
+                return {
+                    "similarity_score": 0.0,
+                    "reason": "No accepted submission to compare against.",
+                }
 
             response_data = response.json()
             data = response_data.get("data", [])
@@ -599,7 +601,10 @@ class Controller:
             )
             if response.status_code == 404:
                 bt.logging.warning("No accepted submission to compare against.")
-                return None
+                return {
+                    "similarity_score": 0.0,
+                    "reason": "No accepted submission to compare against.",
+                }
 
             response_data = response.json()
             data = response_data.get("data", [])
