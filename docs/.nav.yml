@@ -5,7 +5,8 @@ nav:
   - Validator: validator/
   - Challenges: challenges/
   - Manuals: manuals/
-  # - "*"
-  # - Development: dev/
+  - Development: dev/
+  - Diagrams: diagrams/
+  - Superpowers: superpowers/
   - release-notes.md
   - About: about/
