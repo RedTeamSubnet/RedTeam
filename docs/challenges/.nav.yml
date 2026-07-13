@@ -2,8 +2,8 @@ nav:
   - README.md
   - Active Challenges:
       - ab_sniffer: ./ab_sniffer
-      - flowradar vpn detection: ./flowradar
-      - flowprint os classification: ./flowprint
+      - flowradar: ./flowradar
+      - flowprint: ./flowprint
   - Inactive Challenges:
       - historical_fingerprinter: ./historical_fingerprinter
       - dev_fingerprinter: ./dev_fingerprinter
