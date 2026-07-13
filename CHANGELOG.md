@@ -1,5 +1,20 @@
 # Changelog
 
+## 4.7.4 (2026-07-13)
+
+## Features
+- Add FlowPrint OS classification challenge documentation and resources (@aliyuldashev)
+- Add flowprint challenge and update related configurations (@abdibekbolot)
+
+## Bug Fixes
+- Update links to deprecated challenge documentation for consistency (@aliyuldashev)
+- Update flowprint challenge CSV paths and improve error handling in controller (@aliyuldashev)
+- Standardize challenge names in navigation file (@aliyuldashev)
+- Update flowprint challenge CSV paths for training and testing data (@abdibekbolot)
+
+## Other Changes
+- Update subproject commit reference for flowprint challenge (@aliyuldashev)
+
 ## 4.7.3 (2026-06-29)
 
 ## Other Changes
