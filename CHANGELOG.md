@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.7.5 (2026-07-14)
+
+## Other Changes
+- update flowradar challenge image version to 2.0.2 (@aliyuldashev)
+
 ## 4.7.4 (2026-07-13)
 
 ## Features
