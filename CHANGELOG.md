@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.7.6 (2026-07-15)
+
+## Other Changes
+- Update flowprint challenge image version to 1.0.1 (@aliyuldashev)
+
 ## 4.7.5 (2026-07-14)
 
 ## Other Changes
