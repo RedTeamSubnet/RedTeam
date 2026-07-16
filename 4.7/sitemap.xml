@@ -2,306 +2,302 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://docs.theredteam.io/4.7/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/release-notes/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/about/authors/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/about/contact/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/about/faq/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/about/license/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/challenges/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/challenges/ab_sniffer/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/challenges/ab_sniffer/testing_manuals/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/challenges/ab_sniffer/v6/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/challenges/ab_sniffer/deprecated/v1/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/challenges/ab_sniffer/deprecated/v2/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/challenges/ab_sniffer/deprecated/v4/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/challenges/ab_sniffer/deprecated/v5/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/challenges/ada_detection/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/challenges/ada_detection/testing_manuals/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/challenges/ada_detection/depricated/v1/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/challenges/ada_detection/depricated/v2/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/challenges/dev_fingerprinter/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/challenges/dev_fingerprinter/testing_manuals/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/challenges/dev_fingerprinter/v2/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/challenges/dev_fingerprinter/deprecated/dev_fingerprinter_v1/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/challenges/dev_fingerprinter/deprecated/device_fingerprinting_overview/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/challenges/flowprint/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/challenges/flowprint/testing_manuals/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/challenges/flowprint/v1/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/challenges/flowradar/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/challenges/flowradar/testing_manuals/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/challenges/flowradar/v2/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/challenges/flowradar/depricated/v1/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/challenges/historical_fingerprinter/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/challenges/historical_fingerprinter/testing_manuals/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/challenges/historical_fingerprinter/v2/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/challenges/historical_fingerprinter/depricated/v1/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/challenges/humanize_behaviour/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/challenges/humanize_behaviour/testing_manuals/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/challenges/humanize_behaviour/v5/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/challenges/humanize_behaviour/deprecated/v1/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/challenges/humanize_behaviour/deprecated/v2/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/challenges/humanize_behaviour/deprecated/v3/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/dev/contributing/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/dev/related-projects/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/dev/roadmap/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/diagrams/humanize_behaviour/flow.general/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/diagrams/humanize_behaviour/flow.small/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/getting-started/miner/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/getting-started/validator/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/manuals/troubleshooting/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/manuals/bittensor/wallet/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/manuals/bittensor/wallet/create/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/manuals/bittensor/wallet/fund/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/manuals/bittensor/wallet/register/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/manuals/installation/docker/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/manuals/installation/miniconda/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/manuals/installation/nvm/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/manuals/installation/pm2/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/miner/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/miner/concepts/comparison/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/miner/concepts/dashboard/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/miner/concepts/dockerhubpat/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/miner/concepts/incentive/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/miner/concepts/lifecycle/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/miner/concepts/reveal-interval/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/miner/concepts/submission-templates/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/miner/concepts/validation/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/miner/workflow/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/miner/workflow/1.preparation/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/miner/workflow/2.develop-solution/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/miner/workflow/3.build-and-publish/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/miner/workflow/4.submit-commit/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/miner/workflow/5.monitor-and-reward/</loc>
-         <lastmod>2026-07-13</lastmod>
-    </url>
-    <url>
-         <loc>https://docs.theredteam.io/4.7/superpowers/specs/2026-05-16-cicd-versioning-standardization-design/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/validator/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/validator/deployment/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/validator/resources/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
     <url>
          <loc>https://docs.theredteam.io/4.7/validator/troubleshooting/</loc>
-         <lastmod>2026-07-13</lastmod>
+         <lastmod>2026-07-16</lastmod>
     </url>
 </urlset>
