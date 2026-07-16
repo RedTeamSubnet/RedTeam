@@ -7,5 +7,4 @@ __all__ = [
     "Commit",
     "MainConfig",
     "constants",
-    "constant_docs",
 ]
