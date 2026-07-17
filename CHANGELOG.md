@@ -1,5 +1,13 @@
 # Changelog
 
+## 4.7.7 (2026-07-17)
+
+## Features
+- remove flowradar challenge and update related configurations (@aliyuldashev)
+
+## Other Changes
+- update navigation and remove outdated CI/CD design spec (@abdibekbolot)
+
 ## 4.7.6 (2026-07-15)
 
 ## Other Changes
