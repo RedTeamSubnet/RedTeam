@@ -11,7 +11,7 @@ class ChallengeManager:
     Manages a single challenge, including miners' submissions, scores, records and unique solutions set for comparison.
     """
 
-    def __init__(self, challenge_info: dict, metagraph: bt.metagraph):
+    def __init__(self, challenge_info: dict, metagraph: bt.Metagraph):
         self.challenge_info = challenge_info
         self.challenge_name = challenge_info["name"]
         self.challenge_incentive_weight = challenge_info["challenge_incentive_weight"]
@@ -122,18 +122,25 @@ class ChallengeManager:
         Returns:
             dict: A dictionary containing the serialized state
         """
+
         def _serialize_miner_state(miner_state: MinerChallengeInfo) -> dict:
             if public_view:
                 return miner_state.public_view().model_dump()
 
-            state_data = miner_state.model_dump(exclude={"latest_commit", "best_commit"})
+            state_data = miner_state.model_dump(
+                exclude={"latest_commit", "best_commit"}
+            )
             if miner_state.latest_commit:
-                state_data["latest_commit"] = miner_state.latest_commit.state_view().model_dump()
+                state_data["latest_commit"] = (
+                    miner_state.latest_commit.state_view().model_dump()
+                )
             else:
                 state_data["latest_commit"] = None
 
             if miner_state.best_commit:
-                state_data["best_commit"] = miner_state.best_commit.state_view().model_dump()
+                state_data["best_commit"] = (
+                    miner_state.best_commit.state_view().model_dump()
+                )
             else:
                 state_data["best_commit"] = None
 
@@ -159,7 +166,7 @@ class ChallengeManager:
 
     @classmethod
     def load_state(
-        cls, state: dict, challenge_info: dict, metagraph: bt.metagraph
+        cls, state: dict, challenge_info: dict, metagraph: bt.Metagraph
     ) -> "ChallengeManager":
         """
         Creates a new ChallengeManager instance from a serialized state.
@@ -167,7 +174,7 @@ class ChallengeManager:
         Args:
             state (dict): The serialized state dictionary
             challenge_info (dict): The challenge configuration info
-            metagraph (bt.metagraph): The Bittensor metagraph
+            metagraph (bt.Metagraph): The Bittensor metagraph
 
         Returns:
             ChallengeManager: A new instance with the loaded state

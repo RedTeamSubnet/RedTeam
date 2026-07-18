@@ -11,7 +11,7 @@ from redteam_core.validator.challenge_manager import ChallengeManager
 class MinerManager:
     def __init__(
         self,
-        metagraph: bt.metagraph,
+        metagraph: bt.Metagraph,
         challenge_managers: dict[str, ChallengeManager] = {},
     ):
         """

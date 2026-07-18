@@ -7,10 +7,9 @@ from typing import Callable
 import bittensor as bt
 from pydantic import BaseModel
 
+
 def create_validator_request_header_fn(
-    validator_uid: int,
-    validator_hotkey: str,
-    keypair: bt.Keypair
+    validator_uid: int, validator_hotkey: str, keypair: bt.Keypair
 ) -> Callable[[Union[bytes, str, dict, BaseModel]], str]:
     """
     Creates a validator request header function.
@@ -32,7 +31,9 @@ def create_validator_request_header_fn(
         elif isinstance(body, dict):
             body_hash = hashlib.sha256(json.dumps(body).encode("utf-8")).hexdigest()
         elif isinstance(body, BaseModel):
-            body_hash = hashlib.sha256(body.model_dump_json().encode("utf-8")).hexdigest()
+            body_hash = hashlib.sha256(
+                body.model_dump_json().encode("utf-8")
+            ).hexdigest()
 
         signature = "0x" + keypair.sign(f"{body_hash}.{timestamp}").hex()
 
