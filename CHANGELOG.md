@@ -1,5 +1,15 @@
 # Changelog
 
+## 4.7.8 (2026-07-18)
+
+## Bug Fixes
+- update type hints for Bittensor Metagraph in challenge and miner managers; improve formatting in utils (@aliyuldashev)
+- uncomment challenge dependencies in requirements.txt (@aliyuldashev)
+
+## Other Changes
+- update subproject commits for ab_sniffer and flowprint challenges; update requirements for abs_challenge and flp_challenge (@aliyuldashev)
+- update challenge dependencies to specific commit hashes in requirements.txt (@aliyuldashev)
+
 ## 4.7.7 (2026-07-17)
 
 ## Features
