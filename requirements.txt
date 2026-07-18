@@ -7,4 +7,4 @@ python-dotenv>=1.0.1,<2.0.0
 pydantic[email,timezone]>=2.0.3,<3.0.0
 pydantic-settings>=2.8.1,<3.0.0
 abs_challenge @ git+https://github.com/RedTeamSubnet/ab-sniffer-challenge.git@v6.0.3
-flp_challenge @ git+https://github.com/RedTeamSubnet/flowprint-challenge.git@v1.0.3
+flp_challenge @ git+https://github.com/RedTeamSubnet/flowprint-challenge.git@v1.0.2
