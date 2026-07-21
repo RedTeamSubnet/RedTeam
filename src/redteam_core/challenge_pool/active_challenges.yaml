@@ -56,7 +56,7 @@ flowprint_v1:
   name: "flowprint_v1"
   description: "OS classification via network flow data"
   challenge_incentive_weight: 0.5
-  challenge_image: "redteamsubnet61/flowprint-challenge:1.0.1"
+  challenge_image: "redteamsubnet61/flowprint-challenge:1.0.3"
   target: flp_challenge.controller.FLPController
   challenge_manager: flp_challenge.challenge_manager.FLPChallengeManager
   script_path_identifier: "commit_files"
