@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.7.9 (2026-07-18)
+
+## Other Changes
+- Downgrade flp_challenge dependency to version 1.0.2 in requirements.txt (@aliyuldashev)
+
 ## 4.7.8 (2026-07-18)
 
 ## Bug Fixes
