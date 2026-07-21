@@ -1,5 +1,13 @@
 # Changelog
 
+## 4.7.10 (2026-07-21)
+
+## Other Changes
+- Merge remote-tracking branch 'origin/main' (@aliyuldashev)
+- chore: update dataset remove some columns (@aliyuldashev)
+- deps: update flowprint challenge image to version 1.0.3 (@aliyuldashev)
+- Merge remote-tracking branch 'origin/main' into dev (@aliyuldashev)
+
 ## 4.7.9 (2026-07-18)
 
 ## Other Changes
