@@ -52,55 +52,33 @@ class MinerManager:
                 weights_to_redistribute += manager.challenge_incentive_weight
             else:
                 valid_weights_sum += manager.challenge_incentive_weight
-                valid_challenges.append(manager)
+                valid_challenges.append((manager, challenge_scores))
 
+        for manager, challenge_scores in valid_challenges:
             normalized_challenge_scores = self.exclude_same_miner(
                 challenge_scores, docker_usernames=docker_usernames
             )
+            redistributed_weight = (
+                weights_to_redistribute
+                * manager.challenge_incentive_weight
+                / valid_weights_sum
+                if valid_weights_sum > 0
+                else 0.0
+            )
+            effective_weight = manager.challenge_incentive_weight + redistributed_weight
             bt.logging.info(
-                f"Challenge {manager.challenge_name} challenge_scores: {normalized_challenge_scores.tolist()}"
+                f"Challenge {manager.challenge_name} challenge_scores: {normalized_challenge_scores.tolist()}, "
+                f"effective_weight: {effective_weight}"
             )
-            aggregated_scores += (
-                normalized_challenge_scores * manager.challenge_incentive_weight
-            )
-        self.weights_to_redistribute = weights_to_redistribute
+            aggregated_scores += normalized_challenge_scores * effective_weight
+
+        self.weights_to_redistribute = (
+            weights_to_redistribute if valid_weights_sum == 0 else 0.0
+        )
         bt.logging.debug(
             f"Aggregated challenge scores: {aggregated_scores.tolist()}, valid_weights_sum: {valid_weights_sum}, weights_to_redistribute: {weights_to_redistribute}"
         )
         return aggregated_scores
-
-    def _get_alpha_stake_scores(self, n_uids: int) -> np.ndarray:
-        """
-        Returns a numpy array of scores based on alpha stake, high for more stake.
-        Uses square root transformation to reduce the impact of very high stakes, encourage small holders.
-        """
-        scores = np.zeros(n_uids)
-        sqrt_alpha_stakes = np.sqrt(self.metagraph.alpha_stake)
-
-        # Segment scores by coldkey
-        coldkey_to_uids = {}
-        for uid, coldkey in enumerate(self.metagraph.coldkeys):
-            if coldkey not in coldkey_to_uids:
-                coldkey_to_uids[coldkey] = []
-            coldkey_to_uids[coldkey].append(uid)
-
-        # Sum up sqrt stakes for each coldkey and assign to first UID
-        for coldkey, uids in coldkey_to_uids.items():
-            total_sqrt_stake = sum(sqrt_alpha_stakes[uid] for uid in uids)
-            scores[uids[0]] = total_sqrt_stake
-
-            # Zero out other UIDs for this coldkey
-            for uid in uids[1:]:
-                scores[uid] = 0
-
-        # Normalize scores
-        total_scores = np.sum(scores)
-        if total_scores > 0:
-            scores = scores / total_scores
-
-        bt.logging.debug(f"Alpha stake scores: {scores.tolist()}")
-
-        return scores
 
     def exclude_same_miner(
         self,
@@ -196,27 +174,6 @@ class MinerManager:
 
         return _normalized_scores
 
-    def _get_alpha_burn_scores(self, n_uids: int) -> np.ndarray:
-        """
-        Returns a numpy array of scores based on alpha burn, high for more burn.
-        """
-        # Find owner 's hotkey
-        scores = np.zeros(n_uids)
-        try:
-            owner_hotkey = self.metagraph.owner_hotkey
-
-            owner_hotkey_index = self.metagraph.hotkeys.index(owner_hotkey)
-
-            # Set alpha burn score to 1.0
-            scores[owner_hotkey_index] = 1.0
-        except Exception as e:
-            bt.logging.error(f"Error calculating alpha burn score: {e}")
-            return np.zeros(n_uids)
-
-        bt.logging.debug(f"Alpha burn scores: {scores.tolist()}")
-
-        return scores
-
     def get_onchain_scores(self, n_uids: int, docker_usernames: dict) -> np.ndarray:
         """
         Returns a numpy array of weighted scores combining:
@@ -249,3 +206,57 @@ class MinerManager:
         bt.logging.info(f"Onchain final scores: {final_scores.tolist()}\n ")
 
         return final_scores
+
+    # def _get_alpha_stake_scores(self, n_uids: int) -> np.ndarray:
+    #     """
+    #     Returns a numpy array of scores based on alpha stake, high for more stake.
+    #     Uses square root transformation to reduce the impact of very high stakes, encourage small holders.
+    #     """
+    #     scores = np.zeros(n_uids)
+    #     sqrt_alpha_stakes = np.sqrt(self.metagraph.alpha_stake)
+
+    #     # Segment scores by coldkey
+    #     coldkey_to_uids = {}
+    #     for uid, coldkey in enumerate(self.metagraph.coldkeys):
+    #         if coldkey not in coldkey_to_uids:
+    #             coldkey_to_uids[coldkey] = []
+    #         coldkey_to_uids[coldkey].append(uid)
+
+    #     # Sum up sqrt stakes for each coldkey and assign to first UID
+    #     for coldkey, uids in coldkey_to_uids.items():
+    #         total_sqrt_stake = sum(sqrt_alpha_stakes[uid] for uid in uids)
+    #         scores[uids[0]] = total_sqrt_stake
+
+    #         # Zero out other UIDs for this coldkey
+    #         for uid in uids[1:]:
+    #             scores[uid] = 0
+
+    #     # Normalize scores
+    #     total_scores = np.sum(scores)
+    #     if total_scores > 0:
+    #         scores = scores / total_scores
+
+    #     bt.logging.debug(f"Alpha stake scores: {scores.tolist()}")
+
+    #     return scores
+
+    # def _get_alpha_burn_scores(self, n_uids: int) -> np.ndarray:
+    #     """
+    #     Returns a numpy array of scores based on alpha burn, high for more burn.
+    #     """
+    #     # Find owner 's hotkey
+    #     scores = np.zeros(n_uids)
+    #     try:
+    #         owner_hotkey = self.metagraph.owner_hotkey
+
+    #         owner_hotkey_index = self.metagraph.hotkeys.index(owner_hotkey)
+
+    #         # Set alpha burn score to 1.0
+    #         scores[owner_hotkey_index] = 1.0
+    #     except Exception as e:
+    #         bt.logging.error(f"Error calculating alpha burn score: {e}")
+    #         return np.zeros(n_uids)
+
+    #     bt.logging.debug(f"Alpha burn scores: {scores.tolist()}")
+
+    #     return scores
