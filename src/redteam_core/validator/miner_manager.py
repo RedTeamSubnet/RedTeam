@@ -232,22 +232,19 @@ class MinerManager:
             n_uids, docker_usernames=docker_usernames
         )
         # Get alpha burn scores
-        alpha_burn_scores = self._get_alpha_burn_scores(n_uids)
+        # alpha_burn_scores = self._get_alpha_burn_scores(n_uids)
 
         # fallback if no valid submissions in any challenges
-        if self.weights_to_redistribute >= 0:
-            bt.logging.info("No challenge scores, giving all weight to alpha burn")
-            alpha_burn_weight = constants.ALPHA_BURN_WEIGHT + (
-                self.weights_to_redistribute * constants.CHALLENGE_SCORES_WEIGHT
-            )
-        else:
-            alpha_burn_weight = constants.ALPHA_BURN_WEIGHT
+        # if self.weights_to_redistribute >= 0:
+        #     bt.logging.info("No challenge scores, giving all weight to alpha burn")
+        #     alpha_burn_weight = constants.ALPHA_BURN_WEIGHT + (
+        #         self.weights_to_redistribute * constants.CHALLENGE_SCORES_WEIGHT
+        #     )
+        # else:
+        #     alpha_burn_weight = constants.ALPHA_BURN_WEIGHT
 
         # Combine scores using weights from constants
-        final_scores = (
-            challenge_scores * constants.CHALLENGE_SCORES_WEIGHT
-            + alpha_burn_scores * alpha_burn_weight
-        )
+        final_scores = challenge_scores
 
         bt.logging.info(f"Onchain final scores: {final_scores.tolist()}\n ")
 
