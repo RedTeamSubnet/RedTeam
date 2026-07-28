@@ -1,5 +1,24 @@
 # Changelog
 
+## 4.8.0 (2026-07-28)
+
+## Features
+- Add user_id to comparison and submission payloads in Controller (@aliyuldashev)
+
+## Improvements
+- Comment out unused alpha burn score calculations in MinerManager (@aliyuldashev)
+- Streamline challenge score calculations and remove unused alpha score methods in MinerManager (@aliyuldashev)
+
+## Bug Fixes
+- Update documentation links and clean up __all__ in __init__.py (@aliyuldashev)
+
+## Other Changes
+- [src/challenges/flowprint] Merge branch 'main' of https://github.com/RedTeamSubnet/flowprint-challenge (@aliyuldashev)
+- [src/challenges/flowprint] Merge remote-tracking branch 'origin/main' (@aliyuldashev)
+- [src/challenges/flowprint] Update dataset remove some columns (@aliyuldashev)
+- Merge pull request #143 from RedTeamSubnet/dev (@aliyuldashev)
+- Update scoring system description to emphasize decay mechanism and remove alpha burn details (@aliyuldashev)
+
 ## 4.7.10 (2026-07-21)
 
 ## Other Changes
