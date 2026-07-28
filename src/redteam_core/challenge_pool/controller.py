@@ -309,7 +309,9 @@ class Controller:
             _reference_output = reference_log.miner_output.copy()
 
             _compare_result = self._compare_outputs(
-                miner_output=_miner_output, reference_output=_reference_output
+                miner_output=_miner_output,
+                reference_output=_reference_output,
+                user_id=miner_commit.docker_hub_id,
             )
             _similarity_score = _compare_result.get("similarity_score", 1.0)
             _similarity_reason = _compare_result.get("reason", "Unknown")
@@ -378,6 +380,7 @@ class Controller:
         try:
             payload = {
                 "miner_script": _miner_script,
+                "user_id": miner_commit.docker_hub_id,
             }
             _internal_services_url = str(constants.INTERNAL_SERVICES.API_URL).rstrip(
                 "/"
@@ -442,7 +445,7 @@ class Controller:
             )
 
     def _compare_outputs(
-        self, miner_output: dict, reference_output: dict
+        self, miner_output: dict, reference_output: dict, user_id: str | None = None
     ) -> list[dict]:
         """
         Send comparison request to challenge container's /compare endpoint.
@@ -467,6 +470,7 @@ class Controller:
                     self.challenge_info.get("script_path_identifier", None), None
                 ),
                 "identifier": self.challenge_info.get("script_path_identifier", None),
+                "user_id": user_id,
             }
             headers = {
                 "Content-Type": "application/json",
@@ -532,6 +536,7 @@ class Controller:
             _comparison_logs = self._compare_same_score_outputs(
                 miner_output=_scoring_log.miner_output,
                 reference_output=ref_commit.scoring_logs[0].miner_output,
+                user_id=miner_commit.docker_hub_id,
             )
             if (
                 "similarity_score" in _comparison_logs
@@ -554,6 +559,7 @@ class Controller:
         self,
         miner_output: dict,
         reference_output: dict,
+        user_id: str | None,
     ) -> list[dict]:
         """
         Send comparison request to challenge container's /compare endpoint.
@@ -586,6 +592,7 @@ class Controller:
                 ),
                 "miner_metadata": _miner_metadata,
                 "reference_metadata": reference_metadata,
+                "user_id": user_id,
             }
             headers = {
                 "Content-Type": "application/json",
@@ -651,6 +658,7 @@ class Controller:
                     "reference_script": _reference_output.get(
                         self.challenge_info.get("script_path_identifier", None), None
                     ),
+                    "user_id": miner_commit.docker_hub_id,
                 }
 
                 response = requests.post(
@@ -691,6 +699,7 @@ class Controller:
                 "challenge_type": self.challenge_info.get("challenge_type", None),
                 "miner_script": _miner_submission_script,
                 "identifier": self.challenge_info.get("script_path_identifier", None),
+                "user_id": miner_commit.docker_hub_id,
             }
             headers = {
                 "Content-Type": "application/json",
