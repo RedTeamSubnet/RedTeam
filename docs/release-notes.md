@@ -12,6 +12,23 @@ hide:
 - Add user_id to comparison and submission payloads in Controller (@aliyuldashev)
 
 ## Improvements
+- Streamline challenge score calculations and remove unused alpha score methods in MinerManager (@aliyuldashev)
+- Comment out unused alpha burn score calculations in MinerManager (@aliyuldashev)
+
+## Bug Fixes
+- Update documentation links and clean up __all__ in __init__.py (@aliyuldashev)
+
+## Other Changes
+- Update scoring system description to emphasize decay mechanism and remove alpha burn details (@aliyuldashev)
+- Update flp_challenge dependency to version 1.0.4 (@aliyuldashev)
+- Merge pull request #143 from RedTeamSubnet/dev (@aliyuldashev)
+
+## 4.8.0 (2026-07-28)
+
+## Features
+- Add user_id to comparison and submission payloads in Controller (@aliyuldashev)
+
+## Improvements
 - Comment out unused alpha burn score calculations in MinerManager (@aliyuldashev)
 - Streamline challenge score calculations and remove unused alpha score methods in MinerManager (@aliyuldashev)
 
