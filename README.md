@@ -24,17 +24,9 @@ We've introduced an exciting new way to score miners that rewards innovation and
 
 ### How the Score is Calculated
 
-When miners participate in challenges, their performance is evaluated based on their solutions. The scoring system consists of three key components:
+When miners participate in challenges, their performance is evaluated based on their solutions. The scoring system includes a decay mechanism:
 
-1. **Alpha Burn (50%)**: This mechanism reserves 50% of the alpha to maintain high subnet alpha and mitigate current inflation effects. Once the alpha reaches sufficient strength, the mechanism will be adjusted to incentivize staking miners. This approach helps maintain the subnet's value proposition.
-
-2. **Decay Mechanism**: Submissions receive incentives for a limited period, requiring miners to regularly update their solutions to maintain their position in the subnet. Our comparison system identifies and penalizes duplicate submissions, encouraging continuous improvement and innovation.
-
-3. **Fallback Mechanism**: When a challenge becomes inactive due to having no valid submissions, all weights will be directed to burn. This logic maintains fairness and keeps subnet value stable.
-
-The final score is calculated using a normalized formula that combines these components:
-
-- **Final Score = (50% * Challenge Score) + (50% * Alpha Burn)**
+- **Decay Mechanism**: Submissions receive incentives for a limited period, requiring miners to regularly update their solutions to maintain their position in the subnet. Our comparison system identifies and penalizes duplicate submissions, encouraging continuous improvement and innovation.
 
 This balanced approach ensures that miners are rewarded both for their technical solutions and their contribution to the subnet's stability.
 
