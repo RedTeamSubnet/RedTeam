@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.8.1 (2026-07-29)
+
+## Improvements
+- Improve error logging messages and handle empty baseline comparison data (@aliyuldashev)
+
 ## 4.8.0 (2026-07-28)
 
 ## Features
