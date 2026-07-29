@@ -407,7 +407,7 @@ class Controller:
             return _validation_output
 
         except Exception as e:
-            bt.logging.error(f"Error in comparison request: {str(e)}")
+            bt.logging.error(f"Error in validation request: {str(e)}")
             return False
 
     def _generate_scoring_logs(
@@ -506,13 +506,13 @@ class Controller:
                 }
             ]
 
-    # TODO: it should be in each child controller
     def same_score_comparison(self, miner_commit: MinerChallengeCommit) -> None:
         if not miner_commit.scoring_logs:
             bt.logging.warning(
                 f"[CONTROLLER] No scoring logs found for miner {miner_commit.miner_hotkey}, \
                     skipping same score comparison."
             )
+            return
         _scoring_log = miner_commit.scoring_logs[0]
         _commit_score = _scoring_log.score
         if _commit_score is None or _commit_score <= 0.4:
@@ -543,6 +543,18 @@ class Controller:
                 and _comparison_logs["similarity_score"]
                 >= self.comparison_min_acceptable_score
             ):
+                if (
+                    ref_commit.miner_uid == miner_commit.miner_uid
+                    and _comparison_logs["similarity_score"]
+                    < self.max_self_comparison_score
+                ):
+                    bt.logging.info(
+                        f"[CONTROLLER] Skipping same-score self-comparison for miner "
+                        f"UID {miner_commit.miner_uid}: similarity score "
+                        f"{_comparison_logs['similarity_score']} is below "
+                        f"{self.max_self_comparison_score}."
+                    )
+                    continue
                 _unique_commit_key = (
                     f"{ref_commit.miner_uid}_{ref_commit.encrypted_commit[:10]}"
                 )
@@ -619,7 +631,7 @@ class Controller:
             return data
 
         except Exception as e:
-            bt.logging.error(f"Error in comparison request: {str(e)}")
+            bt.logging.error(f"Error in same-score comparison request: {str(e)}")
             return [
                 {
                     "target": "Error while comparing outputs",
@@ -716,7 +728,11 @@ class Controller:
 
             response_data = response.json()
             data = response_data.get("data", {})
-
+            if not data:
+                bt.logging.warning(
+                    f"[CONTROLLER] No baseline comparison data returned for miner {miner_commit.miner_hotkey}."
+                )
+                return
             for _outputs in data:
 
                 _target_script = _outputs.get("target", "script_1")
@@ -742,7 +758,7 @@ class Controller:
             return
 
         except Exception as e:
-            bt.logging.error(f"Error in comparison request: {str(e)}")
+            bt.logging.error(f"Error in baseline comparison request: {str(e)}")
             return
 
     def _submit_challenge_to_miner(self, challenge_input) -> tuple[dict, str]:
