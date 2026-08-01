@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.8.2 (2026-08-01)
+
+## Bug Fixes
+- set default value for user_id in _compare_same_score_outputs method (@aliyuldashev)
+
 ## 4.8.1 (2026-07-29)
 
 ## Improvements
