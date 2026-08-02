@@ -571,7 +571,7 @@ class Controller:
         self,
         miner_output: dict,
         reference_output: dict,
-        user_id: str | None = None,
+        user_id: str = "default_user",
     ) -> list[dict]:
         """
         Send comparison request to challenge container's /compare endpoint.
