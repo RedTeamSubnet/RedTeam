@@ -58,13 +58,27 @@ class ChallengeManager:
             )
 
             if current_miner_state.miner_hotkey != miner_commit.miner_hotkey:
-                # UID's hotkey has changed, create a new miner state
+
                 self.miner_states[miner_commit.miner_uid] = MinerChallengeInfo(
                     miner_uid=miner_commit.miner_uid,
                     miner_hotkey=miner_commit.miner_hotkey,
                     challenge_name=miner_commit.challenge_name,
                 )
                 continue
+            elif (
+                current_miner_state.best_commit
+                and current_miner_state.best_commit.miner_hotkey
+                != miner_commit.miner_hotkey
+            ):
+                current_miner_state.best_commit = None
+                if (
+                    current_miner_state.latest_commit
+                    and current_miner_state.latest_commit.miner_hotkey
+                    == miner_commit.miner_hotkey
+                ):
+                    current_miner_state.update_best_commit(
+                        current_miner_state.latest_commit
+                    )
 
             # Update miner state with latest submission
             current_miner_state.latest_commit = miner_commit
