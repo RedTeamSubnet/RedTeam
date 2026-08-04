@@ -6,6 +6,11 @@ hide:
 
 # 📌 Release Notes
 
+## 4.8.4 (2026-08-04)
+
+## Bug Fixes
+- handle miner hotkey changes in update_miner_infos method (@aliyuldashev)
+
 ## 4.8.3 (2026-08-02)
 
 ## Bug Fixes
