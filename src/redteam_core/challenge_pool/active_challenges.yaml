@@ -1,7 +1,7 @@
 ab_sniffer_v6:
   name: "ab_sniffer_v6"
   description: "Detect automation frameworks"
-  challenge_incentive_weight: 0.5
+  challenge_incentive_weight: 0.4
   challenge_image: "redteamsubnet61/rest-abs-challenge:6.0.2"
   target: abs_challenge.controller.ABSController
   challenge_manager: abs_challenge.challenge_manager.ABSChallengeManager
@@ -74,10 +74,6 @@ bot_virus_v1:
     name: "bot_virus_v1"
     platform: "linux/amd64"
     network: "bot-virus-challenge-net"
-    ulimits:
-      - Name: "nofile"
-        Soft: 65536
-        Hard: 65536
     privileged: true
     environment:
       ENV: "PRODUCTION"
