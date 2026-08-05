@@ -54,7 +54,7 @@ ab_sniffer_v6:
 
 bot_virus_v1:
   name: "bot_virus_v1"
-  description: "Passing the bot detection system"
+  description: "Building a bot virus to infect the internet"
   challenge_incentive_weight: 0.6
   challenge_image: "redteamsubnet61/rest-bv-challenge:1.0.0"
   target: bv_challenge.controller.BVController
