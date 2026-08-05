@@ -2031,6 +2031,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#local-check-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Local check configuration
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#api-discovery" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -4335,6 +4346,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#local-check-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Local check configuration
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#api-discovery" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -4410,14 +4432,26 @@ retrieval, health, and API docs endpoints are public to the challenge network.</
   versions, so do not copy an old request body blindly.</li>
 </ul>
 <h2 id="scoring">Scoring</h2>
-<p>The runner can apply two checks:</p>
+<p>The runner applies two layers of checks:</p>
 <ul>
-<li>A simple-bot gate.</li>
-<li>Browser-web sessions configured by the challenge.</li>
+<li><strong>Simple Bot</strong> is the first layer. It is a pass/fail gate containing common
+  bot-detection checks.</li>
+<li><strong>Browser-web</strong> is the main check. Its configured browser sessions determine
+  the submission's score.</li>
 </ul>
-<p>Failures to build or run the image, timeouts, and failed checks affect the
-score according to deployed challenge config. Use <code>GET /result</code> for evaluator
-feedback; it is the authoritative result for a submission.</p>
+<p>Failures to build or run the image, timeouts, a failed Simple Bot gate, and
+failed browser-web checks affect the score according to deployed challenge
+config. Use <code>GET /result</code> for evaluator feedback; it is the authoritative
+result for a submission.</p>
+<h2 id="local-check-configuration">Local check configuration</h2>
+<p>Set these Boolean fields in the challenge repository's <code>.env</code> to enable or
+disable the local evaluation layers independently:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>BV_CHALLENGE_SIMPLE_BOT_CHECK_ENABLED=true
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>BV_CHALLENGE_WEB_CHECK_ENABLED=true
+</span></code></pre></div>
+<p>Use <code>true</code> to enable a check and <code>false</code> to disable it. At least one check must
+remain enabled. These settings are for local testing; production evaluation uses
+the deployed challenge configuration.</p>
 <h2 id="api-discovery">API discovery</h2>
 <p>The deployed challenge exposes Swagger UI at <code>/docs</code>, ReDoc at <code>/redoc</code>, and
 the OpenAPI contract at <code>/openapi.json</code>. Use these endpoints to verify current

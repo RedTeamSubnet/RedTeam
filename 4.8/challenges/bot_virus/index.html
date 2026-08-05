@@ -4271,12 +4271,15 @@ challenge. Submit exactly two files: <code>bot.py</code> and <code>Dockerfile</c
 <li>The miner returns <code>bot.py</code> and <code>Dockerfile</code> in the task's required output
    schema.</li>
 <li>The challenge builds the submitted container in an isolated runner.</li>
-<li>The runner applies the simple-bot gate and browser-web checks, then returns
+<li>The runner applies the Simple Bot gate, then browser-web checks, and returns
    feedback and a score.</li>
 </ol>
 <p>The challenge is evaluated in an environment different from a typical local
 browser. Test across supported browsers, operating systems, and headed/headless
 configurations; local success does not guarantee the production score.</p>
+<p>Simple Bot is a first-layer pass/fail gate covering common bot signals. The
+browser-web check is the primary evaluation and determines the submission's
+score.</p>
 <h2 id="submission-contract">Submission contract</h2>
 <p><code>miner_output.commit_files</code> must contain exactly these files:</p>
 <ul>
