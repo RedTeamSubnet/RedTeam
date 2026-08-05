@@ -10,12 +10,16 @@ challenge. Submit exactly two files: `bot.py` and `Dockerfile`.
 2. The miner returns `bot.py` and `Dockerfile` in the task's required output
    schema.
 3. The challenge builds the submitted container in an isolated runner.
-4. The runner applies the simple-bot gate and browser-web checks, then returns
+4. The runner applies the Simple Bot gate, then browser-web checks, and returns
    feedback and a score.
 
 The challenge is evaluated in an environment different from a typical local
 browser. Test across supported browsers, operating systems, and headed/headless
 configurations; local success does not guarantee the production score.
+
+Simple Bot is a first-layer pass/fail gate covering common bot signals. The
+browser-web check is the primary evaluation and determines the submission's
+score.
 
 ## Submission contract
 
