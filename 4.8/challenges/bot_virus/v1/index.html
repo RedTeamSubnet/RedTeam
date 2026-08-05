@@ -2020,6 +2020,56 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#submission-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Submission rules
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Submission rules">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#network-access" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Network access
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-files-and-limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Required files and limits
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#implementation-freedom" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Implementation freedom
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#scoring" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -4335,6 +4385,56 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#submission-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Submission rules
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Submission rules">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#network-access" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Network access
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-files-and-limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Required files and limits
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#implementation-freedom" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Implementation freedom
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#scoring" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -4431,6 +4531,46 @@ retrieval, health, and API docs endpoints are public to the challenge network.</
 <li>Follow the live OpenAPI schema. Payload fields may evolve between challenge
   versions, so do not copy an old request body blindly.</li>
 </ul>
+<h2 id="submission-rules">Submission rules</h2>
+<h3 id="network-access">Network access</h3>
+<p>Network calls are not allowed in the submitted script. Keep the submission
+self-contained and do not depend on external services, downloads, APIs, or
+network-hosted assets at evaluation time.</p>
+<h3 id="required-files-and-limits">Required files and limits</h3>
+<p>The score request must contain exactly the two required files. Their content is
+validated before evaluation:</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th style="text-align: right;">Maximum lines</th>
+<th>Validation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>bot.py</code></td>
+<td style="text-align: right;">2,000</td>
+<td>Checked by Ruff using the challenge's TOML configuration.</td>
+</tr>
+<tr>
+<td><code>Dockerfile</code></td>
+<td style="text-align: right;">500</td>
+<td>Must be supplied as the image definition.</td>
+</tr>
+</tbody>
+</table>
+<p>The line limits apply to the submitted file contents. Exceeding either limit
+causes the submission to be rejected.</p>
+<h3 id="implementation-freedom">Implementation freedom</h3>
+<p>The two submitted files are the entry point, not a limit on your implementation.
+You may put the main logic in <code>bot.py</code>, generate additional files inside the
+image from the <code>Dockerfile</code>, or use another language such as JavaScript, Python,
+or Go. For example, <code>bot.py</code> may start a program created by the <code>Dockerfile</code>
+through <code>subprocess</code> or an equivalent process-launching mechanism.</p>
+<p>The same submission rules apply regardless of language: preserve the required
+file names and limits, avoid network calls, and keep all required runtime
+components inside the built image.</p>
 <h2 id="scoring">Scoring</h2>
 <p>The runner applies two layers of checks:</p>
 <ul>
