@@ -200,8 +200,8 @@ class Controller:
     def _setup_miner_container(self, miner_commit: MinerChallengeCommit):
         """Setup and validate miner container. Raises if validation or setup fails."""
 
-        # if not docker_utils.is_image_digest_format_valid(miner_commit.docker_hub_id):
-        #     raise ValueError("Invalid image format")
+        if not docker_utils.is_image_digest_format_valid(miner_commit.docker_hub_id):
+            raise ValueError("Invalid image format")
 
         docker_utils.remove_container_by_port(
             client=self.docker_client,
