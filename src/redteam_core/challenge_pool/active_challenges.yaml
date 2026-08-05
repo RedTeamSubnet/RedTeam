@@ -52,15 +52,15 @@ ab_sniffer_v6:
     num_cpus: 4
     mem_limit: "12g"
 
-flowprint_v1:
-  name: "flowprint_v1"
-  description: "OS classification via network flow data"
-  challenge_incentive_weight: 0.5
-  challenge_image: "redteamsubnet61/flowprint-challenge:1.0.3"
-  target: flp_challenge.controller.FLPController
-  challenge_manager: flp_challenge.challenge_manager.FLPChallengeManager
+bot_virus_v1:
+  name: "bot_virus_v1"
+  description: "Passing the bot detection system"
+  challenge_incentive_weight: 0.6
+  challenge_image: "redteamsubnet61/rest-bv-challenge:1.0.0"
+  target: bv_challenge.controller.BVController
+  challenge_manager: bv_challenge.challenge_manager.BVChallengeManager
   script_path_identifier: "commit_files"
-  challenge_type: "flp"
+  challenge_type: "bv"
   challenge_solve_timeout: 60
   docker_run_timeout: 900
   num_tasks: 1
@@ -71,8 +71,9 @@ flowprint_v1:
     max_self_comparison_score: 0.8
     min_acceptable_score: 0.6
   challenge_container_run_kwargs:
-    name: "flowprint_v1"
+    name: "bot_virus_v1"
     platform: "linux/amd64"
+    network: "bot-virus-challenge-net"
     ulimits:
       - Name: "nofile"
         Soft: 65536
@@ -80,20 +81,20 @@ flowprint_v1:
     privileged: true
     environment:
       ENV: "PRODUCTION"
-      FLP_API_DATA_DIR: "/var/lib/flowprint-challenge"
-      FLP_CHALLENGE_TEST_CSV_PATH: "{data_dir}/v1_test_data.csv"
-      FLP_CHALLENGE_TRAIN_CSV_PATH: "{data_dir}/v1_train_data.csv"
-      FLP_CHALLENGE_API_KEY: "${RT_CHALLENGE_API_KEY}"
-      FLP_CHALLENGE_TRAINING_TIMEOUT_SECONDS: 600
+      BV_CHALLENGE_API_KEY: "${RT_CHALLENGE_API_KEY}"
+      BV_CHALLENGE_API_BOT_RUNNER_URL: "${BV_CHALLENGE_API_BOT_RUNNER_URL}"
+      MDM_CHALLENGE_BASE_URL: "${MDM_CHALLENGE_BASE_URL}"
+      MDM_CHALLENGE_SIMPLE_BOT_URL: "${MDM_CHALLENGE_SIMPLE_BOT_URL}"
+      BV_CHALLENGE_SIMPLE_BOT_CHECK_ENABLED: false
+      BV_CHALLENGE_WEB_CHECK_ENABLED: true
     volumes:
       - "${RT_CHALLENGE_LOGS_DIR}:/var/log/flowprint-challenge"
-      - "${FLP_API_DATA_DIR}:/var/lib/flowprint-challenge"
   miner_container_run_kwargs:
     cpu_count: 4
     mem_limit: "12g"
     network: "redteam_local"
     environment:
-      CHALLENGE_NAME: "flowprint_v1"
+      CHALLENGE_NAME: "bot_virus_v1"
   protocols:
     challenger: "http"
     challenger_ssl_verify: false
