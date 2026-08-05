@@ -4,6 +4,9 @@ title: FlowPrint OS Classification Challenge
 
 # FlowPrint OS Classification Challenge
 
+!!! warning "Deprecated challenge"
+    FlowPrint is inactive. New submissions are not accepted. This documentation is retained only for historical reference.
+
 ![FlowPrint v1 poster](../../assets/images/flowprint-v1-poster.png)
 
 ## Overview

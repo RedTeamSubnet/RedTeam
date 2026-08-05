@@ -4,6 +4,9 @@ title: Testing Manual
 
 # FlowPrint v1 Testing Manual
 
+!!! warning "Deprecated challenge"
+    FlowPrint is inactive. This manual is archived for historical reference; do not use it to prepare a new submission.
+
 ## Prerequisites
 
 - Docker

@@ -65,8 +65,9 @@ Follow these steps to successfully submit your challenge solution:
 ## Available Challenges
 
 - **[Auto Browser Sniffer (AB Sniffer)](ab_sniffer/README.md)** Detect and identify automation frameworks by analyzing behavior and technical signatures.
+- **[Bot Virus](bot_virus/README.md)** Build a containerized browser bot that completes a task while passing configured bot-detection checks.
 - **[FlowRadar v2](flowradar/README.md)** Train and run a two-stage model pipeline for VPN detection from network flow data.
-- **[FlowPrint v1](flowprint/README.md)** Train and run a two-stage model pipeline for OS classification from network flow data.
+- **[FlowPrint v1](flowprint/README.md) — Inactive** Former OS-classification challenge; submissions are rejected.
 - **[Humanize Behaviour](humanize_behaviour/README.md)** Develop bot scripts that mimic natural human interaction with web forms.
 - **[Anti-Detect Automation Detection (AAD)](ada_detection/README.md)** Detect browser automation inside anti-detect environments where fingerprints are masked.
 - **[Device Fingerprinter](dev_fingerprinter/README.md) Inactive** Create browser SDKs that accurately fingerprint and identify devices.
