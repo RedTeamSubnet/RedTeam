@@ -1,5 +1,20 @@
 # Changelog
 
+## 4.9.0 (2026-08-05)
+
+## Features
+- add bot virus challenge and update related configurations (@aliyuldashev)
+
+## Improvements
+- update bot virus challenge description to clarify purpose (@aliyuldashev)
+
+## Bug Fixes
+- uncomment validation for miner container image format (@aliyuldashev)
+
+## Other Changes
+- update challenge incentive weight and remove unnecessary ulimits for bot virus challenge (@aliyuldashev)
+- remove flowprint submodule from .gitmodules (@aliyuldashev)
+
 ## 4.8.4 (2026-08-04)
 
 ## Bug Fixes
