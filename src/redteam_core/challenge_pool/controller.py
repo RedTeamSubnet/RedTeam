@@ -54,6 +54,9 @@ class Controller:
         self.max_self_comparison_score = self.challenge_info["comparison_config"].get(
             "max_self_comparison_score", 0.9
         )
+        self.challenge_min_acceptable_score = self.challenge_info.get(
+            "challenge_min_acceptable_score", 0.6
+        )
 
     def _setup_challenge(self):
         """
@@ -884,6 +887,8 @@ class Controller:
                     not commit.scoring_logs[0].error
                     or "high comparison score" in commit.scoring_logs[0].error
                 )
+                and commit.scoring_logs[0].score is not None
+                and commit.scoring_logs[0].score >= self.challenge_min_acceptable_score
             ):
                 _all_current_commits.append(commit)
         return _all_current_commits
