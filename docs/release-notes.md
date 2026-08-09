@@ -6,6 +6,14 @@ hide:
 
 # 📌 Release Notes
 
+## 4.9.2 (2026-08-09)
+
+## Improvements
+- Update minimum acceptable score for challenges in configuration (@aliyuldashev)
+
+## Other Changes
+- Merge remote-tracking branch 'origin/main' into dev (@aliyuldashev)
+
 ## 4.9.1 (2026-08-07)
 
 ## Features
