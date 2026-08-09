@@ -1,5 +1,19 @@
 # Changelog
 
+## 4.9.1 (2026-08-07)
+
+## Features
+- Add Bot Virus challenge and update related documentation; mark FlowPrint as deprecated (@aliyuldashev)
+
+## Improvements
+- Update bot virus challenge dependencies and image version to 1.0.2 (@aliyuldashev)
+
+## Bug Fixes
+- Update bot virus challenge dependencies and image version to 1.0.1 (@aliyuldashev)
+
+## Other Changes
+- Update Bot Virus challenge documentation to clarify submission requirements and local testing configuration (@aliyuldashev)
+
 ## 4.9.0 (2026-08-05)
 
 ## Features
