@@ -1,5 +1,13 @@
 # Changelog
 
+## 4.9.3 (2026-08-09)
+
+## Improvements
+- Improve error logging for commit update failures in StorageManager (@aliyuldashev)
+
+## Other Changes
+- Update challenge image version for bot_virus_v1 to 1.0.3 (@aliyuldashev)
+
 ## 4.9.2 (2026-08-09)
 
 ## Improvements
