@@ -211,11 +211,7 @@ class StorageManager:
             errors.append(error)
 
         # Final Logging
-        if success:
-            bt.logging.success(
-                f"[STORAGE] Commit from challege: {challenge_name}, encrypted_commit: {commit.encrypted_commit}, successfully updated across all storages with key: {hashed_cache_key}"
-            )
-        else:
+        if not success:
             bt.logging.error(
                 f"[STORAGE] Failed to update commit from challenge: {challenge_name}, encrypted_commit: {commit.encrypted_commit}, key: {hashed_cache_key}. Errors: {errors}"
             )
