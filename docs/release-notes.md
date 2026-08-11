@@ -6,6 +6,11 @@ hide:
 
 # 📌 Release Notes
 
+## 4.9.4 (2026-08-10)
+
+## Improvements
+- Enable simple bot check and update log directory (@aliyuldashev)
+
 ## 4.9.3 (2026-08-09)
 
 ## Improvements
