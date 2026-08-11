@@ -6,6 +6,14 @@ hide:
 
 # 📌 Release Notes
 
+## 4.9.5 (2026-08-11)
+
+## Improvements
+- Update bot virus challenge environment variable for VM endpoint (@aliyuldashev)
+
+## Other Changes
+- Merge remote-tracking branch 'origin/main' into dev (@aliyuldashev)
+
 ## 4.9.4 (2026-08-10)
 
 ## Improvements
