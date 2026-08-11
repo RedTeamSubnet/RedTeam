@@ -69,5 +69,5 @@ Follow these steps to successfully submit your challenge solution:
 - **[FlowRadar v2](flowradar/README.md)** Train and run a two-stage model pipeline for VPN detection from network flow data.
 - **[FlowPrint v1](flowprint/README.md) — Inactive** Former OS-classification challenge; submissions are rejected.
 - **[Humanize Behaviour](humanize_behaviour/README.md)** Develop bot scripts that mimic natural human interaction with web forms.
-- **[Anti-Detect Automation Detection (AAD)](ada_detection/README.md)** Detect browser automation inside anti-detect environments where fingerprints are masked.
+- **[Anti-Detect Browser Detection (ADA)](ada_detection/README.md)** Identify which commercial anti-detect browser is driving a session, without firing on human traffic.
 - **[Device Fingerprinter](dev_fingerprinter/README.md) Inactive** Create browser SDKs that accurately fingerprint and identify devices.
