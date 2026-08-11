@@ -6,6 +6,11 @@ hide:
 
 # 📌 Release Notes
 
+## 4.9.6 (2026-08-11)
+
+## Improvements
+- Rename VM endpoint environment variable for clarity (@aliyuldashev)
+
 ## 4.9.5 (2026-08-11)
 
 ## Improvements
