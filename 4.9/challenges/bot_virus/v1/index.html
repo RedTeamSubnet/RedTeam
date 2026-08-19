@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../../assets/images/logo.dark.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
     
     
       
@@ -31,7 +31,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.618322db.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -2054,10 +2054,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#implementation-freedom" class="md-nav__link">
+  <a href="#implementation-and-container-restrictions" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Implementation freedom
+        Implementation and container restrictions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#validation-feedback" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validation feedback
       
     </span>
   </a>
@@ -4419,10 +4430,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#implementation-freedom" class="md-nav__link">
+  <a href="#implementation-and-container-restrictions" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Implementation freedom
+        Implementation and container restrictions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#validation-feedback" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validation feedback
       
     </span>
   </a>
@@ -4525,7 +4547,16 @@ retrieval, health, and API docs endpoints are public to the challenge network.</
 <ul>
 <li>Supply exactly <code>bot.py</code> and <code>Dockerfile</code>.</li>
 <li>Build for <code>linux/amd64</code>.</li>
+<li>Implement the complete bot directly and visibly in submitted <code>bot.py</code>. It
+  must accept the assigned URL, open it in a headless Chromium-compatible
+  browser, find and click <code>#verify-button</code>, then wait until
+  <code>window.BV_SUBMITTED === true</code>.</li>
+<li>Handle ordinary browser failures safely and always close a browser driver or
+  equivalent browser process that was created.</li>
 <li>Make the bot robust to fresh sessions and browser/runtime variation.</li>
+<li>Use an established public upstream or challenge-maintained base image only.
+  Miner-owned, personal, unknown, private, or arbitrary registry images are
+  prohibited.</li>
 <li>Keep the image self-contained; the runner builds and executes untrusted
   miner containers in an isolated environment.</li>
 <li>Follow the live OpenAPI schema. Payload fields may evolve between challenge
@@ -4533,9 +4564,10 @@ retrieval, health, and API docs endpoints are public to the challenge network.</
 </ul>
 <h2 id="submission-rules">Submission rules</h2>
 <h3 id="network-access">Network access</h3>
-<p>Network calls are not allowed in the submitted script. Keep the submission
-self-contained and do not depend on external services, downloads, APIs, or
-network-hosted assets at evaluation time.</p>
+<p>The bot may contact only its assigned verification URL for browser
+verification. Do not download or fetch code, packages, assets, scripts, or
+other dependencies at build or evaluation time. Do not use external services
+or exfiltrate data.</p>
 <h3 id="required-files-and-limits">Required files and limits</h3>
 <p>The score request must contain exactly the two required files. Their content is
 validated before evaluation:</p>
@@ -4561,16 +4593,45 @@ validated before evaluation:</p>
 </tbody>
 </table>
 <p>The line limits apply to the submitted file contents. Exceeding either limit
-causes the submission to be rejected.</p>
-<h3 id="implementation-freedom">Implementation freedom</h3>
-<p>The two submitted files are the entry point, not a limit on your implementation.
-You may put the main logic in <code>bot.py</code>, generate additional files inside the
-image from the <code>Dockerfile</code>, or use another language such as JavaScript, Python,
-or Go. For example, <code>bot.py</code> may start a program created by the <code>Dockerfile</code>
-through <code>subprocess</code> or an equivalent process-launching mechanism.</p>
-<p>The same submission rules apply regardless of language: preserve the required
-file names and limits, avoid network calls, and keep all required runtime
-components inside the built image.</p>
+causes the submission to be rejected. Missing, renamed, duplicated, or extra
+files are invalid.</p>
+<h3 id="implementation-and-container-restrictions">Implementation and container restrictions</h3>
+<p><code>bot.py</code> must contain the complete miner-authored implementation. Do not hide
+or introduce implementation through a package, executable, generated or encoded
+payload, or another program launched by <code>bot.py</code>.</p>
+<p>The Dockerfile may use only the base image's native OS package manager (such as
+<code>apt</code>, <code>apt-get</code>, <code>apk</code>, <code>yum</code>, or <code>dnf</code>) and its default, unmodified package
+sources. Install only public OS-level packages needed for the headless browser
+and bot: browser binaries/drivers, virtual-display tools, fonts, and ordinary
+system dependencies. Normal package-list cleanup is allowed.</p>
+<p>Do not use language/application package managers or installers, including
+<code>pip</code>, <code>uv</code>, <code>poetry</code>, <code>conda</code>, <code>npm</code>, <code>yarn</code>, or <code>gem</code>. Do not fetch code or
+dependencies using <code>curl</code>, <code>wget</code>, <code>git</code>, URLs, archives, wheels, private
+indexes, or indirect shell commands. Do not add third-party apt repositories,
+PPAs, keys, or signing configuration; install unrelated packages; compile,
+generate, or unpack application dependencies; use remote <code>ADD</code>, multi-stage
+builds, or <code>COPY --from</code>. Ordinary <code>COPY</code> of the platform-provided bot folder
+and <code>bot_runner.py</code> is allowed.</p>
+<p>Do not add malicious, obfuscated, bypass, persistence, privileged-execution,
+or host/container security-control modification logic.</p>
+<h3 id="validation-feedback">Validation feedback</h3>
+<p>Evaluator feedback is intentionally brief and is not a code review. A passing
+integrity check reports exactly:</p>
+<p><code>Script is legitimate and follows the challenge rules.</code></p>
+<p>Using an application/language package manager; fetching code or dependencies;
+adding an untrusted repository or registry; or otherwise introducing
+dependencies or implementation outside the base image's default OS sources
+returns exactly:</p>
+<p><code>Prohibited package installs are used.</code></p>
+<p>The similarity evaluator applies the same dependency restrictions before
+comparison. A restricted install or hidden-code path is not compared to the
+reference and returns:</p>
+<p><code>{"similarity_score":1.000,"reason":"used restricted installs"}</code></p>
+<p>Other failures return one generalized category only, for example
+<code>Submission does not meet the required runtime criteria.</code>,
+<code>Submission violates the challenge security rules.</code>, or
+<code>Submission has an invalid file structure.</code> The evaluator does not disclose
+specific detections, implementation details, or bypass techniques.</p>
 <h2 id="scoring">Scoring</h2>
 <p>The runner applies two layers of checks:</p>
 <ul>
@@ -4784,10 +4845,10 @@ payload schema and authentication requirements.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.indexes", "navigation.tracking", "navigation.tabs", "navigation.top", "navigation.footer", "navigation.sections", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.indexes", "navigation.tracking", "navigation.tabs", "navigation.top", "navigation.footer", "navigation.sections", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate"], "search": "../../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.e71a0d61.min.js"></script>
       
     
   </body>
