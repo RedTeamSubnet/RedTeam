@@ -1198,6 +1198,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#same-score-comparison" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Same-Score Comparison
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#scoring-and-thresholds" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -4447,6 +4458,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#same-score-comparison" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Same-Score Comparison
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#scoring-and-thresholds" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -4617,7 +4639,9 @@
 
 <h1 id="submission-comparison">🔍 Submission Comparison</h1>
 <h2 id="overview">Overview</h2>
-<p>The comparison process is a critical part of the RedTeam evaluation lifecycle. It ensures that every submission is unique, original, and meets the quality standards required for scoring. This stage follows <a href="../validation/">Validation</a> and precedes the final <a href="../dashboard/#submission-status-lifecycle">Scoring</a> and acceptance check.</p>
+<p>The comparison process is a critical part of the RedTeam evaluation lifecycle. It
+ensures that every submission is unique and original. The initial comparison
+stage follows <a href="../validation/">Validation</a> and precedes <a href="../dashboard/#submission-status-lifecycle">Scoring</a>.</p>
 <h2 id="how-comparison-works">How Comparison Works</h2>
 <p>When a new submission is received and passes validation, it undergoes a similarity analysis against a specific subset of existing submissions to ensure it is not a duplicate or a minor modification of an existing solution.</p>
 <h3 id="1-the-comparison-pool">1. The Comparison Pool</h3>
@@ -4653,6 +4677,52 @@
 <div class="admonition info">
 <p class="admonition-title">Fairness Note</p>
 <p>This chronological approach ensures that earlier commits act as a reference for later ones, preventing multiple miners from submitting the same "leaked" or common solution on the same day and expecting full credit.</p>
+</div>
+<h2 id="same-score-comparison">Same-Score Comparison</h2>
+<p>Submissions that pass the initial comparison are scored. Once scoring finishes,
+the system runs a second, <strong>same-score</strong> comparison:</p>
+<ol>
+<li>It collects accepted submissions whose score is within <strong>±0.1</strong> of the new
+   submission's score.</li>
+<li>It compares the new submission against every submission in that pool.</li>
+<li>Low-similarity results are not saved to the comparison log. They therefore
+   do not appear in comparison records shown by the dashboard or stored in the
+   database; this avoids retaining comparisons that have no rejection value.</li>
+<li>A high-similarity result is saved immediately. The submission is labeled
+   <strong>Rejected</strong>, and remaining same-score comparisons stop because further
+   comparisons cannot change that outcome.</li>
+</ol>
+<p>The two stages have different timing:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Stage</th>
+<th style="text-align: left;">When it runs</th>
+<th style="text-align: left;">Effect of high similarity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Initial comparison</td>
+<td style="text-align: left;">After validation, before scoring</td>
+<td style="text-align: left;">Rejected; no score is produced.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Same-score comparison</td>
+<td style="text-align: left;">After scoring</td>
+<td style="text-align: left;">Rejected even though a score was produced.</td>
+</tr>
+</tbody>
+</table>
+<p>A high similarity score above the challenge's acceptance threshold always wins
+over the submission score. A strong task score does not make a too-similar
+submission acceptable.</p>
+<div class="admonition info">
+<p class="admonition-title">Scores can differ between stages</p>
+<p>The initial and same-score comparisons can report different similarity
+scores for the same pair of submissions. Same-score comparison includes
+additional metadata, such as execution time and task score, so this
+difference is expected.</p>
 </div>
 <hr />
 <h2 id="scoring-and-thresholds">Scoring and Thresholds</h2>
@@ -4714,8 +4784,12 @@
 </thead>
 <tbody>
 <tr>
-<td style="text-align: left;"><strong>Reference Pool</strong></td>
+<td style="text-align: left;"><strong>Initial reference pool</strong></td>
 <td style="text-align: left;">Accepted + Same-Day Submissions</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Same-score reference pool</strong></td>
+<td style="text-align: left;">Accepted submissions within ±0.1 of the submission score</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Ordering</strong></td>
@@ -4732,6 +4806,10 @@
 <tr>
 <td style="text-align: left;"><strong>Different UID Threshold</strong></td>
 <td style="text-align: left;">Standard (prevents plagiarism)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>High same-score match</strong></td>
+<td style="text-align: left;">Logged immediately; submission rejected; remaining comparisons stop</td>
 </tr>
 </tbody>
 </table>
