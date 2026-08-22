@@ -329,6 +329,8 @@ class Controller:
                     f"[CONTROLLER] Skipping self-comparison for {miner_commit.miner_hotkey}\
                           with {reference_commit.miner_hotkey} due to low similarity score {_similarity_score}"
                 )
+                if _unique_commit_key in miner_commit.comparison_logs:
+                    del miner_commit.comparison_logs[_unique_commit_key]
                 continue
 
             comparison_log = ComparisonLog(
@@ -547,13 +549,13 @@ class Controller:
                 >= self.comparison_min_acceptable_score
             ):
                 if (
-                    ref_commit.miner_uid == miner_commit.miner_uid
+                    ref_commit.miner_hotkey == miner_commit.miner_hotkey
                     and _comparison_logs["similarity_score"]
                     < self.max_self_comparison_score
                 ):
                     bt.logging.info(
                         f"[CONTROLLER] Skipping same-score self-comparison for miner "
-                        f"UID {miner_commit.miner_uid}: similarity score "
+                        f"UID {miner_commit.miner_hotkey}: similarity score "
                         f"{_comparison_logs['similarity_score']} is below "
                         f"{self.max_self_comparison_score}."
                     )
