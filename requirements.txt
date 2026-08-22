@@ -1,5 +1,5 @@
 bittensor~=10.3.0
-cryptography>=41.0.7,<50.0.0
+cryptography>=49.0.0,<50.0.0
 docker>=7.0.0,<8.0.0
 diskcache>=5.6.3,<6.0.0
 substrate-interface>=1.7.11,<2.0.0
