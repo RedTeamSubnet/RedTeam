@@ -29,7 +29,7 @@ installations. The challenge repository does not provide them, and each is a pai
     logic robust.
 
 The active target list lives in
-[`challenge.yml`](https://github.com/RedTeamSubnet/ada-detection-challenge/blob/main/src/aad_challenge/challenge/api/configs/challenge.yml).
+[`challenge.yml`](https://github.com/RedTeamSubnet/ada-detection-challenge/blob/main/src/ada_challenge/challenge/api/configs/challenge.yml).
 Current targets: `ads_power`, `dolphin_anty`, `gologin`, `multilogin`, `octo`.
 
 ## 1. Add Detection Scripts
@@ -37,7 +37,7 @@ Current targets: `ads_power`, `dolphin_anty`, `gologin`, `multilogin`, `octo`.
 Place all six JavaScript files in:
 
 ```text
-src/aad_challenge/challenge/templates/static/detections/
+src/ada_challenge/challenge/templates/static/detections/
 ```
 
 Keep the expected filenames and exported function names. Validate before testing:
@@ -55,8 +55,8 @@ cp .env.example .env
 Set a private challenge API key in `.env`:
 
 ```dotenv
-AAD_CHALLENGE_API_KEY=replace_with_your_private_api_key
-AAD_CHALLENGE_API_PORT=10001
+ADA_CHALLENGE_API_KEY=replace_with_your_private_api_key
+ADA_CHALLENGE_API_PORT=10001
 ```
 
 The API key must be longer than eight characters and contain only letters, numbers,
@@ -79,7 +79,7 @@ Confirm the service is running:
 
 ```bash
 docker compose ps
-curl http://localhost:${AAD_CHALLENGE_API_PORT:-10001}/health
+curl http://localhost:${ADA_CHALLENGE_API_PORT:-10001}/health
 ```
 
 ## 4. Choose A Reachable Test URL
