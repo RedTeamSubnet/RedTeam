@@ -7,7 +7,9 @@ tags: [comparison, concepts, scoring]
 
 ## Overview
 
-The comparison process is a critical part of the RedTeam evaluation lifecycle. It ensures that every submission is unique, original, and meets the quality standards required for scoring. This stage follows [Validation](validation.md) and precedes the final [Scoring](dashboard.md#submission-status-lifecycle) and acceptance check.
+The comparison process is a critical part of the RedTeam evaluation lifecycle. It
+ensures that every submission is unique and original. The initial comparison
+stage follows [Validation](validation.md) and precedes [Scoring](dashboard.md#submission-status-lifecycle).
 
 ## How Comparison Works
 
@@ -32,6 +34,38 @@ Within the "Same-Day" group, submissions are processed in the order of their **c
 
 !!! info "Fairness Note"
     This chronological approach ensures that earlier commits act as a reference for later ones, preventing multiple miners from submitting the same "leaked" or common solution on the same day and expecting full credit.
+
+## Same-Score Comparison
+
+Submissions that pass the initial comparison are scored. Once scoring finishes,
+the system runs a second, **same-score** comparison:
+
+1. It collects accepted submissions whose score is within **±0.1** of the new
+   submission's score.
+2. It compares the new submission against every submission in that pool.
+3. Low-similarity results are not saved to the comparison log. They therefore
+   do not appear in comparison records shown by the dashboard or stored in the
+   database; this avoids retaining comparisons that have no rejection value.
+4. A high-similarity result is saved immediately. The submission is labeled
+   **Rejected**, and remaining same-score comparisons stop because further
+   comparisons cannot change that outcome.
+
+The two stages have different timing:
+
+| Stage | When it runs | Effect of high similarity |
+| :--- | :--- | :--- |
+| Initial comparison | After validation, before scoring | Rejected; no score is produced. |
+| Same-score comparison | After scoring | Rejected even though a score was produced. |
+
+A high similarity score above the challenge's acceptance threshold always wins
+over the submission score. A strong task score does not make a too-similar
+submission acceptable.
+
+!!! info "Scores can differ between stages"
+    The initial and same-score comparisons can report different similarity
+    scores for the same pair of submissions. Same-score comparison includes
+    additional metadata, such as execution time and task score, so this
+    difference is expected.
 
 ---
 
@@ -94,11 +128,13 @@ Imagine a challenge with an "Acceptable Score" of **0.7**:
 
 | Feature | Logic |
 | :--- | :--- |
-| **Reference Pool** | Accepted + Same-Day Submissions |
+| **Initial reference pool** | Accepted + Same-Day Submissions |
+| **Same-score reference pool** | Accepted submissions within ±0.1 of the submission score |
 | **Ordering** | By Committed Timestamp |
 | **Score Range** | 0.0 (Error/Skip) to 1.0 (Identical) |
 | **Same UID Threshold** | Stricter (requires significant changes) |
 | **Different UID Threshold** | Standard (prevents plagiarism) |
+| **High same-score match** | Logged immediately; submission rejected; remaining comparisons stop |
 
 !!! tip "Reducing Similarity"
     To avoid high similarity scores, focus on unique logic and implementation strategies rather than just renaming variables or changing formatting. Meaningful improvements to the core algorithm are the best way to ensure your submission is unique.

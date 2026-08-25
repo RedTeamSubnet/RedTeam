@@ -1,5 +1,20 @@
 # Changelog
 
+## 4.9.7 (2026-08-22)
+
+## Improvements
+- Update the same hotkey comparison (@aliyuldashev)
+- Enhance comparison process documentation with detailed same-score analysis (@aliyuldashev)
+
+## Other Changes
+- Update abs_challenge submodule to version 6.0.4 (@aliyuldashev)
+- Update bot virus challenge requirements and implementation guidelines (@aliyuldashev)
+
+## 4.9.6 (2026-08-11)
+
+## Improvements
+- Rename VM endpoint environment variable for clarity (@aliyuldashev)
+
 ## 4.9.5 (2026-08-11)
 
 ## Improvements
