@@ -1,5 +1,25 @@
 # Changelog
 
+## 4.10.0 (2026-08-26)
+
+## Features
+- add ADA detection challenge and update related documentation (@abdibekbolot)
+
+## Improvements
+- simplify challenge input handling in Controller and update subproject commits (@aliyuldashev)
+- remove ab_sniffer challenge and update ada_detection references (@aliyuldashev)
+
+## Bug Fixes
+- update ADA detection challenge image version and enhance development workflow documentation (@aliyuldashev)
+- remove orphan flowprint gitlink and repin aad_challenge (@abdibekbolot)
+- update environment variable names for ada_detection_v3 challenge (@abdibekbolot)
+
+## Other Changes
+- update bot virus challenge image version to 1.0.4 (@aliyuldashev)
+- update volume path for ada_detection challenge logs (@aliyuldashev)
+- update max_unique_commits to 7 for bot_virus_v1 and ada_detection_v3 challenges (@aliyuldashev)
+- update ada_detection challenge image version and adjust minimum acceptable score (@aliyuldashev)
+
 ## 4.9.7 (2026-08-22)
 
 ## Improvements
