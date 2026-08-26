@@ -87,7 +87,7 @@ ada_detection_v3:
       ADA_CHALLENGE_BOT_RUNNER_BOT: "${ADA_CHALLENGE_BOT_RUNNER_BOT}"
       ADA_API_LOGS_DIR: "/var/log/ada_detection"
     volumes:
-      - "${RT_CHALLENGE_LOGS_DIR}:/var/log/ada_detection"
+      - "${RT_CHALLENGE_LOGS_DIR}/ada_detection:/var/log/ada_detection"
   miner_container_run_kwargs:
     cpu_count: 4
     mem_limit: "12g"
