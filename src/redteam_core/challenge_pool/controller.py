@@ -1,5 +1,4 @@
 from abc import abstractmethod
-import copy
 import time
 import traceback
 
@@ -28,7 +27,6 @@ class Controller:
         miner_commits: list[MinerChallengeCommit],
         reference_comparison_commits: list[MinerChallengeCommit],
         miners_docker_info: dict[str, dict],
-        seed_inputs: list[dict] = [],
     ):
         """
         Initializes the Controller with the name of the challenge and the list of miner Docker images.
@@ -43,7 +41,6 @@ class Controller:
         self.challenge_info = challenge_info
         self.miner_commits = miner_commits
         self.reference_comparison_commits = reference_comparison_commits
-        self.seed_inputs = seed_inputs
         self.miners_docker_info = miners_docker_info
 
         self.docker_client = docker_utils.create_docker_client()
@@ -118,28 +115,13 @@ class Controller:
         """
         self._setup_challenge()
 
-        num_task = self.challenge_info.get(
-            "num_tasks", constants.N_CHALLENGES_PER_EPOCH
-        )
-        # Start with seed inputs and generate more if needed to reach num_task
-        challenge_inputs = self.seed_inputs.copy()
-        remaining_tasks = max(0, num_task - len(challenge_inputs))
-        if remaining_tasks > 0:
-            challenge_inputs.extend(
-                [self._get_challenge_from_container() for _ in range(remaining_tasks)]
-            )
-
-        bt.logging.debug(
-            f"[CONTROLLER] Generated {len(challenge_inputs)} challenge inputs"
-        )
-
         for miner_commit in self.miner_commits:
             uid, hotkey = miner_commit.miner_uid, miner_commit.miner_hotkey
 
             try:
                 self._setup_miner_container(miner_commit)
 
-                self._generate_scoring_logs(miner_commit, challenge_inputs)
+                self._generate_scoring_logs(miner_commit)
                 _max_comparison_score = self._check_comparison_score(miner_commit)
                 if _max_comparison_score >= 0.6:
                     bt.logging.info(
@@ -157,7 +139,7 @@ class Controller:
                 else:
                     self._run_reference_comparison_inputs(miner_commit)
 
-                self._score_miner_with_new_inputs(miner_commit, challenge_inputs)
+                self._score_miner_with_new_inputs(miner_commit)
                 self.same_score_comparison(miner_commit)
 
             except Exception as e:
@@ -415,39 +397,34 @@ class Controller:
             bt.logging.error(f"Error in validation request: {str(e)}")
             return False
 
-    def _generate_scoring_logs(
-        self, miner_commit: MinerChallengeCommit, challenge_inputs
-    ):
+    def _generate_scoring_logs(self, miner_commit: MinerChallengeCommit):
         """Run and score miner with new challenge inputs."""
-        for miner_input in challenge_inputs:
-            miner_output, error_message = self._submit_challenge_to_miner(miner_input)
+        miner_output, error_message = self._submit_challenge_to_miner()
 
-            if miner_output is None or error_message:
-                bt.logging.warning(
-                    f"[CONTROLLER - ABSController] Miner {miner_commit.miner_hotkey} \
-                        failed to produce output for reference comparison: {error_message}"
-                )
-                miner_commit.scoring_logs.insert(
-                    0,
-                    ScoringLog(
-                        miner_input=miner_input,
-                        miner_output=None,
-                        error=(
-                            f"[Not Accepted] {error_message}"
-                            if error_message
-                            else "[Not Accepted] No output from miner"
-                        ),
-                    ),
-                )
-                continue
+        if miner_output is None or error_message:
+            bt.logging.warning(
+                f"[CONTROLLER - ABSController] Miner {miner_commit.miner_hotkey} \
+                    failed to produce output for reference comparison: {error_message}"
+            )
             miner_commit.scoring_logs.insert(
                 0,
                 ScoringLog(
-                    miner_input=miner_input,
-                    miner_output=miner_output,
-                    error=error_message,
+                    miner_output=None,
+                    error=(
+                        f"[Not Accepted] {error_message}"
+                        if error_message
+                        else "[Not Accepted] No output from miner"
+                    ),
                 ),
             )
+            return
+        miner_commit.scoring_logs.insert(
+            0,
+            ScoringLog(
+                miner_output=miner_output,
+                error=error_message,
+            ),
+        )
 
     def _compare_outputs(
         self, miner_output: dict, reference_output: dict, user_id: str | None = None
@@ -520,7 +497,10 @@ class Controller:
             return
         _scoring_log = miner_commit.scoring_logs[0]
         _commit_score = _scoring_log.score
-        if _commit_score is None or _commit_score <= 0.4:
+        if (
+            _commit_score is None
+            or _commit_score <= self.challenge_min_acceptable_score
+        ):
             return
         reference_commits_in_range = []
         for ref_commit in self.reference_comparison_commits:
@@ -766,7 +746,7 @@ class Controller:
             bt.logging.error(f"Error in baseline comparison request: {str(e)}")
             return
 
-    def _submit_challenge_to_miner(self, challenge_input) -> tuple[dict, str]:
+    def _submit_challenge_to_miner(self) -> tuple[dict, str]:
         """
         Sends the challenge input to a miner by making an HTTP POST request to a local endpoint.
         The request submits the input, and the miner returns the generated output.
@@ -779,17 +759,13 @@ class Controller:
         """
 
         error_message = ""
-        miner_input = copy.deepcopy(challenge_input)
-        exclude_miner_input_key = self.challenge_info.get("exclude_miner_input_key", [])
-        for key in exclude_miner_input_key:
-            miner_input[key] = None
         try:
             _protocol, _ssl_verify = self._check_protocol(is_challenger=False)
             response = requests.post(
                 f"{_protocol}://{self.miner_ip}:{constants.MINER_DOCKER_PORT}/solve",
                 timeout=self.challenge_info.get("challenge_solve_timeout", 60),
                 verify=_ssl_verify,
-                json=miner_input,
+                json={},
             )
 
             if not response.ok:
@@ -834,15 +810,13 @@ class Controller:
                         f"Failed to get challenge after {max_retries} attempts: {str(e)}"
                     )
 
-    def _score_challenge(self, miner_input, miner_output, task_id: int = 0) -> float:
+    def _score_challenge(self, miner_output) -> float:
         """
         Submits the miner's input and output for scoring by making an HTTP POST request to the challenge container.
         The challenge container computes a score based on the miner's performance.
 
         Args:
-            miner_input: The input provided to the miner.
             miner_output: The output generated by the miner.
-            task_id: The task ID for the challenge. Defaults to 0.
 
         Returns:
             A float representing the score for the miner's solution.
@@ -851,17 +825,11 @@ class Controller:
         _protocol, _ssl_verify = self._check_protocol(is_challenger=True)
 
         try:
-            payload = {
-                "miner_input": miner_input,
-                "miner_output": miner_output,
-            }
-
-            bt.logging.debug(f"[CONTROLLER] Scoring payload: {str(payload)[:100]}...")
 
             response = requests.post(
                 f"{_protocol}://localhost:{constants.CHALLENGE_DOCKER_PORT}/score",
                 verify=_ssl_verify,
-                json=payload,
+                json=miner_output,
                 headers=self.challenge_info.get("scoring_headers", {}),
             )
 
@@ -936,8 +904,6 @@ class Controller:
         pass
 
     @abstractmethod
-    def _score_miner_with_new_inputs(
-        self, miner_commit: MinerChallengeCommit, challenge_inputs
-    ):
+    def _score_miner_with_new_inputs(self, miner_commit: MinerChallengeCommit):
         """Run and score miner with new challenge inputs."""
         pass
