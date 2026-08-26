@@ -7,4 +7,4 @@ python-dotenv>=1.0.1,<2.0.0
 pydantic[email,timezone]>=2.0.3,<3.0.0
 pydantic-settings>=2.8.1,<3.0.0
 bv_challenge @ git+https://github.com/RedTeamSubnet/bot-virus-challenge.git@v1.0.2
-ada_challenge @ git+https://github.com/RedTeamSubnet/ada-detection-challenge.git@v2.0.5
+ada_challenge @ git+https://github.com/RedTeamSubnet/ada-detection-challenge.git@v3.0.0
