@@ -14,7 +14,7 @@ bot_virus_v1:
   scoring_headers:
     X-API-KEY: "${RT_CHALLENGE_API_KEY}"
   comparison_config:
-    max_unique_commits: 15
+    max_unique_commits: 7
     max_self_comparison_score: 0.8
     min_acceptable_score: 0.6
   challenge_container_run_kwargs:
@@ -64,7 +64,7 @@ ada_detection_v3:
   scoring_headers:
     X-API-KEY: "${RT_CHALLENGE_API_KEY}"
   comparison_config:
-    max_unique_commits: 15
+    max_unique_commits: 7
     max_self_comparison_score: 0.8
     min_acceptable_score: 0.6
   challenge_container_run_kwargs:
