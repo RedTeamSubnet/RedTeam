@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.10.1 (2026-08-27)
+
+## Other Changes
+- Update scoring criteria and clarify human detection requirements for ADA-3 challenge (@aliyuldashev)
+
 ## 4.10.0 (2026-08-26)
 
 ## Features
