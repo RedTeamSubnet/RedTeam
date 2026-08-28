@@ -52,7 +52,7 @@ ada_detection_v3:
   name: "ada_detection_v3"
   description: "Detect commercial anti-detect browsers"
   challenge_incentive_weight: 0.6
-  challenge_image: "redteamsubnet61/ada_detection:3.0.1"
+  challenge_image: "redteamsubnet61/ada_detection:3.0.2"
   target: ada_challenge.controller.ADAController
   challenge_manager: ada_challenge.challenge_manager.ADAChallengeManager
   script_path_identifier: "commit_files"

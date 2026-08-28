@@ -1,10 +1,10 @@
 nav:
   - README.md
   - Active Challenges:
-      - ab_sniffer: ./ab_sniffer
       - bot_virus: ./bot_virus
       - ada_detection: ./ada_detection
   - Inactive Challenges:
+      - ab_sniffer: ./ab_sniffer
       - flowradar: ./flowradar
       - flowprint: ./flowprint
       - historical_fingerprinter: ./historical_fingerprinter
