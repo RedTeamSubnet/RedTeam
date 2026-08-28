@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.10.2 (2026-08-28)
+
+## Bug Fixes
+- update challenge navigation and fix ADA-3 headless detection script reference (@aliyuldashev)
+
 ## 4.10.1 (2026-08-27)
 
 ## Other Changes
