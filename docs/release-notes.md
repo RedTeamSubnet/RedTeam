@@ -6,6 +6,13 @@ hide:
 
 # 📌 Release Notes
 
+## 4.10.3 (2026-09-09)
+
+## Other Changes
+- Update subproject commits for ada_detection and bot_virus; limit reference commits to first three in comparison (@aliyuldashev)
+- Update actions/checkout and actions/setup-python to v7 across workflows (@Batkhuu)
+- Update bot_virus subproject commit reference (@Batkhuu)
+
 ## 4.10.2 (2026-08-28)
 
 ## Bug Fixes
