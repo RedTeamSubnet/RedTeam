@@ -517,7 +517,7 @@ class Controller:
                     skipping same score comparison."
             )
             return
-        for ref_commit in reference_commits_in_range:
+        for ref_commit in reference_commits_in_range[:3]:
             _comparison_logs = self._compare_same_score_outputs(
                 miner_output=_scoring_log.miner_output,
                 reference_output=ref_commit.scoring_logs[0].miner_output,
