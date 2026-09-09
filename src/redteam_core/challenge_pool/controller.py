@@ -637,6 +637,11 @@ class Controller:
             reference_commits = (
                 self.reference_comparison_commits + current_commits_to_compare
             )
+            _reference_commit_limit = self.challenge_info["comparison_config"].get(
+                "max_unique_commits", None
+            )
+            if _reference_commit_limit:
+                reference_commits = reference_commits[:_reference_commit_limit]
 
             headers = {
                 "Content-Type": "application/json",
