@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.10.4 (2026-09-09)
+
+## Features
+- limit the number of unique reference commits based on configuration for compare all (@aliyuldashev)
+
 ## 4.10.3 (2026-09-09)
 
 ## Other Changes
