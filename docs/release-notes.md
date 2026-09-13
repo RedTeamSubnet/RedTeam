@@ -6,6 +6,11 @@ hide:
 
 # 📌 Release Notes
 
+## 4.10.5 (2026-09-13)
+
+## Other Changes
+- update ada_detection challenge image version to 3.0.3 (@aliyuldashev)
+
 ## 4.10.4 (2026-09-09)
 
 ## Features
