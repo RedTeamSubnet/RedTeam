@@ -6,6 +6,18 @@ hide:
 
 # 📌 Release Notes
 
+## 4.10.6 (2026-09-19)
+
+## Features
+- add order_number parameter to trigger_run and related functions (@aliyuldashev)
+
+## Other Changes
+- update actions/checkout and actions/setup-python to v7 in workflow files (@Batkhuu Byambajav)
+- update ada_detection challenge image version to 3.0.4 (@aliyuldashev)
+- update subproject commit for bv-bot-runner (@Batkhuu Byambajav)
+- update subproject commits for ada_detection and bot_virus (@Batkhuu Byambajav)
+- upgrade actions/checkout and actions/setup-python to v7 in workflow files (@Batkhuu Byambajav)
+
 ## 4.10.5 (2026-09-13)
 
 ## Other Changes
