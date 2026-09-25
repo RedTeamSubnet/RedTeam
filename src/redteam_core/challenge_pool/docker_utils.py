@@ -32,10 +32,8 @@ def run_container(
         _miner_username = _miner_docker_info.get("dockerhub_username", None)
         _miner_pat = _miner_docker_info.get("personal_access_token", None)
         if not _miner_username or not _miner_pat:
-            raise ValueError(
-                "Miner Docker image requires authentication. \
-                    Please provide 'dockerhub_username' and 'personal_access_token'."
-            )
+            raise ValueError("Miner Docker image requires authentication. \
+                    Please provide 'dockerhub_username' and 'personal_access_token'.")
         _auth_config = {
             "username": _miner_username,
             "password": _miner_pat,
@@ -62,26 +60,6 @@ def run_container(
 def create_docker_client() -> docker.DockerClient:
     """Creates and returns a Docker client instance."""
     return docker.from_env()
-
-
-def build_challenge_image(
-    client: docker.DockerClient, challenge_name: str, build_path: str
-) -> None:
-    """
-    Builds a challenge container image with proper tagging.
-
-    Args:
-        client: Docker client instance
-        challenge_name: Name/tag for the challenge image
-        build_path: Path to the challenge Dockerfile directory
-    """
-    try:
-        res = client.images.build(path=build_path, tag=challenge_name, rm=True)
-        bt.logging.info(f"Successfully built challenge image: {challenge_name}")
-        bt.logging.info(res)
-    except Exception as e:
-        bt.logging.error(f"Failed to build challenge image: {e}")
-        raise
 
 
 def create_network(
