@@ -1,8 +1,11 @@
 # Bot Virus Challenge
 
+!!! warning "Deprecated challenge"
+    Bot Virus no longer accepts submissions. This documentation remains available for historical reference only.
+
 Bot Virus evaluates whether a miner-supplied browser bot can complete the
-challenge while avoiding configured bot-detection checks. It is an active
-challenge. Submit exactly two files: `bot.py` and `Dockerfile`.
+challenge while avoiding configured bot-detection checks. Its historical
+submission contained exactly two files: `bot.py` and `Dockerfile`.
 
 ## How it works
 
@@ -34,7 +37,7 @@ before integrating.
 
 ## Resources
 
-- [Bot Virus v1](v1.md)
+- [Bot Virus v1 (deprecated)](v1.md)
 - [Testing manual](testing_manuals.md)
 - [Building a submission commit](../../miner/workflow/3.build-and-publish.md)
 - [Dashboard](../../miner/concepts/dashboard.md)

@@ -16,7 +16,7 @@ Each challenge maintains version history in its documentation:
 
 - **Active Versions**: Current challenges accepting submissions (see each challenge's README)
 - **Deprecated Versions**: Previous challenge iterations stored in `deprecated/` folders for historical reference
-- **Inactive Challenges**: Challenges that are no longer accepting submissions (marked in the navigation below)
+- **Inactive or Deprecated Challenges**: Challenges that no longer accept submissions (marked in the navigation below)
 
 !!! warning "Important"
     - Do not develop submissions for deprecated challenge versions
@@ -64,8 +64,9 @@ Follow these steps to successfully submit your challenge solution:
 
 ## Available Challenges
 
+- **[BEX Tracer](bex_tracer/README.md)** Identify which Chrome extensions are active by detecting their page-visible behavior.
 - **[Auto Browser Sniffer (AB Sniffer)](ab_sniffer/README.md)** Detect and identify automation frameworks by analyzing behavior and technical signatures.
-- **[Bot Virus](bot_virus/README.md)** Build a containerized browser bot that completes a task while passing configured bot-detection checks.
+- **[Bot Virus](bot_virus/README.md) — Deprecated** Historical browser-bot challenge; new submissions are not accepted.
 - **[FlowRadar v2](flowradar/README.md)** Train and run a two-stage model pipeline for VPN detection from network flow data.
 - **[FlowPrint v1](flowprint/README.md) — Inactive** Former OS-classification challenge; submissions are rejected.
 - **[Humanize Behaviour](humanize_behaviour/README.md)** Develop bot scripts that mimic natural human interaction with web forms.
