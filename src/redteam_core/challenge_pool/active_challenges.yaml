@@ -1,12 +1,12 @@
-bot_virus_v1:
-  name: "bot_virus_v1"
-  description: "Building a bot virus to infect the internet"
+bex_tracker_v1:
+  name: "bex_tracker_v1"
+  description: "Browser extension tracker challenge"
   challenge_incentive_weight: 0.4
-  challenge_image: "redteamsubnet61/rest-bv-challenge:1.0.4"
-  target: bv_challenge.controller.BVController
-  challenge_manager: bv_challenge.challenge_manager.BVChallengeManager
+  challenge_image: "redteamsubnet61/rest-bex-challenge:1.0.4"
+  target: bex_challenge.controller.BEXController
+  challenge_manager: bex_challenge.challenge_manager.BEXChallengeManager
   script_path_identifier: "commit_files"
-  challenge_type: "bv"
+  challenge_type: "bex"
   challenge_solve_timeout: 60
   challenge_min_acceptable_score: 0.85
   docker_run_timeout: 900
@@ -18,27 +18,22 @@ bot_virus_v1:
     max_self_comparison_score: 0.8
     min_acceptable_score: 0.6
   challenge_container_run_kwargs:
-    name: "bot_virus_v1"
+    name: "bex_tracker_v1"
     platform: "linux/amd64"
-    network: "bot-virus-challenge-net"
+    network: "redteam_local"
     privileged: true
     environment:
       ENV: "PRODUCTION"
-      BV_CHALLENGE_API_LOGS_DIR: "/var/log/rest-bv-challenge"
-      BV_CHALLENGE_API_KEY: "${RT_CHALLENGE_API_KEY}"
-      BV_CHALLENGE_VM_ENDPOINT: "${BV_CHALLENGE_VM_ENDPOINT}"
-      MDM_CHALLENGE_BASE_URL: "${MDM_CHALLENGE_BASE_URL}"
-      MDM_CHALLENGE_SIMPLE_BOT_URL: "${MDM_CHALLENGE_SIMPLE_BOT_URL}"
-      BV_CHALLENGE_SIMPLE_BOT_CHECK_ENABLED: true
-      BV_CHALLENGE_WEB_CHECK_ENABLED: true
+      BEX_CHALLENGE_API_LOGS_DIR: "/var/log/rest-bex-challenge"
+      BEX_CHALLENGE_API_KEY: "${RT_CHALLENGE_API_KEY}"
     volumes:
-      - "${RT_CHALLENGE_LOGS_DIR}:/var/log/rest-bv-challenge"
+      - "${RT_CHALLENGE_LOGS_DIR}:/var/log/rest-bex-challenge"
   miner_container_run_kwargs:
     cpu_count: 4
     mem_limit: "12g"
     network: "redteam_local"
     environment:
-      CHALLENGE_NAME: "bot_virus_v1"
+      CHALLENGE_NAME: "bex_tracker_v1"
   protocols:
     challenger: "http"
     challenger_ssl_verify: false
