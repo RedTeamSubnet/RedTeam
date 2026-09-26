@@ -2,9 +2,9 @@ bex_tracer_v1:
   name: "bex_tracer_v1"
   description: "Browser extension tracing challenge"
   challenge_incentive_weight: 0.4
-  challenge_image: "redteamsubnet61/rest-bex-challenge:1.0.4"
-  target: bex_challenge.controller.BEXController
-  challenge_manager: bex_challenge.challenge_manager.BEXChallengeManager
+  challenge_image: "redteamsubnet61/rest-bex-challenge:0.0.2"
+  target: bex_tracer.controller.BEXController
+  challenge_manager: bex_tracer.challenge_manager.BEXChallengeManager
   script_path_identifier: "commit_files"
   challenge_type: "bex"
   challenge_solve_timeout: 60
