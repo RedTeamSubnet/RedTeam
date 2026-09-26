@@ -3,4 +3,4 @@
 	url = https://github.com/RedTeamSubnet/ada-detection-challenge.git
 [submodule "src/challenges/bex_tracer"]
 	path = src/challenges/bex_tracer
-	url = https://github.com/RedTeamSubnet/extension-classification-challenge.git
+	url = https://github.com/RedTeamSubnet/bex-tracer-challenge.git
