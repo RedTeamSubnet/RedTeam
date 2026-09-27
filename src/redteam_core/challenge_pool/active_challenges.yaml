@@ -2,7 +2,7 @@ bex_tracer_v1:
   name: "bex_tracer_v1"
   description: "Browser extension tracing challenge"
   challenge_incentive_weight: 0.4
-  challenge_image: "redteamsubnet61/rest-bex-challenge:0.0.2"
+  challenge_image: "redteamsubnet61/rest-bex-challenge:0.0.3"
   target: bex_tracer.controller.BEXController
   challenge_manager: bex_tracer.challenge_manager.BEXChallengeManager
   script_path_identifier: "commit_files"
@@ -20,8 +20,6 @@ bex_tracer_v1:
   challenge_container_run_kwargs:
     name: "bex_tracer_v1"
     platform: "linux/amd64"
-    network: "redteam_local"
-    privileged: true
     environment:
       ENV: "PRODUCTION"
       BEX_CHALLENGE_API_LOGS_DIR: "/var/log/rest-bex-challenge"
@@ -53,7 +51,7 @@ ada_detection_v3:
   script_path_identifier: "commit_files"
   challenge_type: "ada"
   challenge_solve_timeout: 60
-  challenge_min_acceptable_score: 0.5
+  challenge_min_acceptable_score: 0.9
   docker_run_timeout: 900
   num_tasks: 1
   scoring_headers:
