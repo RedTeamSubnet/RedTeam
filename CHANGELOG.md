@@ -1,5 +1,26 @@
 # Changelog
 
+## 4.10.7 (2026-09-27)
+
+## Features
+- Add BEX Tracer testing manual with setup and scoring instructions (@aliyuldashev)
+- Add BEX Tracer challenge and update navigation structure (@aliyuldashev)
+
+## Improvements
+- Update bex_tracer and ada_detection challenge images and versions to 1.0.0 and 3.0.5 respectively (@aliyuldashev)
+- Update bex_tracer challenge configuration and dependencies (@aliyuldashev)
+- Replace bot_virus challenge with bex_tracker challenge configuration (@aliyuldashev)
+- Rename bex_tracker to bex_tracer in configuration files (@aliyuldashev)
+- Streamline error message for miner Docker image authentication and remove unused build_challenge_image function (@aliyuldashev)
+
+## Bug Fixes
+- Update bex_tracer challenge image and version to 0.0.3; adjust minimum acceptable score for ada_detection_v3 (@aliyuldashev)
+- Update URL for bex_tracer submodule in .gitmodules (@aliyuldashev)
+
+## Other Changes
+- Merge pull request #149 from RedTeamSubnet/challenge/bex_tracker (@AbdilazhanovBekbolot)
+- Update submodules by adding bex_tracker and removing bot_virus (@aliyuldashev)
+
 ## 4.10.6 (2026-09-19)
 
 ## Features
