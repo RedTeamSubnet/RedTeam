@@ -2,7 +2,7 @@ bex_tracer_v1:
   name: "bex_tracer_v1"
   description: "Browser extension tracing challenge"
   challenge_incentive_weight: 0.4
-  challenge_image: "redteamsubnet61/rest-bex-challenge:0.0.3"
+  challenge_image: "redteamsubnet61/rest-bex-challenge:1.0.0"
   target: bex_tracer.controller.BEXController
   challenge_manager: bex_tracer.challenge_manager.BEXChallengeManager
   script_path_identifier: "commit_files"
@@ -45,7 +45,7 @@ ada_detection_v3:
   name: "ada_detection_v3"
   description: "Detect commercial anti-detect browsers"
   challenge_incentive_weight: 0.6
-  challenge_image: "redteamsubnet61/ada_detection:3.0.4"
+  challenge_image: "redteamsubnet61/ada_detection:3.0.5"
   target: ada_challenge.controller.ADAController
   challenge_manager: ada_challenge.challenge_manager.ADAChallengeManager
   script_path_identifier: "commit_files"
