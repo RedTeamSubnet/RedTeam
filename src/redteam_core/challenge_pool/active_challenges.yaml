@@ -20,6 +20,7 @@ bex_tracer_v1:
   challenge_container_run_kwargs:
     name: "bex_tracer_v1"
     platform: "linux/amd64"
+    shm_size: "2g"
     environment:
       ENV: "PRODUCTION"
       BEX_CHALLENGE_API_LOGS_DIR: "/var/log/rest-bex-challenge"
