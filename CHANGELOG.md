@@ -1,5 +1,16 @@
 # Changelog
 
+## 4.10.8 (2026-09-29)
+
+## Improvements
+- simplify resource limits and security options in compose.yml (@aliyuldashev)
+- move bot_virus to inactive challenges and update bex_tracer subproject commit; increase shm_size for bex_tracer_v1 (@aliyuldashev)
+
+## Other Changes
+- remove todo-tree extension from recommendations (@Batkhuu Byambajav)
+- Merge remote-tracking branch 'origin/dev' (@aliyuldashev)
+- update submodule URLs to relative paths for ada_detection and bex_tracer challenges (@Batkhuu Byambajav)
+
 ## 4.10.7 (2026-09-27)
 
 ## Features
