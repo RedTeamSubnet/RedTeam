@@ -1,5 +1,14 @@
 # Changelog
 
+## 4.10.9 (2026-10-05)
+
+## Improvements
+- simplify resource limits and security options in compose.yml (@aliyuldashev)
+- increase max_unique_commits for ada_detection_v3 challenge (@aliyuldashev)
+
+## Other Changes
+- remove todo-tree extension from recommendations (@Batkhuu)
+
 ## 4.10.8 (2026-09-29)
 
 ## Improvements
