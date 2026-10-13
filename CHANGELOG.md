@@ -1,5 +1,16 @@
 # Changelog
 
+## 4.10.10 (2026-10-13)
+
+## Improvements
+- simplify resource limits and security options in compose.yml (@aliyuldashev)
+
+## Bug Fixes
+- adjust challenge incentive weights and max unique commits for bex_tracer_v1 and ada_detection_v3 (@abdibekbolot)
+
+## Other Changes
+- remove todo-tree extension from recommendations (@BatkhuuByambajav)
+
 ## 4.10.9 (2026-10-05)
 
 ## Improvements
