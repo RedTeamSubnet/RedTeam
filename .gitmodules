@@ -4,3 +4,6 @@
 [submodule "src/challenges/bex_tracer"]
 	path = src/challenges/bex_tracer
 	url = ../bex-tracer-challenge.git
+[submodule "src/challenges/bot_virus"]
+	path = src/challenges/bot_virus
+	url = https://github.com/RedTeamSubnet/bot-virus-challenge
