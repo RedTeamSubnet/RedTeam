@@ -6,6 +6,11 @@ hide:
 
 # 📌 Release Notes
 
+## 4.11.1 (2026-11-24)
+
+## Other Changes
+- Set update policy for bot virus submodule to 'none' (@aliyuldashev)
+
 ## 4.11.0 (2026-11-24)
 
 ## Features
