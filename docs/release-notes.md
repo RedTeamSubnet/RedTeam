@@ -6,6 +6,16 @@ hide:
 
 # 📌 Release Notes
 
+## 4.11.0 (2026-11-24)
+
+## Features
+- update bot virus challenge configuration and incentives (@aliyuldashev)
+- add bot virus challenge configuration and submodule (@aliyuldashev)
+
+## Other Changes
+- update submodule inclusion setting and bump version to 4.11.0 (@aliyuldashev)
+- adjust challenge incentive weights for bex_tracer_v1 and ada_detection_v3 (@aliyuldashev)
+
 ## 4.10.10 (2026-10-13)
 
 ## Improvements
