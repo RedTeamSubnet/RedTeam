@@ -1,102 +1,128 @@
-# Bot Virus Testing Manual
+---
+title: Testing Manual
+---
+# Testing Manual
+
+This manual covers how to check your [Bot Virus v2](v2.md) submission locally
+before you publish it.
+
+The evaluation environment is private and not available to miners, so you
+cannot run the full evaluation locally. Use the **miner commit example** to
+check the parts you can verify yourself. Scoring happens on the platform.
+
+Full example documentation:
+[`examples/miner_commit/README.md`](https://github.com/RedTeamSubnet/bot-virus-challenge/blob/main/examples/miner_commit/README.md).
 
 ## Prerequisites
 
-- Docker Engine and Docker Compose
-- Access to the Bot Virus challenge API
-- Python 3.10+ for the score-submission helper
+- Python 3.10+ and pip 23+
+- Ruff (for the lint check)
+- Docker Engine with Buildx (for `linux/amd64` builds)
+- A web browser (for the practice page)
+- `curl` and `jq` (optional, for the API check)
 
-## Clone and prepare the challenge
-
-Clone the dedicated challenge repository, then create local configuration:
+## 1. Get the example
 
 ```sh
 git clone https://github.com/RedTeamSubnet/bot-virus-challenge.git
-cd bot-virus-challenge
-cp .env.example .env
+cd bot-virus-challenge/examples/miner_commit
 ```
 
-Put your submission in this directory in the cloned repository:
+## 2. Put your submission in place
+
+Your submission lives in `src/commit/` and must contain exactly two files:
 
 ```text
-src/bv_challenge/challenge/commit/bot
+src/commit/bot.py
+src/commit/Dockerfile
 ```
 
-Replace only these two files:
+- Do not add other files. The example service reads every entry in
+  `src/commit/`, so extra files or subdirectories (such as `__pycache__/`) break
+  the check.
+- Use the exact names `bot.py` and `Dockerfile`.
 
-- `src/bv_challenge/challenge/commit/bot/bot.py`
-- `src/bv_challenge/challenge/commit/bot/Dockerfile`
+## 3. Check the page actions with the practice page
 
-The score helper reads exactly these files. Do not rename them or add extra
-submission files.
+1. Open `practice/index.html` in a browser.
+2. Run your bot's steps against it.
+3. Press **Submit** on the page. Every requirement must show **PASS**.
 
-## Start the challenge
+The practice page checks behaviour only. It does not check your code.
 
-Start the local challenge stack from the repository root:
+## 4. Lint `bot.py`
 
 ```sh
-docker compose up -d
+pip install ruff
+ruff check --config .ruff.toml src/commit/bot.py
 ```
 
-The default API port is `10001`. Confirm readiness and inspect the live
-contract:
+Fix every finding.
+
+## 5. Check line limits and structure with the local API
+
+The example includes a FastAPI service that reads `src/commit/` and returns the
+`miner_output` it would send.
 
 ```sh
-curl -s http://localhost:10001/health | jq
-curl -s http://localhost:10001/openapi.json | jq
+pip install -r ./requirements.txt
+cd src
+uvicorn app:app --host="0.0.0.0" --port=10002 --no-access-log --no-server-header
 ```
 
-Swagger UI is available at `http://localhost:10001/docs`.
-
-## Configure local checks
-
-The local stack can run each evaluation layer independently. In `.env`, set the
-following Boolean fields:
-
-```dotenv
-BV_CHALLENGE_SIMPLE_BOT_CHECK_ENABLED=true
-BV_CHALLENGE_WEB_CHECK_ENABLED=true
-```
-
-Set a field to `false` to disable that layer during local development. Keep at
-least one layer enabled. Simple Bot is the first, pass/fail layer and contains
-the most common bot checks. Browser-web is the main layer and determines the
-submission score.
-
-## Simple Bot rate limit
-
-Simple Bot permits **20 checks per hour**. Avoid repeatedly using it while
-iterating locally. Disable it temporarily with
-`BV_CHALLENGE_SIMPLE_BOT_CHECK_ENABLED=false` when you need to focus on the
-browser-web check, then re-enable it before validating the complete flow.
-
-## Test the API workflow
-
-Use the included `bv-score-submission` skill helper to start scoring. It reads
-`bot.py` and `Dockerfile`, obtains a fresh task from `GET /task`, and submits
-them to `POST /score`.
-
-`POST /score` requires API-key authentication. Set the same private key as
-`BV_CHALLENGE_API_KEY` in `.env`, then make it available to the helper:
+In a second terminal:
 
 ```sh
-export BV_CHALLENGE_API_KEY='replace-with-authorized-key'
-python3 skills/bv-score-submission/scripts/submit_score.py \
-  --base-url http://localhost:10001
+curl -s http://localhost:10002/health | jq
+curl -s -X POST http://localhost:10002/solve -H "Content-Type: application/json" -d '{}' | jq
 ```
 
-The helper sends the key as `X-API-Key`. It prints the score response but never
-prints the key. Read the latest evaluator feedback at `GET /result`.
+A successful `/solve` returns both files in `commit_files`. Swagger UI is at
+`http://localhost:10002/docs` while the service runs.
 
-Never commit the API key or include it in a payload file. Store it in a local
-environment variable or secret manager.
+Line limits:
 
-## Before publishing
+| File | Maximum lines |
+| --- | ---: |
+| `bot.py` | 2,000 |
+| `Dockerfile` | 500 |
 
-- Test clean browser sessions and multiple supported runtime configurations.
-- Verify `bot.py` and `Dockerfile` are the only submission files in the
-  required commit directory.
-- Re-enable both local checks before validating the complete flow.
-- Check challenge API and runner logs together when a build, execution, or
-  browser-web check fails.
-- Remember local browser signals may differ from the production runner.
+## 6. Build the image
+
+From `examples/miner_commit`, build for `linux/amd64`:
+
+```sh
+DOCKER_BUILDKIT=1 docker build --platform linux/amd64 -t myhub/rest-bv-commit:2.0.0 .
+```
+
+On Apple Silicon, the `--platform linux/amd64` flag is required.
+
+Check your `src/commit/Dockerfile` against the allowed sources in
+[v2.md](v2.md#dockerfile-sources). A download from any other source fails the
+build, so a build that works on your machine can still fail if it uses a
+disallowed source.
+
+## 7. Final check before publishing
+
+- [ ] `ruff check --config .ruff.toml src/commit/bot.py` reports no findings.
+- [ ] `bot.py` is at most 2,000 lines; `Dockerfile` is at most 500 lines.
+- [ ] The practice page shows PASS for every requirement.
+- [ ] `bot.py` defines `run_bot(url: str) -> bool` and closes every browser it opens.
+- [ ] `src/commit/` contains only `bot.py` and `Dockerfile`, with exact names.
+- [ ] `POST /solve` returns both files without error.
+- [ ] The image builds with `--platform linux/amd64`.
+- [ ] The Dockerfile fetches only from the allowed sources.
+
+Once these pass, publish and submit as described in the [v2 contract](v2.md).
+Read the score and feedback from the platform. Local success does not guarantee
+the production score.
+
+## Troubleshooting
+
+| Symptom | Likely cause |
+| --- | --- |
+| Ruff findings | Fix them; they block evaluation. |
+| `/solve` returns `500` | Extra file or subdirectory in `src/commit/`, such as `__pycache__/`. Remove it. |
+| `/solve` returns `422` | Wrong file name, or a file over the line limit. |
+| Practice page shows FAIL | Re-check the requirement that failed on the page. |
+| Image build fails | Dockerfile fetches from a disallowed source, or uses a base image that is not available. |

@@ -66,7 +66,7 @@ Follow these steps to successfully submit your challenge solution:
 
 - **[BEX Tracer](bex_tracer/README.md)** Identify which Chrome extensions are active by detecting their page-visible behavior.
 - **[Auto Browser Sniffer (AB Sniffer)](ab_sniffer/README.md)** Detect and identify automation frameworks by analyzing behavior and technical signatures.
-- **[Bot Virus](bot_virus/README.md) — Deprecated** Historical browser-bot challenge; new submissions are not accepted.
+- **[Bot Virus v2](bot_virus/v2.md)** Build a containerized browser bot that completes the challenge web page.
 - **[FlowRadar v2](flowradar/README.md)** Train and run a two-stage model pipeline for VPN detection from network flow data.
 - **[FlowPrint v1](flowprint/README.md) — Inactive** Former OS-classification challenge; submissions are rejected.
 - **[Humanize Behaviour](humanize_behaviour/README.md)** Develop bot scripts that mimic natural human interaction with web forms.

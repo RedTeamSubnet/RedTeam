@@ -3,8 +3,8 @@ nav:
   - Active Challenges:
       - bex_tracer: ./bex_tracer
       - ada_detection: ./ada_detection
-  - Inactive Challenges:
       - bot_virus: ./bot_virus
+  - Inactive Challenges:
       - ab_sniffer: ./ab_sniffer
       - flowradar: ./flowradar
       - flowprint: ./flowprint
