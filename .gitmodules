@@ -7,3 +7,4 @@
 [submodule "src/challenges/bot_virus"]
 	path = src/challenges/bot_virus
 	url = https://github.com/RedTeamSubnet/bot-virus-challenge
+	update = none
