@@ -1,5 +1,15 @@
 # Changelog
 
+## 4.12.0 (2026-11-27)
+
+## Improvements
+- Update bot virus challenge version and increase incentive weight for bex tracer challenge (@aliyuldashev)
+- Remove ada_detection submodule (@aliyuldashev)
+
+## Other Changes
+- Merge remote-tracking branch 'origin/main' into dev (@aliyuldashev)
+- Update Bot Virus challenge documentation and navigation for v2 (@aliyuldashev)
+
 ## 4.11.1 (2026-11-24)
 
 ## Other Changes
