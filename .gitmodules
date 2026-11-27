@@ -1,6 +1,3 @@
-[submodule "src/challenges/ada_detection"]
-	path = src/challenges/ada_detection
-	url = ../ada-detection-challenge.git
 [submodule "src/challenges/bex_tracer"]
 	path = src/challenges/bex_tracer
 	url = ../bex-tracer-challenge.git
