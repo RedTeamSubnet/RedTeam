@@ -526,7 +526,7 @@ class Controller:
             if (
                 "similarity_score" in _comparison_logs
                 and _comparison_logs["similarity_score"]
-                >= self.comparison_min_acceptable_score
+                > self.comparison_min_acceptable_score
             ):
                 if (
                     ref_commit.miner_hotkey == miner_commit.miner_hotkey
