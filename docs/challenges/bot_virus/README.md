@@ -1,44 +1,49 @@
 # Bot Virus Challenge
 
-!!! warning "Deprecated challenge"
-    Bot Virus no longer accepts submissions. This documentation remains available for historical reference only.
+Bot Virus evaluates a miner-supplied browser bot. You submit a containerized
+bot (`bot.py` and `Dockerfile`). The platform evaluates it and returns a score
+with feedback.
 
-Bot Virus evaluates whether a miner-supplied browser bot can complete the
-challenge while avoiding configured bot-detection checks. Its historical
-submission contained exactly two files: `bot.py` and `Dockerfile`.
+**Active version: [v2](v2.md).** Submissions for v1 are no longer accepted.
 
 ## How it works
 
-1. The miner receives a task from the challenge API.
-2. The miner returns `bot.py` and `Dockerfile` in the task's required output
-   schema.
-3. The challenge builds the submitted container in an isolated runner.
-4. The runner applies the Simple Bot gate, then browser-web checks, and returns
-   feedback and a score.
+1. You write `bot.py` and `Dockerfile` following the [v2 contract](v2.md#submission-contract).
+2. You verify them locally with the miner commit example (see the [testing manual](testing_manuals.md)).
+3. You build and publish your image, then submit it.
+4. The platform evaluates your image and reports the score and feedback.
 
-The challenge is evaluated in an environment different from a typical local
-browser. Test across supported browsers, operating systems, and headed/headless
-configurations; local success does not guarantee the production score.
+The evaluation environment is private and is not available to miners. Local
+checks confirm that your submission meets the requirements, but a local pass
+does not guarantee the production score.
 
-Simple Bot is a first-layer pass/fail gate covering common bot signals. The
-browser-web check is the primary evaluation and determines the submission's
-score.
+## Submission at a glance
 
-## Submission contract
+| File | Limit | Notes |
+| --- | --- | --- |
+| `bot.py` | 2,000 lines | Must pass Ruff. Must define `run_bot(url: str) -> bool`. |
+| `Dockerfile` | 500 lines | Fetch only from the allowed package sources. Build for `linux/amd64`. |
 
-`miner_output.commit_files` must contain exactly these files:
+Exactly these two files, with these exact names.
 
-- `bot.py` — bot implementation.
-- `Dockerfile` — image definition used by the isolated runner.
+## Local testing
 
-Do not add files, change the file names, or assume a fixed task payload. Read
-the request/response schemas from the deployed challenge's OpenAPI document
-before integrating.
+Use the miner commit example in the
+[challenge repository](https://github.com/RedTeamSubnet/bot-virus-challenge/tree/main/examples/miner_commit):
+
+```sh
+git clone https://github.com/RedTeamSubnet/bot-virus-challenge.git
+cd bot-virus-challenge/examples/miner_commit
+```
+
+The [testing manual](testing_manuals.md) covers the practice page, Ruff, the
+local `/solve` check, and the image build.
 
 ## Resources
 
-- [Bot Virus v1 (deprecated)](v1.md)
-- [Testing manual](testing_manuals.md)
+- [Bot Virus v2](v2.md): current contract and feedback
+- [Testing manual](testing_manuals.md): local checks before submitting
+- [Bot Virus v1 (deprecated)](depricated/v1.md): historical reference only
 - [Building a submission commit](../../miner/workflow/3.build-and-publish.md)
 - [Dashboard](../../miner/concepts/dashboard.md)
 - [Challenge repository](https://github.com/RedTeamSubnet/bot-virus-challenge)
